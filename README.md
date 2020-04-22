@@ -1,2 +1,4 @@
-# module-ballerinax-azure.functions
-The implementation of Azure Functions compiler extension for Ballerina.
+# Ballerina Azure Functions Extension
+
+Annotation based Azure Functions extension implementation for Ballerina. 
+
