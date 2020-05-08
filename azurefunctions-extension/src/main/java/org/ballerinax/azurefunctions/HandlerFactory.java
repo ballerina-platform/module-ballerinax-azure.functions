@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -15,28 +15,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinax.azurefunctions.test;
-
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
+package org.ballerinax.azurefunctions;
 
 /**
- * Test creating awslambda deployment artifacts.
+ * Factory class to create parameter and return handlers.
  */
-public class DeploymentTest {
+public class HandlerFactory {
     
-    @BeforeClass
-    public void setup() {
+    ParameterHandler createParameterHandler(String name) {
+        return null;
     }
-    
-    @Test
-    public void testAWSLambdaDeployment() {
-    }
-    
-    @AfterClass
-    public void cleanUp() {
+
+    ReturnHandler createReturnHandler(String name) {
+        return null;
     }
 
 }
-

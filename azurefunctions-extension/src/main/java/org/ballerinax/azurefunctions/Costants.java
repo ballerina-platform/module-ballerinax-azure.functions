@@ -1,3 +1,4 @@
+package org.ballerinax.azurefunctions;
 /*
  * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
@@ -16,14 +17,20 @@
  * under the License.
  */
 
-package org.ballerinax.awslambda.test.utils;
-
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
- * Base class for all tests.
+ * Constants for Azure Functions.
  */
-public class BaseTest {
-    protected static final Path SOURCE_DIR = Paths.get("src").resolve("test").resolve("resources");
+public class Costants {
+    
+    public static final String AZURE_FUNCS_REG_FUNCTION_NAME = "__register";
+
+    public static final String MAIN_FUNC_NAME = "main";
+
+    public static final String AZURE_FUNCTIONS_PACKAGE_NAME = "azurefunctions";
+
+    public static final String AZURE_FUNCTIONS_PACKAGE_ORG = "ballerinax"; 
+
+    public static final String AZURE_FUNCS_OUTPUT_ZIP_FILENAME = "azure-functions.zip";
+
 }

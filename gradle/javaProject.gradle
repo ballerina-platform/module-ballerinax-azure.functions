@@ -27,6 +27,7 @@ configurations {
 }
 
 dependencies {
+    compile group: 'com.google.code.gson', name: 'gson', version: '2.7'
     jacocoRuntime "org.jacoco:org.jacoco.agent:${jacoco.toolVersion}:runtime"
 
     checkstyle project(":build-config:checkstyle")
