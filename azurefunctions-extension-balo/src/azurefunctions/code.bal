@@ -56,7 +56,7 @@ type HTTPBinding object {
 
 };
 
-type FunctionHandler (function (http:Request) returns json|error);
+type FunctionHandler (function (http:Request) returns json);
 
 listener http:Listener hl = new(check ints:fromString(system:getEnv("FUNCTIONS_HTTPWORKER_PORT")));
 
@@ -73,7 +73,7 @@ service AzureFunctionsServer on hl {
     resource function dispatch(http:Caller caller, http:Request req, string functionName) returns @tainted error? {
         FunctionHandler? handler = dispatchMap[functionName];
         if handler is FunctionHandler {
-            check caller->respond(check handler(req));
+            check caller->respond(handler(req));
         } else {
             http:Response resp = new;
             resp.setTextPayload("function handler not found: " + <@untainted> functionName);

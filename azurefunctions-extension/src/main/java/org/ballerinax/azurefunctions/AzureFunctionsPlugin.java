@@ -111,7 +111,7 @@ public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
         BLangFunction epFunc = Utils.extractMainFunction(myPkg);
         if (epFunc == null) {
             // main function is not there, lets create our own one
-            epFunc = Utils.createFunction(myPkg.pos, Constants.MAIN_FUNC_NAME, myPkg);
+            epFunc = Utils.createFunction(this.ctx, myPkg.pos, Constants.MAIN_FUNC_NAME, myPkg);
             myPkg.addFunction(epFunc);
         } else {
             // clear out the existing statements

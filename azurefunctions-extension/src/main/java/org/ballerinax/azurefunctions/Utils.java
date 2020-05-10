@@ -22,6 +22,7 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.IdentifierNode;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -49,7 +50,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
-import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
@@ -121,11 +122,16 @@ public class Utils {
         return var;
     }
     
-    public static BLangType createUnionType(DiagnosticPos pos, BType type) {
-        BLangType typeNode = new BLangUnionTypeNode();
-        typeNode.pos = pos;
-        typeNode.type = type;
-        return typeNode;
+    public static BLangType createJsonTypeNode(DiagnosticPos pos, Context ctx) {
+        BLangType nillType = new BLangValueType(TypeKind.JSON);
+        nillType.type = ctx.getSymTable().jsonType;
+        return nillType;
+    }
+
+    public static BLangType createNillTypeNode(DiagnosticPos pos, Context ctx) {
+        BLangType nillType = new BLangValueType(TypeKind.NIL);
+        nillType.type = ctx.getSymTable().nilType;
+        return nillType;
     }
         
     public static BLangInvocation createInvocationNode(BPackageSymbol pkgSymbol, String functionName,
@@ -146,7 +152,7 @@ public class Utils {
         return baseName + "_" + Constants.GEN_FUNC_SUFFIX;
     }
 
-    public static BType extractHTTPRequestType(Context ctx, BLangPackage packageNode) {
+    public static BType extractHTTPRequestType(Context ctx) {
         PackageID pkgId = new PackageID(new Name(Constants.BALLERINA_ORG), new Name(Constants.HTTP_MODULE_NAME), 
                 new Name(Constants.HTTP_MODULE_VERSION));
         return ctx.getPkgCache().getSymbol(pkgId).getType().tsymbol.scope
@@ -155,41 +161,40 @@ public class Utils {
 
     public static BLangFunction createHandlerFunction(Context ctx, DiagnosticPos pos, String baseName, 
             BLangPackage packageNode) {
-        List<String> paramNames = Arrays.asList("req");
-        List<BType> paramTypes = Arrays.asList(extractHTTPRequestType(ctx, packageNode));
-        BType retType = ctx.getSymTable().jsonType;
+        List<String> paramNames = Arrays.asList(Constants.HTTP_REQUEST_PARAM_NAME);
+        List<BType> paramTypes = Arrays.asList(extractHTTPRequestType(ctx));
+        BLangType retType = createJsonTypeNode(pos, ctx);
         BLangFunction handlerFunc = createFunction(pos, generateHandlerFuncName(baseName), paramNames, paramTypes,
                 retType, packageNode);
         return handlerFunc;
     }
 
-    public static BLangFunction createFunction(DiagnosticPos pos, String name, BLangPackage packageNode) {
-        return createFunction(pos, name, new ArrayList<>(), new ArrayList<>(), new BNilType(), packageNode);
+    public static BLangFunction createFunction(Context ctx, DiagnosticPos pos, String name, BLangPackage packageNode) {
+        return createFunction(pos, name, new ArrayList<>(), new ArrayList<>(), createNillTypeNode(pos, ctx),
+                packageNode);
     }
 
     public static BLangFunction createFunction(DiagnosticPos pos, String name, List<String> paramNames, 
-            List<BType> paramTypes, BType retType, BLangPackage packageNode) {
+            List<BType> paramTypes, BLangType retType, BLangPackage packageNode) {
         final BLangFunction bLangFunction = (BLangFunction) TreeBuilder.createFunctionNode();
         final IdentifierNode funcName = ASTBuilderUtil.createIdentifier(pos, name);
         bLangFunction.setName(funcName);
         bLangFunction.flagSet = EnumSet.of(Flag.PUBLIC);
         bLangFunction.pos = pos;
-        bLangFunction.type = new BInvokableType(paramTypes, retType, null);
+        bLangFunction.type = new BInvokableType(paramTypes, retType.type, null);
         bLangFunction.body = createBlockStmt(pos);
         BInvokableSymbol functionSymbol = Symbols.createFunctionSymbol(Flags.asMask(bLangFunction.flagSet),
                 new Name(bLangFunction.name.value), packageNode.packageID, 
                 bLangFunction.type, packageNode.symbol, true);
         functionSymbol.type = bLangFunction.type;
-        functionSymbol.retType = retType;
+        functionSymbol.retType = retType.type;
         functionSymbol.scope = new Scope(functionSymbol);
         bLangFunction.symbol = functionSymbol;
         for (int i = 0; i < paramNames.size(); i++) {
             bLangFunction.addParameter(createVariable(pos, paramTypes.get(i), paramNames.get(i), 
                     bLangFunction.symbol));
         }
-        if (retType != null) {
-            bLangFunction.setReturnTypeNode(createUnionType(pos, retType));
-        }
+        bLangFunction.setReturnTypeNode(retType);
         return bLangFunction;
     }
     
