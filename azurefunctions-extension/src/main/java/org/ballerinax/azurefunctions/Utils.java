@@ -19,9 +19,9 @@ package org.ballerinax.azurefunctions;
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.IdentifierNode;
-import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -30,9 +30,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -40,16 +42,20 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
+import org.wso2.ballerinalang.compiler.tree.types.BLangType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -60,31 +66,30 @@ public class Utils {
 
     public static BLangFunction extractMainFunction(BLangPackage myPkg) {
         for (BLangFunction func : myPkg.getFunctions()) {
-            if (Costants.MAIN_FUNC_NAME.equals(func.getName().value)) {
+            if (Constants.MAIN_FUNC_NAME.equals(func.getName().value)) {
                 return func;
             }
         }
         return null;
     }
     
-    public static  BPackageSymbol extractAzureFuncsPackageSymbol(BLangPackage myPkg) {
+    public static BPackageSymbol extractAzureFuncsPackageSymbol(BLangPackage myPkg) {
         for (BLangImportPackage pi : myPkg.imports) {
-            if (Costants.AZURE_FUNCTIONS_PACKAGE_ORG.equals(pi.orgName.value)
+            if (Constants.AZURE_FUNCTIONS_PACKAGE_ORG.equals(pi.orgName.value)
                     && pi.pkgNameComps.size() == 1
-                    && Costants.AZURE_FUNCTIONS_PACKAGE_NAME.equals(pi.pkgNameComps.get(0).value)) {
+                    && Constants.AZURE_FUNCTIONS_PACKAGE_NAME.equals(pi.pkgNameComps.get(0).value)) {
                 return pi.symbol;
             }
         }
         return null;
     }
     
-    public static void addRegisterCall(SymbolTable symTable, DiagnosticPos pos, BPackageSymbol pkgSymbol, 
+    public static void addRegisterCall(Context ctx, DiagnosticPos pos, BPackageSymbol pkgSymbol, 
                                        BLangBlockFunctionBody blockStmt, String name, BLangFunction func) {
         List<BLangExpression> exprs = new ArrayList<>();
-        exprs.add(createStringLiteral(symTable, pos, name));
+        exprs.add(createStringLiteral(ctx.getSymTable(), pos, name));
         exprs.add(createVariableRef(pos, func.symbol));
-        BLangInvocation inv = createInvocationNode(pkgSymbol,
-                Costants.AZURE_FUNCS_REG_FUNCTION_NAME, exprs);
+        BLangInvocation inv = createInvocationNode(pkgSymbol, Constants.AZURE_FUNCS_REG_FUNCTION_NAME, exprs);
         BLangExpressionStmt stmt = new BLangExpressionStmt(inv);
         stmt.pos = pos;
         blockStmt.addStatement(stmt);
@@ -99,12 +104,28 @@ public class Utils {
     }
     
     public static BLangSimpleVarRef createVariableRef(DiagnosticPos pos, BSymbol varSymbol) {
-        final BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
+        BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
         varRef.pos = pos;
         varRef.variableName = ASTBuilderUtil.createIdentifier(pos, varSymbol.name.value);
         varRef.symbol = varSymbol;
         varRef.type = varSymbol.type;
         return varRef;
+    }
+    
+    public static BLangSimpleVariable createVariable(DiagnosticPos pos, BType type, String name, BSymbol owner) {
+        BLangSimpleVariable var = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
+        var.pos = pos;
+        var.name = ASTBuilderUtil.createIdentifier(pos, name);
+        var.type = type;
+        var.symbol = new BVarSymbol(0, new Name(name), type.tsymbol.pkgID, type, owner);
+        return var;
+    }
+    
+    public static BLangType createUnionType(DiagnosticPos pos, BType type) {
+        BLangType typeNode = new BLangUnionTypeNode();
+        typeNode.pos = pos;
+        typeNode.type = type;
+        return typeNode;
     }
         
     public static BLangInvocation createInvocationNode(BPackageSymbol pkgSymbol, String functionName,
@@ -120,20 +141,55 @@ public class Utils {
         invocationNode.requiredArgs = args;
         return invocationNode;
     }
-    
+
+    private static String generateHandlerFuncName(String baseName) {
+        return baseName + "_" + Constants.GEN_FUNC_SUFFIX;
+    }
+
+    public static BType extractHTTPRequestType(Context ctx, BLangPackage packageNode) {
+        PackageID pkgId = new PackageID(new Name(Constants.BALLERINA_ORG), new Name(Constants.HTTP_MODULE_NAME), 
+                new Name(Constants.HTTP_MODULE_VERSION));
+        return ctx.getPkgCache().getSymbol(pkgId).getType().tsymbol.scope
+                .lookup(new Name(Constants.HTTP_REQUEST_TYPE_NAME)).symbol.type;
+    }
+
+    public static BLangFunction createHandlerFunction(Context ctx, DiagnosticPos pos, String baseName, 
+            BLangPackage packageNode) {
+        List<String> paramNames = Arrays.asList("req");
+        List<BType> paramTypes = Arrays.asList(extractHTTPRequestType(ctx, packageNode));
+        BType retType = ctx.getSymTable().jsonType;
+        BLangFunction handlerFunc = createFunction(pos, generateHandlerFuncName(baseName), paramNames, paramTypes,
+                retType, packageNode);
+        return handlerFunc;
+    }
+
     public static BLangFunction createFunction(DiagnosticPos pos, String name, BLangPackage packageNode) {
+        return createFunction(pos, name, new ArrayList<>(), new ArrayList<>(), new BNilType(), packageNode);
+    }
+
+    public static BLangFunction createFunction(DiagnosticPos pos, String name, List<String> paramNames, 
+            List<BType> paramTypes, BType retType, BLangPackage packageNode) {
         final BLangFunction bLangFunction = (BLangFunction) TreeBuilder.createFunctionNode();
         final IdentifierNode funcName = ASTBuilderUtil.createIdentifier(pos, name);
         bLangFunction.setName(funcName);
         bLangFunction.flagSet = EnumSet.of(Flag.PUBLIC);
         bLangFunction.pos = pos;
-        bLangFunction.type = new BInvokableType(new ArrayList<>(), new BNilType(), null);
+        bLangFunction.type = new BInvokableType(paramTypes, retType, null);
         bLangFunction.body = createBlockStmt(pos);
         BInvokableSymbol functionSymbol = Symbols.createFunctionSymbol(Flags.asMask(bLangFunction.flagSet),
                 new Name(bLangFunction.name.value), packageNode.packageID, 
                 bLangFunction.type, packageNode.symbol, true);
+        functionSymbol.type = bLangFunction.type;
+        functionSymbol.retType = retType;
         functionSymbol.scope = new Scope(functionSymbol);
         bLangFunction.symbol = functionSymbol;
+        for (int i = 0; i < paramNames.size(); i++) {
+            bLangFunction.addParameter(createVariable(pos, paramTypes.get(i), paramNames.get(i), 
+                    bLangFunction.symbol));
+        }
+        if (retType != null) {
+            bLangFunction.setReturnTypeNode(createUnionType(pos, retType));
+        }
         return bLangFunction;
     }
     
@@ -145,8 +201,8 @@ public class Utils {
 
     public static boolean hasAzureFunctionsAnnotation(AnnotationAttachmentNode attachmentNode) {
         BAnnotationSymbol symbol = ((BLangAnnotationAttachment) attachmentNode).annotationSymbol;
-        return Costants.AZURE_FUNCTIONS_PACKAGE_ORG.equals(symbol.pkgID.orgName.value)
-                && Costants.AZURE_FUNCTIONS_PACKAGE_NAME.equals(symbol.pkgID.name.value)
+        return Constants.AZURE_FUNCTIONS_PACKAGE_ORG.equals(symbol.pkgID.orgName.value)
+                && Constants.AZURE_FUNCTIONS_PACKAGE_NAME.equals(symbol.pkgID.name.value)
                 && "Function".equals(symbol.name.value);
     }
 
@@ -159,23 +215,7 @@ public class Utils {
                 break;
             }
         }
-        if (hasAzureFuncsAnnon) {
-            BLangFunction bfn = (BLangFunction) fn;
-            if (!validateAzureFunction(bfn)) {
-                dlog.logDiagnostic(Diagnostic.Kind.ERROR, fn.getPosition(), 
-                        "Invalid function signature for an Azure Functions function: " + 
-                        bfn + ", it should be 'public function (json) returns json|error'");
-                return false;
-            } else {
-                return true;
-            }
-        } else {        
-            return false;
-        }
-    }
-
-    private static boolean validateAzureFunction(BLangFunction node) {
-        return true;
+        return hasAzureFuncsAnnon;
     }
     
 }

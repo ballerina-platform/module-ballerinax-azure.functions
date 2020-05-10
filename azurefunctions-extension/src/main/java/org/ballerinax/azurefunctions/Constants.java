@@ -1,4 +1,3 @@
-package org.ballerinax.azurefunctions;
 /*
  * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
@@ -16,12 +15,12 @@ package org.ballerinax.azurefunctions;
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.ballerinax.azurefunctions;
 
-
-/**
+ /**
  * Constants for Azure Functions.
  */
-public class Costants {
+public class Constants {
     
     public static final String AZURE_FUNCS_REG_FUNCTION_NAME = "__register";
 
@@ -29,8 +28,18 @@ public class Costants {
 
     public static final String AZURE_FUNCTIONS_PACKAGE_NAME = "azurefunctions";
 
+    public static final String BALLERINA_ORG = "ballerina";
+
+    public static final String HTTP_MODULE_NAME = "http";
+    
+    public static final String HTTP_MODULE_VERSION = "0.0.0";
+
+    public static final String HTTP_REQUEST_TYPE_NAME = "Request";
+
     public static final String AZURE_FUNCTIONS_PACKAGE_ORG = "ballerinax"; 
 
     public static final String AZURE_FUNCS_OUTPUT_ZIP_FILENAME = "azure-functions.zip";
+
+    public static final String GEN_FUNC_SUFFIX = "010e5a55-7d0d-47e6-ac7a-f5d494adfe7e";
 
 }

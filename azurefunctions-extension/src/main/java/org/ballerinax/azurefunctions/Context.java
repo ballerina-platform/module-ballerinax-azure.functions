@@ -20,13 +20,16 @@ package org.ballerinax.azurefunctions;
 import com.google.gson.JsonElement;
 import org.ballerinalang.model.VariableDef;
 import org.ballerinalang.model.tree.statements.BlockStatementNode;
+import org.wso2.ballerinalang.compiler.PackageCache;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.List;
 
 /**
- * Represents the handler context.
+ * Represents the Azure functions context.
  */
-public class HandlerContext {
+public class Context {
 
     private VariableDef requestVar;
 
@@ -39,6 +42,23 @@ public class HandlerContext {
     private ReturnHandler returnHandler;
 
     private JsonElement functionDefinition;
+    
+    private SymbolTable symTable;
+    
+    private PackageCache pkgCache;
+    
+    public void init(CompilerContext cctx) {
+        this.symTable = SymbolTable.getInstance(cctx);
+        this.pkgCache = PackageCache.getInstance(cctx);
+    }  
+
+    public SymbolTable getSymTable() {
+        return symTable;
+    }
+
+    public PackageCache getPkgCache() {
+        return pkgCache;
+    }
 
     public VariableDef getRequestVar() {
         return requestVar;

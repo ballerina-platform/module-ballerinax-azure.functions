@@ -22,9 +22,9 @@ import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.PackageNode;
+import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -51,37 +51,52 @@ import java.util.Map;
 public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
 
     private static final PrintStream OUT = System.out;
-    
-    private static List<String> generatedFuncs = new ArrayList<>();
-    
+
+    private static List<String> azureFuncNames = new ArrayList<>();
+
     private DiagnosticLog dlog;
-    
-    private SymbolTable symTable;
+
+    private Context ctx = new Context();
 
     @Override
     public void init(DiagnosticLog dlog) {
         this.dlog = dlog;
     }
-    
-    public void setCompilerContext(CompilerContext context) {
-        this.symTable = SymbolTable.getInstance(context);
+
+    public void setCompilerContext(CompilerContext cctx) {
+        this.ctx.init(cctx);
     }
 
     @Override
     public void process(PackageNode packageNode) {
-        List<BLangFunction> azureFunctions = this.generateHandlerFunctions(packageNode);
-        this.registerHandlerFunctions((BLangPackage) packageNode, azureFunctions);
+        List<BLangFunction> azureFunctions;
+        BLangPackage bpn = (BLangPackage) packageNode;
+        try {
+            azureFunctions = this.generateHandlerFunctions(bpn);
+            this.registerHandlerFunctions(bpn, azureFunctions);
+        } catch (AzureFunctionsException e) {
+            this.dlog.logDiagnostic(Diagnostic.Kind.ERROR, packageNode.getPosition(), e.getMessage());
+        }
     }
 
-    private List<BLangFunction> generateHandlerFunctions(PackageNode packageNode) {
-        List<BLangFunction> azureFunctions = new ArrayList<>();
+    private BLangFunction generateHandlerFunction(BLangPackage packageNode, BLangFunction sourceFunc)
+            throws AzureFunctionsException {
+        return Utils.createHandlerFunction(ctx, sourceFunc.pos, sourceFunc.name.value, packageNode);
+    }
+
+    private List<BLangFunction> generateHandlerFunctions(BLangPackage packageNode) throws AzureFunctionsException {
+        List<BLangFunction> handlerFunctions = new ArrayList<>();
         for (FunctionNode fn : packageNode.getFunctions()) {
             BLangFunction bfn = (BLangFunction) fn;
-            if (Utils.isAzureFunction(bfn, dlog)) {
-                azureFunctions.add(bfn);
+            if (Utils.isAzureFunction(bfn, this.dlog)) {
+                handlerFunctions.add(this.generateHandlerFunction(packageNode, bfn));
+                azureFuncNames.add(bfn.name.value);
             }
         }
-        return azureFunctions;
+        for (BLangFunction func : handlerFunctions) {
+            packageNode.addFunction(func);
+        }
+        return handlerFunctions;
     }
 
     private void registerHandlerFunctions(BLangPackage myPkg, List<BLangFunction> azureFunctions) {
@@ -96,7 +111,7 @@ public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
         BLangFunction epFunc = Utils.extractMainFunction(myPkg);
         if (epFunc == null) {
             // main function is not there, lets create our own one
-            epFunc = Utils.createFunction(myPkg.pos, Costants.MAIN_FUNC_NAME, myPkg);
+            epFunc = Utils.createFunction(myPkg.pos, Constants.MAIN_FUNC_NAME, myPkg);
             myPkg.addFunction(epFunc);
         } else {
             // clear out the existing statements
@@ -105,18 +120,17 @@ public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
         BLangBlockFunctionBody body = (BLangBlockFunctionBody) epFunc.body;
         for (BLangFunction func : azureFunctions) {
             String name = func.name.value;
-            Utils.addRegisterCall(symTable, myPkg.pos, azureFuncsPkgSymbol, body, name, func);
-            generatedFuncs.add(name);
+            Utils.addRegisterCall(this.ctx, myPkg.pos, azureFuncsPkgSymbol, body, name, func);
         }
     }
         
     @Override
     public void codeGenerated(PackageID packageID, Path binaryPath) {
-        if (generatedFuncs.isEmpty()) {
+        if (azureFuncNames.isEmpty()) {
             // no azure functions, nothing else to do
             return;
         }
-        OUT.println("\t@azurefunctions:Function: " + String.join(", ", generatedFuncs));
+        OUT.println("\t@azurefunctions:Function: " + String.join(", ", azureFuncNames));
         try {
             this.generateZipFile(binaryPath);
         } catch (IOException e) {
@@ -124,14 +138,14 @@ public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
         }
         OUT.println("\n\tRun the following command to deploy Ballerina Azure Functions:");
         OUT.println("\taz functionapp deployment source config-zip -g <resource_group> -n <function_app_name> --src " 
-                + Costants.AZURE_FUNCS_OUTPUT_ZIP_FILENAME);
+                + Constants.AZURE_FUNCS_OUTPUT_ZIP_FILENAME);
     }
     
     private void generateZipFile(Path binaryPath) throws IOException {
         Map<String, String> env = new HashMap<>(); 
         env.put("create", "true");
         URI uri = URI.create("jar:file:" + binaryPath.toAbsolutePath().getParent()
-                .resolve(Costants.AZURE_FUNCS_OUTPUT_ZIP_FILENAME).toUri().getPath());
+                .resolve(Constants.AZURE_FUNCS_OUTPUT_ZIP_FILENAME).toUri().getPath());
         try (FileSystem zipfs = FileSystems.newFileSystem(uri, env)) {
             Path pathInZipfile = zipfs.getPath("/" + binaryPath.getFileName());          
             Files.copy(binaryPath, pathInZipfile, StandardCopyOption.REPLACE_EXISTING); 
