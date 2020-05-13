@@ -71,6 +71,7 @@ public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
     @Override
     public void process(PackageNode packageNode) {
         BLangPackage bpn = (BLangPackage) packageNode;
+        globalCtx.setAzureFuncsPkgSymbol(Utils.extractAzureFuncsPackageSymbol(bpn));
         try {
             generatedFunctions.putAll(this.generateHandlerFunctions(bpn));
             this.registerHandlerFunctions(bpn, generatedFunctions);
@@ -86,7 +87,7 @@ public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
                 sourceFunc.name.value, packageNode);
         BLangBlockFunctionBody body = (BLangBlockFunctionBody) func.body;
         BLangSimpleVariable resultVar = Utils.addJSONVarDef(sourceFunc.pos, this.globalCtx,
-                Constants.JSON_RESULT_VAR_NAME, func.symbol, body);
+                 Constants.JSON_RESULT_VAR_NAME, func.symbol, body);
         Utils.addReturnStatement(this.globalCtx, sourceFunc.pos, resultVar.symbol, body);
         return func;
     }
@@ -110,7 +111,7 @@ public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
         if (azureFunctions.isEmpty()) {
             return;
         }
-        BPackageSymbol azureFuncsPkgSymbol = Utils.extractAzureFuncsPackageSymbol(myPkg);
+        BPackageSymbol azureFuncsPkgSymbol = this.globalCtx.getAzureFuncsPkgSymbol();
         if (azureFuncsPkgSymbol == null) {
             // this symbol will always be there, since the import is needed to add the annotation
             throw new BallerinaException("Azure Functions package symbol cannot be found");

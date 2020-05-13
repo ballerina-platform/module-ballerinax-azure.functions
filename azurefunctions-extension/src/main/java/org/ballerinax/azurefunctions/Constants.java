@@ -34,9 +34,9 @@ public class Constants {
     
     public static final String HTTP_MODULE_VERSION = "0.0.0";
 
-    public static final String HTTP_REQUEST_TYPE_NAME = "Request";
+    public static final String REQUEST_PARAMS_TYPE = "HandlerParams";
 
-    public static final String HTTP_REQUEST_PARAM_NAME = "req";
+    public static final String REQUEST_PARAMS_NAME = "params";
 
     public static final String JSON_RESULT_VAR_NAME = "result";
 
@@ -44,6 +44,6 @@ public class Constants {
 
     public static final String AZURE_FUNCS_OUTPUT_ZIP_FILENAME = "azure-functions.zip";
 
-    public static final String GEN_FUNC_SUFFIX = "010e5a55-7d0d-47e6-ac7a-f5d494adfe7e";
+    public static final String GEN_FUNC_SUFFIX = "0dadec8e-7c9c-44c3-88ea-f947acc3add7";
 
 }

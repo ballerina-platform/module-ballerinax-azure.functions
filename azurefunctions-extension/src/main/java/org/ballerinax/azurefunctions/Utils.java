@@ -19,7 +19,6 @@ package org.ballerinax.azurefunctions;
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
-import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.types.TypeKind;
@@ -148,7 +147,7 @@ public class Utils {
         return nillType;
     }
 
-    public static BLangType createNillTypeNode(DiagnosticPos pos, GlobalContext ctx) {
+    public static BLangType createNillTypeNode(GlobalContext ctx, DiagnosticPos pos) {
         BLangType nillType = new BLangValueType(TypeKind.NIL);
         nillType.type = ctx.getSymTable().nilType;
         return nillType;
@@ -172,18 +171,15 @@ public class Utils {
         return baseName + "_" + Constants.GEN_FUNC_SUFFIX;
     }
 
-    public static BType extractHTTPRequestType(GlobalContext ctx) {
-        PackageID pkgId = new PackageID(new Name(Constants.BALLERINA_ORG), new Name(Constants.HTTP_MODULE_NAME), 
-                new Name(Constants.HTTP_MODULE_VERSION));
-        return ctx.getPkgCache().getSymbol(pkgId).getType().tsymbol.scope
-                .lookup(new Name(Constants.HTTP_REQUEST_TYPE_NAME)).symbol.type;
+    public static BType extractRequestParamsType(GlobalContext ctx) {
+        return ctx.getAzureFuncsPkgSymbol().scope.lookup(new Name(Constants.REQUEST_PARAMS_TYPE)).symbol.type;
     }
 
     public static BLangFunction createHandlerFunction(GlobalContext ctx, DiagnosticPos pos, 
             String baseName, BLangPackage packageNode) {
-        List<String> paramNames = Arrays.asList(Constants.HTTP_REQUEST_PARAM_NAME);
-        List<BType> paramTypes = Arrays.asList(extractHTTPRequestType(ctx));
-        BLangType retType = createJsonTypeNode(pos, ctx);
+        List<String> paramNames = Arrays.asList(Constants.REQUEST_PARAMS_NAME);
+        List<BType> paramTypes = Arrays.asList(extractRequestParamsType(ctx));
+        BLangType retType = createNillTypeNode(ctx, pos);
         BLangFunction handlerFunc = createFunction(pos, generateHandlerFuncName(baseName), paramNames, paramTypes,
                 retType, packageNode);
         return handlerFunc;
@@ -200,7 +196,7 @@ public class Utils {
 
     public static BLangFunction createFunction(GlobalContext ctx, DiagnosticPos pos, String name,
             BLangPackage packageNode) {
-        return createFunction(pos, name, new ArrayList<>(), new ArrayList<>(), createNillTypeNode(pos, ctx),
+        return createFunction(pos, name, new ArrayList<>(), new ArrayList<>(), createNillTypeNode(ctx, pos),
                 packageNode);
     }
 
@@ -221,8 +217,9 @@ public class Utils {
         functionSymbol.scope = new Scope(functionSymbol);
         bLangFunction.symbol = functionSymbol;
         for (int i = 0; i < paramNames.size(); i++) {
-            bLangFunction.addParameter(createVariable(pos, paramTypes.get(i), paramNames.get(i), 
-                    bLangFunction.symbol));
+            BLangSimpleVariable var = createVariable(pos, paramTypes.get(i), paramNames.get(i), bLangFunction.symbol);
+            bLangFunction.addParameter(var);
+            functionSymbol.params.add(var.symbol);
         }
         bLangFunction.setReturnTypeNode(retType);
         return bLangFunction;
