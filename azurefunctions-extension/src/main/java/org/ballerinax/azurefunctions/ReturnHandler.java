@@ -37,7 +37,7 @@ public interface ReturnHandler {
      * @param type The function return type
      * @throws AzureFunctionsException thrown if an error occurs
      */
-    public void init(Context context, List<AnnotationAttachment> annons, BLangType type)
+    public void init(FunctionDeploymentContext context, List<AnnotationAttachment> annons, BLangType type)
             throws AzureFunctionsException;
 
     /**

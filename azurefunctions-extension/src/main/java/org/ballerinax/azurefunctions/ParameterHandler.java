@@ -35,7 +35,7 @@ public interface ParameterHandler {
      * @param param The function parameter
      * @throws AzureFunctionsException thrown if an error occurs
      */
-    public void init(Context context, AnnotationAttachment annotations, VariableDef param)
+    public void init(FunctionDeploymentContext context, AnnotationAttachment annotations, VariableDef param)
             throws AzureFunctionsException;
 
     /**

@@ -47,8 +47,11 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -85,7 +88,7 @@ public class Utils {
         return null;
     }
     
-    public static void addRegisterCall(Context ctx, DiagnosticPos pos, BPackageSymbol pkgSymbol, 
+    public static void addRegisterCall(GlobalContext ctx, DiagnosticPos pos, BPackageSymbol pkgSymbol, 
                                        BLangBlockFunctionBody blockStmt, String name, BLangFunction func) {
         List<BLangExpression> exprs = new ArrayList<>();
         exprs.add(createStringLiteral(ctx.getSymTable(), pos, name));
@@ -102,6 +105,12 @@ public class Utils {
         stringLit.value = value;
         stringLit.type = symTable.stringType;
         return stringLit;
+    }
+
+    public static BLangExpression createEmptyJsonObjectLiteral(SymbolTable symTable, DiagnosticPos pos) {
+        BLangRecordLiteral jsonLit = new BLangRecordLiteral();
+        jsonLit.type = symTable.mapJsonType;
+        return jsonLit;
     }
     
     public static BLangSimpleVarRef createVariableRef(DiagnosticPos pos, BSymbol varSymbol) {
@@ -121,14 +130,25 @@ public class Utils {
         var.symbol = new BVarSymbol(0, new Name(name), type.tsymbol.pkgID, type, owner);
         return var;
     }
+
+    public static BLangSimpleVariable addJSONVarDef(DiagnosticPos pos, GlobalContext ctx, 
+            String name, BSymbol owner, BLangBlockFunctionBody body) {
+        BLangSimpleVariableDef varDef = (BLangSimpleVariableDef) TreeBuilder.createSimpleVariableDefinitionNode();
+        varDef.type = ctx.getSymTable().jsonType;
+        varDef.var = createVariable(pos, varDef.type, name, owner);
+        varDef.var.expr = createEmptyJsonObjectLiteral(ctx.getSymTable(), pos);
+        varDef.pos = pos;
+        body.addStatement(varDef);
+        return varDef.var;
+    }
     
-    public static BLangType createJsonTypeNode(DiagnosticPos pos, Context ctx) {
+    public static BLangType createJsonTypeNode(DiagnosticPos pos, GlobalContext ctx) {
         BLangType nillType = new BLangValueType(TypeKind.JSON);
         nillType.type = ctx.getSymTable().jsonType;
         return nillType;
     }
 
-    public static BLangType createNillTypeNode(DiagnosticPos pos, Context ctx) {
+    public static BLangType createNillTypeNode(DiagnosticPos pos, GlobalContext ctx) {
         BLangType nillType = new BLangValueType(TypeKind.NIL);
         nillType.type = ctx.getSymTable().nilType;
         return nillType;
@@ -152,15 +172,15 @@ public class Utils {
         return baseName + "_" + Constants.GEN_FUNC_SUFFIX;
     }
 
-    public static BType extractHTTPRequestType(Context ctx) {
+    public static BType extractHTTPRequestType(GlobalContext ctx) {
         PackageID pkgId = new PackageID(new Name(Constants.BALLERINA_ORG), new Name(Constants.HTTP_MODULE_NAME), 
                 new Name(Constants.HTTP_MODULE_VERSION));
         return ctx.getPkgCache().getSymbol(pkgId).getType().tsymbol.scope
                 .lookup(new Name(Constants.HTTP_REQUEST_TYPE_NAME)).symbol.type;
     }
 
-    public static BLangFunction createHandlerFunction(Context ctx, DiagnosticPos pos, String baseName, 
-            BLangPackage packageNode) {
+    public static BLangFunction createHandlerFunction(GlobalContext ctx, DiagnosticPos pos, 
+            String baseName, BLangPackage packageNode) {
         List<String> paramNames = Arrays.asList(Constants.HTTP_REQUEST_PARAM_NAME);
         List<BType> paramTypes = Arrays.asList(extractHTTPRequestType(ctx));
         BLangType retType = createJsonTypeNode(pos, ctx);
@@ -169,7 +189,17 @@ public class Utils {
         return handlerFunc;
     }
 
-    public static BLangFunction createFunction(Context ctx, DiagnosticPos pos, String name, BLangPackage packageNode) {
+    public static void addReturnStatement(GlobalContext ctx, DiagnosticPos pos, BSymbol var,
+            BLangBlockFunctionBody body) {
+        BLangReturn ret = new BLangReturn();
+        ret.pos = pos;
+        ret.type = var.type;
+        ret.expr = createVariableRef(pos, var);
+        body.addStatement(ret);
+    }
+
+    public static BLangFunction createFunction(GlobalContext ctx, DiagnosticPos pos, String name,
+            BLangPackage packageNode) {
         return createFunction(pos, name, new ArrayList<>(), new ArrayList<>(), createNillTypeNode(pos, ctx),
                 packageNode);
     }

@@ -17,6 +17,7 @@
 import ballerina/http;
 import ballerina/system;
 import ballerina/lang.'int as ints;
+import ballerina/io;
 
 type StringBinding object {
 
@@ -73,7 +74,9 @@ service AzureFunctionsServer on hl {
     resource function dispatch(http:Caller caller, http:Request req, string functionName) returns @tainted error? {
         FunctionHandler? handler = dispatchMap[functionName];
         if handler is FunctionHandler {
-            check caller->respond(handler(req));
+            //check caller->respond(handler(req));
+            io:println(handler);
+            check caller->respond({});
         } else {
             http:Response resp = new;
             resp.setTextPayload("function handler not found: " + <@untainted> functionName);

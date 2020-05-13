@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.io.IOException;
@@ -39,10 +40,10 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Compiler plugin to process Azure Functions function annotations.
@@ -52,11 +53,11 @@ public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
 
     private static final PrintStream OUT = System.out;
 
-    private static List<String> azureFuncNames = new ArrayList<>();
+    private static Map<String, BLangFunction> generatedFunctions = new LinkedHashMap<>();
 
     private DiagnosticLog dlog;
 
-    private Context ctx = new Context();
+    private GlobalContext globalCtx;
 
     @Override
     public void init(DiagnosticLog dlog) {
@@ -64,16 +65,15 @@ public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
     }
 
     public void setCompilerContext(CompilerContext cctx) {
-        this.ctx.init(cctx);
+        this.globalCtx = new GlobalContext(cctx);
     }
 
     @Override
     public void process(PackageNode packageNode) {
-        List<BLangFunction> azureFunctions;
         BLangPackage bpn = (BLangPackage) packageNode;
         try {
-            azureFunctions = this.generateHandlerFunctions(bpn);
-            this.registerHandlerFunctions(bpn, azureFunctions);
+            generatedFunctions.putAll(this.generateHandlerFunctions(bpn));
+            this.registerHandlerFunctions(bpn, generatedFunctions);
         } catch (AzureFunctionsException e) {
             this.dlog.logDiagnostic(Diagnostic.Kind.ERROR, packageNode.getPosition(), e.getMessage());
         }
@@ -81,25 +81,32 @@ public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
 
     private BLangFunction generateHandlerFunction(BLangPackage packageNode, BLangFunction sourceFunc)
             throws AzureFunctionsException {
-        return Utils.createHandlerFunction(ctx, sourceFunc.pos, sourceFunc.name.value, packageNode);
+        //FunctionDeploymentContext ctx = new FunctionDeploymentContext();
+        BLangFunction func = Utils.createHandlerFunction(this.globalCtx, sourceFunc.pos, 
+                sourceFunc.name.value, packageNode);
+        BLangBlockFunctionBody body = (BLangBlockFunctionBody) func.body;
+        BLangSimpleVariable resultVar = Utils.addJSONVarDef(sourceFunc.pos, this.globalCtx,
+                Constants.JSON_RESULT_VAR_NAME, func.symbol, body);
+        Utils.addReturnStatement(this.globalCtx, sourceFunc.pos, resultVar.symbol, body);
+        return func;
     }
 
-    private List<BLangFunction> generateHandlerFunctions(BLangPackage packageNode) throws AzureFunctionsException {
-        List<BLangFunction> handlerFunctions = new ArrayList<>();
+    private Map<String, BLangFunction> generateHandlerFunctions(BLangPackage packageNode)
+            throws AzureFunctionsException {
+        Map<String, BLangFunction> funcs = new LinkedHashMap<>();
         for (FunctionNode fn : packageNode.getFunctions()) {
             BLangFunction bfn = (BLangFunction) fn;
             if (Utils.isAzureFunction(bfn, this.dlog)) {
-                handlerFunctions.add(this.generateHandlerFunction(packageNode, bfn));
-                azureFuncNames.add(bfn.name.value);
+                funcs.put(bfn.name.value, this.generateHandlerFunction(packageNode, bfn));
             }
         }
-        for (BLangFunction func : handlerFunctions) {
+        for (BLangFunction func : funcs.values()) {
             packageNode.addFunction(func);
         }
-        return handlerFunctions;
+        return funcs;
     }
 
-    private void registerHandlerFunctions(BLangPackage myPkg, List<BLangFunction> azureFunctions) {
+    private void registerHandlerFunctions(BLangPackage myPkg, Map<String, BLangFunction> azureFunctions) {
         if (azureFunctions.isEmpty()) {
             return;
         }
@@ -111,26 +118,27 @@ public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
         BLangFunction epFunc = Utils.extractMainFunction(myPkg);
         if (epFunc == null) {
             // main function is not there, lets create our own one
-            epFunc = Utils.createFunction(this.ctx, myPkg.pos, Constants.MAIN_FUNC_NAME, myPkg);
+            epFunc = Utils.createFunction(this.globalCtx, myPkg.pos, Constants.MAIN_FUNC_NAME, myPkg);
             myPkg.addFunction(epFunc);
         } else {
             // clear out the existing statements
             ((BLangBlockFunctionBody) epFunc.body).stmts.clear();
         }
         BLangBlockFunctionBody body = (BLangBlockFunctionBody) epFunc.body;
-        for (BLangFunction func : azureFunctions) {
-            String name = func.name.value;
-            Utils.addRegisterCall(this.ctx, myPkg.pos, azureFuncsPkgSymbol, body, name, func);
+        for (Entry<String, BLangFunction> entry : azureFunctions.entrySet()) {
+            String name = entry.getKey();
+            BLangFunction func = entry.getValue();
+            Utils.addRegisterCall(this.globalCtx, myPkg.pos, azureFuncsPkgSymbol, body, name, func);
         }
     }
         
     @Override
     public void codeGenerated(PackageID packageID, Path binaryPath) {
-        if (azureFuncNames.isEmpty()) {
+        if (generatedFunctions.isEmpty()) {
             // no azure functions, nothing else to do
             return;
         }
-        OUT.println("\t@azurefunctions:Function: " + String.join(", ", azureFuncNames));
+        OUT.println("\t@azurefunctions:Function: " + String.join(", ", generatedFunctions.keySet()));
         try {
             this.generateZipFile(binaryPath);
         } catch (IOException e) {

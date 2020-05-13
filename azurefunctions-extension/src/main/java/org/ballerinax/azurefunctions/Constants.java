@@ -38,6 +38,8 @@ public class Constants {
 
     public static final String HTTP_REQUEST_PARAM_NAME = "req";
 
+    public static final String JSON_RESULT_VAR_NAME = "result";
+
     public static final String AZURE_FUNCTIONS_PACKAGE_ORG = "ballerinax"; 
 
     public static final String AZURE_FUNCS_OUTPUT_ZIP_FILENAME = "azure-functions.zip";
