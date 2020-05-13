@@ -57,11 +57,11 @@ type HTTPBinding object {
 };
 
 public type HandlerParams record {
-    http:Request httpReq;
+    http:Request request;
     json result = {};
 };
 
-type FunctionHandler (function (HandlerParams));
+type FunctionHandler (function (HandlerParams) returns error?);
 
 listener http:Listener hl = new(check ints:fromString(system:getEnv("FUNCTIONS_HTTPWORKER_PORT")));
 
@@ -75,11 +75,11 @@ service AzureFunctionsServer on hl {
     @http:ResourceConfig {
         path: "/{functionName}"
     }
-    resource function dispatch(http:Caller caller, http:Request req, string functionName) returns @tainted error? {
+    resource function dispatch(http:Caller caller, http:Request request, string functionName) returns @tainted error? {
         FunctionHandler? handler = dispatchMap[functionName];
         if handler is FunctionHandler {
-            HandlerParams hparams = { httpReq : req };
-            handler(hparams);
+            HandlerParams hparams = { request };
+            check handler(hparams);
             check caller->respond(<@untainted> hparams.result);
         } else {
             http:Response resp = new;

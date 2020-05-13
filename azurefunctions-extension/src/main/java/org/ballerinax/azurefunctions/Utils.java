@@ -152,6 +152,12 @@ public class Utils {
         nillType.type = ctx.getSymTable().nilType;
         return nillType;
     }
+
+    public static BLangType createErrorNillTypeNode(GlobalContext ctx, DiagnosticPos pos) {
+        BLangType errorNillType = new BLangValueType(TypeKind.UNION);
+        errorNillType.type = ctx.getSymTable().errorOrNilType;
+        return errorNillType;
+    }
         
     public static BLangInvocation createInvocationNode(BPackageSymbol pkgSymbol, String functionName,
             List<BLangExpression> args) {
@@ -179,7 +185,7 @@ public class Utils {
             String baseName, BLangPackage packageNode) {
         List<String> paramNames = Arrays.asList(Constants.REQUEST_PARAMS_NAME);
         List<BType> paramTypes = Arrays.asList(extractRequestParamsType(ctx));
-        BLangType retType = createNillTypeNode(ctx, pos);
+        BLangType retType = createErrorNillTypeNode(ctx, pos);
         BLangFunction handlerFunc = createFunction(pos, generateHandlerFuncName(baseName), paramNames, paramTypes,
                 retType, packageNode);
         return handlerFunc;
