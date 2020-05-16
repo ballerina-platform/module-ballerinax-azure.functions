@@ -22,6 +22,7 @@ import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.PackageNode;
+import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -40,8 +41,10 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -81,6 +84,11 @@ public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
         }
     }
 
+    private ParameterHandler createParameterHandler(SimpleVariableNode var) throws AzureFunctionsException {
+        ParameterHandler h1 = HandlerFactory.createParameterHandler("HTTPOutput");        
+        return h1;
+    }
+
     private BLangFunction generateHandlerFunction(BLangPackage packageNode, BLangFunction sourceFunc)
             throws AzureFunctionsException {
         FunctionDeploymentContext ctx = new FunctionDeploymentContext();
@@ -90,14 +98,20 @@ public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
                 sourceFunc.name.value, packageNode);
         ctx.function = func;
         ctx.handlerParams = func.getParameters().get(0).symbol;
-        ParameterHandler h1 = HandlerFactory.createParameterHandler("HTTPOutput");
-        h1.init(ctx, null, null);
-        
-        BLangExpression ex = h1.invocationProcess();
-        OUT.println("XXX: " + ex);
-        Utils.addFunctionCall(ctx, sourceFunc.symbol, ex);
-        h1.postInvocationProcess();
-
+        // all the parameter handlers needs to be created and put to the context first
+        // before the init and other operations are called
+        for (SimpleVariableNode var : sourceFunc.getParameters()) {
+            ctx.parameterHandlers.add(this.createParameterHandler(var));
+        }
+        List<BLangExpression> params = new ArrayList<>();
+        for (ParameterHandler ph : ctx.parameterHandlers) {
+            ph.init(ctx, null, null);
+            params.add(ph.invocationProcess());
+        }
+        Utils.addFunctionCall(ctx, sourceFunc.symbol, params.toArray(new BLangExpression[0]));
+        for (ParameterHandler ph : ctx.parameterHandlers) {
+            ph.postInvocationProcess();
+        }
         return func;
     }
 
