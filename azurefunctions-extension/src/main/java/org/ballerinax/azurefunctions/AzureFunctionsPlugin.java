@@ -29,7 +29,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.io.IOException;
@@ -71,7 +70,8 @@ public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
     @Override
     public void process(PackageNode packageNode) {
         BLangPackage bpn = (BLangPackage) packageNode;
-        globalCtx.setAzureFuncsPkgSymbol(Utils.extractAzureFuncsPackageSymbol(bpn));
+        globalCtx.pos = bpn.pos;
+        globalCtx.azureFuncsPkgSymbol = Utils.extractAzureFuncsPackageSymbol(bpn);
         try {
             generatedFunctions.putAll(this.generateHandlerFunctions(bpn));
             this.registerHandlerFunctions(bpn, generatedFunctions);
@@ -82,13 +82,15 @@ public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
 
     private BLangFunction generateHandlerFunction(BLangPackage packageNode, BLangFunction sourceFunc)
             throws AzureFunctionsException {
-        //FunctionDeploymentContext ctx = new FunctionDeploymentContext();
+        FunctionDeploymentContext ctx = new FunctionDeploymentContext();
+        ctx.globalCtx = globalCtx;
         BLangFunction func = Utils.createHandlerFunction(this.globalCtx, sourceFunc.pos, 
                 sourceFunc.name.value, packageNode);
-        BLangBlockFunctionBody body = (BLangBlockFunctionBody) func.body;
-        BLangSimpleVariable resultVar = Utils.addJSONVarDef(sourceFunc.pos, this.globalCtx,
-                 Constants.JSON_RESULT_VAR_NAME, func.symbol, body);
-        Utils.addReturnStatement(this.globalCtx, sourceFunc.pos, resultVar.symbol, body);
+        ctx.function = func;
+        ctx.handlerParams = func.getParameters().get(0).symbol;
+        ParameterHandler h1 = HandlerFactory.createParameterHandler("HTTPOutput");
+        h1.init(ctx, null, null);
+        //TODO
         return func;
     }
 
@@ -111,7 +113,7 @@ public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
         if (azureFunctions.isEmpty()) {
             return;
         }
-        BPackageSymbol azureFuncsPkgSymbol = this.globalCtx.getAzureFuncsPkgSymbol();
+        BPackageSymbol azureFuncsPkgSymbol = this.globalCtx.azureFuncsPkgSymbol;
         if (azureFuncsPkgSymbol == null) {
             // this symbol will always be there, since the import is needed to add the annotation
             throw new BallerinaException("Azure Functions package symbol cannot be found");

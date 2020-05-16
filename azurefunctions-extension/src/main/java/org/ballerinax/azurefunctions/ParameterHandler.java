@@ -20,6 +20,7 @@ package org.ballerinax.azurefunctions;
 import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.VariableDef;
 import org.ballerinalang.model.expressions.Expression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 /**
  * Represents an Azure function parameter handler.
@@ -47,7 +48,7 @@ public interface ParameterHandler {
      * @return The expression which represents the parameter value
      * @throws AzureFunctionsException thrown if an error occurs
      */
-    public Expression invocationProcess() throws AzureFunctionsException;
+    public BLangExpression invocationProcess() throws AzureFunctionsException;
 
     /**
      * Called after the function call statement is generated. This can be used for scenarios like processing

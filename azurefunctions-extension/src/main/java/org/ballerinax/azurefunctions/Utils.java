@@ -25,7 +25,6 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
-import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -90,32 +89,39 @@ public class Utils {
     public static void addRegisterCall(GlobalContext ctx, DiagnosticPos pos, BPackageSymbol pkgSymbol, 
                                        BLangBlockFunctionBody blockStmt, String name, BLangFunction func) {
         List<BLangExpression> exprs = new ArrayList<>();
-        exprs.add(createStringLiteral(ctx.getSymTable(), pos, name));
-        exprs.add(createVariableRef(pos, func.symbol));
+        exprs.add(createStringLiteral(ctx, name));
+        exprs.add(createVariableRef(ctx, func.symbol));
         BLangInvocation inv = createInvocationNode(pkgSymbol, Constants.AZURE_FUNCS_REG_FUNCTION_NAME, exprs);
         BLangExpressionStmt stmt = new BLangExpressionStmt(inv);
         stmt.pos = pos;
         blockStmt.addStatement(stmt);
     }
+
+    public static void addFunctionCall(FunctionDeploymentContext ctx, String name, BLangExpression... exprs) {
+        BLangInvocation inv = createInvocationNode(ctx.globalCtx.azureFuncsPkgSymbol, name, Arrays.asList(exprs));
+        BLangExpressionStmt stmt = new BLangExpressionStmt(inv);
+        stmt.pos = ctx.globalCtx.pos;
+        ((BLangBlockFunctionBody) ctx.function.body).addStatement(stmt);
+    }
     
-    public static BLangLiteral createStringLiteral(SymbolTable symTable, DiagnosticPos pos, String value) {
+    public static BLangLiteral createStringLiteral(GlobalContext ctx, String value) {
         BLangLiteral stringLit = new BLangLiteral();
-        stringLit.pos = pos;
+        stringLit.pos = ctx.pos;
         stringLit.value = value;
-        stringLit.type = symTable.stringType;
+        stringLit.type = ctx.symTable.stringType;
         return stringLit;
     }
 
-    public static BLangExpression createEmptyJsonObjectLiteral(SymbolTable symTable, DiagnosticPos pos) {
+    public static BLangExpression createEmptyRecordLiteral(BType type) {
         BLangRecordLiteral jsonLit = new BLangRecordLiteral();
-        jsonLit.type = symTable.mapJsonType;
+        jsonLit.type = type;
         return jsonLit;
     }
     
-    public static BLangSimpleVarRef createVariableRef(DiagnosticPos pos, BSymbol varSymbol) {
+    public static BLangSimpleVarRef createVariableRef(GlobalContext ctx, BVarSymbol varSymbol) {
         BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
-        varRef.pos = pos;
-        varRef.variableName = ASTBuilderUtil.createIdentifier(pos, varSymbol.name.value);
+        varRef.pos = ctx.pos;
+        varRef.variableName = ASTBuilderUtil.createIdentifier(ctx.pos, varSymbol.name.value);
         varRef.symbol = varSymbol;
         varRef.type = varSymbol.type;
         return varRef;
@@ -130,32 +136,44 @@ public class Utils {
         return var;
     }
 
-    public static BLangSimpleVariable addJSONVarDef(DiagnosticPos pos, GlobalContext ctx, 
-            String name, BSymbol owner, BLangBlockFunctionBody body) {
+    public static BLangSimpleVariable addJSONVarDef(FunctionDeploymentContext ctx, String name, BSymbol owner, 
+            BLangBlockFunctionBody body) {
         BLangSimpleVariableDef varDef = (BLangSimpleVariableDef) TreeBuilder.createSimpleVariableDefinitionNode();
-        varDef.type = ctx.getSymTable().jsonType;
-        varDef.var = createVariable(pos, varDef.type, name, owner);
-        varDef.var.expr = createEmptyJsonObjectLiteral(ctx.getSymTable(), pos);
-        varDef.pos = pos;
+        varDef.type = ctx.globalCtx.symTable.jsonType;
+        varDef.var = createVariable(ctx.globalCtx.pos, varDef.type, name, owner);
+        varDef.var.expr = createEmptyRecordLiteral(ctx.globalCtx.symTable.mapJsonType);
+        varDef.pos = ctx.globalCtx.pos;
         body.addStatement(varDef);
         return varDef.var;
+    }
+
+    public static BVarSymbol addRecordVarDef(FunctionDeploymentContext ctx, String type, String name) {
+        GlobalContext globalCtx = ctx.globalCtx;
+        BLangFunction func = ctx.function;
+        BLangSimpleVariableDef varDef = (BLangSimpleVariableDef) TreeBuilder.createSimpleVariableDefinitionNode();
+        varDef.type = globalCtx.azureFuncsPkgSymbol.scope.lookup(new Name(type)).symbol.type;
+        varDef.var = createVariable(globalCtx.pos, varDef.type, name, func.symbol);
+        varDef.var.expr = createEmptyRecordLiteral(varDef.type);
+        varDef.pos = globalCtx.pos;
+        ((BLangBlockFunctionBody) func.getBody()).addStatement(varDef);
+        return varDef.var.symbol;
     }
     
     public static BLangType createJsonTypeNode(DiagnosticPos pos, GlobalContext ctx) {
         BLangType nillType = new BLangValueType(TypeKind.JSON);
-        nillType.type = ctx.getSymTable().jsonType;
+        nillType.type = ctx.symTable.jsonType;
         return nillType;
     }
 
     public static BLangType createNillTypeNode(GlobalContext ctx, DiagnosticPos pos) {
         BLangType nillType = new BLangValueType(TypeKind.NIL);
-        nillType.type = ctx.getSymTable().nilType;
+        nillType.type = ctx.symTable.nilType;
         return nillType;
     }
 
     public static BLangType createErrorNillTypeNode(GlobalContext ctx, DiagnosticPos pos) {
         BLangType errorNillType = new BLangValueType(TypeKind.UNION);
-        errorNillType.type = ctx.getSymTable().errorOrNilType;
+        errorNillType.type = ctx.symTable.errorOrNilType;
         return errorNillType;
     }
         
@@ -178,7 +196,7 @@ public class Utils {
     }
 
     public static BType extractRequestParamsType(GlobalContext ctx) {
-        return ctx.getAzureFuncsPkgSymbol().scope.lookup(new Name(Constants.REQUEST_PARAMS_TYPE)).symbol.type;
+        return ctx.azureFuncsPkgSymbol.scope.lookup(new Name(Constants.REQUEST_PARAMS_TYPE)).symbol.type;
     }
 
     public static BLangFunction createHandlerFunction(GlobalContext ctx, DiagnosticPos pos, 
@@ -191,12 +209,12 @@ public class Utils {
         return handlerFunc;
     }
 
-    public static void addReturnStatement(GlobalContext ctx, DiagnosticPos pos, BSymbol var,
+    public static void addReturnStatement(GlobalContext ctx, DiagnosticPos pos, BVarSymbol var,
             BLangBlockFunctionBody body) {
         BLangReturn ret = new BLangReturn();
         ret.pos = pos;
         ret.type = var.type;
-        ret.expr = createVariableRef(pos, var);
+        ret.expr = createVariableRef(ctx, var);
         body.addStatement(ret);
     }
 

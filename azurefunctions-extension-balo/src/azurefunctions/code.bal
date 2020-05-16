@@ -18,42 +18,13 @@ import ballerina/http;
 import ballerina/system;
 import ballerina/lang.'int as ints;
 
-type StringBinding object {
-
-    public string? value = ();
-
-    public function setValue(string value) {
-        self.value = value;
-    }
-
-    public function getValue() returns string? {
-        return self.value;
-    }
-
+public type StringBinding record {
+    string? value = ();
 };
 
-type HTTPBinding object {
-
-    public int statusCode = 200;
-
-    public string payload = "";
-
-    public function setStatusCode(int statusCode) {
-        self.statusCode = statusCode;
-    }
-
-    public function setPayload(string payload) {
-        self.payload = payload;
-    }
-
-    public function getStatusCode() returns int {
-        return self.statusCode;
-    }
-
-    public function getPayload() returns string {
-        return self.payload;
-    }
-
+public type HTTPBinding record {
+    int statusCode = 200;
+    string payload = "";
 };
 
 public type HandlerParams record {
@@ -95,10 +66,11 @@ public function __register(string name, FunctionHandler funcHandler) {
     dispatchMap[name] = funcHandler;
 }
 
-function setHTTPOutput(json content, string name, HTTPBinding binding) returns error? {
+public function setHTTPOutput(HandlerParams params, string name, HTTPBinding binding) returns error? {
+    json content = params.result;
     json outputs = check content.Outputs;
     map<json> bvals = { };
-    bvals[name] = { statusCode: binding.getStatusCode(), body: binding.getPayload() };
+    bvals[name] = { statusCode: binding.statusCode, body: binding.payload };
     _ = check outputs.mergeJson(bvals);
 }
 

@@ -17,22 +17,24 @@
  */
 package org.ballerinax.azurefunctions;
 
-import org.ballerinax.azurefunctions.handlers.HTTPOutputParameterHandler;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 /**
- * Factory class to create parameter and return handlers.
+ * Global context information.
  */
-public class HandlerFactory {
-    
-    public static ParameterHandler createParameterHandler(String name) throws AzureFunctionsException {
-        if ("HTTPOutput".equals(name)) {
-            return new HTTPOutputParameterHandler();
-        }
-        throw new AzureFunctionsException("Parameter handler not found for the name: " + name);
-    }
+public class GlobalContext {
 
-    public static ReturnHandler createReturnHandler(String name) throws AzureFunctionsException {
-        throw new AzureFunctionsException("Return handler not found for the name: " + name);
+    public SymbolTable symTable;
+
+    public BPackageSymbol azureFuncsPkgSymbol;
+
+    public DiagnosticPos pos;
+
+    public GlobalContext(CompilerContext cctx) {
+        this.symTable = SymbolTable.getInstance(cctx);
     }
 
 }
