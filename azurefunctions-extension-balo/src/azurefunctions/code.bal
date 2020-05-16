@@ -74,6 +74,10 @@ public function setHTTPOutput(HandlerParams params, string name, HTTPBinding bin
     params.result = check outputs.mergeJson(bvals);
 }
 
+public function getHTTPRequestFromParams(HandlerParams params) returns http:Request {
+    return params.request;
+}
+
 function setStringOutput(json content, string name, string? binding) returns error? {
     if binding is string {
         json outputs = check content.Outputs;

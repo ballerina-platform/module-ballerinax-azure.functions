@@ -20,6 +20,7 @@ package org.ballerinax.azurefunctions;
 import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.SimpleVariableNode;
@@ -27,6 +28,7 @@ import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -84,9 +86,25 @@ public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
         }
     }
 
+    private BLangAnnotationAttachment extractAzureFunctionAnnotation(SimpleVariableNode var) {
+        for (AnnotationAttachmentNode an : var.getAnnotationAttachments()) {
+            BLangAnnotationAttachment ban = (BLangAnnotationAttachment) an;
+            if (Utils.isAzureFuncsPackage(ban.annotationSymbol.pkgID)) {
+                return ban;
+            }
+        }
+        return null;
+    }
+
     private ParameterHandler createParameterHandler(SimpleVariableNode var) throws AzureFunctionsException {
-        ParameterHandler h1 = HandlerFactory.createParameterHandler("HTTPOutput");        
-        return h1;
+        BLangAnnotationAttachment ban = extractAzureFunctionAnnotation(var);
+        if (ban != null) {
+            ParameterHandler paramHandler = HandlerFactory.createParameterHandler(ban.getAnnotationName().getValue());
+            return paramHandler;
+        } else {
+            throw new AzureFunctionsException("Parameter '" + var.getName().getValue()
+                    + "' does not have a valid annotation or a type for an Azure Function");
+        }
     }
 
     private BLangFunction generateHandlerFunction(BLangPackage packageNode, BLangFunction sourceFunc)

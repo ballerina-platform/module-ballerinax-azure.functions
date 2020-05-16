@@ -19,6 +19,7 @@ package org.ballerinax.azurefunctions;
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.types.TypeKind;
@@ -74,12 +75,15 @@ public class Utils {
         }
         return null;
     }
+
+    public static boolean isAzureFuncsPackage(PackageID pkgId) {
+        return Constants.AZURE_FUNCTIONS_PACKAGE_ORG.equals(pkgId.orgName.value)
+                && Constants.AZURE_FUNCTIONS_PACKAGE_NAME.equals(pkgId.name.value);
+    }
     
     public static BPackageSymbol extractAzureFuncsPackageSymbol(BLangPackage myPkg) {
         for (BLangImportPackage pi : myPkg.imports) {
-            if (Constants.AZURE_FUNCTIONS_PACKAGE_ORG.equals(pi.orgName.value)
-                    && pi.pkgNameComps.size() == 1
-                    && Constants.AZURE_FUNCTIONS_PACKAGE_NAME.equals(pi.pkgNameComps.get(0).value)) {
+            if (isAzureFuncsPackage(pi.symbol.pkgID)) {
                 return pi.symbol;
             }
         }
@@ -88,30 +92,27 @@ public class Utils {
     
     public static void addRegisterCall(GlobalContext ctx, DiagnosticPos pos, BPackageSymbol pkgSymbol, 
                                        BLangBlockFunctionBody blockStmt, String name, BLangFunction func) {
-        List<BLangExpression> exprs = new ArrayList<>();
-        exprs.add(createStringLiteral(ctx, name));
-        exprs.add(createVariableRef(ctx, func.symbol));
-        BLangInvocation inv = createInvocationNode(pkgSymbol, Constants.AZURE_FUNCS_REG_FUNCTION_NAME, exprs);
+        BLangInvocation inv = createInvocationNode(pkgSymbol, Constants.AZURE_FUNCS_REG_FUNCTION_NAME,
+                createStringLiteral(ctx, name), createVariableRef(ctx, func.symbol));
         BLangExpressionStmt stmt = new BLangExpressionStmt(inv);
         stmt.pos = pos;
         blockStmt.addStatement(stmt);
     }
 
     public static void addAzurePkgFunctionCall(FunctionDeploymentContext ctx, String name, BLangExpression... exprs) {
-        addFunctionCall(ctx, ctx.globalCtx.azureFuncsPkgSymbol, name, exprs);
+        addFunctionCall(ctx, createAzurePkgInvocationNode(ctx, name, exprs));
     }
 
     public static void addFunctionCall(FunctionDeploymentContext ctx, BSymbol funcSymbol, BLangExpression... exprs) {
-        addFunctionCall(ctx, createInvocationNode(funcSymbol, Arrays.asList(exprs)), exprs);
+        addFunctionCall(ctx, createInvocationNode(funcSymbol, exprs));
     }
 
     public static void addFunctionCall(FunctionDeploymentContext ctx, BPackageSymbol pkgSymbol, String name, 
             BLangExpression... exprs) {
-        addFunctionCall(ctx, createInvocationNode(pkgSymbol, name, Arrays.asList(exprs)), exprs);
+        addFunctionCall(ctx, createInvocationNode(pkgSymbol, name, exprs));
     }
 
-    public static void addFunctionCall(FunctionDeploymentContext ctx, BLangInvocation inv,
-            BLangExpression... exprs) {
+    public static void addFunctionCall(FunctionDeploymentContext ctx, BLangInvocation inv) {
         BLangExpressionStmt stmt = new BLangExpressionStmt(inv);
         stmt.pos = ctx.globalCtx.pos;
         ((BLangBlockFunctionBody) ctx.function.body).addStatement(stmt);
@@ -189,13 +190,19 @@ public class Utils {
         errorNillType.type = ctx.symTable.errorOrNilType;
         return errorNillType;
     }
+
+    public static BLangInvocation createAzurePkgInvocationNode(FunctionDeploymentContext ctx, String functionName,
+            BLangExpression... args) {
+        return createInvocationNode(ctx.globalCtx.azureFuncsPkgSymbol.scope.lookup(new Name(functionName)).symbol,
+                args);
+    }
         
     public static BLangInvocation createInvocationNode(BPackageSymbol pkgSymbol, String functionName,
-            List<BLangExpression> args) {
+            BLangExpression... args) {
         return createInvocationNode(pkgSymbol.scope.lookup(new Name(functionName)).symbol, args);
     }
 
-    public static BLangInvocation createInvocationNode(BSymbol funcSymbol, List<BLangExpression> args) {
+    public static BLangInvocation createInvocationNode(BSymbol funcSymbol, BLangExpression... args) {
         BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
         BLangIdentifier name = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         name.setLiteral(false);
@@ -204,7 +211,7 @@ public class Utils {
         invocationNode.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         invocationNode.symbol = funcSymbol;
         invocationNode.type = new BNilType();
-        invocationNode.requiredArgs = args;
+        invocationNode.requiredArgs = Arrays.asList(args);
         return invocationNode;
     }
 

@@ -18,6 +18,7 @@
 package org.ballerinax.azurefunctions;
 
 import org.ballerinax.azurefunctions.handlers.HTTPOutputParameterHandler;
+import org.ballerinax.azurefunctions.handlers.HTTPTriggerParameterHandler;
 
 /**
  * Factory class to create parameter and return handlers.
@@ -27,6 +28,8 @@ public class HandlerFactory {
     public static ParameterHandler createParameterHandler(String name) throws AzureFunctionsException {
         if ("HTTPOutput".equals(name)) {
             return new HTTPOutputParameterHandler();
+        } else if ("HTTPTrigger".equals(name)) {
+            return new HTTPTriggerParameterHandler();
         }
         throw new AzureFunctionsException("Parameter handler not found for the name: " + name);
     }
