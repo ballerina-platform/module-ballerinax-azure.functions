@@ -20,6 +20,7 @@ package org.ballerinax.azurefunctions;
 import com.google.gson.JsonElement;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +42,8 @@ public class FunctionDeploymentContext {
 
     public JsonElement functionDefinition;
     
+    public BLangPackage pkg;
+
     public BLangFunction function;
 
     private int varCounter = 0;

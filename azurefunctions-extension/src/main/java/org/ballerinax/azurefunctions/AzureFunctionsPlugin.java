@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.io.IOException;
@@ -84,13 +85,19 @@ public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
             throws AzureFunctionsException {
         FunctionDeploymentContext ctx = new FunctionDeploymentContext();
         ctx.globalCtx = globalCtx;
+        ctx.pkg = packageNode;
         BLangFunction func = Utils.createHandlerFunction(this.globalCtx, sourceFunc.pos, 
                 sourceFunc.name.value, packageNode);
         ctx.function = func;
         ctx.handlerParams = func.getParameters().get(0).symbol;
         ParameterHandler h1 = HandlerFactory.createParameterHandler("HTTPOutput");
         h1.init(ctx, null, null);
-        //TODO
+        
+        BLangExpression ex = h1.invocationProcess();
+        OUT.println("XXX: " + ex);
+        Utils.addFunctionCall(ctx, sourceFunc.symbol, ex);
+        h1.postInvocationProcess();
+
         return func;
     }
 

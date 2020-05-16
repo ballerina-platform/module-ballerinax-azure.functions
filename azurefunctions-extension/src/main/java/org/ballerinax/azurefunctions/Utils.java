@@ -97,8 +97,21 @@ public class Utils {
         blockStmt.addStatement(stmt);
     }
 
-    public static void addFunctionCall(FunctionDeploymentContext ctx, String name, BLangExpression... exprs) {
-        BLangInvocation inv = createInvocationNode(ctx.globalCtx.azureFuncsPkgSymbol, name, Arrays.asList(exprs));
+    public static void addAzurePkgFunctionCall(FunctionDeploymentContext ctx, String name, BLangExpression... exprs) {
+        addFunctionCall(ctx, ctx.globalCtx.azureFuncsPkgSymbol, name, exprs);
+    }
+
+    public static void addFunctionCall(FunctionDeploymentContext ctx, BSymbol funcSymbol, BLangExpression... exprs) {
+        addFunctionCall(ctx, createInvocationNode(funcSymbol, Arrays.asList(exprs)), exprs);
+    }
+
+    public static void addFunctionCall(FunctionDeploymentContext ctx, BPackageSymbol pkgSymbol, String name, 
+            BLangExpression... exprs) {
+        addFunctionCall(ctx, createInvocationNode(pkgSymbol, name, Arrays.asList(exprs)), exprs);
+    }
+
+    public static void addFunctionCall(FunctionDeploymentContext ctx, BLangInvocation inv,
+            BLangExpression... exprs) {
         BLangExpressionStmt stmt = new BLangExpressionStmt(inv);
         stmt.pos = ctx.globalCtx.pos;
         ((BLangBlockFunctionBody) ctx.function.body).addStatement(stmt);
@@ -113,9 +126,9 @@ public class Utils {
     }
 
     public static BLangExpression createEmptyRecordLiteral(BType type) {
-        BLangRecordLiteral jsonLit = new BLangRecordLiteral();
-        jsonLit.type = type;
-        return jsonLit;
+        BLangRecordLiteral recordLit = new BLangRecordLiteral();
+        recordLit.type = type;
+        return recordLit;
     }
     
     public static BLangSimpleVarRef createVariableRef(GlobalContext ctx, BVarSymbol varSymbol) {
@@ -179,13 +192,17 @@ public class Utils {
         
     public static BLangInvocation createInvocationNode(BPackageSymbol pkgSymbol, String functionName,
             List<BLangExpression> args) {
+        return createInvocationNode(pkgSymbol.scope.lookup(new Name(functionName)).symbol, args);
+    }
+
+    public static BLangInvocation createInvocationNode(BSymbol funcSymbol, List<BLangExpression> args) {
         BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
         BLangIdentifier name = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         name.setLiteral(false);
-        name.setValue(functionName);
+        name.setValue(funcSymbol.name.value);
         invocationNode.name = name;
         invocationNode.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-        invocationNode.symbol = pkgSymbol.scope.lookup(new Name(functionName)).symbol;
+        invocationNode.symbol = funcSymbol;
         invocationNode.type = new BNilType();
         invocationNode.requiredArgs = args;
         return invocationNode;

@@ -29,7 +29,7 @@ public type HTTPBinding record {
 
 public type HandlerParams record {
     http:Request request;
-    json result = {};
+    json result = { Outputs: {} };
 };
 
 type FunctionHandler (function (HandlerParams) returns error?);
@@ -71,7 +71,7 @@ public function setHTTPOutput(HandlerParams params, string name, HTTPBinding bin
     json outputs = check content.Outputs;
     map<json> bvals = { };
     bvals[name] = { statusCode: binding.statusCode, body: binding.payload };
-    _ = check outputs.mergeJson(bvals);
+    params.result = check outputs.mergeJson(bvals);
 }
 
 function setStringOutput(json content, string name, string? binding) returns error? {
