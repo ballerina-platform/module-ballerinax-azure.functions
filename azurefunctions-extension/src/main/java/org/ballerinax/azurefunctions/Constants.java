@@ -26,11 +26,13 @@ public class Constants {
 
     public static final String MAIN_FUNC_NAME = "main";
 
-    public static final String AZURE_FUNCTIONS_PACKAGE_NAME = "azurefunctions";
+    public static final String AZURE_FUNCTIONS_MODULE_NAME = "azurefunctions";
 
     public static final String BALLERINA_ORG = "ballerina";
 
     public static final String HTTP_MODULE_NAME = "http";
+
+    public static final String HTTP_REQUEST_NAME = "Request";
     
     public static final String HTTP_MODULE_VERSION = "0.0.0";
 

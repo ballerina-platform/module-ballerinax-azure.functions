@@ -50,8 +50,15 @@ service AzureFunctionsServer on hl {
         FunctionHandler? handler = dispatchMap[functionName];
         if handler is FunctionHandler {
             HandlerParams hparams = { request };
-            check handler(hparams);
-            check caller->respond(<@untainted> hparams.result);
+            error? err = handler(hparams);
+            if err is error {
+                http:Response resp = new;
+                resp.statusCode = 500;
+                resp.setTextPayload(err.toString());
+                check caller->respond(resp);
+            } else {
+                check caller->respond(<@untainted> hparams.result);
+            }
         } else {
             http:Response resp = new;
             resp.setTextPayload("function handler not found: " + <@untainted> functionName);
@@ -74,8 +81,12 @@ public function setHTTPOutput(HandlerParams params, string name, HTTPBinding bin
     params.result = check outputs.mergeJson(bvals);
 }
 
-public function getHTTPRequestFromParams(HandlerParams params) returns http:Request {
+public function getHTTPRequestFromParams(HandlerParams params) returns http:Request|error {
     return params.request;
+}
+
+public function getStringFromParams(HandlerParams params) returns string|error {
+    return check <@untainted> params.request.getTextPayload();
 }
 
 function setStringOutput(json content, string name, string? binding) returns error? {

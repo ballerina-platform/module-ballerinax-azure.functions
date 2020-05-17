@@ -101,9 +101,9 @@ public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
         List<BLangExpression> args = new ArrayList<>();        
         for (ParameterHandler ph : ctx.parameterHandlers) {
             ph.init(ctx);
-            args.add(ph.invocationProcess());
+            args.add(Utils.createCheckedExpr(ctx.globalCtx, ph.invocationProcess()));
         }
-        Utils.addFunctionCall(ctx, sourceFunc.symbol, args.toArray(new BLangExpression[0]));
+        Utils.addFunctionCall(ctx, sourceFunc.symbol, true, args.toArray(new BLangExpression[0]));
         for (ParameterHandler ph : ctx.parameterHandlers) {
             ph.postInvocationProcess();
         }

@@ -33,8 +33,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -43,6 +43,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
@@ -60,6 +61,7 @@ import org.wso2.ballerinalang.util.Flags;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 /**
@@ -78,7 +80,7 @@ public class Utils {
 
     public static boolean isAzureFuncsPackage(PackageID pkgId) {
         return Constants.AZURE_FUNCTIONS_PACKAGE_ORG.equals(pkgId.orgName.value)
-                && Constants.AZURE_FUNCTIONS_PACKAGE_NAME.equals(pkgId.name.value);
+                && Constants.AZURE_FUNCTIONS_MODULE_NAME.equals(pkgId.name.value);
     }
     
     public static BPackageSymbol extractAzureFuncsPackageSymbol(BLangPackage myPkg) {
@@ -99,23 +101,36 @@ public class Utils {
         blockStmt.addStatement(stmt);
     }
 
-    public static void addAzurePkgFunctionCall(FunctionDeploymentContext ctx, String name, BLangExpression... exprs) {
-        addFunctionCall(ctx, createAzurePkgInvocationNode(ctx, name, exprs));
-    }
-
-    public static void addFunctionCall(FunctionDeploymentContext ctx, BSymbol funcSymbol, BLangExpression... exprs) {
-        addFunctionCall(ctx, createInvocationNode(funcSymbol, exprs));
-    }
-
-    public static void addFunctionCall(FunctionDeploymentContext ctx, BPackageSymbol pkgSymbol, String name, 
+    public static void addAzurePkgFunctionCall(FunctionDeploymentContext ctx, String name, boolean checked,
             BLangExpression... exprs) {
-        addFunctionCall(ctx, createInvocationNode(pkgSymbol, name, exprs));
+        addFunctionCall(ctx, createAzurePkgInvocationNode(ctx, name, exprs), checked);
     }
 
-    public static void addFunctionCall(FunctionDeploymentContext ctx, BLangInvocation inv) {
-        BLangExpressionStmt stmt = new BLangExpressionStmt(inv);
-        stmt.pos = ctx.globalCtx.pos;
+    public static void addFunctionCall(FunctionDeploymentContext ctx, BSymbol funcSymbol, boolean checked,
+            BLangExpression... exprs) {
+        addFunctionCall(ctx, createInvocationNode(funcSymbol, exprs), checked);
+    }
+
+    public static void addFunctionCall(FunctionDeploymentContext ctx, BPackageSymbol pkgSymbol, String name,
+            boolean checked, BLangExpression... exprs) {
+        addFunctionCall(ctx, createInvocationNode(pkgSymbol, name, exprs), checked);
+    }
+
+    public static void addFunctionCall(FunctionDeploymentContext ctx, BLangInvocation inv, boolean checked) {
+        BLangExpression expr;
+        if (checked) {
+            expr = createCheckedExpr(ctx.globalCtx, inv);
+        } else {
+            expr = inv;
+        }
+        BLangExpressionStmt stmt = createExpressionStmt(ctx.globalCtx, expr);
         ((BLangBlockFunctionBody) ctx.function.body).addStatement(stmt);
+    }
+
+    public static BLangExpressionStmt createExpressionStmt(GlobalContext ctx, BLangExpression expr) {
+        BLangExpressionStmt stmt = new BLangExpressionStmt(expr);
+        stmt.pos = ctx.pos;
+        return stmt;
     }
     
     public static BLangLiteral createStringLiteral(GlobalContext ctx, String value) {
@@ -210,7 +225,7 @@ public class Utils {
         invocationNode.name = name;
         invocationNode.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         invocationNode.symbol = funcSymbol;
-        invocationNode.type = new BNilType();
+        invocationNode.type = funcSymbol.getType().getReturnType();
         invocationNode.requiredArgs = Arrays.asList(args);
         return invocationNode;
     }
@@ -282,7 +297,7 @@ public class Utils {
     public static boolean hasAzureFunctionsAnnotation(AnnotationAttachmentNode attachmentNode) {
         BAnnotationSymbol symbol = ((BLangAnnotationAttachment) attachmentNode).annotationSymbol;
         return Constants.AZURE_FUNCTIONS_PACKAGE_ORG.equals(symbol.pkgID.orgName.value)
-                && Constants.AZURE_FUNCTIONS_PACKAGE_NAME.equals(symbol.pkgID.name.value)
+                && Constants.AZURE_FUNCTIONS_MODULE_NAME.equals(symbol.pkgID.name.value)
                 && "Function".equals(symbol.name.value);
     }
 
@@ -308,6 +323,36 @@ public class Utils {
         return null;
     }
 
+    public static boolean isErrorType(GlobalContext ctx, BType type) {
+        return ctx.symTable.errorType.tsymbol.name.getValue().equals(type.tsymbol.name.getValue());
+    }
+
+    private static BType extractNonErrorType(GlobalContext ctx, BType type) {
+        if (type instanceof BUnionType) {
+            BUnionType uType = (BUnionType) type;
+            LinkedHashSet<BType> newTypes = new LinkedHashSet<>();
+            for (BType mt : uType.getMemberTypes()) {
+                if (!isErrorType(ctx, mt)) {
+                    newTypes.add(mt);
+                }
+            }
+            if (newTypes.size() == 1) {
+                type = newTypes.iterator().next();
+            } else {
+                type = BUnionType.create(uType.tsymbol, newTypes);
+            }
+        }
+        return type;
+    }
+
+    public static BLangExpression createCheckedExpr(GlobalContext ctx, BLangExpression subexpr) {
+        BLangCheckedExpr expr = new BLangCheckedExpr();
+        expr.expr = subexpr;
+        expr.type = extractNonErrorType(ctx, subexpr.type);
+        expr.equivalentErrorTypeList = new ArrayList<>();
+        return expr;
+    }
+
     public static boolean isSingleInputBinding(FunctionDeploymentContext ctx) {
         int count = 0;
         for (ParameterHandler ph : ctx.parameterHandlers) {
@@ -316,6 +361,21 @@ public class Utils {
             }
         }
         return count == 1;
+    }
+
+    public static boolean isHTTPModule(PackageID pkgId) {
+        return Constants.BALLERINA_ORG.equals(pkgId.orgName.value)
+                && Constants.HTTP_MODULE_NAME.equals(pkgId.name.value);
+    }
+
+    public static boolean isHTTPRequestType(BType type) {
+        String name = type.tsymbol.name.value;
+        PackageID pkgId = type.tsymbol.pkgID;
+        return Constants.HTTP_REQUEST_NAME.equals(name) && Utils.isHTTPModule(pkgId);
+    }
+
+    public static boolean isStringType(GlobalContext ctx, BType type) {
+        return ctx.symTable.stringType.equals(type);
     }
     
 }
