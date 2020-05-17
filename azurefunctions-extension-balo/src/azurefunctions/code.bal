@@ -85,8 +85,12 @@ public function getHTTPRequestFromParams(HandlerParams params) returns http:Requ
     return params.request;
 }
 
-public function getStringFromParams(HandlerParams params) returns string|error {
+public function getStringFromHTTPReq(HandlerParams params) returns string|error {
     return check <@untainted> params.request.getTextPayload();
+}
+
+public function getJsonFromHTTPReq(HandlerParams params) returns json|error {
+    return check <@untainted> params.request.getJsonPayload();
 }
 
 function setStringOutput(json content, string name, string? binding) returns error? {

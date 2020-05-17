@@ -374,8 +374,8 @@ public class Utils {
         return Constants.HTTP_REQUEST_NAME.equals(name) && Utils.isHTTPModule(pkgId);
     }
 
-    public static boolean isStringType(GlobalContext ctx, BType type) {
-        return ctx.symTable.stringType.equals(type);
+    public static boolean isJsonType(GlobalContext ctx, BType type) {
+        return ctx.symTable.jsonType.equals(type);
     }
     
 }

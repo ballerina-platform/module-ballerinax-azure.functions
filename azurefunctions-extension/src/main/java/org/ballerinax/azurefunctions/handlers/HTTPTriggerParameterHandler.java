@@ -42,7 +42,10 @@ public class HTTPTriggerParameterHandler extends AbstractParameterHandler {
                 return Utils.createAzurePkgInvocationNode(this.ctx, "getHTTPRequestFromParams",
                         Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams));
             } else if (Utils.isStringType(this.ctx.globalCtx, this.param.type)) {
-                return Utils.createAzurePkgInvocationNode(this.ctx, "getStringFromParams",
+                return Utils.createAzurePkgInvocationNode(this.ctx, "getStringFromHTTPReq",
+                        Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams));
+            } else if (Utils.isStringType(this.ctx.globalCtx, this.param.type)) {
+                return Utils.createAzurePkgInvocationNode(this.ctx, "getJsonFromHTTPReq",
                         Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams));
             } else {
                 throw new AzureFunctionsException(
