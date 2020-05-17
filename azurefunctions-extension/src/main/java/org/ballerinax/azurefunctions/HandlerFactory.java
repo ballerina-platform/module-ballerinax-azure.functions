@@ -19,17 +19,25 @@ package org.ballerinax.azurefunctions;
 
 import org.ballerinax.azurefunctions.handlers.HTTPOutputParameterHandler;
 import org.ballerinax.azurefunctions.handlers.HTTPTriggerParameterHandler;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 
 /**
  * Factory class to create parameter and return handlers.
  */
 public class HandlerFactory {
     
-    public static ParameterHandler createParameterHandler(String name) throws AzureFunctionsException {
+    public static ParameterHandler createParameterHandler(BLangSimpleVariable param) throws AzureFunctionsException {
+        BLangAnnotationAttachment ann = Utils.extractAzureFunctionAnnotation(param);
+        if (ann == null) {
+            throw new AzureFunctionsException("Parameter '" + param.getName().getValue()
+                    + "' does not have a valid annotation or a type for an Azure Function");
+        }
+        String name = ann.getAnnotationName().getValue();
         if ("HTTPOutput".equals(name)) {
-            return new HTTPOutputParameterHandler();
+            return new HTTPOutputParameterHandler(param, ann);
         } else if ("HTTPTrigger".equals(name)) {
-            return new HTTPTriggerParameterHandler();
+            return new HTTPTriggerParameterHandler(param, ann);
         }
         throw new AzureFunctionsException("Parameter handler not found for the name: " + name);
     }

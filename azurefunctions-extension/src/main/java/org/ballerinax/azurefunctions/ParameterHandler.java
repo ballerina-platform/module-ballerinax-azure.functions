@@ -17,8 +17,6 @@
  */
 package org.ballerinax.azurefunctions;
 
-import org.ballerinalang.model.AnnotationAttachment;
-import org.ballerinalang.model.VariableDef;
 import org.ballerinalang.model.expressions.Expression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
@@ -32,12 +30,9 @@ public interface ParameterHandler {
      * the preInvocationProcess call is made. 
      * 
      * @param context The handler context
-     * @param annotations The annotations associated with the function parameter
-     * @param param The function parameter
      * @throws AzureFunctionsException thrown if an error occurs
      */
-    public void init(FunctionDeploymentContext context, AnnotationAttachment annotations, VariableDef param)
-            throws AzureFunctionsException;
+    public void init(FunctionDeploymentContext context) throws AzureFunctionsException;
 
     /**
      * Called when generating the azure function invocation statement. This will be used for scenarios

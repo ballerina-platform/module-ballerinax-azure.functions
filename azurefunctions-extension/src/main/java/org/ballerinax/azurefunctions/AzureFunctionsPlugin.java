@@ -20,18 +20,16 @@ package org.ballerinax.azurefunctions;
 import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.PackageNode;
-import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
@@ -86,27 +84,6 @@ public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
         }
     }
 
-    private BLangAnnotationAttachment extractAzureFunctionAnnotation(SimpleVariableNode var) {
-        for (AnnotationAttachmentNode an : var.getAnnotationAttachments()) {
-            BLangAnnotationAttachment ban = (BLangAnnotationAttachment) an;
-            if (Utils.isAzureFuncsPackage(ban.annotationSymbol.pkgID)) {
-                return ban;
-            }
-        }
-        return null;
-    }
-
-    private ParameterHandler createParameterHandler(SimpleVariableNode var) throws AzureFunctionsException {
-        BLangAnnotationAttachment ban = extractAzureFunctionAnnotation(var);
-        if (ban != null) {
-            ParameterHandler paramHandler = HandlerFactory.createParameterHandler(ban.getAnnotationName().getValue());
-            return paramHandler;
-        } else {
-            throw new AzureFunctionsException("Parameter '" + var.getName().getValue()
-                    + "' does not have a valid annotation or a type for an Azure Function");
-        }
-    }
-
     private BLangFunction generateHandlerFunction(BLangPackage packageNode, BLangFunction sourceFunc)
             throws AzureFunctionsException {
         FunctionDeploymentContext ctx = new FunctionDeploymentContext();
@@ -118,15 +95,15 @@ public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
         ctx.handlerParams = func.getParameters().get(0).symbol;
         // all the parameter handlers needs to be created and put to the context first
         // before the init and other operations are called
-        for (SimpleVariableNode var : sourceFunc.getParameters()) {
-            ctx.parameterHandlers.add(this.createParameterHandler(var));
+        for (BLangSimpleVariable param : sourceFunc.getParameters()) {
+            ctx.parameterHandlers.add(HandlerFactory.createParameterHandler(param));
         }
-        List<BLangExpression> params = new ArrayList<>();
+        List<BLangExpression> args = new ArrayList<>();        
         for (ParameterHandler ph : ctx.parameterHandlers) {
-            ph.init(ctx, null, null);
-            params.add(ph.invocationProcess());
+            ph.init(ctx);
+            args.add(ph.invocationProcess());
         }
-        Utils.addFunctionCall(ctx, sourceFunc.symbol, params.toArray(new BLangExpression[0]));
+        Utils.addFunctionCall(ctx, sourceFunc.symbol, args.toArray(new BLangExpression[0]));
         for (ParameterHandler ph : ctx.parameterHandlers) {
             ph.postInvocationProcess();
         }

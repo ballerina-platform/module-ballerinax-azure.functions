@@ -17,11 +17,10 @@
  */
 package org.ballerinax.azurefunctions.handlers;
 
-import org.ballerinalang.model.AnnotationAttachment;
-import org.ballerinalang.model.VariableDef;
-import org.ballerinax.azurefunctions.AzureFunctionsException;
 import org.ballerinax.azurefunctions.FunctionDeploymentContext;
 import org.ballerinax.azurefunctions.ParameterHandler;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 
 /**
  * Abstract class with common operations implemented for {@link ParameterHandler}.
@@ -30,19 +29,20 @@ public abstract class AbstractParameterHandler implements ParameterHandler {
     
     protected FunctionDeploymentContext ctx;
 
-    protected AnnotationAttachment annotations;
+    protected BLangSimpleVariable param;
 
-    protected VariableDef param;
+    protected BLangAnnotationAttachment annotation;
 
     protected String name;
 
-    public void init(FunctionDeploymentContext ctx, AnnotationAttachment annotations, VariableDef param)
-            throws AzureFunctionsException {
-        this.ctx = ctx;
-        this.annotations = annotations;
+    public AbstractParameterHandler(BLangSimpleVariable param, BLangAnnotationAttachment annotation) {
         this.param = param;
-        //this.name = param.getName();
-        this.name = "x";
+        this.annotation = annotation;
+        this.name = this.param.name.value;
+    }
+
+    public void init(FunctionDeploymentContext ctx) {
+        this.ctx = ctx;        
     }
 
 }

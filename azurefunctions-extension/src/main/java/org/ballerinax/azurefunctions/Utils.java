@@ -297,5 +297,15 @@ public class Utils {
         }
         return hasAzureFuncsAnnon;
     }
+
+    public static BLangAnnotationAttachment extractAzureFunctionAnnotation(BLangSimpleVariable param) {
+        for (AnnotationAttachmentNode an : param.getAnnotationAttachments()) {
+            BLangAnnotationAttachment ban = (BLangAnnotationAttachment) an;
+            if (isAzureFuncsPackage(ban.annotationSymbol.pkgID)) {
+                return ban;
+            }
+        }
+        return null;
+    }
     
 }
