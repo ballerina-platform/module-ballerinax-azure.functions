@@ -17,6 +17,7 @@
  */
 package org.ballerinax.azurefunctions.handlers;
 
+import org.ballerinax.azurefunctions.BindingType;
 import org.ballerinax.azurefunctions.FunctionDeploymentContext;
 import org.ballerinax.azurefunctions.ParameterHandler;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -35,14 +36,22 @@ public abstract class AbstractParameterHandler implements ParameterHandler {
 
     protected String name;
 
-    public AbstractParameterHandler(BLangSimpleVariable param, BLangAnnotationAttachment annotation) {
+    protected BindingType bindingType;
+
+    public AbstractParameterHandler(BLangSimpleVariable param, BLangAnnotationAttachment annotation,
+            BindingType bindingType) {
         this.param = param;
         this.annotation = annotation;
         this.name = this.param.name.value;
+        this.bindingType = bindingType;
     }
 
     public void init(FunctionDeploymentContext ctx) {
         this.ctx = ctx;        
+    }
+
+    public BindingType getBindingType() {
+        return bindingType;
     }
 
 }

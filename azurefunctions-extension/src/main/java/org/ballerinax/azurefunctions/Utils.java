@@ -307,5 +307,15 @@ public class Utils {
         }
         return null;
     }
+
+    public static boolean isSingleInputBinding(FunctionDeploymentContext ctx) {
+        int count = 0;
+        for (ParameterHandler ph : ctx.parameterHandlers) {
+            if (ph.getBindingType() == BindingType.INPUT) {
+                count++;
+            }
+        }
+        return count == 1;
+    }
     
 }

@@ -52,4 +52,11 @@ public interface ParameterHandler {
      */
     public void postInvocationProcess() throws AzureFunctionsException;
 
+    /**
+     * Retreives the binding type.
+     * 
+     * @return The binding type
+     */
+    public BindingType getBindingType();
+
 }

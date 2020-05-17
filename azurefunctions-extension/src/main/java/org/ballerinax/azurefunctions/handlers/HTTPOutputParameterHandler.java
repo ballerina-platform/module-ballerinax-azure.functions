@@ -18,6 +18,7 @@
 package org.ballerinax.azurefunctions.handlers;
 
 import org.ballerinax.azurefunctions.AzureFunctionsException;
+import org.ballerinax.azurefunctions.BindingType;
 import org.ballerinax.azurefunctions.Utils;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -32,7 +33,7 @@ public class HTTPOutputParameterHandler extends AbstractParameterHandler {
     private BVarSymbol var;
 
     public HTTPOutputParameterHandler(BLangSimpleVariable param, BLangAnnotationAttachment annotation) {
-        super(param, annotation);
+        super(param, annotation, BindingType.OUTPUT);
     }
 
     @Override
