@@ -17,6 +17,7 @@
  */
 package org.ballerinax.azurefunctions;
 
+import org.ballerinax.azurefunctions.handlers.ContextParameterHandler;
 import org.ballerinax.azurefunctions.handlers.HTTPOutputParameterHandler;
 import org.ballerinax.azurefunctions.handlers.HTTPTriggerParameterHandler;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -28,6 +29,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 public class HandlerFactory {
     
     public static ParameterHandler createParameterHandler(BLangSimpleVariable param) throws AzureFunctionsException {
+        if (Utils.isContextType(param.type)) {
+            return new ContextParameterHandler(param);
+        }
         BLangAnnotationAttachment ann = Utils.extractAzureFunctionAnnotation(param);
         if (ann == null) {
             throw new AzureFunctionsException("Parameter '" + param.getName().getValue()

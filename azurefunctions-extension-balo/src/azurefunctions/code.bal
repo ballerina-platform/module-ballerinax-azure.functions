@@ -29,7 +29,30 @@ public type HTTPBinding record {
 
 public type HandlerParams record {
     http:Request request;
-    json result = { Outputs: {} };
+    json result = { Outputs: {}, Logs: [] };
+};
+
+public type Context object {
+
+    HandlerParams hparams;    
+
+    public json metadata;
+
+    public function __init(HandlerParams hparams, boolean populateMetadata) returns error? {
+        self.hparams = hparams;
+        if populateMetadata {
+            json payload = check <@untainted> hparams.request.getJsonPayload();
+            self.metadata = check payload.Metadata;
+        } else {
+            self.metadata = {};
+        }
+    }
+
+    public function log(string msg) {
+        json[] logs = <json[]> self.hparams.result.Logs;
+        logs.push(msg);
+    }
+
 };
 
 type FunctionHandler (function (HandlerParams) returns error?);
@@ -69,6 +92,10 @@ service AzureFunctionsServer on hl {
 
 }
 
+public function createContext(HandlerParams hparams, boolean populateMetadata) returns Context|error {
+    return check new (hparams, populateMetadata);
+}
+
 public function __register(string name, FunctionHandler funcHandler) {
     dispatchMap[name] = funcHandler;
 }
@@ -78,7 +105,7 @@ public function setHTTPOutput(HandlerParams params, string name, HTTPBinding bin
     json outputs = check content.Outputs;
     map<json> bvals = { };
     bvals[name] = { statusCode: binding.statusCode, body: binding.payload };
-    params.result = check outputs.mergeJson(bvals);
+    _ = check outputs.mergeJson(bvals);
 }
 
 public function getHTTPRequestFromParams(HandlerParams params) returns http:Request|error {

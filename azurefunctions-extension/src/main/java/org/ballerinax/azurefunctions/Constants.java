@@ -42,6 +42,8 @@ public class Constants {
 
     public static final String AZURE_FUNCTIONS_PACKAGE_ORG = "ballerinax"; 
 
+    public static final String AZURE_FUNCTIONS_CONTEXT_NAME = "Context";
+
     public static final String AZURE_FUNCS_OUTPUT_ZIP_FILENAME = "azure-functions.zip";
 
     public static final String GEN_FUNC_SUFFIX = "0dadec8e-7c9c-44c3-88ea-f947acc3add7";

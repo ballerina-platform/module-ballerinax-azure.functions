@@ -21,6 +21,7 @@ package org.ballerinax.azurefunctions;
  * Represents the binding type.
  */
 public enum BindingType {
+    TRIGGER,
     INPUT,
     OUTPUT,
     CONTEXT

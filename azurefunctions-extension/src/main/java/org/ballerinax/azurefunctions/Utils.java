@@ -24,6 +24,7 @@ import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
+import org.ballerinax.azurefunctions.handlers.HTTPTriggerParameterHandler;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
@@ -79,14 +80,14 @@ public class Utils {
         return null;
     }
 
-    public static boolean isAzureFuncsPackage(PackageID pkgId) {
+    public static boolean isAzureFuncsModule(PackageID pkgId) {
         return Constants.AZURE_FUNCTIONS_PACKAGE_ORG.equals(pkgId.orgName.value)
                 && Constants.AZURE_FUNCTIONS_MODULE_NAME.equals(pkgId.name.value);
     }
     
     public static BPackageSymbol extractAzureFuncsPackageSymbol(BLangPackage myPkg) {
         for (BLangImportPackage pi : myPkg.imports) {
-            if (isAzureFuncsPackage(pi.symbol.pkgID)) {
+            if (isAzureFuncsModule(pi.symbol.pkgID)) {
                 return pi.symbol;
             }
         }
@@ -139,6 +140,14 @@ public class Utils {
         stringLit.pos = ctx.pos;
         stringLit.value = value;
         stringLit.type = ctx.symTable.stringType;
+        return stringLit;
+    }
+
+    public static BLangLiteral createBooleanLiteral(GlobalContext ctx, boolean value) {
+        BLangLiteral stringLit = new BLangLiteral();
+        stringLit.pos = ctx.pos;
+        stringLit.value = value;
+        stringLit.type = ctx.symTable.booleanType;
         return stringLit;
     }
 
@@ -317,7 +326,7 @@ public class Utils {
     public static BLangAnnotationAttachment extractAzureFunctionAnnotation(BLangSimpleVariable param) {
         for (AnnotationAttachmentNode an : param.getAnnotationAttachments()) {
             BLangAnnotationAttachment ban = (BLangAnnotationAttachment) an;
-            if (isAzureFuncsPackage(ban.annotationSymbol.pkgID)) {
+            if (isAzureFuncsModule(ban.annotationSymbol.pkgID)) {
                 return ban;
             }
         }
@@ -357,11 +366,36 @@ public class Utils {
     public static boolean isSingleInputBinding(FunctionDeploymentContext ctx) {
         int count = 0;
         for (ParameterHandler ph : ctx.parameterHandlers) {
-            if (ph.getBindingType() == BindingType.INPUT) {
+            if (ph.getBindingType() == BindingType.INPUT || ph.getBindingType() == BindingType.TRIGGER) {
                 count++;
             }
         }
         return count == 1;
+    }
+
+    public static boolean isHTTPTriggerAvailable(FunctionDeploymentContext ctx) {
+        for (ParameterHandler ph : ctx.parameterHandlers) {
+            if (ph.getBindingType() == BindingType.TRIGGER) {
+                if (ph instanceof HTTPTriggerParameterHandler) {
+                    return true;
+                }
+            }
+        }
+        return true;
+    }
+
+    public static boolean isSingleInputBindingWithHTTPTrigger(FunctionDeploymentContext ctx) {
+        return isSingleInputBinding(ctx) && isHTTPTriggerAvailable(ctx);
+    }
+
+    public static int getFunctionTriggerCount(FunctionDeploymentContext ctx) {
+        int count = 0;
+        for (ParameterHandler ph : ctx.parameterHandlers) {
+            if (ph.getBindingType() == BindingType.TRIGGER) {
+                count++;
+            }
+        }
+        return count;
     }
 
     public static boolean isHTTPModule(PackageID pkgId) {
@@ -373,6 +407,12 @@ public class Utils {
         String name = type.tsymbol.name.value;
         PackageID pkgId = type.tsymbol.pkgID;
         return Constants.HTTP_REQUEST_NAME.equals(name) && Utils.isHTTPModule(pkgId);
+    }
+
+    public static boolean isContextType(BType type) {
+        String name = type.tsymbol.name.value;
+        PackageID pkgId = type.tsymbol.pkgID;
+        return Constants.AZURE_FUNCTIONS_CONTEXT_NAME.equals(name) && Utils.isAzureFuncsModule(pkgId);
     }
 
     public static boolean isStringType(GlobalContext ctx, BType type) {

@@ -31,7 +31,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 public class HTTPTriggerParameterHandler extends AbstractParameterHandler {
 
     public HTTPTriggerParameterHandler(BLangSimpleVariable param, BLangAnnotationAttachment annotation) {
-        super(param, annotation, BindingType.INPUT);
+        super(param, annotation, BindingType.TRIGGER);
     }
     
     @Override
