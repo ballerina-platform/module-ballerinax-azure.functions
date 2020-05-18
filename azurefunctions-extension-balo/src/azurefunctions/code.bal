@@ -93,7 +93,7 @@ service AzureFunctionsServer on hl {
 }
 
 public function createContext(HandlerParams hparams, boolean populateMetadata) returns Context|error {
-    return check new (hparams, populateMetadata);
+    return new Context(hparams, populateMetadata);
 }
 
 public function __register(string name, FunctionHandler funcHandler) {
