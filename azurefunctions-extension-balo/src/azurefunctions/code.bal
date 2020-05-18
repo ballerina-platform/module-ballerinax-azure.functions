@@ -97,6 +97,12 @@ public function getBinaryFromHTTPReq(HandlerParams params) returns byte[]|error 
     return check <@untainted> params.request.getBinaryPayload();
 }
 
+public function getStringFromInputData(HandlerParams params, string name) returns string|error {
+    json payload = check getJsonFromHTTPReq(params);
+    map<json> data = <map<json>> payload.Data;
+    return <string> data[name];
+}
+
 function setStringOutput(json content, string name, string? binding) returns error? {
     if binding is string {
         json outputs = check content.Outputs;

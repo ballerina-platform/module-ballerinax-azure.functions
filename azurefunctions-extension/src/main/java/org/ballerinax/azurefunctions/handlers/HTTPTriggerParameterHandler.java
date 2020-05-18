@@ -56,14 +56,18 @@ public class HTTPTriggerParameterHandler extends AbstractParameterHandler {
             }
         } else {
             if (httpRequestType) {
-                if (!httpRequestType) {
-                    throw new AzureFunctionsException(
-                            "In a multiple input binding scenario, the parameter type cannot be '"
-                                    + Constants.BALLERINA_ORG + "/" + Constants.HTTP_MODULE_NAME + ":"
-                                    + Constants.HTTP_REQUEST_NAME);
-                }
+                throw new AzureFunctionsException(
+                        "In a multiple input binding scenario, the parameter type cannot be '" 
+                                + Constants.BALLERINA_ORG + "/" + Constants.HTTP_MODULE_NAME 
+                                + ":" + Constants.HTTP_REQUEST_NAME);
+            } else if (Utils.isStringType(this.ctx.globalCtx, this.param.type)) {
+                return Utils.createAzurePkgInvocationNode(this.ctx, "getStringFromInputData",
+                        Utils.createStringLiteral(ctx.globalCtx, this.name),
+                        Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams));
+            } else {
+                throw new AzureFunctionsException(
+                    "Type '" + this.param.type.name + "' is not supported for this parameter");
             }
-            return null;
         }
     }
 
