@@ -47,6 +47,9 @@ public class HTTPTriggerParameterHandler extends AbstractParameterHandler {
             } else if (Utils.isJsonType(this.ctx.globalCtx, this.param.type)) {
                 return Utils.createAzurePkgInvocationNode(this.ctx, "getJsonFromHTTPReq",
                         Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams));
+            } else if (Utils.isByteArray(this.ctx.globalCtx, this.param.type)) {
+                return Utils.createAzurePkgInvocationNode(this.ctx, "getBinaryFromHTTPReq",
+                        Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams));
             } else {
                 throw new AzureFunctionsException(
                         "Type '" + this.param.type.name + "' is not supported for this parameter");

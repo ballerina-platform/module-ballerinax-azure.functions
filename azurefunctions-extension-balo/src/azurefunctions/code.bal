@@ -93,6 +93,10 @@ public function getJsonFromHTTPReq(HandlerParams params) returns json|error {
     return check <@untainted> params.request.getJsonPayload();
 }
 
+public function getBinaryFromHTTPReq(HandlerParams params) returns byte[]|error {
+    return check <@untainted> params.request.getBinaryPayload();
+}
+
 function setStringOutput(json content, string name, string? binding) returns error? {
     if binding is string {
         json outputs = check content.Outputs;

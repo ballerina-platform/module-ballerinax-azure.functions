@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -380,6 +381,14 @@ public class Utils {
 
     public static boolean isJsonType(GlobalContext ctx, BType type) {
         return ctx.symTable.jsonType.equals(type);
+    }
+
+    public static boolean isByteArray(GlobalContext ctx, BType type) {
+        if (type instanceof BArrayType) {
+            BArrayType baType = (BArrayType) type;
+            return ctx.symTable.byteType.equals(baType.eType);
+        }
+        return false;
     }
     
 }
