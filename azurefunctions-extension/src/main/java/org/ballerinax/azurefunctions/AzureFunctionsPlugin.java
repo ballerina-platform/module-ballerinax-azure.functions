@@ -88,6 +88,7 @@ public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
     private FunctionDeploymentContext createFuncDeplContext(BLangPackage packageNode, BLangFunction sourceFunc)
             throws AzureFunctionsException {
         FunctionDeploymentContext ctx = new FunctionDeploymentContext();
+        ctx.sourceFunction = sourceFunc;
         ctx.globalCtx = this.globalCtx;
         ctx.pkg = packageNode;
         BLangFunction func = Utils.createHandlerFunction(this.globalCtx, sourceFunc.pos, 

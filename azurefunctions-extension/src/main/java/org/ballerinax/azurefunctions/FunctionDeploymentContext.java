@@ -44,6 +44,8 @@ public class FunctionDeploymentContext {
     
     public BLangPackage pkg;
 
+    public BLangFunction sourceFunction;
+
     public BLangFunction function;
 
     private int varCounter = 0;

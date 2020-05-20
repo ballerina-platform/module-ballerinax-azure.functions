@@ -199,11 +199,21 @@ public class Utils {
         return varDef.var;
     }
 
-    public static BVarSymbol addRecordVarDef(FunctionDeploymentContext ctx, String type, String name) {
+    public static boolean isAzurePkgType(FunctionDeploymentContext ctx, String azTypeName, BType targetType) {
+        BType sourceType = lookupAzurePkgType(ctx, azTypeName);
+        return sourceType.equals(targetType);
+    }
+
+    public static BType lookupAzurePkgType(FunctionDeploymentContext ctx, String type) {
+        GlobalContext globalCtx = ctx.globalCtx;
+        return globalCtx.azureFuncsPkgSymbol.scope.lookup(new Name(type)).symbol.type;
+    }
+
+    public static BVarSymbol addAzurePkgRecordVarDef(FunctionDeploymentContext ctx, String type, String name) {
         GlobalContext globalCtx = ctx.globalCtx;
         BLangFunction func = ctx.function;
         BLangSimpleVariableDef varDef = (BLangSimpleVariableDef) TreeBuilder.createSimpleVariableDefinitionNode();
-        varDef.type = globalCtx.azureFuncsPkgSymbol.scope.lookup(new Name(type)).symbol.type;
+        varDef.type = lookupAzurePkgType(ctx, type);
         varDef.var = createVariable(globalCtx, varDef.type, name, func.symbol);
         varDef.var.expr = createEmptyRecordLiteral(varDef.type);
         varDef.pos = globalCtx.pos;

@@ -17,47 +17,29 @@
  */
 package org.ballerinax.azurefunctions.handlers;
 
-import org.ballerinax.azurefunctions.AzureFunctionsException;
-import org.ballerinax.azurefunctions.BindingType;
 import org.ballerinax.azurefunctions.FunctionDeploymentContext;
-import org.ballerinax.azurefunctions.ParameterHandler;
+import org.ballerinax.azurefunctions.ReturnHandler;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 
 /**
- * Abstract class with common operations implemented for {@link ParameterHandler}.
+ * Abstract class with common operations implemented for {@link ReturnHandler}.
  */
-public abstract class AbstractParameterHandler implements ParameterHandler {
+public abstract class AbstractReturnHandler implements ReturnHandler {
     
     protected FunctionDeploymentContext ctx;
 
-    protected BLangSimpleVariable param;
+    protected BType retType;
 
     protected BLangAnnotationAttachment annotation;
-
-    protected String name;
-
-    protected BindingType bindingType;
-
-    public AbstractParameterHandler(BLangSimpleVariable param, BLangAnnotationAttachment annotation,
-            BindingType bindingType) {
-        this.param = param;
+    
+    public AbstractReturnHandler(BType retType, BLangAnnotationAttachment annotation) {
+        this.retType = retType;
         this.annotation = annotation;
-        this.name = this.param.name.value;
-        this.bindingType = bindingType;
     }
 
     public void init(FunctionDeploymentContext ctx) {
         this.ctx = ctx;        
-    }
-
-    public BindingType getBindingType() {
-        return bindingType;
-    }
-
-    public AzureFunctionsException createError(String msg) {
-        return new AzureFunctionsException("Error at function: '" + ctx.sourceFunction.name.value + "' parameter: '"
-                + param.name.value + "' - " + msg);
     }
 
 }

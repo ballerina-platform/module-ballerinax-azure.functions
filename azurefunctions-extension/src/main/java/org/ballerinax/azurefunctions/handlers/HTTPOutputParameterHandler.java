@@ -38,7 +38,10 @@ public class HTTPOutputParameterHandler extends AbstractParameterHandler {
 
     @Override
     public BLangExpression invocationProcess() throws AzureFunctionsException {
-        this.var = Utils.addRecordVarDef(this.ctx, "HTTPBinding", this.ctx.getNextVarName());
+        if (!Utils.isAzurePkgType(ctx, "HTTPBinding", this.param.type)) {
+            throw this.createError("The parameter type must be 'HTTPBinding'");
+        }
+        this.var = Utils.addAzurePkgRecordVarDef(this.ctx, "HTTPBinding", this.ctx.getNextVarName());
         return Utils.createVariableRef(this.ctx.globalCtx, this.var);
     }
 
