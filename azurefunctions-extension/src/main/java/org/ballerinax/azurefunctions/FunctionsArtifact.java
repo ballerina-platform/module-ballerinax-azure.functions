@@ -18,6 +18,8 @@
 package org.ballerinax.azurefunctions;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
@@ -42,13 +44,15 @@ public class FunctionsArtifact {
 
     private static final String HOST_JSON_NAME = "host.json";
 
+    private static final String FUNCTION_JSON_NAME = "function.json";
+
     private Map<String, FunctionDeploymentContext> functions;
 
     private Path binaryPath;
 
     private JsonObject hostJson;
 
-    private Gson gson = new Gson();
+    private Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
     public FunctionsArtifact(Map<String, FunctionDeploymentContext> functions, Path binaryPath) {
         this.functions = functions;
@@ -67,6 +71,19 @@ public class FunctionsArtifact {
     private void generateHostJson() {
         this.hostJson = new JsonObject();
         this.hostJson.add("version", new JsonPrimitive("2.0"));
+        JsonObject httpWorker = new JsonObject();
+        this.hostJson.add("httpWorker", httpWorker);
+        JsonObject httpWorkerDesc = new JsonObject();
+        httpWorker.add("description", httpWorkerDesc);
+        httpWorkerDesc.add("defaultExecutablePath", new JsonPrimitive("java"));
+        httpWorkerDesc.add("defaultWorkerPath", new JsonPrimitive(this.binaryPath.getFileName().toString()));
+        JsonArray workerArgs = new JsonArray();
+        workerArgs.add("-jar");
+        httpWorkerDesc.add("arguments", workerArgs);
+        JsonObject extensionBundle = new JsonObject();
+        this.hostJson.add("extensionBundle", extensionBundle);
+        extensionBundle.add("id", new JsonPrimitive("Microsoft.Azure.Functions.ExtensionBundle"));
+        extensionBundle.add("version", new JsonPrimitive("[1.*, 2.0.0)"));
     }
 
     private InputStream jtos(JsonElement element) {
@@ -87,6 +104,12 @@ public class FunctionsArtifact {
                     StandardCopyOption.REPLACE_EXISTING);
             Files.copy(this.jtos(this.hostJson), zipfs.getPath("/" + HOST_JSON_NAME), 
                     StandardCopyOption.REPLACE_EXISTING);
+            for (Map.Entry<String, FunctionDeploymentContext> entry : this.functions.entrySet()) {
+                Path functionDir = zipfs.getPath("/" + entry.getKey());
+                Files.createDirectory(functionDir);
+                Files.copy(this.jtos(entry.getValue().functionDefinition), functionDir.resolve(FUNCTION_JSON_NAME),
+                        StandardCopyOption.REPLACE_EXISTING);
+            }
         }
     }
 
