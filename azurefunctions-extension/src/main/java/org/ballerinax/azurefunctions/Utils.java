@@ -61,6 +61,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValueField;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
@@ -77,10 +78,12 @@ import org.wso2.ballerinalang.util.Flags;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Utility functions for Azure Functions.
@@ -502,6 +505,17 @@ public class Utils {
         }
         JsonArray bindings = (JsonArray) ctx.functionDefinition.get(Constants.FUNCTION_BINDINGS_NAME);
         bindings.add(createBindingObject(binding));
+    }
+
+    public static Map<String, String> extractAnnotationKeyValues(BLangAnnotationAttachment annotation) {
+        BLangRecordLiteral record = (BLangRecordLiteral) annotation.expr;
+        List<BLangRecordKeyValueField> fields = record.getFields().stream().map(x -> (BLangRecordKeyValueField) x)
+                .collect(Collectors.toList());        
+        Map<String, String> annonMap = new HashMap<>();
+        for (BLangRecordKeyValueField field : fields) {
+            annonMap.put(field.key.toString(), field.getValue().toString());
+        }
+        return annonMap;
     }
 
     public static void addDummyService(GlobalContext ctx, BLangPackage packageNode) {

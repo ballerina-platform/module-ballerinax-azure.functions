@@ -25,7 +25,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -34,6 +33,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.Map;
@@ -98,7 +98,7 @@ public class FunctionsArtifact {
     public void generate(String outputFileName) throws IOException {
         // if an earlier generated file is there, delete it, or else
         // this will merge content to the earlier artifact
-        new File(outputFileName).delete();
+        Files.deleteIfExists(Paths.get(outputFileName));
         Map<String, String> env = new HashMap<>(); 
         env.put("create", "true");
         URI uri = URI.create("jar:file:" + this.binaryPath.toAbsolutePath().getParent()

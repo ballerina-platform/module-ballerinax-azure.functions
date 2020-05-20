@@ -21,7 +21,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,8 +41,6 @@ public class FunctionDeploymentContext {
     public ReturnHandler returnHandler;
 
     public JsonObject functionDefinition;
-    
-    public BLangPackage pkg;
 
     public BLangFunction sourceFunction;
 

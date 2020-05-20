@@ -18,10 +18,6 @@ import ballerina/http;
 import ballerina/system;
 import ballerina/lang.'int as ints;
 
-public type StringBinding record {
-    string? value = ();
-};
-
 public type HTTPBinding record {
     int statusCode = 200;
     string payload = "";

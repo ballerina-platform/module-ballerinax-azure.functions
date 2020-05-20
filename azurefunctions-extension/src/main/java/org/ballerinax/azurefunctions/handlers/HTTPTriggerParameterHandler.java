@@ -25,7 +25,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -77,8 +77,13 @@ public class HTTPTriggerParameterHandler extends AbstractParameterHandler {
 
     @Override
     public Map<String, Object> generateBinding() {
-        Map<String, Object> binding = new HashMap<>();
+        Map<String, Object> binding = new LinkedHashMap<>();
+        Map<String, String> annonMap = Utils.extractAnnotationKeyValues(this.annotation);
         binding.put("type", "httpTrigger");
+        String authLevel = annonMap.get("authLevel");
+        if (authLevel != null) {
+            binding.put("authLevel", authLevel);
+        }
         binding.put("direction", "in");
         binding.put("name", this.name);
         binding.put("methods", new String[] { "get", "post", "put", "delete" });

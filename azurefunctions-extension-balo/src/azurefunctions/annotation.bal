@@ -17,6 +17,17 @@
 # @azurefunctions:Function annotation
 public const annotation Function on function;
 
-public const annotation HTTPTrigger on parameter;
+public type AUTH_LEVEL "anonymous"|"function"|"admin";
 
+# HTTPTrigger annotation configuration
+# 
+# + authLevel - The authentication level of the function
+public type HTTPTriggerConfiguration record {|
+    AUTH_LEVEL authLevel?;
+|};
+
+# @azurefunctions:HTTPTrigger annotation
+public const annotation HTTPTriggerConfiguration HTTPTrigger on parameter;
+
+# @azurefunctions:HTTPOutput annotation
 public const annotation HTTPOutput on parameter, return;

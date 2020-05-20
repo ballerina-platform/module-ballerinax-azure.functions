@@ -23,7 +23,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -37,8 +37,7 @@ public class HTTPReturnHandler extends AbstractReturnHandler {
 
     @Override
     public void postInvocationProcess(BLangExpression returnValueExpr) throws AzureFunctionsException {
-        BType exType = returnValueExpr.type;
-        if (Utils.isStringType(this.ctx.globalCtx, exType)) {
+        if (Utils.isStringType(this.ctx.globalCtx, this.retType)) {
             if (Utils.isSingleOutputBinding(this.ctx)) {
                 Utils.addAzurePkgFunctionCall(this.ctx, "setStringReturn", true,
                         Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams), returnValueExpr);
@@ -47,13 +46,13 @@ public class HTTPReturnHandler extends AbstractReturnHandler {
                         Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams), returnValueExpr);
             }
         } else {
-            throw this.createError("Type '" + exType.tsymbol.name.value + "' is not supported");
+            throw this.createError("Type '" + this.retType.tsymbol.name.value + "' is not supported");
         }
     }
 
     @Override
     public Map<String, Object> generateBinding() {
-        Map<String, Object> binding = new HashMap<>();
+        Map<String, Object> binding = new LinkedHashMap<>();
         binding.put("type", "http");
         return binding;
     }

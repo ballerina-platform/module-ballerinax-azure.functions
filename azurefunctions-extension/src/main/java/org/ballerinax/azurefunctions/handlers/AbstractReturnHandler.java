@@ -64,4 +64,8 @@ public abstract class AbstractReturnHandler implements ReturnHandler {
 
     public abstract Map<String, Object> generateBinding();
 
+    public BLangAnnotationAttachment getAnnotation() {
+        return annotation;
+    }
+
 }
