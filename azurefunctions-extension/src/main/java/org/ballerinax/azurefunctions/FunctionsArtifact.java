@@ -25,6 +25,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -95,10 +96,13 @@ public class FunctionsArtifact {
     }
 
     public void generate(String outputFileName) throws IOException {
+        // if an earlier generated file is there, delete it, or else
+        // this will merge content to the earlier artifact
+        new File(outputFileName).delete();
         Map<String, String> env = new HashMap<>(); 
         env.put("create", "true");
         URI uri = URI.create("jar:file:" + this.binaryPath.toAbsolutePath().getParent()
-                .resolve(outputFileName).toUri().getPath());
+                .resolve(outputFileName).toUri().getPath());        
         try (FileSystem zipfs = FileSystems.newFileSystem(uri, env)) {
             Files.copy(this.binaryPath, zipfs.getPath("/" + this.binaryPath.getFileName()), 
                     StandardCopyOption.REPLACE_EXISTING);
