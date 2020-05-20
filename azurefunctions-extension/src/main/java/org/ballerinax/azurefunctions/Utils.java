@@ -483,7 +483,7 @@ public class Utils {
         for (Map.Entry<String, Object> entry : binding.entrySet()) {
             obj.add(entry.getKey(), objectToJson(entry.getValue()));
         }
-        return null;
+        return obj;
     }
 
     public static void addFunctionBinding(FunctionDeploymentContext ctx, Map<String, Object> binding) {

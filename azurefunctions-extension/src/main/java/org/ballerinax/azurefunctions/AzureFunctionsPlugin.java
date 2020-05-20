@@ -128,6 +128,7 @@ public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
         if (retHandler != null) {
             retHandler.postInvocationProcess(Utils.createVariableRef(ctx.globalCtx, (BVarSymbol) retVal.symbol));
         }
+        System.out.println("Function: " + ctx.sourceFunction.name.value + " - " + ctx.functionDefinition);
         return ctx.function;
     }
 

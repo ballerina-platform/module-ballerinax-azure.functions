@@ -57,9 +57,9 @@ public abstract class AbstractParameterHandler implements ParameterHandler {
 
     private String extractBindingDirection() {
         if (BindingType.INPUT.equals(this.bindingType) || BindingType.TRIGGER.equals(this.bindingType)) {
-            return "input";
+            return "in";
         } else {
-            return "output";
+            return "out";
         }
     }
 
