@@ -76,7 +76,7 @@ service AzureFunctionsServer on hl {
         http:Response response = new;
         if handler is FunctionHandler {
             HandlerParams hparams = { request, response };
-            error? err = handler(hparams);
+            error? err = trap handler(hparams);
             if err is error {
                 response.statusCode = 500;
                 response.setTextPayload(err.toString());
@@ -118,7 +118,7 @@ public function setPureHTTPOutput(HandlerParams params, HTTPBinding binding) ret
     params.pure = true;
 }
 
-public function setPureStringOutput(HandlerParams params,string value) returns error? {
+public function setPureStringOutput(HandlerParams params, string value) returns error? {
     params.response.setTextPayload(value);
     params.pure = true;
 }

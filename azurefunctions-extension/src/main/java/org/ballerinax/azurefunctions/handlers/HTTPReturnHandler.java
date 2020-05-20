@@ -39,8 +39,13 @@ public class HTTPReturnHandler extends AbstractReturnHandler {
     public void postInvocationProcess(BLangExpression returnValueExpr) throws AzureFunctionsException {
         BType exType = returnValueExpr.type;
         if (Utils.isStringType(this.ctx.globalCtx, exType)) {
-            Utils.addAzurePkgFunctionCall(this.ctx, "setStringReturn", true,
-                    Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams), returnValueExpr);
+            if (Utils.isSingleOutputBinding(this.ctx)) {
+                Utils.addAzurePkgFunctionCall(this.ctx, "setStringReturn", true,
+                        Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams), returnValueExpr);
+            } else {
+                Utils.addAzurePkgFunctionCall(this.ctx, "setPureStringOutput", true,
+                        Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams), returnValueExpr);
+            }
         } else {
             throw this.createError("Type '" + exType.tsymbol.name.value + "' is not supported");
         }
