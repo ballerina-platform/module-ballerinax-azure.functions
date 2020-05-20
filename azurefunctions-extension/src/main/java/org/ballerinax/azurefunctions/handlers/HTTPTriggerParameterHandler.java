@@ -25,6 +25,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
+import java.util.Map;
+
 /**
  * Implementation for the input parameter handler annotation "@HTTPTrigger".
  */
@@ -71,5 +73,10 @@ public class HTTPTriggerParameterHandler extends AbstractParameterHandler {
 
     @Override
     public void postInvocationProcess() { }
+
+    @Override
+    public Map<String, Object> generateBinding() {
+        return null;
+    }
     
 }

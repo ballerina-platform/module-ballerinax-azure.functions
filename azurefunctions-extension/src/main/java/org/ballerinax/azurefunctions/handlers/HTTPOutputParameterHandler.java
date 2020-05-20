@@ -25,6 +25,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
+import java.util.Map;
+
 /**
  * Implementation for the input parameter handler annotation "@HTTPOutput".
  */
@@ -51,6 +53,11 @@ public class HTTPOutputParameterHandler extends AbstractParameterHandler {
                 Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
                 Utils.createStringLiteral(this.ctx.globalCtx, this.name),
                 Utils.createVariableRef(this.ctx.globalCtx, this.var));
+    }
+
+    @Override
+    public Map<String, Object> generateBinding() {
+        return null;
     }
     
 }

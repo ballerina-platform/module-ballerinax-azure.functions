@@ -21,8 +21,11 @@ import org.ballerinax.azurefunctions.AzureFunctionsException;
 import org.ballerinax.azurefunctions.BindingType;
 import org.ballerinax.azurefunctions.FunctionDeploymentContext;
 import org.ballerinax.azurefunctions.ParameterHandler;
+import org.ballerinax.azurefunctions.Utils;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+
+import java.util.Map;
 
 /**
  * Abstract class with common operations implemented for {@link ParameterHandler}.
@@ -48,7 +51,8 @@ public abstract class AbstractParameterHandler implements ParameterHandler {
     }
 
     public void init(FunctionDeploymentContext ctx) {
-        this.ctx = ctx;        
+        this.ctx = ctx;
+        Utils.addFunctionBinding(this.ctx, this.generateBinding());
     }
 
     public BindingType getBindingType() {
@@ -59,5 +63,7 @@ public abstract class AbstractParameterHandler implements ParameterHandler {
         return new AzureFunctionsException("Error at function: '" + ctx.sourceFunction.name.value + "' parameter: '"
                 + param.name.value + "' - " + msg);
     }
+
+    public abstract Map<String, Object> generateBinding();
 
 }

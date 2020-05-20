@@ -23,6 +23,8 @@ import org.ballerinax.azurefunctions.Utils;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
+import java.util.Map;
+
 /**
  * Implementation for the input parameter handler for the Context object.
  */
@@ -41,5 +43,10 @@ public class ContextParameterHandler extends AbstractParameterHandler {
 
     @Override
     public void postInvocationProcess() { }
+
+    @Override
+    public Map<String, Object> generateBinding() {
+        return null;
+    }
     
 }

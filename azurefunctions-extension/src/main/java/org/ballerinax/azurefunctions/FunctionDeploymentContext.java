@@ -17,7 +17,8 @@
  */
 package org.ballerinax.azurefunctions;
 
-import com.google.gson.JsonElement;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -40,7 +41,7 @@ public class FunctionDeploymentContext {
 
     public ReturnHandler returnHandler;
 
-    public JsonElement functionDefinition;
+    public JsonObject functionDefinition;
     
     public BLangPackage pkg;
 
@@ -49,6 +50,11 @@ public class FunctionDeploymentContext {
     public BLangFunction function;
 
     private int varCounter = 0;
+
+    public FunctionDeploymentContext() {
+        this.functionDefinition = new JsonObject();
+        this.functionDefinition.add(Constants.FUNCTION_BINDINGS_NAME, new JsonArray());
+    }
 
     public String getNextVarName() {
         return VAR_PREFIX + (++varCounter);

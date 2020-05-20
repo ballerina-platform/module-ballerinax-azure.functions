@@ -17,6 +17,10 @@
  */
 package org.ballerinax.azurefunctions;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -76,6 +80,7 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Utility functions for Azure Functions.
@@ -453,6 +458,40 @@ public class Utils {
             return ctx.symTable.byteType.equals(baType.eType);
         }
         return false;
+    }
+
+    public static JsonElement objectToJson(Object obj) {
+        if (obj instanceof String) {
+            return new JsonPrimitive((String) obj);
+        } else if (obj instanceof Number) {
+            return new JsonPrimitive((Number) obj);
+        } else if (obj instanceof Boolean) {
+            return new JsonPrimitive((Boolean) obj);
+        } else if (obj instanceof String[]) {
+            JsonArray array = new JsonArray();
+            for (String item : (String[]) obj) {
+                array.add(item);
+            }
+            return array;
+        } else {
+            throw new IllegalStateException("Unsupported type to convert to JSON: " + obj.getClass());
+        }
+    }
+
+    public static JsonObject createBindingObject(Map<String, Object> binding) {
+        JsonObject obj = new JsonObject();
+        for (Map.Entry<String, Object> entry : binding.entrySet()) {
+            obj.add(entry.getKey(), objectToJson(entry.getValue()));
+        }
+        return null;
+    }
+
+    public static void addFunctionBinding(FunctionDeploymentContext ctx, Map<String, Object> binding) {
+        if (binding == null) {
+            return;
+        }
+        JsonArray bindings = (JsonArray) ctx.functionDefinition.get(Constants.FUNCTION_BINDINGS_NAME);
+        bindings.add(createBindingObject(binding));
     }
 
     public static void addDummyService(GlobalContext ctx, BLangPackage packageNode) {

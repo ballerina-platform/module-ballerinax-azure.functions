@@ -48,4 +48,6 @@ public class Constants {
 
     public static final String GEN_FUNC_SUFFIX = "0dadec8e-7c9c-44c3-88ea-f947acc3add7";
 
+    public static final String FUNCTION_BINDINGS_NAME = "bindings";
+
 }
