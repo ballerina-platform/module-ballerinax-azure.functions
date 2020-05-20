@@ -50,4 +50,6 @@ public class Constants {
 
     public static final String FUNCTION_BINDINGS_NAME = "bindings";
 
+    public static final String CHARSET = "UTF-8";
+
 }

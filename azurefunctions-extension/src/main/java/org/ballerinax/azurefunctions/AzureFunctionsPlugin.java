@@ -36,14 +36,8 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import java.net.URI;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,7 +51,7 @@ public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
 
     private static final PrintStream OUT = System.out;
 
-    private static Map<String, BLangFunction> generatedFunctions = new LinkedHashMap<>();
+    private static Map<String, FunctionDeploymentContext> generatedFunctions = new LinkedHashMap<>();
 
     private DiagnosticLog dlog;
 
@@ -112,7 +106,7 @@ public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
         return ctx;
     }
 
-    private BLangFunction generateHandlerFunction(BLangPackage packageNode, BLangFunction sourceFunc)
+    private FunctionDeploymentContext generateHandlerFunction(BLangPackage packageNode, BLangFunction sourceFunc)
             throws AzureFunctionsException {
         FunctionDeploymentContext ctx = this.createFuncDeplContext(packageNode, sourceFunc);
         List<BLangExpression> args = new ArrayList<>();
@@ -128,26 +122,25 @@ public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
         if (retHandler != null) {
             retHandler.postInvocationProcess(Utils.createVariableRef(ctx.globalCtx, (BVarSymbol) retVal.symbol));
         }
-        System.out.println("Function: " + ctx.sourceFunction.name.value + " - " + ctx.functionDefinition);
-        return ctx.function;
+        return ctx;
     }
 
-    private Map<String, BLangFunction> generateHandlerFunctions(BLangPackage packageNode)
+    private Map<String, FunctionDeploymentContext> generateHandlerFunctions(BLangPackage packageNode)
             throws AzureFunctionsException {
-        Map<String, BLangFunction> funcs = new LinkedHashMap<>();
+        Map<String, FunctionDeploymentContext> funcCtxs = new LinkedHashMap<>();
         for (FunctionNode fn : packageNode.getFunctions()) {
             BLangFunction bfn = (BLangFunction) fn;
             if (Utils.isAzureFunction(bfn, this.dlog)) {
-                funcs.put(bfn.name.value, this.generateHandlerFunction(packageNode, bfn));
+                funcCtxs.put(bfn.name.value, this.generateHandlerFunction(packageNode, bfn));
             }
         }
-        for (BLangFunction func : funcs.values()) {
-            packageNode.addFunction(func);
+        for (FunctionDeploymentContext ctx : funcCtxs.values()) {
+            packageNode.addFunction(ctx.function);
         }
-        return funcs;
+        return funcCtxs;
     }
 
-    private void registerHandlerFunctions(BLangPackage myPkg, Map<String, BLangFunction> azureFunctions) {
+    private void registerHandlerFunctions(BLangPackage myPkg, Map<String, FunctionDeploymentContext> azureFunctions) {
         if (azureFunctions.isEmpty()) {
             return;
         }
@@ -166,9 +159,9 @@ public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
             ((BLangBlockFunctionBody) epFunc.body).stmts.clear();
         }
         BLangBlockFunctionBody body = (BLangBlockFunctionBody) epFunc.body;
-        for (Entry<String, BLangFunction> entry : azureFunctions.entrySet()) {
+        for (Entry<String, FunctionDeploymentContext> entry : azureFunctions.entrySet()) {
             String name = entry.getKey();
-            BLangFunction func = entry.getValue();
+            BLangFunction func = entry.getValue().function;
             Utils.addRegisterCall(this.globalCtx, myPkg.pos, azureFuncsPkgSymbol, body, name, func);
         }
     }
@@ -181,7 +174,7 @@ public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
         }
         OUT.println("\t@azurefunctions:Function: " + String.join(", ", generatedFunctions.keySet()));
         try {
-            this.generateZipFile(binaryPath);
+            this.generateFunctionsArtifact(generatedFunctions, binaryPath, Constants.AZURE_FUNCS_OUTPUT_ZIP_FILENAME);
         } catch (IOException e) {
             throw new BallerinaException("Error generating Azure Functions zip file: " + e.getMessage(), e);
         }
@@ -190,15 +183,9 @@ public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
                 + Constants.AZURE_FUNCS_OUTPUT_ZIP_FILENAME);
     }
     
-    private void generateZipFile(Path binaryPath) throws IOException {
-        Map<String, String> env = new HashMap<>(); 
-        env.put("create", "true");
-        URI uri = URI.create("jar:file:" + binaryPath.toAbsolutePath().getParent()
-                .resolve(Constants.AZURE_FUNCS_OUTPUT_ZIP_FILENAME).toUri().getPath());
-        try (FileSystem zipfs = FileSystems.newFileSystem(uri, env)) {
-            Path pathInZipfile = zipfs.getPath("/" + binaryPath.getFileName());          
-            Files.copy(binaryPath, pathInZipfile, StandardCopyOption.REPLACE_EXISTING); 
-        }
+    private void generateFunctionsArtifact(Map<String, FunctionDeploymentContext> functions, Path binaryPath,
+            String outputFileName) throws IOException {
+        new FunctionsArtifact(functions, binaryPath).generate(outputFileName);
     }
 
 }
