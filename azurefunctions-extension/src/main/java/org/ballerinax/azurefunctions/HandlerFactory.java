@@ -20,6 +20,7 @@ package org.ballerinax.azurefunctions;
 import org.ballerinax.azurefunctions.handlers.ContextParameterHandler;
 import org.ballerinax.azurefunctions.handlers.HTTPOutputParameterHandler;
 import org.ballerinax.azurefunctions.handlers.HTTPTriggerParameterHandler;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -31,14 +32,14 @@ import java.util.List;
  */
 public class HandlerFactory {
     
-    public static ParameterHandler createParameterHandler(BLangSimpleVariable param) throws AzureFunctionsException {
+    public static ParameterHandler createParameterHandler(FunctionDeploymentContext ctx, BLangSimpleVariable param)
+            throws AzureFunctionsException {
         if (Utils.isContextType(param.type)) {
             return new ContextParameterHandler(param);
         }
-        BLangAnnotationAttachment ann = Utils.extractAzureFunctionAnnotation(param);
+        BLangAnnotationAttachment ann = Utils.extractAzureFunctionAnnotation(param.getAnnotationAttachments());
         if (ann == null) {
-            throw new AzureFunctionsException("Parameter '" + param.getName().getValue()
-                    + "' does not have a valid annotation or a type for an Azure Function");
+            throw createParamError(ctx, param, "Invalid annotation or type");
         }
         String name = ann.getAnnotationName().getValue();
         if ("HTTPOutput".equals(name)) {
@@ -46,15 +47,27 @@ public class HandlerFactory {
         } else if ("HTTPTrigger".equals(name)) {
             return new HTTPTriggerParameterHandler(param, ann);
         }
-        throw new AzureFunctionsException("Parameter handler not found for the name: " + name);
+        throw createParamError(ctx, param, "Parameter handler not found");
     }
 
-    public static ReturnHandler createReturnHandler(GlobalContext ctx, BType retType,
+    public static ReturnHandler createReturnHandler(FunctionDeploymentContext ctx, BType retType,
             List<BLangAnnotationAttachment> annons) throws AzureFunctionsException {
-        if (ctx.symTable.nilType.equals(retType) || ctx.symTable.noType.equals(retType)) {
+        SymbolTable symTable = ctx.globalCtx.symTable;
+        if (symTable.nilType.equals(retType) || symTable.noType.equals(retType)) {
             return null;
         }
-        throw new AzureFunctionsException("Return handler not found for the type: " + retType);
+        throw createReturnError(ctx, "Return handler not found for the type: " + retType);
+    }
+
+    private static AzureFunctionsException createParamError(FunctionDeploymentContext ctx, BLangSimpleVariable param,
+            String msg) {
+        return new AzureFunctionsException("Error at function: '" + ctx.sourceFunction.name.value + "' parameter: '"
+                + param.name.value + "' - " + msg);
+    }
+
+    private static AzureFunctionsException createReturnError(FunctionDeploymentContext ctx, String msg) {
+        return new AzureFunctionsException("Error at function: '" 
+                + ctx.sourceFunction.name.value + " return - " + msg);
     }
 
 }

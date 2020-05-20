@@ -51,12 +51,11 @@ public class HTTPTriggerParameterHandler extends AbstractParameterHandler {
                 return Utils.createAzurePkgInvocationNode(this.ctx, "getBinaryFromHTTPReq",
                         Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams));
             } else {
-                throw new AzureFunctionsException(
-                        "Type '" + this.param.type.name + "' is not supported for this parameter");
+                throw this.createError("Type '" + this.param.type.tsymbol.name.value + "' is not supported");
             }
         } else {
             if (httpRequestType) {
-                throw new AzureFunctionsException(
+                throw this.createError(
                         "In a multiple input binding scenario, the parameter type cannot be '" 
                                 + Constants.BALLERINA_ORG + "/" + Constants.HTTP_MODULE_NAME 
                                 + ":" + Constants.HTTP_REQUEST_NAME);
@@ -65,8 +64,7 @@ public class HTTPTriggerParameterHandler extends AbstractParameterHandler {
                         Utils.createStringLiteral(ctx.globalCtx, this.name),
                         Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams));
             } else {
-                throw new AzureFunctionsException(
-                    "Type '" + this.param.type.name + "' is not supported for this parameter");
+                throw this.createError("Type '" + this.param.type.tsymbol.name.value + "' is not supported");
             }
         }
     }

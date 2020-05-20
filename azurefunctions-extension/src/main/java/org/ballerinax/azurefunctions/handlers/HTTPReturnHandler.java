@@ -17,6 +17,8 @@
  */
 package org.ballerinax.azurefunctions.handlers;
 
+import org.ballerinax.azurefunctions.AzureFunctionsException;
+import org.ballerinax.azurefunctions.Utils;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -31,8 +33,14 @@ public class HTTPReturnHandler extends AbstractReturnHandler {
     }
 
     @Override
-    public void postInvocationProcess(BLangExpression returnValueExpr) {
-        
+    public void postInvocationProcess(BLangExpression returnValueExpr) throws AzureFunctionsException {
+        BType exType = returnValueExpr.type;
+        if (Utils.isStringType(this.ctx.globalCtx, exType)) {
+            Utils.addAzurePkgFunctionCall(this.ctx, "setStringReturn", true,
+                    Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams), returnValueExpr);
+        } else {
+            throw this.createError("Type '" + exType.name.getValue() + "' is not supported");
+        }
     }
     
 }

@@ -17,6 +17,7 @@
  */
 package org.ballerinax.azurefunctions.handlers;
 
+import org.ballerinax.azurefunctions.AzureFunctionsException;
 import org.ballerinax.azurefunctions.FunctionDeploymentContext;
 import org.ballerinax.azurefunctions.ReturnHandler;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -40,6 +41,11 @@ public abstract class AbstractReturnHandler implements ReturnHandler {
 
     public void init(FunctionDeploymentContext ctx) {
         this.ctx = ctx;        
+    }
+
+    public AzureFunctionsException createError(String msg) {
+        return new AzureFunctionsException("Error at function: '" 
+                + ctx.sourceFunction.name.value + " return - " + msg);
     }
 
 }

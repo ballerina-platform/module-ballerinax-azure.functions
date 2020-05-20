@@ -344,8 +344,8 @@ public class Utils {
         return hasAzureFuncsAnnon;
     }
 
-    public static BLangAnnotationAttachment extractAzureFunctionAnnotation(BLangSimpleVariable param) {
-        for (AnnotationAttachmentNode an : param.getAnnotationAttachments()) {
+    public static BLangAnnotationAttachment extractAzureFunctionAnnotation(List<BLangAnnotationAttachment> annons) {
+        for (AnnotationAttachmentNode an : annons) {
             BLangAnnotationAttachment ban = (BLangAnnotationAttachment) an;
             if (isAzureFuncsModule(ban.annotationSymbol.pkgID)) {
                 return ban;

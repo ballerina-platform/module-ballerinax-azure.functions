@@ -39,7 +39,9 @@ public interface ReturnHandler {
      * as an expression to be use for further statement creation to populate the JSON result. 
      * 
      * @param returnValueExpr The function invocation return value expression
+     * 
+     * @throws AzureFunctionsException thrown if an error occurs
      */
-    public void postInvocationProcess(BLangExpression returnValueExpr);
+    public void postInvocationProcess(BLangExpression returnValueExpr) throws AzureFunctionsException;
 
 }

@@ -130,15 +130,7 @@ public function getStringFromInputData(HandlerParams params, string name) return
     return <string> data[name];
 }
 
-function setStringOutput(json content, string name, string? binding) returns error? {
-    if binding is string {
-        json outputs = check content.Outputs;
-        map<json> bvals = { };
-        bvals[name] = binding;
-        _ = check outputs.mergeJson(bvals);
-    }
-}
-
-function setStringReturn(json content, string value) returns error? {
+function setStringReturn(HandlerParams params, string value) returns error? {
+    json content = params.result;
     _ = check content.mergeJson({ ReturnValue: value });
 }
