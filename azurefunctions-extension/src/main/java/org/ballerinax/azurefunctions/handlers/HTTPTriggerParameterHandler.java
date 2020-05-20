@@ -25,6 +25,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -76,7 +77,12 @@ public class HTTPTriggerParameterHandler extends AbstractParameterHandler {
 
     @Override
     public Map<String, Object> generateBinding() {
-        return null;
+        Map<String, Object> binding = new HashMap<>();
+        binding.put("type", "httpTrigger");
+        binding.put("direction", "in");
+        binding.put("name", this.name);
+        binding.put("methods", new String[] { "get", "post", "put", "delete" });
+        return binding;
     }
     
 }

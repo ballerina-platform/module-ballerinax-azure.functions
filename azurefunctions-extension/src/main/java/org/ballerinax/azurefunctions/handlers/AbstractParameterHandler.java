@@ -52,7 +52,25 @@ public abstract class AbstractParameterHandler implements ParameterHandler {
 
     public void init(FunctionDeploymentContext ctx) {
         this.ctx = ctx;
-        Utils.addFunctionBinding(this.ctx, this.generateBinding());
+        this.processBinding();
+    }
+
+    private String extractBindingDirection() {
+        if (BindingType.INPUT.equals(this.bindingType) || BindingType.TRIGGER.equals(this.bindingType)) {
+            return "input";
+        } else {
+            return "output";
+        }
+    }
+
+    private void processBinding() {
+        Map<String, Object> binding = this.generateBinding();
+        if (binding == null) {
+            return;
+        }
+        binding.put("direction", this.extractBindingDirection());
+        binding.put("name", this.name);
+        Utils.addFunctionBinding(this.ctx, binding);
     }
 
     public BindingType getBindingType() {

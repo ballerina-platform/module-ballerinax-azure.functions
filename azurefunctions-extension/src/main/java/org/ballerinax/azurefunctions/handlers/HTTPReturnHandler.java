@@ -23,6 +23,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Implementation for the return handler annotation "@HTTPOutput".
  */
@@ -41,6 +44,13 @@ public class HTTPReturnHandler extends AbstractReturnHandler {
         } else {
             throw this.createError("Type '" + exType.tsymbol.name.value + "' is not supported");
         }
+    }
+
+    @Override
+    public Map<String, Object> generateBinding() {
+        Map<String, Object> binding = new HashMap<>();
+        binding.put("type", "http");
+        return binding;
     }
     
 }

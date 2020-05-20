@@ -20,8 +20,11 @@ package org.ballerinax.azurefunctions.handlers;
 import org.ballerinax.azurefunctions.AzureFunctionsException;
 import org.ballerinax.azurefunctions.FunctionDeploymentContext;
 import org.ballerinax.azurefunctions.ReturnHandler;
+import org.ballerinax.azurefunctions.Utils;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+
+import java.util.Map;
 
 /**
  * Abstract class with common operations implemented for {@link ReturnHandler}.
@@ -40,12 +43,25 @@ public abstract class AbstractReturnHandler implements ReturnHandler {
     }
 
     public void init(FunctionDeploymentContext ctx) {
-        this.ctx = ctx;        
+        this.ctx = ctx;
+        this.processBinding();
+    }
+
+    private void processBinding() {
+        Map<String, Object> binding = this.generateBinding();
+        if (binding == null) {
+            return;
+        }
+        binding.put("direction", "out");
+        binding.put("name", "$return");
+        Utils.addFunctionBinding(this.ctx, binding);
     }
 
     public AzureFunctionsException createError(String msg) {
         return new AzureFunctionsException("Error at function: '" 
                 + ctx.sourceFunction.name.value + " return - " + msg);
     }
+
+    public abstract Map<String, Object> generateBinding();
 
 }
