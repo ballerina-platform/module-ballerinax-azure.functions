@@ -29,6 +29,8 @@ public type HTTPBinding record {
 
 public type HandlerParams record {
     http:Request request;
+    http:Response response;
+    boolean pure = false;
     json result = { Outputs: {}, Logs: [] };
 };
 
@@ -71,22 +73,24 @@ service AzureFunctionsServer on hl {
     }
     resource function dispatch(http:Caller caller, http:Request request, string functionName) returns @tainted error? {
         FunctionHandler? handler = dispatchMap[functionName];
+        http:Response response = new;
         if handler is FunctionHandler {
-            HandlerParams hparams = { request };
+            HandlerParams hparams = { request, response };
             error? err = handler(hparams);
             if err is error {
-                http:Response resp = new;
-                resp.statusCode = 500;
-                resp.setTextPayload(err.toString());
-                check caller->respond(resp);
+                response.statusCode = 500;
+                response.setTextPayload(err.toString());
+                check caller->respond(response);
             } else {
-                check caller->respond(<@untainted> hparams.result);
+                if !hparams.pure {
+                    response.setJsonPayload(<@untainted> hparams.result);
+                }
+                check caller->respond(response);
             }
         } else {
-            http:Response resp = new;
-            resp.setTextPayload("function handler not found: " + <@untainted> functionName);
-            resp.statusCode = 404;
-            check caller->respond(resp);
+            response.setTextPayload("function handler not found: " + <@untainted> functionName);
+            response.statusCode = 404;
+            check caller->respond(response);
         }
     }
 
@@ -106,6 +110,17 @@ public function setHTTPOutput(HandlerParams params, string name, HTTPBinding bin
     map<json> bvals = { };
     bvals[name] = { statusCode: binding.statusCode, body: binding.payload };
     _ = check outputs.mergeJson(bvals);
+}
+
+public function setPureHTTPOutput(HandlerParams params, HTTPBinding binding) returns error? {
+    params.response.statusCode = binding.statusCode;
+    params.response.setTextPayload(binding.payload);
+    params.pure = true;
+}
+
+public function setPureStringOutput(HandlerParams params,string value) returns error? {
+    params.response.setTextPayload(value);
+    params.pure = true;
 }
 
 public function getHTTPRequestFromParams(HandlerParams params) returns http:Request|error {

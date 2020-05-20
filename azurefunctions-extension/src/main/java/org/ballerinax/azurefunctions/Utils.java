@@ -402,6 +402,16 @@ public class Utils {
         return count == 1;
     }
 
+    public static boolean isSingleOutputBinding(FunctionDeploymentContext ctx) {
+        int count = 0;
+        for (ParameterHandler ph : ctx.parameterHandlers) {
+            if (ph.getBindingType() == BindingType.OUTPUT) {
+                count++;
+            }
+        }
+        return count == 1;
+    }
+
     public static boolean isHTTPTriggerAvailable(FunctionDeploymentContext ctx) {
         for (ParameterHandler ph : ctx.parameterHandlers) {
             if (ph.getBindingType() == BindingType.TRIGGER) {
