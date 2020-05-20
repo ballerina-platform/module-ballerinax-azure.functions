@@ -137,9 +137,12 @@ public class Utils {
         } else {
             expr = inv;
         }
-        BLangExpressionStmt stmt = createExpressionStmt(ctx.globalCtx, expr);
-        ((BLangBlockFunctionBody) ctx.function.body).addStatement(stmt);
-        return createVariable(ctx.globalCtx, expr.type, ctx.getNextVarName(), ctx.function.symbol);
+        BLangSimpleVariableDef varDef = (BLangSimpleVariableDef) TreeBuilder.createSimpleVariableDefinitionNode();
+        varDef.type = expr.type;
+        varDef.var = createVariable(ctx.globalCtx, expr.type, ctx.getNextVarName(), ctx.function.symbol);
+        varDef.var.expr = expr;
+        ((BLangBlockFunctionBody) ctx.function.body).addStatement(varDef);
+        return varDef.var;
     }
 
     public static BLangExpressionStmt createExpressionStmt(GlobalContext ctx, BLangExpression expr) {

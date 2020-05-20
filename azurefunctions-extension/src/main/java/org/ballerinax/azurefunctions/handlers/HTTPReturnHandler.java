@@ -39,7 +39,7 @@ public class HTTPReturnHandler extends AbstractReturnHandler {
             Utils.addAzurePkgFunctionCall(this.ctx, "setStringReturn", true,
                     Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams), returnValueExpr);
         } else {
-            throw this.createError("Type '" + exType.name.getValue() + "' is not supported");
+            throw this.createError("Type '" + exType.tsymbol.name.value + "' is not supported");
         }
     }
     

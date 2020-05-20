@@ -19,4 +19,4 @@ public const annotation Function on function;
 
 public const annotation HTTPTrigger on parameter;
 
-public const annotation HTTPOutput on parameter;
+public const annotation HTTPOutput on parameter, return;

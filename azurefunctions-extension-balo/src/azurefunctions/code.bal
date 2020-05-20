@@ -130,7 +130,7 @@ public function getStringFromInputData(HandlerParams params, string name) return
     return <string> data[name];
 }
 
-function setStringReturn(HandlerParams params, string value) returns error? {
+public function setStringReturn(HandlerParams params, string value) returns error? {
     json content = params.result;
     _ = check content.mergeJson({ ReturnValue: value });
 }
