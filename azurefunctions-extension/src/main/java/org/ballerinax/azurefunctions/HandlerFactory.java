@@ -19,6 +19,7 @@ package org.ballerinax.azurefunctions;
 
 import org.ballerinax.azurefunctions.handlers.ContextParameterHandler;
 import org.ballerinax.azurefunctions.handlers.HTTPOutputParameterHandler;
+import org.ballerinax.azurefunctions.handlers.HTTPReturnHandler;
 import org.ballerinax.azurefunctions.handlers.HTTPTriggerParameterHandler;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -46,8 +47,9 @@ public class HandlerFactory {
             return new HTTPOutputParameterHandler(param, ann);
         } else if ("HTTPTrigger".equals(name)) {
             return new HTTPTriggerParameterHandler(param, ann);
+        } else {
+            throw createParamError(ctx, param, "Parameter handler not found");
         }
-        throw createParamError(ctx, param, "Parameter handler not found");
     }
 
     public static ReturnHandler createReturnHandler(FunctionDeploymentContext ctx, BType retType,
@@ -56,7 +58,16 @@ public class HandlerFactory {
         if (symTable.nilType.equals(retType) || symTable.noType.equals(retType)) {
             return null;
         }
-        throw createReturnError(ctx, "Return handler not found for the type: " + retType);
+        BLangAnnotationAttachment ann = Utils.extractAzureFunctionAnnotation(annons);
+        if (ann == null) {
+            throw createReturnError(ctx, "Invalid annotation");
+        }
+        String name = ann.getAnnotationName().getValue();
+        if ("HTTPOutput".equals(name)) {
+            return new HTTPReturnHandler(retType, ann);
+        } else {
+            throw createReturnError(ctx, "Return handler not found for the type: " + retType);
+        }
     }
 
     private static AzureFunctionsException createParamError(FunctionDeploymentContext ctx, BLangSimpleVariable param,
