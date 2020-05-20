@@ -20,6 +20,7 @@ package org.ballerinax.azurefunctions;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.types.TypeKind;
@@ -29,12 +30,16 @@ import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -44,16 +49,21 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
+import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -63,6 +73,7 @@ import org.wso2.ballerinalang.util.Flags;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 
@@ -103,22 +114,23 @@ public class Utils {
         blockStmt.addStatement(stmt);
     }
 
-    public static void addAzurePkgFunctionCall(FunctionDeploymentContext ctx, String name, boolean checked,
-            BLangExpression... exprs) {
-        addFunctionCall(ctx, createAzurePkgInvocationNode(ctx, name, exprs), checked);
-    }
-
-    public static void addFunctionCall(FunctionDeploymentContext ctx, BSymbol funcSymbol, boolean checked,
-            BLangExpression... exprs) {
-        addFunctionCall(ctx, createInvocationNode(funcSymbol, exprs), checked);
-    }
-
-    public static void addFunctionCall(FunctionDeploymentContext ctx, BPackageSymbol pkgSymbol, String name,
+    public static BLangSimpleVariable addAzurePkgFunctionCall(FunctionDeploymentContext ctx, String name,
             boolean checked, BLangExpression... exprs) {
-        addFunctionCall(ctx, createInvocationNode(pkgSymbol, name, exprs), checked);
+        return addFunctionCall(ctx, createAzurePkgInvocationNode(ctx, name, exprs), checked);
     }
 
-    public static void addFunctionCall(FunctionDeploymentContext ctx, BLangInvocation inv, boolean checked) {
+    public static BLangSimpleVariable addFunctionCall(FunctionDeploymentContext ctx, BSymbol funcSymbol,
+            boolean checked, BLangExpression... exprs) {
+        return addFunctionCall(ctx, createInvocationNode(funcSymbol, exprs), checked);
+    }
+
+    public static BLangSimpleVariable addFunctionCall(FunctionDeploymentContext ctx, BPackageSymbol pkgSymbol,
+            String name, boolean checked, BLangExpression... exprs) {
+        return addFunctionCall(ctx, createInvocationNode(pkgSymbol, name, exprs), checked);
+    }
+
+    public static BLangSimpleVariable addFunctionCall(FunctionDeploymentContext ctx, BLangInvocation inv,
+            boolean checked) {
         BLangExpression expr;
         if (checked) {
             expr = createCheckedExpr(ctx.globalCtx, inv);
@@ -127,6 +139,7 @@ public class Utils {
         }
         BLangExpressionStmt stmt = createExpressionStmt(ctx.globalCtx, expr);
         ((BLangBlockFunctionBody) ctx.function.body).addStatement(stmt);
+        return createVariable(ctx.globalCtx, expr.type, ctx.getNextVarName(), ctx.function.symbol);
     }
 
     public static BLangExpressionStmt createExpressionStmt(GlobalContext ctx, BLangExpression expr) {
@@ -166,10 +179,10 @@ public class Utils {
         return varRef;
     }
     
-    public static BLangSimpleVariable createVariable(DiagnosticPos pos, BType type, String name, BSymbol owner) {
+    public static BLangSimpleVariable createVariable(GlobalContext ctx, BType type, String name, BSymbol owner) {
         BLangSimpleVariable var = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
-        var.pos = pos;
-        var.name = ASTBuilderUtil.createIdentifier(pos, name);
+        var.pos = ctx.pos;
+        var.name = ASTBuilderUtil.createIdentifier(ctx.pos, name);
         var.type = type;
         var.symbol = new BVarSymbol(0, new Name(name), type.tsymbol.pkgID, type, owner);
         return var;
@@ -179,7 +192,7 @@ public class Utils {
             BLangBlockFunctionBody body) {
         BLangSimpleVariableDef varDef = (BLangSimpleVariableDef) TreeBuilder.createSimpleVariableDefinitionNode();
         varDef.type = ctx.globalCtx.symTable.jsonType;
-        varDef.var = createVariable(ctx.globalCtx.pos, varDef.type, name, owner);
+        varDef.var = createVariable(ctx.globalCtx, varDef.type, name, owner);
         varDef.var.expr = createEmptyRecordLiteral(ctx.globalCtx.symTable.mapJsonType);
         varDef.pos = ctx.globalCtx.pos;
         body.addStatement(varDef);
@@ -191,26 +204,26 @@ public class Utils {
         BLangFunction func = ctx.function;
         BLangSimpleVariableDef varDef = (BLangSimpleVariableDef) TreeBuilder.createSimpleVariableDefinitionNode();
         varDef.type = globalCtx.azureFuncsPkgSymbol.scope.lookup(new Name(type)).symbol.type;
-        varDef.var = createVariable(globalCtx.pos, varDef.type, name, func.symbol);
+        varDef.var = createVariable(globalCtx, varDef.type, name, func.symbol);
         varDef.var.expr = createEmptyRecordLiteral(varDef.type);
         varDef.pos = globalCtx.pos;
         ((BLangBlockFunctionBody) func.getBody()).addStatement(varDef);
         return varDef.var.symbol;
     }
     
-    public static BLangType createJsonTypeNode(DiagnosticPos pos, GlobalContext ctx) {
+    public static BLangType createJsonTypeNode(GlobalContext ctx) {
         BLangType nillType = new BLangValueType(TypeKind.JSON);
         nillType.type = ctx.symTable.jsonType;
         return nillType;
     }
 
-    public static BLangType createNillTypeNode(GlobalContext ctx, DiagnosticPos pos) {
+    public static BLangType createNillTypeNode(GlobalContext ctx) {
         BLangType nillType = new BLangValueType(TypeKind.NIL);
         nillType.type = ctx.symTable.nilType;
         return nillType;
     }
 
-    public static BLangType createErrorNillTypeNode(GlobalContext ctx, DiagnosticPos pos) {
+    public static BLangType createErrorNillTypeNode(GlobalContext ctx) {
         BLangType errorNillType = new BLangValueType(TypeKind.UNION);
         errorNillType.type = ctx.symTable.errorOrNilType;
         return errorNillType;
@@ -252,8 +265,8 @@ public class Utils {
             String baseName, BLangPackage packageNode) {
         List<String> paramNames = Arrays.asList(Constants.REQUEST_PARAMS_NAME);
         List<BType> paramTypes = Arrays.asList(extractRequestParamsType(ctx));
-        BLangType retType = createErrorNillTypeNode(ctx, pos);
-        BLangFunction handlerFunc = createFunction(pos, generateHandlerFuncName(baseName), paramNames, paramTypes,
+        BLangType retType = createErrorNillTypeNode(ctx);
+        BLangFunction handlerFunc = createFunction(ctx, generateHandlerFuncName(baseName), paramNames, paramTypes,
                 retType, packageNode);
         return handlerFunc;
     }
@@ -267,21 +280,19 @@ public class Utils {
         body.addStatement(ret);
     }
 
-    public static BLangFunction createFunction(GlobalContext ctx, DiagnosticPos pos, String name,
-            BLangPackage packageNode) {
-        return createFunction(pos, name, new ArrayList<>(), new ArrayList<>(), createNillTypeNode(ctx, pos),
-                packageNode);
+    public static BLangFunction createFunction(GlobalContext ctx, String name, BLangPackage packageNode) {
+        return createFunction(ctx, name, new ArrayList<>(), new ArrayList<>(), createNillTypeNode(ctx), packageNode);
     }
 
-    public static BLangFunction createFunction(DiagnosticPos pos, String name, List<String> paramNames, 
+    public static BLangFunction createFunction(GlobalContext ctx, String name, List<String> paramNames, 
             List<BType> paramTypes, BLangType retType, BLangPackage packageNode) {
         final BLangFunction bLangFunction = (BLangFunction) TreeBuilder.createFunctionNode();
-        final IdentifierNode funcName = ASTBuilderUtil.createIdentifier(pos, name);
+        final IdentifierNode funcName = ASTBuilderUtil.createIdentifier(ctx.pos, name);
         bLangFunction.setName(funcName);
         bLangFunction.flagSet = EnumSet.of(Flag.PUBLIC);
-        bLangFunction.pos = pos;
+        bLangFunction.pos = ctx.pos;
         bLangFunction.type = new BInvokableType(paramTypes, retType.type, null);
-        bLangFunction.body = createBlockStmt(pos);
+        bLangFunction.body = createBlockStmt(ctx.pos);
         BInvokableSymbol functionSymbol = Symbols.createFunctionSymbol(Flags.asMask(bLangFunction.flagSet),
                 new Name(bLangFunction.name.value), packageNode.packageID, 
                 bLangFunction.type, packageNode.symbol, true);
@@ -290,7 +301,7 @@ public class Utils {
         functionSymbol.scope = new Scope(functionSymbol);
         bLangFunction.symbol = functionSymbol;
         for (int i = 0; i < paramNames.size(); i++) {
-            BLangSimpleVariable var = createVariable(pos, paramTypes.get(i), paramNames.get(i), bLangFunction.symbol);
+            BLangSimpleVariable var = createVariable(ctx, paramTypes.get(i), paramNames.get(i), bLangFunction.symbol);
             bLangFunction.addParameter(var);
             functionSymbol.params.add(var.symbol);
         }
@@ -337,7 +348,7 @@ public class Utils {
         return ctx.symTable.errorType.tsymbol.name.getValue().equals(type.tsymbol.name.getValue());
     }
 
-    private static BType extractNonErrorType(GlobalContext ctx, BType type) {
+    public static BType extractNonErrorType(GlobalContext ctx, BType type) {
         if (type instanceof BUnionType) {
             BUnionType uType = (BUnionType) type;
             LinkedHashSet<BType> newTypes = new LinkedHashSet<>();
@@ -429,6 +440,62 @@ public class Utils {
             return ctx.symTable.byteType.equals(baType.eType);
         }
         return false;
+    }
+
+    public static void addDummyService(GlobalContext ctx, BLangPackage packageNode) {
+        BLangSimpleVariable var = new BLangSimpleVariable();
+        var.constantPropagated = true;
+        var.pos = ctx.pos;
+        var.flagSet = new HashSet<>();
+        var.parent = packageNode;
+        BServiceType vst = new BServiceType(new BTypeSymbol(12, 1, new Name("service"),
+                new PackageID(new Name("anon"), Arrays.asList(new Name(".")), new Name("0.0.0")), null,
+                packageNode.symbol));
+        vst.tsymbol.type = vst;
+        var.symbol = new BVarSymbol(0, new Name("dx"),
+                new PackageID(new Name("anon"), Arrays.asList(new Name(".")), new Name("0.0.0")), vst,
+                packageNode.symbol);
+        var.name = ASTBuilderUtil.createIdentifier(ctx.pos, "dx");
+        BTypeSymbol stSymbol = new BTypeSymbol(12, 1, new Name("service"), packageNode.symbol.pkgID, null,
+                packageNode.symbol);
+        var.type = new BServiceType(stSymbol);
+        var.type.tag = 32;
+        stSymbol.type = var.type;
+        BLangServiceConstructorExpr expr = new BLangServiceConstructorExpr();
+        BObjectTypeSymbol objTypeSym = new BObjectTypeSymbol(196700, 524288, new Name("xxx1"),
+                new PackageID(new Name("anon"), Arrays.asList(new Name(".")), new Name("0.0.0")), null,
+                packageNode.symbol);
+        objTypeSym.kind = SymbolKind.OBJECT;
+        BServiceType exType = new BServiceType(objTypeSym);
+        objTypeSym.type = exType;
+        expr.expectedType = exType;
+        expr.type = expr.expectedType;
+        BLangService sn = new BLangService();
+        sn.name = ASTBuilderUtil.createIdentifier(ctx.pos, "dx2");
+        sn.parent = packageNode;
+        sn.pos = ctx.pos;
+        sn.serviceTypeDefinition = new BLangTypeDefinition();
+        sn.serviceTypeDefinition.name = ASTBuilderUtil.createIdentifier(ctx.pos, "dx3");
+        sn.serviceTypeDefinition.parent = packageNode;
+        sn.serviceTypeDefinition.pos = ctx.pos;
+        sn.serviceTypeDefinition.symbol = objTypeSym;
+        sn.serviceTypeDefinition.typeNode = new BLangObjectTypeNode();
+        sn.symbol = new BServiceSymbol(0, new Name("dx3"),
+                new PackageID(new Name("anon"), Arrays.asList(new Name(".")), new Name("0.0.0")), exType,
+                packageNode.symbol);
+        sn.symbol.kind = SymbolKind.SERVICE;
+        expr.serviceNode = sn;
+        expr.parent = var;
+        expr.pos = ctx.pos;
+        expr.typeChecked = true;
+        var.expr = expr;
+        BLangBuiltInRefTypeNode tn = new BLangBuiltInRefTypeNode();
+        var.typeNode = tn;
+        tn.parent = var;
+        tn.pos = ctx.pos;
+        tn.type = var.type;
+        tn.typeKind = TypeKind.SERVICE;
+        packageNode.addGlobalVariable(var);
     }
     
 }

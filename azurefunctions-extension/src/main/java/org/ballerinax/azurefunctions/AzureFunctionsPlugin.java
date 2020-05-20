@@ -26,6 +26,7 @@ import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -74,8 +75,8 @@ public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
     @Override
     public void process(PackageNode packageNode) {
         BLangPackage bpn = (BLangPackage) packageNode;
-        globalCtx.pos = bpn.pos;
-        globalCtx.azureFuncsPkgSymbol = Utils.extractAzureFuncsPackageSymbol(bpn);
+        this.globalCtx.pos = bpn.pos;
+        this.globalCtx.azureFuncsPkgSymbol = Utils.extractAzureFuncsPackageSymbol(bpn);
         try {
             generatedFunctions.putAll(this.generateHandlerFunctions(bpn));
             this.registerHandlerFunctions(bpn, generatedFunctions);
@@ -83,11 +84,11 @@ public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
             this.dlog.logDiagnostic(Diagnostic.Kind.ERROR, packageNode.getPosition(), e.getMessage());
         }
     }
-
-    private BLangFunction generateHandlerFunction(BLangPackage packageNode, BLangFunction sourceFunc)
+    
+    private FunctionDeploymentContext createFuncDeplContext(BLangPackage packageNode, BLangFunction sourceFunc)
             throws AzureFunctionsException {
         FunctionDeploymentContext ctx = new FunctionDeploymentContext();
-        ctx.globalCtx = globalCtx;
+        ctx.globalCtx = this.globalCtx;
         ctx.pkg = packageNode;
         BLangFunction func = Utils.createHandlerFunction(this.globalCtx, sourceFunc.pos, 
                 sourceFunc.name.value, packageNode);
@@ -98,16 +99,35 @@ public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
         for (BLangSimpleVariable param : sourceFunc.getParameters()) {
             ctx.parameterHandlers.add(HandlerFactory.createParameterHandler(param));
         }
-        List<BLangExpression> args = new ArrayList<>();        
+        ctx.returnHandler = HandlerFactory.createReturnHandler(ctx.globalCtx,
+                Utils.extractNonErrorType(ctx.globalCtx, sourceFunc.getReturnTypeNode().type),
+                sourceFunc.getReturnTypeAnnotationAttachments());
         for (ParameterHandler ph : ctx.parameterHandlers) {
             ph.init(ctx);
+        }
+        if (ctx.returnHandler != null) {
+            ctx.returnHandler.init(ctx);
+        }
+        return ctx;
+    }
+
+    private BLangFunction generateHandlerFunction(BLangPackage packageNode, BLangFunction sourceFunc)
+            throws AzureFunctionsException {
+        FunctionDeploymentContext ctx = this.createFuncDeplContext(packageNode, sourceFunc);
+        List<BLangExpression> args = new ArrayList<>();
+        for (ParameterHandler ph : ctx.parameterHandlers) {
             args.add(Utils.createCheckedExpr(ctx.globalCtx, ph.invocationProcess()));
         }
-        Utils.addFunctionCall(ctx, sourceFunc.symbol, true, args.toArray(new BLangExpression[0]));
+        BLangSimpleVariable retVal = Utils.addFunctionCall(ctx, sourceFunc.symbol, true,
+                args.toArray(new BLangExpression[0]));
         for (ParameterHandler ph : ctx.parameterHandlers) {
             ph.postInvocationProcess();
         }
-        return func;
+        ReturnHandler retHandler = ctx.returnHandler;
+        if (retHandler != null) {
+            retHandler.postInvocationProcess(Utils.createVariableRef(ctx.globalCtx, (BVarSymbol) retVal.symbol));
+        }
+        return ctx.function;
     }
 
     private Map<String, BLangFunction> generateHandlerFunctions(BLangPackage packageNode)
@@ -137,7 +157,7 @@ public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
         BLangFunction epFunc = Utils.extractMainFunction(myPkg);
         if (epFunc == null) {
             // main function is not there, lets create our own one
-            epFunc = Utils.createFunction(this.globalCtx, myPkg.pos, Constants.MAIN_FUNC_NAME, myPkg);
+            epFunc = Utils.createFunction(this.globalCtx, Constants.MAIN_FUNC_NAME, myPkg);
             myPkg.addFunction(epFunc);
         } else {
             // clear out the existing statements

@@ -17,11 +17,7 @@
  */
 package org.ballerinax.azurefunctions;
 
-import org.ballerinalang.model.AnnotationAttachment;
-import org.ballerinalang.model.expressions.Expression;
-import org.wso2.ballerinalang.compiler.tree.types.BLangType;
-
-import java.util.List;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 /**
  * Represents an Azure function return value handler.
@@ -29,16 +25,14 @@ import java.util.List;
 public interface ReturnHandler {
 
     /**
-     * Initializes the {@link ReturnHandler}. This can be used for any initialization operations before
-     * the invocationVariable call is made. 
+     * Initializes the {@link ReturnHandler}. This can be used for any
+     * initialization operations before the invocationVariable call is made.
      * 
      * @param context The handler context
-     * @param annons The annotations associated with the function return type
-     * @param type The function return type
+     * 
      * @throws AzureFunctionsException thrown if an error occurs
      */
-    public void init(FunctionDeploymentContext context, List<AnnotationAttachment> annons, BLangType type)
-            throws AzureFunctionsException;
+    public void init(FunctionDeploymentContext context) throws AzureFunctionsException;
 
     /**
      * Called after the function invocation statement is done, and the return value is passed here 
@@ -46,6 +40,6 @@ public interface ReturnHandler {
      * 
      * @param returnValueExpr The function invocation return value expression
      */
-    public void postInvocationProcess(Expression returnValueExpr);
+    public void postInvocationProcess(BLangExpression returnValueExpr);
 
 }

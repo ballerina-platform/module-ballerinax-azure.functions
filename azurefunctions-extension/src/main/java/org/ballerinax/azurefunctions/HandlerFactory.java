@@ -20,8 +20,11 @@ package org.ballerinax.azurefunctions;
 import org.ballerinax.azurefunctions.handlers.ContextParameterHandler;
 import org.ballerinax.azurefunctions.handlers.HTTPOutputParameterHandler;
 import org.ballerinax.azurefunctions.handlers.HTTPTriggerParameterHandler;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+
+import java.util.List;
 
 /**
  * Factory class to create parameter and return handlers.
@@ -46,8 +49,12 @@ public class HandlerFactory {
         throw new AzureFunctionsException("Parameter handler not found for the name: " + name);
     }
 
-    public static ReturnHandler createReturnHandler(String name) throws AzureFunctionsException {
-        throw new AzureFunctionsException("Return handler not found for the name: " + name);
+    public static ReturnHandler createReturnHandler(GlobalContext ctx, BType retType,
+            List<BLangAnnotationAttachment> annons) throws AzureFunctionsException {
+        if (ctx.symTable.nilType.equals(retType) || ctx.symTable.noType.equals(retType)) {
+            return null;
+        }
+        throw new AzureFunctionsException("Return handler not found for the type: " + retType);
     }
 
 }
