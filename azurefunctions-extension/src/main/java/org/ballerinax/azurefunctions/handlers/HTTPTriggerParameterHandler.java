@@ -64,8 +64,8 @@ public class HTTPTriggerParameterHandler extends AbstractParameterHandler {
                                 + ":" + Constants.HTTP_REQUEST_NAME);
             } else if (Utils.isStringType(this.ctx.globalCtx, this.param.type)) {
                 return Utils.createAzurePkgInvocationNode(this.ctx, "getStringFromInputData",
-                        Utils.createStringLiteral(ctx.globalCtx, this.name),
-                        Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams));
+                        Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
+                        Utils.createStringLiteral(ctx.globalCtx, this.name));
             } else {
                 throw this.createError("Type '" + this.param.type.tsymbol.name.value + "' is not supported");
             }

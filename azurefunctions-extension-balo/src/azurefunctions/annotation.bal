@@ -14,32 +14,35 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# @azurefunctions:Function annotation
+# @azurefunctions:Function annotation.
 public const annotation Function on function;
 
 public type AUTH_LEVEL "anonymous"|"function"|"admin";
 
-# HTTPTrigger annotation configuration
+# HTTPTrigger annotation configuration.
 # 
 # + authLevel - The authentication level of the function
 public type HTTPTriggerConfiguration record {|
     AUTH_LEVEL authLevel?;
 |};
 
-# @azurefunctions:HTTPTrigger annotation
+# @azurefunctions:HTTPTrigger annotation.
 public const annotation HTTPTriggerConfiguration HTTPTrigger on parameter;
 
 # @azurefunctions:HTTPOutput annotation
 public const annotation HTTPOutput on parameter, return;
 
-# QueueOutput annotation configuration
+# Queue annotation configuration.
 # 
 # + queueName - The queue name
 # + connection - The storage connection
-public type QueueOutputConfiguration record {|
+public type QueueConfiguration record {|
     string queueName;
     string connection?;
 |};
 
-# @azurefunctions:QueueOutput annotation
-public const annotation QueueOutputConfiguration QueueOutput on parameter, return;
+# @azurefunctions:QueueOutput annotation.
+public const annotation QueueConfiguration QueueOutput on parameter, return;
+
+# @azurefunctions:QueueOutput annotation.
+public const annotation QueueConfiguration QueueTrigger on parameter;
