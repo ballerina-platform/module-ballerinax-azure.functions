@@ -46,7 +46,7 @@ import java.util.Map.Entry;
 /**
  * Compiler plugin to process Azure Functions function annotations.
  */
-@SupportedAnnotationPackages(value = "ballerinax/azurefunctions:0.0.0")
+@SupportedAnnotationPackages(value = "ballerinax/azure.functions:0.0.0")
 public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
 
     private static final PrintStream OUT = System.out;
@@ -171,7 +171,7 @@ public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
             // no azure functions, nothing else to do
             return;
         }
-        OUT.println("\t@azurefunctions:Function: " + String.join(", ", generatedFunctions.keySet()));
+        OUT.println("\t@azure.functions:Function: " + String.join(", ", generatedFunctions.keySet()));
         try {
             this.generateFunctionsArtifact(generatedFunctions, binaryPath, Constants.AZURE_FUNCS_OUTPUT_ZIP_FILENAME);
         } catch (IOException e) {
