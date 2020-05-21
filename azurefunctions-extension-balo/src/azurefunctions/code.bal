@@ -162,6 +162,12 @@ public function getStringFromInputData(HandlerParams params, string name) return
     return <string> data[name];
 }
 
+public function getJsonFromInputData(HandlerParams params, string name) returns json|error {
+    json payload = check getJsonFromHTTPReq(params);
+    map<json> data = <map<json>> payload.Data;
+    return data[name];
+}
+
 public function setStringReturn(HandlerParams params, string value) returns error? {
     json content = params.result;
     _ = check content.mergeJson({ ReturnValue: value });
