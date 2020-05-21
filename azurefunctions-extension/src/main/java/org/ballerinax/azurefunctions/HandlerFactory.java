@@ -23,6 +23,7 @@ import org.ballerinax.azurefunctions.handlers.HTTPReturnHandler;
 import org.ballerinax.azurefunctions.handlers.HTTPTriggerParameterHandler;
 import org.ballerinax.azurefunctions.handlers.QueueOutputParameterHandler;
 import org.ballerinax.azurefunctions.handlers.QueueTriggerHandler;
+import org.ballerinax.azurefunctions.handlers.TimerTriggerHandler;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -53,6 +54,8 @@ public class HandlerFactory {
             return new QueueOutputParameterHandler(param, ann);
         } else if ("QueueTrigger".equals(name)) {
             return new QueueTriggerHandler(param, ann);
+        } else if ("TimerTrigger".equals(name)) {
+            return new TimerTriggerHandler(param, ann);
         } else {
             throw createParamError(ctx, param, "Parameter handler not found");
         }

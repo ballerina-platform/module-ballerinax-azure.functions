@@ -46,3 +46,15 @@ public const annotation QueueConfiguration QueueOutput on parameter, return;
 
 # @azurefunctions:QueueOutput annotation.
 public const annotation QueueConfiguration QueueTrigger on parameter;
+
+# TimerTrigger annotation configuration.
+# 
+# + schedule - The CRON expression representing the timer schedule.
+# + runOnStartup - The flag to state if the timer should be started on a runtime restart
+public type TimerTriggerConfiguration record {|
+    string schedule;
+    boolean runOnStartup = true;
+|};
+
+# @azurefunctions:TimerTrigger annotation.
+public const annotation TimerTriggerConfiguration TimerTrigger on parameter;
