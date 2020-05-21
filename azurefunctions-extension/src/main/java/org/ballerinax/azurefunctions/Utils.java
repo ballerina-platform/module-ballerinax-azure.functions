@@ -19,6 +19,7 @@ package org.ballerinax.azurefunctions;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import org.ballerinalang.model.TreeBuilder;
@@ -486,6 +487,8 @@ public class Utils {
                 array.add(item);
             }
             return array;
+        } else if (obj == null) {
+            return JsonNull.INSTANCE;
         } else {
             throw new IllegalStateException("Unsupported type to convert to JSON: " + obj.getClass());
         }
@@ -510,7 +513,7 @@ public class Utils {
     public static Map<String, String> extractAnnotationKeyValues(BLangAnnotationAttachment annotation) {
         BLangRecordLiteral record = (BLangRecordLiteral) annotation.expr;
         List<BLangRecordKeyValueField> fields = record.getFields().stream().map(x -> (BLangRecordKeyValueField) x)
-                .collect(Collectors.toList());        
+                .collect(Collectors.toList());
         Map<String, String> annonMap = new HashMap<>();
         for (BLangRecordKeyValueField field : fields) {
             annonMap.put(field.key.toString(), field.getValue().toString());

@@ -66,8 +66,6 @@ public class HTTPOutputParameterHandler extends AbstractParameterHandler {
     public Map<String, Object> generateBinding() {
         Map<String, Object> binding = new LinkedHashMap<>();
         binding.put("type", "http");
-        binding.put("direction", "out");
-        binding.put("name", this.name);
         return binding;
     }
     

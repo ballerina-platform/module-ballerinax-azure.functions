@@ -20,7 +20,11 @@ import ballerina/lang.'int as ints;
 
 public type HTTPBinding record {
     int statusCode = 200;
-    string payload = "";
+    string payload?;
+};
+
+public type StringOutputBinding record {
+    string value?;
 };
 
 public type HandlerParams record {
@@ -101,16 +105,33 @@ public function __register(string name, FunctionHandler funcHandler) {
 }
 
 public function setHTTPOutput(HandlerParams params, string name, HTTPBinding binding) returns error? {
-    json content = params.result;
-    json outputs = check content.Outputs;
-    map<json> bvals = { };
-    bvals[name] = { statusCode: binding.statusCode, body: binding.payload };
-    _ = check outputs.mergeJson(bvals);
+    string? payload = binding?.payload;
+    if (payload is string) {
+        json content = params.result;
+        json outputs = check content.Outputs;
+        map<json> bvals = { };
+        bvals[name] = { statusCode: binding.statusCode, body: payload };
+        _ = check outputs.mergeJson(bvals);
+    }
+}
+
+public function setStringOutput(HandlerParams params, string name, StringOutputBinding binding) returns error? {
+    string? value = binding?.value;
+    if (value is string) {
+        json content = params.result;
+        json outputs = check content.Outputs;
+        map<json> bvals = { };
+        bvals[name] = value;
+        _ = check outputs.mergeJson(bvals);
+    }
 }
 
 public function setPureHTTPOutput(HandlerParams params, HTTPBinding binding) returns error? {
-    params.response.statusCode = binding.statusCode;
-    params.response.setTextPayload(binding.payload);
+    string? payload = binding?.payload;
+    if (payload is string) {
+        params.response.statusCode = binding.statusCode;
+        params.response.setTextPayload(payload);
+    }
     params.pure = true;
 }
 

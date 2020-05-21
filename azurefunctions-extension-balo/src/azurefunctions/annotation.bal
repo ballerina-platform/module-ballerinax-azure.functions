@@ -31,3 +31,15 @@ public const annotation HTTPTriggerConfiguration HTTPTrigger on parameter;
 
 # @azurefunctions:HTTPOutput annotation
 public const annotation HTTPOutput on parameter, return;
+
+# QueueOutput annotation configuration
+# 
+# + queueName - The queue name
+# + connection - The storage connection
+public type QueueOutputConfiguration record {|
+    string queueName;
+    string connection?;
+|};
+
+# @azurefunctions:QueueOutput annotation
+public const annotation QueueOutputConfiguration QueueOutput on parameter, return;

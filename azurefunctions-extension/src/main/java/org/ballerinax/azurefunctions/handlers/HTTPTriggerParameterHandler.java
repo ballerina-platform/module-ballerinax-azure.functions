@@ -84,8 +84,6 @@ public class HTTPTriggerParameterHandler extends AbstractParameterHandler {
         if (authLevel != null) {
             binding.put("authLevel", authLevel);
         }
-        binding.put("direction", "in");
-        binding.put("name", this.name);
         binding.put("methods", new String[] { "get", "post", "put", "delete" });
         return binding;
     }

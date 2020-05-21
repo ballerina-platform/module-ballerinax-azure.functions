@@ -23,33 +23,21 @@ package org.ballerinax.azurefunctions;
 public class Constants {
     
     public static final String AZURE_FUNCS_REG_FUNCTION_NAME = "__register";
-
     public static final String MAIN_FUNC_NAME = "main";
-
     public static final String AZURE_FUNCTIONS_MODULE_NAME = "azurefunctions";
-
     public static final String BALLERINA_ORG = "ballerina";
-
     public static final String HTTP_MODULE_NAME = "http";
-
     public static final String HTTP_REQUEST_NAME = "Request";
-    
     public static final String HTTP_MODULE_VERSION = "0.0.0";
-
     public static final String REQUEST_PARAMS_TYPE = "HandlerParams";
-
     public static final String REQUEST_PARAMS_NAME = "params";
-
     public static final String AZURE_FUNCTIONS_PACKAGE_ORG = "ballerinax"; 
-
     public static final String AZURE_FUNCTIONS_CONTEXT_NAME = "Context";
-
     public static final String AZURE_FUNCS_OUTPUT_ZIP_FILENAME = "azure-functions.zip";
-
     public static final String GEN_FUNC_SUFFIX = "0dadec8e-7c9c-44c3-88ea-f947acc3add7";
-
     public static final String FUNCTION_BINDINGS_NAME = "bindings";
-
     public static final String CHARSET = "UTF-8";
+
+    public static final String DEFAULT_QUEUE_CONNECTION_NAME = "AzureWebJobsStorage";
 
 }
