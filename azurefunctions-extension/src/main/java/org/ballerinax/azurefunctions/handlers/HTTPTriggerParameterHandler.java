@@ -40,7 +40,8 @@ public class HTTPTriggerParameterHandler extends AbstractParameterHandler {
     @Override
     public BLangExpression invocationProcess() throws AzureFunctionsException {
         boolean httpRequestType = Utils.isHTTPRequestType(this.param.type);
-        if (Utils.isSingleInputBinding(this.ctx)) {
+
+        if (Utils.isPureHTTPBinding(this.ctx)) {
             if (httpRequestType) {
                 return Utils.createAzurePkgInvocationNode(this.ctx, "getHTTPRequestFromParams",
                         Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams));

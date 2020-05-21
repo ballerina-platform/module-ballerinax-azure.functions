@@ -50,7 +50,7 @@ public class HTTPOutputParameterHandler extends AbstractParameterHandler {
 
     @Override
     public void postInvocationProcess() throws AzureFunctionsException {
-        if (Utils.isSingleOutputBinding(this.ctx)) {
+        if (Utils.isPureHTTPBinding(this.ctx)) {
             Utils.addAzurePkgFunctionCall(this.ctx, "setPureHTTPOutput", true,
                     Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
                     Utils.createVariableRef(this.ctx.globalCtx, this.var));

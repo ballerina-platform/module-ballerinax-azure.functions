@@ -30,6 +30,8 @@ import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
+import org.ballerinax.azurefunctions.handlers.HTTPOutputParameterHandler;
+import org.ballerinax.azurefunctions.handlers.HTTPReturnHandler;
 import org.ballerinax.azurefunctions.handlers.HTTPTriggerParameterHandler;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -407,13 +409,17 @@ public class Utils {
     }
 
     public static boolean isSingleOutputBinding(FunctionDeploymentContext ctx) {
+        return getOutputBindingCount(ctx) == 1;
+    }
+
+    public static int getOutputBindingCount(FunctionDeploymentContext ctx) {
         int count = 0;
         for (ParameterHandler ph : ctx.parameterHandlers) {
             if (ph.getBindingType() == BindingType.OUTPUT) {
                 count++;
             }
         }
-        return count == 1;
+        return count;
     }
 
     public static boolean isHTTPTriggerAvailable(FunctionDeploymentContext ctx) {
@@ -424,11 +430,38 @@ public class Utils {
                 }
             }
         }
-        return true;
+        return false;
     }
 
-    public static boolean isSingleInputBindingWithHTTPTrigger(FunctionDeploymentContext ctx) {
-        return isSingleInputBinding(ctx) && isHTTPTriggerAvailable(ctx);
+    public static boolean isHTTPOutputAvailable(FunctionDeploymentContext ctx) {
+        for (ParameterHandler ph : ctx.parameterHandlers) {
+            if (ph.getBindingType() == BindingType.OUTPUT) {
+                if (ph instanceof HTTPOutputParameterHandler) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public static boolean isPureHTTPBinding(FunctionDeploymentContext ctx) {
+        if (!isSingleInputBinding(ctx)) {
+            return false;
+        }
+        if (!isHTTPTriggerAvailable(ctx)) {
+            return false;
+        }
+        int outBindingCount = getOutputBindingCount(ctx);
+        if (outBindingCount > 1) {
+            return false;
+        }
+        if (outBindingCount == 1 && !isHTTPOutputAvailable(ctx)) {
+            return false;
+        }
+        if (ctx.returnHandler != null && !(ctx.returnHandler instanceof HTTPReturnHandler)) {
+            return false;
+        }
+        return true;
     }
 
     public static int getFunctionTriggerCount(FunctionDeploymentContext ctx) {
