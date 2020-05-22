@@ -40,7 +40,6 @@ public class HTTPTriggerParameterHandler extends AbstractParameterHandler {
     @Override
     public BLangExpression invocationProcess() throws AzureFunctionsException {
         boolean httpRequestType = Utils.isHTTPRequestType(this.param.type);
-
         if (Utils.isPureHTTPBinding(this.ctx)) {
             if (httpRequestType) {
                 return Utils.createAzurePkgInvocationNode(this.ctx, "getHTTPRequestFromParams",
@@ -60,11 +59,15 @@ public class HTTPTriggerParameterHandler extends AbstractParameterHandler {
         } else {
             if (httpRequestType) {
                 throw this.createError(
-                        "In a multiple input binding scenario, the parameter type cannot be '" 
+                        "In a non-pure HTTP scenario, the parameter type cannot be '" 
                                 + Constants.BALLERINA_ORG + "/" + Constants.HTTP_MODULE_NAME 
                                 + ":" + Constants.HTTP_REQUEST_NAME);
+            } else if (Utils.isAzurePkgType(this.ctx, "HTTPRequest", this.param.type)) {
+                return Utils.createAzurePkgInvocationNode(this.ctx, "getHTTPRequestFromInputData",
+                        Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
+                        Utils.createStringLiteral(ctx.globalCtx, this.name));
             } else if (Utils.isStringType(this.ctx.globalCtx, this.param.type)) {
-                return Utils.createAzurePkgInvocationNode(this.ctx, "getStringFromInputData",
+                return Utils.createAzurePkgInvocationNode(this.ctx, "getBodyFromHTTPInputData",
                         Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
                         Utils.createStringLiteral(ctx.globalCtx, this.name));
             } else {
