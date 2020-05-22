@@ -22,11 +22,17 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.nio.file.FileSystem;
@@ -55,7 +61,8 @@ public class FunctionsArtifact {
 
     private Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-    public FunctionsArtifact(Map<String, FunctionDeploymentContext> functions, Path binaryPath) {
+    public FunctionsArtifact(Map<String, FunctionDeploymentContext> functions, Path binaryPath)
+            throws AzureFunctionsException {
         this.functions = functions;
         this.binaryPath = binaryPath;
         this.generateHostJson();
@@ -69,8 +76,26 @@ public class FunctionsArtifact {
         return binaryPath;
     }
 
-    private void generateHostJson() {
-        this.hostJson = new JsonObject();
+    private JsonObject readExistingHostJson() throws AzureFunctionsException {
+        File file = new File(HOST_JSON_NAME);
+        if (file.exists()) {
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(new FileInputStream(file), Constants.CHARSET))) {
+                JsonParser parser = new JsonParser();
+                return parser.parse(reader).getAsJsonObject();
+            } catch (JsonParseException | IOException e) {
+                throw new AzureFunctionsException("Error in reading host.json: " + e.getMessage());
+            }
+        } else {
+            return null;
+        }
+    }
+
+    private void generateHostJson() throws AzureFunctionsException {
+        this.hostJson = readExistingHostJson();
+        if (this.hostJson == null) {
+            this.hostJson = new JsonObject();
+        }
         this.hostJson.add("version", new JsonPrimitive("2.0"));
         JsonObject httpWorker = new JsonObject();
         this.hostJson.add("httpWorker", httpWorker);
@@ -104,7 +129,7 @@ public class FunctionsArtifact {
         URI uri = URI.create("jar:file:" + this.binaryPath.toAbsolutePath().getParent()
                 .resolve(outputFileName).toUri().getPath());        
         try (FileSystem zipfs = FileSystems.newFileSystem(uri, env)) {
-            Files.copy(this.binaryPath, zipfs.getPath("/" + this.binaryPath.getFileName()), 
+            Files.copy(this.binaryPath, zipfs.getPath("/" + this.binaryPath.getFileName()),
                     StandardCopyOption.REPLACE_EXISTING);
             Files.copy(this.jtos(this.hostJson), zipfs.getPath("/" + HOST_JSON_NAME), 
                     StandardCopyOption.REPLACE_EXISTING);

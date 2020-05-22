@@ -174,8 +174,10 @@ public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
         OUT.println("\t@azure.functions:Function: " + String.join(", ", generatedFunctions.keySet()));
         try {
             this.generateFunctionsArtifact(generatedFunctions, binaryPath, Constants.AZURE_FUNCS_OUTPUT_ZIP_FILENAME);
-        } catch (IOException e) {
-            throw new BallerinaException("Error generating Azure Functions zip file: " + e.getMessage(), e);
+        } catch (AzureFunctionsException | IOException e) {
+            String msg = "Error generating Azure Functions: " + e.getMessage();
+            OUT.println(msg);
+            throw new BallerinaException(msg, e);
         }
         OUT.println("\n\tRun the following command to deploy Ballerina Azure Functions:");
         OUT.println("\taz functionapp deployment source config-zip -g <resource_group> -n <function_app_name> --src " 
@@ -183,7 +185,7 @@ public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
     }
     
     private void generateFunctionsArtifact(Map<String, FunctionDeploymentContext> functions, Path binaryPath,
-            String outputFileName) throws IOException {
+            String outputFileName) throws AzureFunctionsException, IOException {
         new FunctionsArtifact(functions, binaryPath).generate(outputFileName);
     }
 
