@@ -17,10 +17,12 @@
  */
 package org.ballerinax.azurefunctions;
 
+import org.ballerinax.azurefunctions.handlers.BlobTriggerHandler;
 import org.ballerinax.azurefunctions.handlers.ContextParameterHandler;
 import org.ballerinax.azurefunctions.handlers.HTTPOutputParameterHandler;
 import org.ballerinax.azurefunctions.handlers.HTTPReturnHandler;
 import org.ballerinax.azurefunctions.handlers.HTTPTriggerParameterHandler;
+import org.ballerinax.azurefunctions.handlers.MetadataBindingParameterHandler;
 import org.ballerinax.azurefunctions.handlers.QueueOutputParameterHandler;
 import org.ballerinax.azurefunctions.handlers.QueueTriggerHandler;
 import org.ballerinax.azurefunctions.handlers.TimerTriggerHandler;
@@ -56,6 +58,10 @@ public class HandlerFactory {
             return new QueueTriggerHandler(param, ann);
         } else if ("TimerTrigger".equals(name)) {
             return new TimerTriggerHandler(param, ann);
+        } else if ("BlobTrigger".equals(name)) {
+            return new BlobTriggerHandler(param, ann);
+        } else if ("BindingName".equals(name)) {
+            return new MetadataBindingParameterHandler(param, ann);
         } else {
             throw createParamError(ctx, param, "Parameter handler not found");
         }

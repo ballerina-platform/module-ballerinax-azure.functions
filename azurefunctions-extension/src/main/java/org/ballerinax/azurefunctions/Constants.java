@@ -38,7 +38,7 @@ public class Constants {
     public static final String FUNCTION_BINDINGS_NAME = "bindings";
     public static final String CHARSET = "UTF-8";
 
-    public static final String DEFAULT_QUEUE_CONNECTION_NAME = "AzureWebJobsStorage";
+    public static final String DEFAULT_STORAGE_CONNECTION_NAME = "AzureWebJobsStorage";
     public static final String DEFAULT_TIMER_TRIGGER_RUNONSTARTUP = "true";
 
 }

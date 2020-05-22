@@ -21,7 +21,6 @@ import org.ballerinax.azurefunctions.AzureFunctionsException;
 import org.ballerinax.azurefunctions.BindingType;
 import org.ballerinax.azurefunctions.Constants;
 import org.ballerinax.azurefunctions.Utils;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -30,39 +29,34 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Implementation for the input parameter handler annotation "@QueueOutput".
+ * Implementation for the input parameter handler annotation "@BlobTrigger".
  */
-public class QueueOutputParameterHandler extends AbstractParameterHandler {
+public class BlobTriggerHandler extends AbstractParameterHandler {
 
-    private BVarSymbol var;
-
-    public QueueOutputParameterHandler(BLangSimpleVariable param, BLangAnnotationAttachment annotation) {
-        super(param, annotation, BindingType.OUTPUT);
+    public BlobTriggerHandler(BLangSimpleVariable param, BLangAnnotationAttachment annotation) {
+        super(param, annotation, BindingType.TRIGGER);
     }
 
     @Override
     public BLangExpression invocationProcess() throws AzureFunctionsException {
-        if (!Utils.isAzurePkgType(ctx, "StringOutputBinding", this.param.type)) {
-            throw this.createError("The parameter type must be 'StringOutputBinding'");
+        if (Utils.isByteArray(this.ctx.globalCtx, this.param.type)) {
+            return Utils.createAzurePkgInvocationNode(this.ctx, "getBytesFromInputData",
+                    Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
+                    Utils.createStringLiteral(ctx.globalCtx, this.name));
+        } else {
+            throw this.createError("Type '" + this.param.type.tsymbol.name.value + "' is not supported");
         }
-        this.var = Utils.addAzurePkgRecordVarDef(this.ctx, "StringOutputBinding", this.ctx.getNextVarName());
-        return Utils.createVariableRef(this.ctx.globalCtx, this.var);
     }
 
     @Override
-    public void postInvocationProcess() throws AzureFunctionsException {
-        Utils.addAzurePkgFunctionCall(this.ctx, "setStringOutput", true,
-                Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
-                Utils.createStringLiteral(this.ctx.globalCtx, this.name),
-                Utils.createVariableRef(this.ctx.globalCtx, this.var));
-    }
+    public void postInvocationProcess() throws AzureFunctionsException { }
 
     @Override
     public Map<String, Object> generateBinding() {
         Map<String, Object> binding = new LinkedHashMap<>();
         Map<String, String> annonMap = Utils.extractAnnotationKeyValues(this.annotation);
-        binding.put("type", "queue");
-        binding.put("queueName", annonMap.get("queueName"));
+        binding.put("type", "blobTrigger");
+        binding.put("path", annonMap.get("path"));
         String connection = annonMap.get("connection");
         if (connection == null) {
             connection = Constants.DEFAULT_STORAGE_CONNECTION_NAME;

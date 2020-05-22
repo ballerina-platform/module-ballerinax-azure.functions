@@ -24,5 +24,6 @@ public enum BindingType {
     TRIGGER,
     INPUT,
     OUTPUT,
-    CONTEXT
+    CONTEXT,
+    METADATA
 }
