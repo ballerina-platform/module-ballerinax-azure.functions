@@ -2,11 +2,21 @@
 
 Annotation based Azure Functions extension implementation for Ballerina. 
 
+## Azure Setup
+
+* An Azure "Function App" needs to be created in a given resource group with the following requirements
+ - Runtime stack - Java
+ - Hosting operating system - Windows (default, Linux is not supported in Azure for custom handlers at the moment)
+
+## Custom 'host.json'
+
+A custom [host.json](https://docs.microsoft.com/en-us/azure/azure-functions/functions-host-json) file for the functions deployment can be optionally provided by placing a 'host.json' file in the current working directory where the Ballerina build is done. The required host.json properties are provided/overridden by the values derived from the source code by the compiler extension. 
+
 ## Supported Annotations:
 
 ### @azure.functions:Function
 
-### Annotation Usage Sample:
+#### Usage Sample:
 
 ```ballerina
 import ballerina/http;
