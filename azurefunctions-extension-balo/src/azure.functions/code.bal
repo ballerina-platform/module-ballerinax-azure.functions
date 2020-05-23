@@ -32,7 +32,7 @@ public type StringOutputBinding record {
 public type HTTPRequest record {
     string url;
     string method;
-    string query;
+    map<string> query;
     map<string[]> headers;
     map<string> params;
     string identities;
@@ -107,7 +107,7 @@ service AzureFunctionsServer on hl {
 
 }
 
-public function decodeMetadataField(json value) returns json|error {
+public function unescapeJson(json value) returns json|error {
     io:StringReader sr = new(value.toString(), encoding = "UTF-8");
     return <@untainted> sr.readJson();
 }
@@ -172,7 +172,7 @@ public function getStringFromHTTPReq(HandlerParams params) returns string|error 
 
 public function getStringFromMetadata(HandlerParams params, string name) returns string|error {
     map<json> metadata = <map<json>> check getMetadata(params);
-    json fld = check decodeMetadataField(metadata[name]);    
+    json fld = check unescapeJson(metadata[name]);    
     string result = fld.toJsonString();
     if (result.startsWith("\"") && result.endsWith("\"")) {
         result = result.substring(1, result.length() - 1);
@@ -215,7 +215,7 @@ function extractHTTPHeaders(json headers) returns map<string[]> {
     return result;
 }
 
-function extractHTTPParams(json params) returns map<string> {
+function extractStringMap(json params) returns map<string> {
     map<json> paramMap = <map<json>> params;
     map<string> result = {};
     foreach var key in paramMap.keys() {
@@ -230,9 +230,9 @@ public function getHTTPRequestFromInputData(HandlerParams params, string name) r
     json hreq = data[name];
     string url = hreq.Url.toString();
     string method = hreq.Method.toString();
-    string query = hreq.Query.toString();
     map<string[]> headers = extractHTTPHeaders(check hreq.Headers);
-    map<string> hparams = extractHTTPParams(check hreq.Params);
+    map<string> hparams = extractStringMap(check hreq.Params);
+    map<string> query = extractStringMap(check unescapeJson(check hreq.Query));
     string identities = hreq.Identities.toString();
     string body = hreq.Body.toString();
     HTTPRequest req = { url: url, method: method, query: query, headers: headers, 

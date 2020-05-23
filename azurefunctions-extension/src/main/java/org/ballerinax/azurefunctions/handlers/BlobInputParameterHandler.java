@@ -29,12 +29,16 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Implementation for the input parameter handler annotation "@BlobTrigger".
+ * Implementation for the input parameter handler annotations "@BlobTrigger" and "@BlobInput".
  */
-public class BlobTriggerHandler extends AbstractParameterHandler {
+public class BlobInputParameterHandler extends AbstractParameterHandler {
 
-    public BlobTriggerHandler(BLangSimpleVariable param, BLangAnnotationAttachment annotation) {
-        super(param, annotation, BindingType.TRIGGER);
+    private boolean trigger;
+
+    public BlobInputParameterHandler(BLangSimpleVariable param, BLangAnnotationAttachment annotation, 
+                                     boolean trigger) {
+        super(param, annotation, trigger ? BindingType.TRIGGER : BindingType.INPUT);
+        this.trigger = trigger;
     }
 
     @Override
@@ -55,8 +59,9 @@ public class BlobTriggerHandler extends AbstractParameterHandler {
     public Map<String, Object> generateBinding() {
         Map<String, Object> binding = new LinkedHashMap<>();
         Map<String, String> annonMap = Utils.extractAnnotationKeyValues(this.annotation);
-        binding.put("type", "blobTrigger");
+        binding.put("type", trigger ? "blobTrigger" : "blob");
         binding.put("path", annonMap.get("path"));
+        binding.put("dataType", "binary");
         String connection = annonMap.get("connection");
         if (connection == null) {
             connection = Constants.DEFAULT_STORAGE_CONNECTION_NAME;

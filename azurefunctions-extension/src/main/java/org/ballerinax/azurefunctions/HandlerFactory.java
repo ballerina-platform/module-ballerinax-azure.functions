@@ -17,7 +17,7 @@
  */
 package org.ballerinax.azurefunctions;
 
-import org.ballerinax.azurefunctions.handlers.BlobTriggerHandler;
+import org.ballerinax.azurefunctions.handlers.BlobInputParameterHandler;
 import org.ballerinax.azurefunctions.handlers.ContextParameterHandler;
 import org.ballerinax.azurefunctions.handlers.HTTPOutputParameterHandler;
 import org.ballerinax.azurefunctions.handlers.HTTPReturnHandler;
@@ -59,7 +59,9 @@ public class HandlerFactory {
         } else if ("TimerTrigger".equals(name)) {
             return new TimerTriggerHandler(param, ann);
         } else if ("BlobTrigger".equals(name)) {
-            return new BlobTriggerHandler(param, ann);
+            return new BlobInputParameterHandler(param, ann, true);
+        } else if ("BlobInput".equals(name)) {
+            return new BlobInputParameterHandler(param, ann, false);
         } else if ("BindingName".equals(name)) {
             return new MetadataBindingParameterHandler(param, ann);
         } else {

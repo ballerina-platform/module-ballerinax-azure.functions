@@ -38,11 +38,11 @@ public class HTTPReturnHandler extends AbstractReturnHandler {
     @Override
     public void postInvocationProcess(BLangExpression returnValueExpr) throws AzureFunctionsException {
         if (Utils.isStringType(this.ctx.globalCtx, this.retType)) {
-            if (Utils.isSingleOutputBinding(this.ctx)) {
-                Utils.addAzurePkgFunctionCall(this.ctx, "setStringReturn", true,
+            if (Utils.isPureHTTPBinding(this.ctx)) {
+                Utils.addAzurePkgFunctionCall(this.ctx, "setPureStringOutput", true,
                         Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams), returnValueExpr);
             } else {
-                Utils.addAzurePkgFunctionCall(this.ctx, "setPureStringOutput", true,
+                Utils.addAzurePkgFunctionCall(this.ctx, "setStringReturn", true,
                         Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams), returnValueExpr);
             }
         } else {

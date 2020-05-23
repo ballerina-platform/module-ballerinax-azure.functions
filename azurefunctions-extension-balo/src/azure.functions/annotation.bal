@@ -63,13 +63,16 @@ public const annotation TimerTriggerConfiguration TimerTrigger on parameter;
 # 
 # + path - The blob container path
 # + connection - The storage connection
-public type BlobTriggerConfiguration record {|
+public type BlobConfiguration record {|
     string path;
     string connection?;
 |};
 
 # @azurefunctions:BlobTrigger annotation.
-public const annotation BlobTriggerConfiguration BlobTrigger on parameter;
+public const annotation BlobConfiguration BlobTrigger on parameter;
+
+# @azurefunctions:BlobInput annotation.
+public const annotation BlobConfiguration BlobInput on parameter;
 
 # BindingName annotation configuration.
 # 
