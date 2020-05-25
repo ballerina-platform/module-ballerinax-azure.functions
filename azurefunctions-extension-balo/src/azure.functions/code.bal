@@ -194,9 +194,29 @@ public function getStringFromInputData(HandlerParams params, string name) return
     return data[name].toString();
 }
 
+public function getOptionalStringFromInputData(HandlerParams params, string name) returns string?|error {
+    json payload = check getJsonFromHTTPReq(params);
+    map<json> data = <map<json>> payload.Data;
+    json entry = data[name];
+    if entry == () {
+        return ();
+    } else {
+        return entry.toString();
+    }
+}
+
 public function getBytesFromInputData(HandlerParams params, string name) returns byte[]|error {
-    string data = check getStringFromInputData(params, name);
-    return arrays:fromBase64(data);
+    var data = check getStringFromInputData(params, name);
+    return arrays:fromBase64(data.toString());
+}
+
+public function getOptionalBytesFromInputData(HandlerParams params, string name) returns byte[]?|error {
+    string? data = check getOptionalStringFromInputData(params, name);
+    if data == () || data == "null" {
+        return ();
+    } else {
+        return arrays:fromBase64(data.toString());
+    }
 }
 
 public function getBodyFromHTTPInputData(HandlerParams params, string name) returns string|error {

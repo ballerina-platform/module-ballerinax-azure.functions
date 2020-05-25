@@ -29,22 +29,22 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Implementation for the input parameter handler annotation "@BlobInput".
+ * Implementation for the input parameter handler annotation "@BlobTrigger".
  */
-public class BlobInputParameterHandler extends AbstractParameterHandler {
+public class BlobTriggerParameterHandler extends AbstractParameterHandler {
 
-    public BlobInputParameterHandler(BLangSimpleVariable param, BLangAnnotationAttachment annotation) {
-        super(param, annotation, BindingType.INPUT);
+    public BlobTriggerParameterHandler(BLangSimpleVariable param, BLangAnnotationAttachment annotation) {
+        super(param, annotation, BindingType.TRIGGER);
     }
 
     @Override
     public BLangExpression invocationProcess() throws AzureFunctionsException {
-        if (Utils.isOptionalByteArray(this.ctx.globalCtx, this.param.type)) {
-            return Utils.createAzurePkgInvocationNode(this.ctx, "getOptionalBytesFromInputData",
+        if (Utils.isByteArray(this.ctx.globalCtx, this.param.type)) {
+            return Utils.createAzurePkgInvocationNode(this.ctx, "getBytesFromInputData",
                     Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
                     Utils.createStringLiteral(ctx.globalCtx, this.name));
         } else {
-            throw this.createError("Type 'byte[]?' is only supported");
+            throw this.createError("Type 'byte[]' is only supported");
         }
     }
 
@@ -55,7 +55,7 @@ public class BlobInputParameterHandler extends AbstractParameterHandler {
     public Map<String, Object> generateBinding() {
         Map<String, Object> binding = new LinkedHashMap<>();
         Map<String, String> annonMap = Utils.extractAnnotationKeyValues(this.annotation);
-        binding.put("type", "blob");
+        binding.put("type", "blobTrigger");
         binding.put("path", annonMap.get("path"));
         binding.put("dataType", "binary");
         String connection = annonMap.get("connection");
