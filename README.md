@@ -38,9 +38,9 @@ public function f2(@af:HTTPTrigger {} http:Request req)
 public function f3(af:Context ctx, 
                    @af:HTTPTrigger {} af:HTTPRequest req, 
                    @af:QueueOutput { queueName: "queue1" } af:StringOutputBinding msg) 
-                   returns @af:HTTPOutput string|error {
+                   returns @af:HTTPOutput af:HTTPBinding|error {
   msg.value = req.body;
-  return "Request: " + req.toString();
+  return { statusCode: 200, payload: "Request: " + req.toString() };
 }
 
 @af:Function
@@ -73,14 +73,20 @@ public function f6(af:Context ctx,
   outMsg.value = "Name: " + name + " Content: " + blobIn.toString();
 }
 
+@af:Function
+public function f7(@af:HTTPTrigger { authLevel: "anonymous" } af:HTTPRequest req, 
+                   @af:BlobInput { path: "bpath1/{Query.name}" } byte[]? blobIn)
+                   returns @af:HTTPOutput string|error {
+  return "Blob: " + req.query["name"].toString() + " Content: " + blobIn.toString();
+}
+
 // executes every 10 seconds
 @af:Function
-public function f7(@af:TimerTrigger { schedule: "*/10 * * * * *" } json triggerInfo, 
+public function f8(@af:TimerTrigger { schedule: "*/10 * * * * *" } json triggerInfo, 
                    @af:QueueOutput { queueName: "queue3" } af:StringOutputBinding msg) 
                    returns error? {
   msg.value = triggerInfo.toString();
-}
-```
+}```
 
 The output of the Ballerina build is as follows:
 
@@ -91,7 +97,7 @@ Compiling source
 
 Generating executables
 	x.jar
-	@azure.functions:Function: f1, f2, f3, f4, f5, f6, f7
+	@azure.functions:Function: f1, f2, f3, f4, f5, f6, f7, f8
 
 	Run the following command to deploy Ballerina Azure Functions:
 	az functionapp deployment source config-zip -g <resource_group> -n <function_app_name> --src azure-functions.zip

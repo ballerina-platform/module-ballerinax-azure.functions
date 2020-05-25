@@ -270,3 +270,11 @@ public function setStringReturn(HandlerParams params, string value) returns erro
     json content = params.result;
     _ = check content.mergeJson({ ReturnValue: value });
 }
+
+public function setHTTPReturn(HandlerParams params, HTTPBinding binding) returns error? {
+    string? payload = binding?.payload;
+    if (payload is string) {
+        json content = params.result;
+        _ = check content.mergeJson({ ReturnValue: { statusCode: binding.statusCode, body: payload } });
+    }
+}
