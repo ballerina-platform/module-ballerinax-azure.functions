@@ -73,7 +73,7 @@ public function f8(@af:HTTPTrigger { } af:HTTPRequest req,
 
 @af:Function
 public function f9(@af:HTTPTrigger { } af:HTTPRequest req, 
-                   @af:TwilioSmsOutput { fromNumber: "+12069845840" } af:TwilioSmsOutputBinding tb)
+                   @af:TwilioSmsOutput { fromNumber: "+1xxxxxxxxxx" } af:TwilioSmsOutputBinding tb)
                    returns @af:HTTPOutput string|error {
   tb.to = req.query["to"].toString();
   tb.body = req.body.toString();
