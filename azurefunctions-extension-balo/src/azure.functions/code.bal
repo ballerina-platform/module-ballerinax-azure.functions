@@ -20,24 +20,47 @@ import ballerina/system;
 import ballerina/lang.'int as ints;
 import ballerina/lang.'array as arrays;
 
+# HTTP binding data.
+# 
+# + statusCode - The HTTP response status code
+# + payload - The HTTP response payload
 public type HTTPBinding record {
     int statusCode = 200;
     string payload?;
 };
 
+# String output binding data.
+# 
+# + value - The string value
 public type StringOutputBinding record {
     string value?;
 };
 
+# Byte array output binding data.
+# 
+# + value - The byte[] value
 public type BytesOutputBinding record {
     byte[]|string value?;
 };
 
+# Twilion SMS output binding data.
+# 
+# + to - The SMS recipient phone number
+# + body - The message body
 public type TwilioSmsOutputBinding record {
     string to?;
     string body?;
 };
 
+# HTTP request binding data.
+# 
+# + url - The request URL
+# + method - The request HTTP method
+# + query - The request query parameter map
+# + headers - The request HTTP header map
+# + params - The request parameters
+# + identities - The request identities
+# + body - The request body
 public type HTTPRequest record {
     string url;
     string method;
@@ -48,6 +71,12 @@ public type HTTPRequest record {
     string body;
 };
 
+# INTERNAL stucture - the request handler parameter data.
+# 
+# + request - The HTTP request
+# + response - The HTTP response
+# + pure - The flag to mention if it's a pure HTTP request
+# + result - The result JSON
 public type HandlerParams record {
     http:Request request;
     http:Response response;
@@ -55,6 +84,9 @@ public type HandlerParams record {
     json result = { Outputs: {}, Logs: [] };
 };
 
+# The request context holder. 
+# 
+# + metadata - The context metadata
 public type Context object {
 
     HandlerParams hparams;    
@@ -70,6 +102,9 @@ public type Context object {
         }
     }
 
+    # Enters to function invocation logs.
+    # 
+    # + msg - The log message
     public function log(string msg) {
         json[] logs = <json[]> self.hparams.result.Logs;
         logs.push(msg);
@@ -77,6 +112,7 @@ public type Context object {
 
 };
 
+# Function handler type.
 type FunctionHandler (function (HandlerParams) returns error?);
 
 listener http:Listener hl = new(check ints:fromString(system:getEnv("FUNCTIONS_HTTPWORKER_PORT")));
@@ -116,25 +152,48 @@ service AzureFunctionsServer on hl {
 
 }
 
+# INTERNAL usage - unescape a JSON encoded in a string.
+# 
+# + value - String escaped JSON value
+# + return - Unescaped JSON value.
 public function unescapeJson(json value) returns json|error {
     io:StringReader sr = new(value.toString(), encoding = "UTF-8");
     return <@untainted> sr.readJson();
 }
 
+# INTERNAL usage - extracts the metadata.
+# 
+# + hparams - The handler parameters
+# + return - The metadata JSON
 public function getMetadata(HandlerParams hparams) returns json|error {
     json payload = check <@untainted> hparams.request.getJsonPayload();
     json metadata = check payload.Metadata;
     return metadata;
 }
 
+# INTERNAL usage - creates function context.
+# 
+# + hparams - The handler parameters
+# + populateMetadata - The flag to populate metadata
+# + return - The function context
 public function createContext(HandlerParams hparams, boolean populateMetadata) returns Context|error {
     return new Context(hparams, populateMetadata);
 }
 
+# INTERNAL usage - registers a handler function.
+# 
+# + name - The name of the function
+# + funcHandler - The function handler
 public function __register(string name, FunctionHandler funcHandler) {
     dispatchMap[name] = funcHandler;
 }
 
+# INTERNAL usage - Sets the HTTP output.
+# 
+# + params - The handler parameters
+# + name - The parameter name
+# + binding - The binding data
+# + return - An error in failure
 public function setHTTPOutput(HandlerParams params, string name, HTTPBinding binding) returns error? {
     string? payload = binding?.payload;
     if (payload is string) {
@@ -146,6 +205,12 @@ public function setHTTPOutput(HandlerParams params, string name, HTTPBinding bin
     }
 }
 
+# INTERNAL usage - Sets the string output.
+# 
+# + params - The handler parameters
+# + name - The parameter name
+# + binding - The binding data
+# + return - An error in failure
 public function setStringOutput(HandlerParams params, string name, StringOutputBinding binding) returns error? {
     string? value = binding?.value;
     if (value is string) {
@@ -157,6 +222,12 @@ public function setStringOutput(HandlerParams params, string name, StringOutputB
     }
 }
 
+# INTERNAL usage - Sets the Blob output.
+# 
+# + params - The handler parameters
+# + name - The parameter name
+# + binding - The binding data
+# + return - An error in failure
 public function setBlobOutput(HandlerParams params, string name, BytesOutputBinding binding) returns error? {
     string|byte[]? value = binding?.value;
     if (!(value is ())) {
@@ -173,6 +244,12 @@ public function setBlobOutput(HandlerParams params, string name, BytesOutputBind
     }
 }
 
+# INTERNAL usage - Sets the Twilio output.
+# 
+# + params - The handler parameters
+# + name - The parameter name
+# + binding - The binding data
+# + return - An error in failure
 public function setTwilioSmsOutput(HandlerParams params, string name, TwilioSmsOutputBinding binding) returns error? {
     string? to = binding?.to;
     string? body = binding?.body;
@@ -185,6 +262,11 @@ public function setTwilioSmsOutput(HandlerParams params, string name, TwilioSmsO
     }
 }
 
+# INTERNAL usage - Sets the pure HTTP output.
+# 
+# + params - The handler parameters
+# + binding - The binding data
+# + return - An error in failure
 public function setPureHTTPOutput(HandlerParams params, HTTPBinding binding) returns error? {
     string? payload = binding?.payload;
     if payload is string {
@@ -194,19 +276,37 @@ public function setPureHTTPOutput(HandlerParams params, HTTPBinding binding) ret
     params.pure = true;
 }
 
+# INTERNAL usage - Sets the pure string output.
+# 
+# + params - The handler parameters
+# + value - The value
+# + return - An error in failure
 public function setPureStringOutput(HandlerParams params, string value) returns error? {
     params.response.setTextPayload(value);
     params.pure = true;
 }
 
+# INTERNAL usage - Returns the HTTP request data.
+# 
+# + params - The handler parameters
+# + return - The HTTP request
 public function getHTTPRequestFromParams(HandlerParams params) returns http:Request|error {
     return params.request;
 }
 
+# INTERNAL usage - Returns the string payload from the HTTP request.
+# 
+# + params - The handler parameters
+# + return - The string payload
 public function getStringFromHTTPReq(HandlerParams params) returns string|error {
     return check <@untainted> params.request.getTextPayload();
 }
 
+# INTERNAL usage - Returns a string value from metadata.
+# 
+# + params - The handler parameters
+# + name - The metadata entry name
+# + return - The metadata entry value
 public function getStringFromMetadata(HandlerParams params, string name) returns string|error {
     map<json> metadata = <map<json>> check getMetadata(params);
     json fld = check unescapeJson(metadata[name]);    
@@ -217,20 +317,38 @@ public function getStringFromMetadata(HandlerParams params, string name) returns
     return result;
 }
 
+# INTERNAL usage - Returns the JSON payload from the HTTP request.
+# 
+# + params - The handler parameters
+# + return - The JSON payload
 public function getJsonFromHTTPReq(HandlerParams params) returns json|error {
     return check <@untainted> params.request.getJsonPayload();
 }
 
+# INTERNAL usage - Returns the binary payload from the HTTP request.
+# 
+# + params - The handler parameters
+# + return - The binary payload
 public function getBinaryFromHTTPReq(HandlerParams params) returns byte[]|error {
     return check <@untainted> params.request.getBinaryPayload();
 }
 
+# INTERNAL usage - Returns the string value from input data.
+# 
+# + params - The handler parameters
+# + name - The input data entry name
+# + return - The string value
 public function getStringFromInputData(HandlerParams params, string name) returns string|error {
     json payload = check getJsonFromHTTPReq(params);
     map<json> data = <map<json>> payload.Data;
     return data[name].toString();
 }
 
+# INTERNAL usage - Returns the optional string value from input data.
+# 
+# + params - The handler parameters
+# + name - The input data entry name
+# + return - The optional string value
 public function getOptionalStringFromInputData(HandlerParams params, string name) returns string?|error {
     json payload = check getJsonFromHTTPReq(params);
     map<json> data = <map<json>> payload.Data;
@@ -242,11 +360,21 @@ public function getOptionalStringFromInputData(HandlerParams params, string name
     }
 }
 
+# INTERNAL usage - Returns the binary value from input data.
+# 
+# + params - The handler parameters
+# + name - The input data entry name
+# + return - The binary value
 public function getBytesFromInputData(HandlerParams params, string name) returns byte[]|error {
     var data = check getStringFromInputData(params, name);
     return arrays:fromBase64(data.toString());
 }
 
+# INTERNAL usage - Returns the optional binary value from input data.
+# 
+# + params - The handler parameters
+# + name - The input data entry name
+# + return - The optional binary value
 public function getOptionalBytesFromInputData(HandlerParams params, string name) returns byte[]?|error {
     string? data = check getOptionalStringFromInputData(params, name);
     if data == () || data == "null" {
@@ -256,11 +384,20 @@ public function getOptionalBytesFromInputData(HandlerParams params, string name)
     }
 }
 
+# INTERNAL usage - Returns the HTTP body value from input data.
+# 
+# + params - The handler parameters
+# + name - The input data entry name
+# + return - The HTTP body
 public function getBodyFromHTTPInputData(HandlerParams params, string name) returns string|error {
     HTTPRequest req = check getHTTPRequestFromInputData(params, name);
     return req.body;
 }
 
+# INTERNAL usage - Extracts HTTP headers from the JSON value.
+# 
+# + headers - The headers JSON
+# + return - The headers map
 function extractHTTPHeaders(json headers) returns map<string[]> {
     map<json> headerMap = <map<json>> headers;
     map<string[]> result = {};
@@ -272,6 +409,10 @@ function extractHTTPHeaders(json headers) returns map<string[]> {
     return result;
 }
 
+# INTERNAL usage - Extracts string map from the JSON value.
+# 
+# + params - The params JSON
+# + return - The string map
 function extractStringMap(json params) returns map<string> {
     map<json> paramMap = <map<json>> params;
     map<string> result = {};
@@ -281,6 +422,11 @@ function extractStringMap(json params) returns map<string> {
     return result;
 }
 
+# INTERNAL usage - Populates the HTTP request structure from an input data entry.
+# 
+# + params - The handler parameters
+# + name - The input data entry name
+# + return - The HTTP request
 public function getHTTPRequestFromInputData(HandlerParams params, string name) returns HTTPRequest|error {
     json payload = check getJsonFromHTTPReq(params);
     map<json> data = <map<json>> payload.Data;
@@ -297,17 +443,32 @@ public function getHTTPRequestFromInputData(HandlerParams params, string name) r
     return req;
 }
 
+# INTERNAL usage - Returns the JSON value from input data.
+# 
+# + params - The handler parameters
+# + name - The input data entry name
+# + return - The JSON value
 public function getJsonFromInputData(HandlerParams params, string name) returns json|error {
     json payload = check getJsonFromHTTPReq(params);
     map<json> data = <map<json>> payload.Data;
     return data[name];
 }
 
+# INTERNAL usage - Sets the string return value.
+# 
+# + params - The handler parameters
+# + value - The string return value
+# + return - An error in failure
 public function setStringReturn(HandlerParams params, string value) returns error? {
     json content = params.result;
     _ = check content.mergeJson({ ReturnValue: value });
 }
 
+# INTERNAL usage - Sets the HTTP binding return value.
+# 
+# + params - The handler parameters
+# + binding - The HTTP binding return value
+# + return - An error in failure
 public function setHTTPReturn(HandlerParams params, HTTPBinding binding) returns error? {
     string? payload = binding?.payload;
     if (payload is string) {
