@@ -119,7 +119,7 @@ Compiling source
 
 Generating executables
 	x.jar
-	@azure.functions:Function: f1, f2, f3, f4, f5, f6, f7, f8
+	@azure.functions:Function: f1, f2, f3, f4, f5, f6, f7, f8, f9, f10
 
 	Run the following command to deploy Ballerina Azure Functions:
 	az functionapp deployment source config-zip -g <resource_group> -n <function_app_name> --src azure-functions.zip
