@@ -30,28 +30,28 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Implementation for the output parameter handler annotation "@QueueOutput".
+ * Implementation for the output parameter handler annotation "@BlobOutput".
  */
-public class QueueOutputParameterHandler extends AbstractParameterHandler {
+public class BlobOutputParameterHandler extends AbstractParameterHandler {
 
     private BVarSymbol var;
 
-    public QueueOutputParameterHandler(BLangSimpleVariable param, BLangAnnotationAttachment annotation) {
+    public BlobOutputParameterHandler(BLangSimpleVariable param, BLangAnnotationAttachment annotation) {
         super(param, annotation, BindingType.OUTPUT);
     }
 
     @Override
     public BLangExpression invocationProcess() throws AzureFunctionsException {
-        if (!Utils.isAzurePkgType(ctx, "StringOutputBinding", this.param.type)) {
-            throw this.createError("The parameter type must be 'StringOutputBinding'");
+        if (!Utils.isAzurePkgType(ctx, "BytesOutputBinding", this.param.type)) {
+            throw this.createError("The parameter type must be 'BytesOutputBinding'");
         }
-        this.var = Utils.addAzurePkgRecordVarDef(this.ctx, "StringOutputBinding", this.ctx.getNextVarName());
+        this.var = Utils.addAzurePkgRecordVarDef(this.ctx, "BytesOutputBinding", this.ctx.getNextVarName());
         return Utils.createVariableRef(this.ctx.globalCtx, this.var);
     }
 
     @Override
     public void postInvocationProcess() throws AzureFunctionsException {
-        Utils.addAzurePkgFunctionCall(this.ctx, "setStringOutput", true,
+        Utils.addAzurePkgFunctionCall(this.ctx, "setBlobOutput", true,
                 Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
                 Utils.createStringLiteral(this.ctx.globalCtx, this.name),
                 Utils.createVariableRef(this.ctx.globalCtx, this.var));
@@ -61,14 +61,16 @@ public class QueueOutputParameterHandler extends AbstractParameterHandler {
     public Map<String, Object> generateBinding() {
         Map<String, Object> binding = new LinkedHashMap<>();
         Map<String, String> annonMap = Utils.extractAnnotationKeyValues(this.annotation);
-        binding.put("type", "queue");
-        binding.put("queueName", annonMap.get("queueName"));
+        binding.put("type", "blob");
+        binding.put("path", annonMap.get("path"));
+        binding.put("dataType", "binary");
         String connection = annonMap.get("connection");
         if (connection == null) {
             connection = Constants.DEFAULT_STORAGE_CONNECTION_NAME;
         }
         binding.put("connection", connection);
         return binding;
+
     }
     
 }

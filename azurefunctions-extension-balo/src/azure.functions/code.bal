@@ -29,6 +29,15 @@ public type StringOutputBinding record {
     string value?;
 };
 
+public type BytesOutputBinding record {
+    byte[]|string value?;
+};
+
+public type TwilioSmsOutputBinding record {
+    string to?;
+    string body?;
+};
+
 public type HTTPRequest record {
     string url;
     string method;
@@ -148,9 +157,37 @@ public function setStringOutput(HandlerParams params, string name, StringOutputB
     }
 }
 
+public function setBlobOutput(HandlerParams params, string name, BytesOutputBinding binding) returns error? {
+    string|byte[]? value = binding?.value;
+    if (!(value is ())) {
+        json content = params.result;
+        json outputs = check content.Outputs;
+        map<json> bvals = { };
+        if value is string {
+            bvals[name] = value;
+        } else {
+            //TODO issue: https://github.com/Azure/azure-functions-host/issues/6091
+            bvals[name] = value.toBase64();
+        }
+        _ = check outputs.mergeJson(bvals);
+    }
+}
+
+public function setTwilioSmsOutput(HandlerParams params, string name, TwilioSmsOutputBinding binding) returns error? {
+    string? to = binding?.to;
+    string? body = binding?.body;
+    if to is string && body is string {
+        json content = params.result;
+        json outputs = check content.Outputs;
+        map<json> bvals = { };
+        bvals[name] = { body, to };
+        _ = check outputs.mergeJson(bvals);
+    }
+}
+
 public function setPureHTTPOutput(HandlerParams params, HTTPBinding binding) returns error? {
     string? payload = binding?.payload;
-    if (payload is string) {
+    if payload is string {
         params.response.statusCode = binding.statusCode;
         params.response.setTextPayload(payload);
     }

@@ -29,7 +29,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Implementation for the input parameter handler annotation "@HTTPOutput".
+ * Implementation for the output parameter handler annotation "@HTTPOutput".
  */
 public class HTTPOutputParameterHandler extends AbstractParameterHandler {
 

@@ -74,6 +74,23 @@ public const annotation BlobConfiguration BlobTrigger on parameter;
 # @azurefunctions:BlobInput annotation.
 public const annotation BlobConfiguration BlobInput on parameter;
 
+# @azurefunctions:BlobOutput annotation.
+public const annotation BlobConfiguration BlobOutput on parameter;
+
+# Twilio annotation configuration.
+# 
+# + accountSidSetting - The app setting which holds the Twilio Account Sid
+# + authTokenSetting - The app setting which holds the Twilio authentication token
+# + fromNumber - The phone number the SMS is sent from
+public type TwilioSmsConfiguration record {|
+    string accountSidSetting = "AzureWebJobsTwilioAccountSid";
+    string authTokenSetting	= "AzureWebJobsTwilioAuthToken";
+    string fromNumber;
+|};
+
+# @azurefunctions:TwilioSmsOutput annotation.
+public const annotation TwilioSmsConfiguration TwilioSmsOutput on parameter;
+
 # BindingName annotation configuration.
 # 
 # + name - The binding name

@@ -18,6 +18,7 @@
 package org.ballerinax.azurefunctions;
 
 import org.ballerinax.azurefunctions.handlers.BlobInputParameterHandler;
+import org.ballerinax.azurefunctions.handlers.BlobOutputParameterHandler;
 import org.ballerinax.azurefunctions.handlers.BlobTriggerParameterHandler;
 import org.ballerinax.azurefunctions.handlers.ContextParameterHandler;
 import org.ballerinax.azurefunctions.handlers.HTTPOutputParameterHandler;
@@ -27,6 +28,7 @@ import org.ballerinax.azurefunctions.handlers.MetadataBindingParameterHandler;
 import org.ballerinax.azurefunctions.handlers.QueueOutputParameterHandler;
 import org.ballerinax.azurefunctions.handlers.QueueTriggerHandler;
 import org.ballerinax.azurefunctions.handlers.TimerTriggerHandler;
+import org.ballerinax.azurefunctions.handlers.TwilioSmsOutputParameterHandler;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -63,6 +65,10 @@ public class HandlerFactory {
             return new BlobTriggerParameterHandler(param, ann);
         } else if ("BlobInput".equals(name)) {
             return new BlobInputParameterHandler(param, ann);
+        } else if ("BlobOutput".equals(name)) {
+            return new BlobOutputParameterHandler(param, ann);
+        } else if ("TwilioSmsOutput".equals(name)) {
+            return new TwilioSmsOutputParameterHandler(param, ann);
         } else if ("BindingName".equals(name)) {
             return new MetadataBindingParameterHandler(param, ann);
         } else {

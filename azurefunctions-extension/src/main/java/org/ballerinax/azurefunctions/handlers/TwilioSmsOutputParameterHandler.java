@@ -30,28 +30,28 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Implementation for the output parameter handler annotation "@QueueOutput".
+ * Implementation for the output parameter handler annotation "@TwilioSmsOutput".
  */
-public class QueueOutputParameterHandler extends AbstractParameterHandler {
+public class TwilioSmsOutputParameterHandler extends AbstractParameterHandler {
 
     private BVarSymbol var;
 
-    public QueueOutputParameterHandler(BLangSimpleVariable param, BLangAnnotationAttachment annotation) {
+    public TwilioSmsOutputParameterHandler(BLangSimpleVariable param, BLangAnnotationAttachment annotation) {
         super(param, annotation, BindingType.OUTPUT);
     }
 
     @Override
     public BLangExpression invocationProcess() throws AzureFunctionsException {
-        if (!Utils.isAzurePkgType(ctx, "StringOutputBinding", this.param.type)) {
-            throw this.createError("The parameter type must be 'StringOutputBinding'");
+        if (!Utils.isAzurePkgType(ctx, "TwilioSmsOutputBinding", this.param.type)) {
+            throw this.createError("The parameter type must be 'TwilioSmsOutputBinding'");
         }
-        this.var = Utils.addAzurePkgRecordVarDef(this.ctx, "StringOutputBinding", this.ctx.getNextVarName());
+        this.var = Utils.addAzurePkgRecordVarDef(this.ctx, "TwilioSmsOutputBinding", this.ctx.getNextVarName());
         return Utils.createVariableRef(this.ctx.globalCtx, this.var);
     }
 
     @Override
     public void postInvocationProcess() throws AzureFunctionsException {
-        Utils.addAzurePkgFunctionCall(this.ctx, "setStringOutput", true,
+        Utils.addAzurePkgFunctionCall(this.ctx, "setTwilioSmsOutput", true,
                 Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
                 Utils.createStringLiteral(this.ctx.globalCtx, this.name),
                 Utils.createVariableRef(this.ctx.globalCtx, this.var));
@@ -61,13 +61,18 @@ public class QueueOutputParameterHandler extends AbstractParameterHandler {
     public Map<String, Object> generateBinding() {
         Map<String, Object> binding = new LinkedHashMap<>();
         Map<String, String> annonMap = Utils.extractAnnotationKeyValues(this.annotation);
-        binding.put("type", "queue");
-        binding.put("queueName", annonMap.get("queueName"));
-        String connection = annonMap.get("connection");
-        if (connection == null) {
-            connection = Constants.DEFAULT_STORAGE_CONNECTION_NAME;
+        binding.put("type", "twilioSms");
+        binding.put("from", annonMap.get("fromNumber"));
+        String accountSidSetting = annonMap.get("accountSidSetting");
+        if (accountSidSetting == null) {
+            accountSidSetting = Constants.DEFAULT_TWILIO_ACCOUNT_SID_SETTING;
         }
-        binding.put("connection", connection);
+        binding.put("accountSidSetting", accountSidSetting);
+        String authTokenSetting = annonMap.get("authTokenSetting");
+        if (authTokenSetting == null) {
+            authTokenSetting = Constants.DEFAULT_TWILIO_AUTH_TOKEN_SETTING;
+        }
+        binding.put("authTokenSetting", authTokenSetting);
         return binding;
     }
     
