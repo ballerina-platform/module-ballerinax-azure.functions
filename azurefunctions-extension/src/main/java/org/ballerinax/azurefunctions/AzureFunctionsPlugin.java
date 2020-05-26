@@ -74,6 +74,9 @@ public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
         try {
             generatedFunctions.putAll(this.generateHandlerFunctions(bpn));
             this.registerHandlerFunctions(bpn, generatedFunctions);
+            // the following is a workaround in order to signal the runtime that we have a service
+            // running and the program should not exit
+            Utils.addDummyService(this.globalCtx, bpn);
         } catch (AzureFunctionsException e) {
             this.dlog.logDiagnostic(Diagnostic.Kind.ERROR, packageNode.getPosition(), e.getMessage());
         }

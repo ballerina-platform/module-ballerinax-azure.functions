@@ -20,6 +20,8 @@ import ballerina/system;
 import ballerina/lang.'int as ints;
 import ballerina/lang.'array as arrays;
 
+service dummyService = service { };
+
 # HTTP binding data.
 # 
 # + statusCode - The HTTP response status code

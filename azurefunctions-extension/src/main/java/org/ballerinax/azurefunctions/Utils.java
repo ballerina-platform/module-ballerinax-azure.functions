@@ -25,7 +25,6 @@ import com.google.gson.JsonPrimitive;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.types.TypeKind;
@@ -39,13 +38,13 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -56,7 +55,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
@@ -65,12 +63,10 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValueField;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
-import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
@@ -82,7 +78,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -568,59 +563,28 @@ public class Utils {
     }
 
     public static void addDummyService(GlobalContext ctx, BLangPackage packageNode) {
-        BLangSimpleVariable var = new BLangSimpleVariable();
-        var.constantPropagated = true;
-        var.pos = ctx.pos;
-        var.flagSet = new HashSet<>();
-        var.parent = packageNode;
-        BServiceType vst = new BServiceType(new BTypeSymbol(12, 1, new Name("service"),
-                new PackageID(new Name("anon"), Arrays.asList(new Name(".")), new Name("0.0.0")), null,
-                packageNode.symbol));
-        vst.tsymbol.type = vst;
-        var.symbol = new BVarSymbol(0, new Name("dx"),
-                new PackageID(new Name("anon"), Arrays.asList(new Name(".")), new Name("0.0.0")), vst,
+        String name = Constants.DUMMY_SERVICE_NAME;
+        BLangTypeDefinition typeDef = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
+        BLangIdentifier serviceTypeID = ASTBuilderUtil.createIdentifier(ctx.pos, name);
+        typeDef.setName(serviceTypeID);
+        typeDef.flagSet.add(Flag.SERVICE);
+        typeDef.pos = ctx.pos;
+        BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) TreeBuilder.createObjectTypeNode();
+        objectTypeNode.generatedInitFunction = (BLangFunction) TreeBuilder.createFunctionNode();
+        objectTypeNode.generatedInitFunction.symbol = new BInvokableSymbol(SymTag.FUNCTION, 0, new Name(name),
+                packageNode.symbol.pkgID,
+                new BInvokableType(new ArrayList<>(), ctx.symTable.noType, ctx.symTable.noType, null),
                 packageNode.symbol);
-        var.name = ASTBuilderUtil.createIdentifier(ctx.pos, "dx");
-        BTypeSymbol stSymbol = new BTypeSymbol(12, 1, new Name("service"), packageNode.symbol.pkgID, null,
+        typeDef.setTypeNode(objectTypeNode);
+        BObjectTypeSymbol ts = new BObjectTypeSymbol(SymTag.SERVICE, 0, new Name(name), packageNode.symbol.pkgID, null,
                 packageNode.symbol);
-        var.type = new BServiceType(stSymbol);
-        var.type.tag = 32;
-        stSymbol.type = var.type;
-        BLangServiceConstructorExpr expr = new BLangServiceConstructorExpr();
-        BObjectTypeSymbol objTypeSym = new BObjectTypeSymbol(196700, 524288, new Name("xxx1"),
-                new PackageID(new Name("anon"), Arrays.asList(new Name(".")), new Name("0.0.0")), null,
-                packageNode.symbol);
-        objTypeSym.kind = SymbolKind.OBJECT;
-        BServiceType exType = new BServiceType(objTypeSym);
-        objTypeSym.type = exType;
-        expr.expectedType = exType;
-        expr.type = expr.expectedType;
-        BLangService sn = new BLangService();
-        sn.name = ASTBuilderUtil.createIdentifier(ctx.pos, "dx2");
-        sn.parent = packageNode;
-        sn.pos = ctx.pos;
-        sn.serviceTypeDefinition = new BLangTypeDefinition();
-        sn.serviceTypeDefinition.name = ASTBuilderUtil.createIdentifier(ctx.pos, "dx3");
-        sn.serviceTypeDefinition.parent = packageNode;
-        sn.serviceTypeDefinition.pos = ctx.pos;
-        sn.serviceTypeDefinition.symbol = objTypeSym;
-        sn.serviceTypeDefinition.typeNode = new BLangObjectTypeNode();
-        sn.symbol = new BServiceSymbol(0, new Name("dx3"),
-                new PackageID(new Name("anon"), Arrays.asList(new Name(".")), new Name("0.0.0")), exType,
-                packageNode.symbol);
-        sn.symbol.kind = SymbolKind.SERVICE;
-        expr.serviceNode = sn;
-        expr.parent = var;
-        expr.pos = ctx.pos;
-        expr.typeChecked = true;
-        var.expr = expr;
-        BLangBuiltInRefTypeNode tn = new BLangBuiltInRefTypeNode();
-        var.typeNode = tn;
-        tn.parent = var;
-        tn.pos = ctx.pos;
-        tn.type = var.type;
-        tn.typeKind = TypeKind.SERVICE;
-        packageNode.addGlobalVariable(var);
+        BObjectType objectType = new BServiceType(ts);
+        ts.type = objectType;
+        objectTypeNode.symbol = ts;
+        objectTypeNode.type = objectType;
+        objectTypeNode.pos = ctx.pos;
+        typeDef.symbol = ts;
+        packageNode.addTypeDefinition(typeDef);
     }
     
 }

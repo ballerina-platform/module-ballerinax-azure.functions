@@ -35,6 +35,7 @@ public class Constants {
     public static final String AZURE_FUNCTIONS_CONTEXT_NAME = "Context";
     public static final String AZURE_FUNCS_OUTPUT_ZIP_FILENAME = "azure-functions.zip";
     public static final String GEN_FUNC_SUFFIX = "0dadec8e-7c9c-44c3-88ea-f947acc3add7";
+    public static final String DUMMY_SERVICE_NAME = "249b70ab-c5b5-4758-9d50-193f9dbb6eb6";
     public static final String FUNCTION_BINDINGS_NAME = "bindings";
     public static final String CHARSET = "UTF-8";
 
