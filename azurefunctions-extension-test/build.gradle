@@ -70,11 +70,7 @@ task prepareDistribution {
 test {
     dependsOn prepareDistribution
     useTestNG() {
-        if (project.hasProperty('LayerTesting')) {
-            suites 'src/test/resources/testng-sam-cli.xml'
-        } else {
-            suites 'src/test/resources/testng.xml'
-        }
+        suites 'src/test/resources/testng.xml'
         systemProperties = [
             ballerinaPack: System.getProperty('ballerinaPack', project.projectDir.absolutePath + "/../azurefunctions-extension-balo/build/extracted-distribution/jballerina-tools-${ballerinaLangVersion}/bin"),
             ballerinaLayer: System.getProperty('ballerinaPack', project.projectDir.absolutePath + "/../ballerina-layer/bootstrap"),
