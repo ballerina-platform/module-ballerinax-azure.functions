@@ -24,7 +24,8 @@ import ballerinax/azure.functions as af;
 
 @af:Function
 public function f1(@af:HTTPTrigger { authLevel: "anonymous" } string req, 
-                   @af:HTTPOutput af:HTTPBinding hb) returns error? {
+                   @af:HTTPOutput af:HTTPBinding hb) 
+		   returns error? {
   hb.payload = "Hello!";
 }
 
@@ -104,8 +105,8 @@ public function f9(@af:HTTPTrigger { } af:HTTPRequest req,
 // executes every 10 seconds
 @af:Function
 public function f10(@af:TimerTrigger { schedule: "*/10 * * * * *" } json triggerInfo, 
-                   @af:QueueOutput { queueName: "queue3" } af:StringOutputBinding msg) 
-                   returns error? {
+                    @af:QueueOutput { queueName: "queue3" } af:StringOutputBinding msg) 
+                    returns error? {
   msg.value = triggerInfo.toString();
 }
 ```
@@ -113,12 +114,12 @@ public function f10(@af:TimerTrigger { schedule: "*/10 * * * * *" } json trigger
 The output of the Ballerina build is as follows:
 
 ```bash
-$ ballerina build x.bal 
+$ ballerina build functions.bal 
 Compiling source
-	x.bal
+	functions.bal
 
 Generating executables
-	x.jar
+	functions.jar
 	@azure.functions:Function: f1, f2, f3, f4, f5, f6, f7, f8, f9, f10
 
 	Run the following command to deploy Ballerina Azure Functions:
