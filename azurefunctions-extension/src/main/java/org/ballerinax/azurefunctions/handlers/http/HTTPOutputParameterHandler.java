@@ -15,12 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinax.azurefunctions.handlers;
+package org.ballerinax.azurefunctions.handlers.http;
 
 import org.ballerinax.azurefunctions.AzureFunctionsException;
 import org.ballerinax.azurefunctions.BindingType;
-import org.ballerinax.azurefunctions.Constants;
 import org.ballerinax.azurefunctions.Utils;
+import org.ballerinax.azurefunctions.handlers.AbstractParameterHandler;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -30,44 +30,43 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Implementation for the output parameter handler annotation "@QueueOutput".
+ * Implementation for the output parameter handler annotation "@HTTPOutput".
  */
-public class QueueOutputParameterHandler extends AbstractParameterHandler {
+public class HTTPOutputParameterHandler extends AbstractParameterHandler {
 
     private BVarSymbol var;
 
-    public QueueOutputParameterHandler(BLangSimpleVariable param, BLangAnnotationAttachment annotation) {
+    public HTTPOutputParameterHandler(BLangSimpleVariable param, BLangAnnotationAttachment annotation) {
         super(param, annotation, BindingType.OUTPUT);
     }
 
     @Override
     public BLangExpression invocationProcess() throws AzureFunctionsException {
-        if (!Utils.isAzurePkgType(ctx, "StringOutputBinding", this.param.type)) {
-            throw this.createError("The parameter type must be 'StringOutputBinding'");
+        if (!Utils.isAzurePkgType(ctx, "HTTPBinding", this.param.type)) {
+            throw this.createError("The parameter type must be 'HTTPBinding'");
         }
-        this.var = Utils.addAzurePkgRecordVarDef(this.ctx, "StringOutputBinding", this.ctx.getNextVarName());
+        this.var = Utils.addAzurePkgRecordVarDef(this.ctx, "HTTPBinding", this.ctx.getNextVarName());
         return Utils.createVariableRef(this.ctx.globalCtx, this.var);
     }
 
     @Override
     public void postInvocationProcess() throws AzureFunctionsException {
-        Utils.addAzurePkgFunctionCall(this.ctx, "setStringOutput", true,
-                Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
-                Utils.createStringLiteral(this.ctx.globalCtx, this.name),
-                Utils.createVariableRef(this.ctx.globalCtx, this.var));
+        if (Utils.isPureHTTPBinding(this.ctx)) {
+            Utils.addAzurePkgFunctionCall(this.ctx, "setPureHTTPOutput", true,
+                    Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
+                    Utils.createVariableRef(this.ctx.globalCtx, this.var));
+        } else {
+            Utils.addAzurePkgFunctionCall(this.ctx, "setHTTPOutput", true,
+                    Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
+                    Utils.createStringLiteral(this.ctx.globalCtx, this.name),
+                    Utils.createVariableRef(this.ctx.globalCtx, this.var));
+        }
     }
 
     @Override
     public Map<String, Object> generateBinding() {
         Map<String, Object> binding = new LinkedHashMap<>();
-        Map<String, String> annonMap = Utils.extractAnnotationKeyValues(this.annotation);
-        binding.put("type", "queue");
-        binding.put("queueName", annonMap.get("queueName"));
-        String connection = annonMap.get("connection");
-        if (connection == null) {
-            connection = Constants.DEFAULT_STORAGE_CONNECTION_NAME;
-        }
-        binding.put("connection", connection);
+        binding.put("type", "http");
         return binding;
     }
     

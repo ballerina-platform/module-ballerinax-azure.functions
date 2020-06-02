@@ -15,12 +15,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinax.azurefunctions.handlers;
+package org.ballerinax.azurefunctions.handlers.blob;
 
 import org.ballerinax.azurefunctions.AzureFunctionsException;
 import org.ballerinax.azurefunctions.BindingType;
 import org.ballerinax.azurefunctions.Constants;
 import org.ballerinax.azurefunctions.Utils;
+import org.ballerinax.azurefunctions.handlers.AbstractParameterHandler;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -29,27 +31,32 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Implementation for the input parameter handler annotation "@BlobInput".
+ * Implementation for the output parameter handler annotation "@BlobOutput".
  */
-public class BlobInputParameterHandler extends AbstractParameterHandler {
+public class BlobOutputParameterHandler extends AbstractParameterHandler {
 
-    public BlobInputParameterHandler(BLangSimpleVariable param, BLangAnnotationAttachment annotation) {
-        super(param, annotation, BindingType.INPUT);
+    private BVarSymbol var;
+
+    public BlobOutputParameterHandler(BLangSimpleVariable param, BLangAnnotationAttachment annotation) {
+        super(param, annotation, BindingType.OUTPUT);
     }
 
     @Override
     public BLangExpression invocationProcess() throws AzureFunctionsException {
-        if (Utils.isOptionalByteArray(this.ctx.globalCtx, this.param.type)) {
-            return Utils.createAzurePkgInvocationNode(this.ctx, "getOptionalBytesFromInputData",
-                    Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
-                    Utils.createStringLiteral(ctx.globalCtx, this.name));
-        } else {
-            throw this.createError("Type 'byte[]?' is only supported");
+        if (!Utils.isAzurePkgType(ctx, "BytesOutputBinding", this.param.type)) {
+            throw this.createError("The parameter type must be 'BytesOutputBinding'");
         }
+        this.var = Utils.addAzurePkgRecordVarDef(this.ctx, "BytesOutputBinding", this.ctx.getNextVarName());
+        return Utils.createVariableRef(this.ctx.globalCtx, this.var);
     }
 
     @Override
-    public void postInvocationProcess() throws AzureFunctionsException { }
+    public void postInvocationProcess() throws AzureFunctionsException {
+        Utils.addAzurePkgFunctionCall(this.ctx, "setBlobOutput", true,
+                Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
+                Utils.createStringLiteral(this.ctx.globalCtx, this.name),
+                Utils.createVariableRef(this.ctx.globalCtx, this.var));
+    }
 
     @Override
     public Map<String, Object> generateBinding() {
@@ -64,6 +71,7 @@ public class BlobInputParameterHandler extends AbstractParameterHandler {
         }
         binding.put("connection", connection);
         return binding;
+
     }
     
 }

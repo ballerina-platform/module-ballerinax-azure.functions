@@ -15,30 +15,41 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinax.azurefunctions.handlers;
+package org.ballerinax.azurefunctions.handlers.metadata;
 
 import org.ballerinax.azurefunctions.AzureFunctionsException;
 import org.ballerinax.azurefunctions.BindingType;
 import org.ballerinax.azurefunctions.Utils;
+import org.ballerinax.azurefunctions.handlers.AbstractParameterHandler;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 import java.util.Map;
 
 /**
- * Implementation for the input parameter handler for the Context object.
+ * Implementation for the input parameter handler annotation "@BindingName".
  */
-public class ContextParameterHandler extends AbstractParameterHandler {
+public class MetadataBindingParameterHandler extends AbstractParameterHandler {
 
-    public ContextParameterHandler(BLangSimpleVariable param) {
-        super(param, null, BindingType.CONTEXT);
+    public MetadataBindingParameterHandler(BLangSimpleVariable param, BLangAnnotationAttachment annotation) {
+        super(param, annotation, BindingType.METADATA);
+        Map<String, String> annonMap = Utils.extractAnnotationKeyValues(this.annotation);
+        String name = annonMap.get("name");
+        if (name != null) {
+            this.name = name;
+        }
     }
     
     @Override
     public BLangExpression invocationProcess() throws AzureFunctionsException {
-        return Utils.createAzurePkgInvocationNode(this.ctx, "createContext",
-                Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
-                Utils.createBooleanLiteral(this.ctx.globalCtx, !Utils.isPureHTTPBinding(this.ctx)));
+        if (Utils.isStringType(this.ctx.globalCtx, this.param.type)) {
+            return Utils.createAzurePkgInvocationNode(this.ctx, "getStringFromMetadata",
+                    Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
+                    Utils.createStringLiteral(this.ctx.globalCtx, this.name));
+        } else {
+            throw this.createError("Type '" + this.param.type.tsymbol.name.value + "' is not supported");
+        }
     }
 
     @Override

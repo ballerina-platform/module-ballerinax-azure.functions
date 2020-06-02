@@ -15,48 +15,55 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinax.azurefunctions.handlers;
+package org.ballerinax.azurefunctions.handlers.timer;
 
 import org.ballerinax.azurefunctions.AzureFunctionsException;
 import org.ballerinax.azurefunctions.BindingType;
+import org.ballerinax.azurefunctions.Constants;
 import org.ballerinax.azurefunctions.Utils;
+import org.ballerinax.azurefunctions.handlers.AbstractParameterHandler;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Implementation for the input parameter handler annotation "@BindingName".
+ * Implementation for the input parameter handler annotation "@TimerTrigger".
  */
-public class MetadataBindingParameterHandler extends AbstractParameterHandler {
+public class TimerTriggerHandler extends AbstractParameterHandler {
 
-    public MetadataBindingParameterHandler(BLangSimpleVariable param, BLangAnnotationAttachment annotation) {
-        super(param, annotation, BindingType.METADATA);
-        Map<String, String> annonMap = Utils.extractAnnotationKeyValues(this.annotation);
-        String name = annonMap.get("name");
-        if (name != null) {
-            this.name = name;
-        }
+    public TimerTriggerHandler(BLangSimpleVariable param, BLangAnnotationAttachment annotation) {
+        super(param, annotation, BindingType.TRIGGER);
     }
-    
+
     @Override
     public BLangExpression invocationProcess() throws AzureFunctionsException {
-        if (Utils.isStringType(this.ctx.globalCtx, this.param.type)) {
-            return Utils.createAzurePkgInvocationNode(this.ctx, "getStringFromMetadata",
+        if (Utils.isJsonType(this.ctx.globalCtx, this.param.type)) {
+            return Utils.createAzurePkgInvocationNode(this.ctx, "getJsonFromInputData",
                     Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
-                    Utils.createStringLiteral(this.ctx.globalCtx, this.name));
+                    Utils.createStringLiteral(ctx.globalCtx, this.name));
         } else {
             throw this.createError("Type '" + this.param.type.tsymbol.name.value + "' is not supported");
         }
     }
 
     @Override
-    public void postInvocationProcess() { }
+    public void postInvocationProcess() throws AzureFunctionsException { }
 
     @Override
     public Map<String, Object> generateBinding() {
-        return null;
+        Map<String, Object> binding = new LinkedHashMap<>();
+        Map<String, String> annonMap = Utils.extractAnnotationKeyValues(this.annotation);
+        binding.put("type", "timerTrigger");
+        binding.put("schedule", annonMap.get("schedule"));
+        String runOnStartup = annonMap.get("runOnStartup");
+        if (runOnStartup == null) {
+            runOnStartup = Constants.DEFAULT_TIMER_TRIGGER_RUNONSTARTUP;
+        }
+        binding.put("runOnStartup", Boolean.parseBoolean(runOnStartup));
+        return binding;
     }
     
 }

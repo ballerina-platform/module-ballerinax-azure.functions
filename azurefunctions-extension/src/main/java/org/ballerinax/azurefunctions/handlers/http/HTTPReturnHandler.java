@@ -15,10 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinax.azurefunctions.handlers;
+package org.ballerinax.azurefunctions.handlers.http;
 
 import org.ballerinax.azurefunctions.AzureFunctionsException;
 import org.ballerinax.azurefunctions.Utils;
+import org.ballerinax.azurefunctions.handlers.AbstractReturnHandler;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;

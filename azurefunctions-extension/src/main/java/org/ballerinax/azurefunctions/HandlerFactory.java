@@ -17,18 +17,18 @@
  */
 package org.ballerinax.azurefunctions;
 
-import org.ballerinax.azurefunctions.handlers.BlobInputParameterHandler;
-import org.ballerinax.azurefunctions.handlers.BlobOutputParameterHandler;
-import org.ballerinax.azurefunctions.handlers.BlobTriggerParameterHandler;
-import org.ballerinax.azurefunctions.handlers.ContextParameterHandler;
-import org.ballerinax.azurefunctions.handlers.HTTPOutputParameterHandler;
-import org.ballerinax.azurefunctions.handlers.HTTPReturnHandler;
-import org.ballerinax.azurefunctions.handlers.HTTPTriggerParameterHandler;
-import org.ballerinax.azurefunctions.handlers.MetadataBindingParameterHandler;
-import org.ballerinax.azurefunctions.handlers.QueueOutputParameterHandler;
-import org.ballerinax.azurefunctions.handlers.QueueTriggerHandler;
-import org.ballerinax.azurefunctions.handlers.TimerTriggerHandler;
-import org.ballerinax.azurefunctions.handlers.TwilioSmsOutputParameterHandler;
+import org.ballerinax.azurefunctions.handlers.blob.BlobInputParameterHandler;
+import org.ballerinax.azurefunctions.handlers.blob.BlobOutputParameterHandler;
+import org.ballerinax.azurefunctions.handlers.blob.BlobTriggerParameterHandler;
+import org.ballerinax.azurefunctions.handlers.context.ContextParameterHandler;
+import org.ballerinax.azurefunctions.handlers.http.HTTPOutputParameterHandler;
+import org.ballerinax.azurefunctions.handlers.http.HTTPReturnHandler;
+import org.ballerinax.azurefunctions.handlers.http.HTTPTriggerParameterHandler;
+import org.ballerinax.azurefunctions.handlers.metadata.MetadataBindingParameterHandler;
+import org.ballerinax.azurefunctions.handlers.queue.QueueOutputParameterHandler;
+import org.ballerinax.azurefunctions.handlers.queue.QueueTriggerHandler;
+import org.ballerinax.azurefunctions.handlers.timer.TimerTriggerHandler;
+import org.ballerinax.azurefunctions.handlers.twilio.TwilioSmsOutputParameterHandler;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;

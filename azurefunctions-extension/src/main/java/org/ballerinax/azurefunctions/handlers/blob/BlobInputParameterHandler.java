@@ -15,12 +15,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinax.azurefunctions.handlers;
+package org.ballerinax.azurefunctions.handlers.blob;
 
 import org.ballerinax.azurefunctions.AzureFunctionsException;
 import org.ballerinax.azurefunctions.BindingType;
 import org.ballerinax.azurefunctions.Constants;
 import org.ballerinax.azurefunctions.Utils;
+import org.ballerinax.azurefunctions.handlers.AbstractParameterHandler;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -29,22 +30,22 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Implementation for the input parameter handler annotation "@TimerTrigger".
+ * Implementation for the input parameter handler annotation "@BlobInput".
  */
-public class TimerTriggerHandler extends AbstractParameterHandler {
+public class BlobInputParameterHandler extends AbstractParameterHandler {
 
-    public TimerTriggerHandler(BLangSimpleVariable param, BLangAnnotationAttachment annotation) {
-        super(param, annotation, BindingType.TRIGGER);
+    public BlobInputParameterHandler(BLangSimpleVariable param, BLangAnnotationAttachment annotation) {
+        super(param, annotation, BindingType.INPUT);
     }
 
     @Override
     public BLangExpression invocationProcess() throws AzureFunctionsException {
-        if (Utils.isJsonType(this.ctx.globalCtx, this.param.type)) {
-            return Utils.createAzurePkgInvocationNode(this.ctx, "getJsonFromInputData",
+        if (Utils.isOptionalByteArray(this.ctx.globalCtx, this.param.type)) {
+            return Utils.createAzurePkgInvocationNode(this.ctx, "getOptionalBytesFromInputData",
                     Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
                     Utils.createStringLiteral(ctx.globalCtx, this.name));
         } else {
-            throw this.createError("Type '" + this.param.type.tsymbol.name.value + "' is not supported");
+            throw this.createError("Type 'byte[]?' is only supported");
         }
     }
 
@@ -55,13 +56,14 @@ public class TimerTriggerHandler extends AbstractParameterHandler {
     public Map<String, Object> generateBinding() {
         Map<String, Object> binding = new LinkedHashMap<>();
         Map<String, String> annonMap = Utils.extractAnnotationKeyValues(this.annotation);
-        binding.put("type", "timerTrigger");
-        binding.put("schedule", annonMap.get("schedule"));
-        String runOnStartup = annonMap.get("runOnStartup");
-        if (runOnStartup == null) {
-            runOnStartup = Constants.DEFAULT_TIMER_TRIGGER_RUNONSTARTUP;
+        binding.put("type", "blob");
+        binding.put("path", annonMap.get("path"));
+        binding.put("dataType", "binary");
+        String connection = annonMap.get("connection");
+        if (connection == null) {
+            connection = Constants.DEFAULT_STORAGE_CONNECTION_NAME;
         }
-        binding.put("runOnStartup", Boolean.parseBoolean(runOnStartup));
+        binding.put("connection", connection);
         return binding;
     }
     

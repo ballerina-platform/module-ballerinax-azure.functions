@@ -15,12 +15,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinax.azurefunctions.handlers;
+package org.ballerinax.azurefunctions.handlers.blob;
 
 import org.ballerinax.azurefunctions.AzureFunctionsException;
 import org.ballerinax.azurefunctions.BindingType;
 import org.ballerinax.azurefunctions.Constants;
 import org.ballerinax.azurefunctions.Utils;
+import org.ballerinax.azurefunctions.handlers.AbstractParameterHandler;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -29,22 +30,22 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Implementation for the input parameter handler annotation "@QueueTrigger".
+ * Implementation for the input parameter handler annotation "@BlobTrigger".
  */
-public class QueueTriggerHandler extends AbstractParameterHandler {
+public class BlobTriggerParameterHandler extends AbstractParameterHandler {
 
-    public QueueTriggerHandler(BLangSimpleVariable param, BLangAnnotationAttachment annotation) {
+    public BlobTriggerParameterHandler(BLangSimpleVariable param, BLangAnnotationAttachment annotation) {
         super(param, annotation, BindingType.TRIGGER);
     }
 
     @Override
     public BLangExpression invocationProcess() throws AzureFunctionsException {
-        if (Utils.isStringType(this.ctx.globalCtx, this.param.type)) {
-            return Utils.createAzurePkgInvocationNode(this.ctx, "getStringFromInputData",
+        if (Utils.isByteArray(this.ctx.globalCtx, this.param.type)) {
+            return Utils.createAzurePkgInvocationNode(this.ctx, "getBytesFromInputData",
                     Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
                     Utils.createStringLiteral(ctx.globalCtx, this.name));
         } else {
-            throw this.createError("Type '" + this.param.type.tsymbol.name.value + "' is not supported");
+            throw this.createError("Type 'byte[]' is only supported");
         }
     }
 
@@ -55,8 +56,9 @@ public class QueueTriggerHandler extends AbstractParameterHandler {
     public Map<String, Object> generateBinding() {
         Map<String, Object> binding = new LinkedHashMap<>();
         Map<String, String> annonMap = Utils.extractAnnotationKeyValues(this.annotation);
-        binding.put("type", "queueTrigger");
-        binding.put("queueName", annonMap.get("queueName"));
+        binding.put("type", "blobTrigger");
+        binding.put("path", annonMap.get("path"));
+        binding.put("dataType", "binary");
         String connection = annonMap.get("connection");
         if (connection == null) {
             connection = Constants.DEFAULT_STORAGE_CONNECTION_NAME;
