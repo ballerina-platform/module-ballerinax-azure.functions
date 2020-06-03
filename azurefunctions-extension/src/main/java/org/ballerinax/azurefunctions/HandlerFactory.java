@@ -22,6 +22,7 @@ import org.ballerinax.azurefunctions.handlers.blob.BlobOutputParameterHandler;
 import org.ballerinax.azurefunctions.handlers.blob.BlobTriggerParameterHandler;
 import org.ballerinax.azurefunctions.handlers.context.ContextParameterHandler;
 import org.ballerinax.azurefunctions.handlers.cosmosdb.CosmosDBInputParameterHandler;
+import org.ballerinax.azurefunctions.handlers.cosmosdb.CosmosDBReturnHandler;
 import org.ballerinax.azurefunctions.handlers.cosmosdb.CosmosDBTriggerHandler;
 import org.ballerinax.azurefunctions.handlers.http.HTTPOutputParameterHandler;
 import org.ballerinax.azurefunctions.handlers.http.HTTPReturnHandler;
@@ -95,7 +96,9 @@ public class HandlerFactory {
         String name = ann.getAnnotationName().getValue();
         if ("HTTPOutput".equals(name)) {
             return new HTTPReturnHandler(retType, ann);
-        } else {
+        } else if ("CosmosDBOutput".equals(name)) {
+            return new CosmosDBReturnHandler(retType, ann);
+        }  else {
             throw createReturnError(ctx, "Return handler not found for the type: " + retType);
         }
     }

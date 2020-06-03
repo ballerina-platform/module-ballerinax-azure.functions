@@ -143,8 +143,29 @@ public type CosmosDBInputConfiguration record {|
 # @azurefunctions:CosmosDBInput annotation.
 public const annotation CosmosDBInputConfiguration CosmosDBInput on parameter;
 
+# CosmosDB input annotation configuration.
+# 
+# + connectionStringSetting -  The name of the app setting which contains the connection string for CosmosDB account
+# + databaseName - The database name
+# + collectionName - The collection name
+# + createIfNotExists - Creates the collection is it does not exist
+# + partitionKey - The partition key value for lookups
+# + collectionThroughput - The throughput of a newly created collection
+# + preferredLocations - A comma-seperated list of regions as preferred locations for geo-replicated database accounts
+# + useMultipleWriteLocations - If true, uses multi-region writes
+public type CosmosDBOutputConfiguration record {|
+    string connectionStringSetting;
+    string databaseName;
+    string collectionName;
+    boolean createIfNotExists?;
+    int collectionThroughput?;
+    string partitionKey?;
+    string preferredLocations?;
+    boolean useMultipleWriteLocations?;
+|};
+
 # @azurefunctions:CosmosDBOutput annotation.
-public const annotation CosmosDBInputConfiguration CosmosDBOutput on parameter;
+public const annotation CosmosDBOutputConfiguration CosmosDBOutput on return;
 
 # Twilio annotation configuration.
 # 

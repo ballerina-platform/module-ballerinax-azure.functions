@@ -1,4 +1,5 @@
 import ballerina/http;
+import ballerina/system;
 import ballerinax/azure.functions as af;
 
 @af:Function
@@ -92,6 +93,7 @@ public function f10(@af:HTTPTrigger { } af:HTTPRequest req,
 }
 
 public type Person record {
+  string id;
   string name;
   int birthYear;
 };
@@ -134,9 +136,38 @@ public function f15(@af:HTTPTrigger { route: "c1/{country}" } af:HTTPRequest htt
   return dbReq.toString();
 }
 
+@af:Function
+public function f16(@af:HTTPTrigger { } af:HTTPRequest httpReq, @af:HTTPOutput af:HTTPBinding hb) 
+                    returns @af:CosmosDBOutput { connectionStringSetting: "CosmosDBConnection", databaseName: "db1", 
+                                                 collectionName: "c1", partitionKey: "p1" } json {
+  json entry = { id: system:uuid(), name: "John Doe", birthYear: 1980 };
+  hb.payload = "Adding entry: " + entry.toString();
+  return entry;
+}
+
+@af:Function
+public function f17(@af:HTTPTrigger { } af:HTTPRequest httpReq, @af:HTTPOutput af:HTTPBinding hb) 
+                    returns @af:CosmosDBOutput { connectionStringSetting: "CosmosDBConnection", databaseName: "db1", 
+                                                 collectionName: "c1", partitionKey: "p1" } json {
+  json entry = [{ id: system:uuid(), name: "John Doe A", birthYear: 1985 }, { id: system:uuid(), name: "John Doe B", birthYear: 1990 }];
+  hb.payload = "Adding entries: " + entry.toString();
+  return entry;
+}
+
+@af:Function
+public function f18(@af:HTTPTrigger { } af:HTTPRequest httpReq) 
+                    returns @af:CosmosDBOutput { connectionStringSetting: "CosmosDBConnection", 
+                                                 databaseName: "db1", collectionName: "c1", 
+                                                 partitionKey: "p1" } Person[] {
+  Person[] persons = [];
+  persons.push({id: system:uuid(), name: "Jack", birthYear: 2001});
+  persons.push({id: system:uuid(), name: "Will", birthYear: 2005});
+  return persons;
+}
+
 // executes every 10 seconds
 @af:Function
-public function f20(@af:TimerTrigger { schedule: "*/10 * * * * *" } json triggerInfo, 
+public function f19(@af:TimerTrigger { schedule: "*/10 * * * * *" } json triggerInfo, 
                     @af:QueueOutput { queueName: "queue3" } af:StringOutputBinding msg) 
                     returns error? {
   msg.value = triggerInfo.toString();

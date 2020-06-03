@@ -602,6 +602,26 @@ public function setStringReturn(HandlerParams params, string value) returns erro
     _ = check content.mergeJson({ ReturnValue: value });
 }
 
+# INTERNAL usage - Sets the JSON return value.
+# 
+# + params - The handler parameters
+# + value - The JSON return value
+# + return - An error in failure
+public function setJsonReturn(HandlerParams params, json value) returns error? {
+    json content = params.result;
+    _ = check content.mergeJson({ ReturnValue: value });
+}
+
+# INTERNAL usage - Converts a Ballerina value to a JSON and set the return value.
+# 
+# + params - The handler parameters
+# + value - The value
+# + return - An error in failure
+public function setBallerinaValueAsJsonReturn(HandlerParams params, anydata value) returns error? {
+    json content = params.result;
+    _ = check content.mergeJson({ ReturnValue: check json.constructFrom(value) });
+}
+
 # INTERNAL usage - Sets the HTTP binding return value.
 # 
 # + params - The handler parameters
