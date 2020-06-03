@@ -504,12 +504,29 @@ public class Utils {
         return ctx.symTable.jsonType.equals(type);
     }
     
+    public static boolean isRecordType(GlobalContext ctx, BType type) {
+        return type.tag == ctx.symTable.recordType.tag;
+    }
+    
+    public static boolean isOptionalRecordType(GlobalContext ctx, BType type) {
+        if (!(type instanceof BUnionType)) {
+            return false;
+        }
+        BUnionType unionType = (BUnionType) type;
+        List<BType> memberTypes = new ArrayList<>(unionType.getMemberTypes());
+        if (memberTypes.size() != 2) {
+            return false;
+        }
+        return ((isRecordType(ctx, memberTypes.get(0)) && ctx.symTable.nilType.equals(memberTypes.get(1)))
+                || (isRecordType(ctx, memberTypes.get(1)) && ctx.symTable.nilType.equals(memberTypes.get(0))));
+    }
+    
     public static boolean isRecordArrayType(GlobalContext ctx, BType type) {
         if (!(type instanceof BArrayType)) {
             return false;
         }
         BArrayType arrayType = (BArrayType) type;
-        return arrayType.eType.tag == ctx.symTable.recordType.tag;
+        return isRecordType(ctx, arrayType.eType);
     }
 
     public static boolean isByteArray(GlobalContext ctx, BType type) {

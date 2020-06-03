@@ -22,8 +22,10 @@ public type AUTH_LEVEL "anonymous"|"function"|"admin";
 # HTTPTrigger annotation configuration.
 # 
 # + authLevel - The authentication level of the function
+# + route - The route template
 public type HTTPTriggerConfiguration record {|
     AUTH_LEVEL authLevel?;
+    string route?;
 |};
 
 # @azurefunctions:HTTPTrigger annotation.
@@ -77,7 +79,7 @@ public const annotation BlobConfiguration BlobInput on parameter;
 # @azurefunctions:BlobOutput annotation.
 public const annotation BlobConfiguration BlobOutput on parameter;
 
-# CosmosDB annotation configuration.
+# CosmosDB trigger annotation configuration.
 # 
 # + connectionStringSetting -  The name of the app setting which contains the connection string for CosmosDB account
 # + databaseName - The database name
@@ -96,7 +98,7 @@ public const annotation BlobConfiguration BlobOutput on parameter;
 # + maxItemsPerInvocation - The maximum number of items received per function call
 # + startFromBeginning - Tells the trigger to read changes from the beginning of the collection's change history
 # + preferredLocations - A comma-seperated list of regions as preferred locations for geo-replicated database accounts
-public type CosmosDBConfiguration record {|
+public type CosmosDBTriggerConfiguration record {|
     string connectionStringSetting;
     string databaseName;
     string collectionName;
@@ -117,13 +119,32 @@ public type CosmosDBConfiguration record {|
 |};
 
 # @azurefunctions:CosmosDBTrigger annotation.
-public const annotation CosmosDBConfiguration CosmosDBTrigger on parameter;
+public const annotation CosmosDBTriggerConfiguration CosmosDBTrigger on parameter;
+
+# CosmosDB input annotation configuration.
+# 
+# + connectionStringSetting -  The name of the app setting which contains the connection string for CosmosDB account
+# + databaseName - The database name
+# + collectionName - The collection name
+# + id - The id of the document to retrieve
+# + sqlQuery - An Azure Cosmos DB SQL query used to retrieve multiple documents
+# + partitionKey - The partition key value for lookups
+# + preferredLocations - A comma-seperated list of regions as preferred locations for geo-replicated database accounts
+public type CosmosDBInputConfiguration record {|
+    string connectionStringSetting;
+    string databaseName;
+    string collectionName;
+    string id?;
+    string sqlQuery?;
+    string partitionKey?;
+    string preferredLocations?;
+|};
 
 # @azurefunctions:CosmosDBInput annotation.
-public const annotation CosmosDBConfiguration CosmosDBInput on parameter;
+public const annotation CosmosDBInputConfiguration CosmosDBInput on parameter;
 
 # @azurefunctions:CosmosDBOutput annotation.
-public const annotation CosmosDBConfiguration CosmosDBOutput on parameter;
+public const annotation CosmosDBInputConfiguration CosmosDBOutput on parameter;
 
 # Twilio annotation configuration.
 # 

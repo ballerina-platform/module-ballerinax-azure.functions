@@ -144,6 +144,7 @@ service AzureFunctionsServer on hl {
                 }
                 check caller->respond(response);
             }
+            return err;
         } else {
             response.setTextPayload("function handler not found: " + <@untainted> functionName);
             response.statusCode = 404;
@@ -494,6 +495,53 @@ public function getJsonFromInputData(HandlerParams params, string name) returns 
     return unescapeJson(data[name]);
 }
 
+# INTERNAL usage - Returns the JSON value from input data - double escape.
+# 
+# + params - The handler parameters
+# + name - The input data entry name
+# + return - The JSON value
+public function getJsonFromInputDataDoubleEscape(HandlerParams params, string name) returns json|error {
+    json payload = check getJsonFromHTTPReq(params);
+    map<json> data = <map<json>> payload.Data;
+    json entry = data[name];
+    // the unescape is because the input data JSON values are string escaped 
+    return unescapeJson(check unescapeJson(data[name]));
+}
+
+# INTERNAL usage - Returns the optional JSON value from input data.
+# 
+# + params - The handler parameters
+# + name - The input data entry name
+# + return - The JSON value
+public function getOptionalJsonFromInput(HandlerParams params, string name) returns json|error {
+    json payload = check getJsonFromHTTPReq(params);
+    map<json> data = <map<json>> payload.Data;
+    json entry = data[name];
+    if entry == () || entry == "null" {
+        return ();
+    } else {
+        // the unescape is because the input data JSON values are string escaped 
+        return unescapeJson(data[name]);
+    }
+}
+
+# INTERNAL usage - Returns the optional JSON value from input data - double escape.
+# 
+# + params - The handler parameters
+# + name - The input data entry name
+# + return - The JSON value
+public function getOptionalJsonFromInputDataDoubleEscape(HandlerParams params, string name) returns json|error {
+    json payload = check getJsonFromHTTPReq(params);
+    map<json> data = <map<json>> payload.Data;
+    json entry = data[name];
+    if entry == () || entry == "null" {
+        return ();
+    } else {
+        // the unescape is because the input data JSON values are string escaped 
+        return unescapeJson(check unescapeJson(data[name]));
+    }
+}
+
 # INTERNAL usage - Returns a converted Ballerina value from input data.
 # 
 # + params - The handler parameters
@@ -502,11 +550,42 @@ public function getJsonFromInputData(HandlerParams params, string name) returns 
 # + return - The JSON value
 public function getBallerinaValueFromInputData(HandlerParams params, string name, 
                                        typedesc<anydata> recordType) returns anydata|error {
-    json payload = check getJsonFromHTTPReq(params);
-    map<json> data = <map<json>> payload.Data;
-    // the unescape is because the input data JSON values are string escaped 
-    var result = unescapeJson(data[name]);
+    var result = getJsonFromInputData(params, name);
     if result is error {
+        return result;
+    } else {
+        return recordType.constructFrom(result);
+    }
+}
+
+# INTERNAL usage - Returns the converted Ballerina value from input data - double escape.
+# 
+# + params - The handler parameters
+# + name - The input data entry name
+# + recordType - The record type descriptor
+# + return - The JSON value
+public function getBallerinaValueFromInputDataDoubleEscape(HandlerParams params, string name, 
+                                       typedesc<anydata> recordType) returns anydata?|error {
+    var result = getJsonFromInputDataDoubleEscape(params, name);
+    if result is error {
+        return result;
+    } else {
+        return recordType.constructFrom(result);
+    }
+}
+
+# INTERNAL usage - Returns the optional converted Ballerina value from input data - double escape.
+# 
+# + params - The handler parameters
+# + name - The input data entry name
+# + recordType - The record type descriptor
+# + return - The JSON value
+public function getOptionalBallerinaValueFromInputDataDoubleEscape(HandlerParams params, string name, 
+                                       typedesc<anydata> recordType) returns anydata?|error {
+    var result = getOptionalJsonFromInputDataDoubleEscape(params, name);
+    if result is error {
+        return result;
+    } else if result == () {
         return result;
     } else {
         return recordType.constructFrom(result);

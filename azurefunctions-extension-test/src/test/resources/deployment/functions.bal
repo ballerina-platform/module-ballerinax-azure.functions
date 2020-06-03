@@ -109,9 +109,34 @@ public function f12(@af:CosmosDBTrigger { connectionStringSetting: "CosmosDBConn
   outMsg.value = req.toString();
 }
 
+@af:Function
+public function f13(@af:HTTPTrigger { } af:HTTPRequest httpReq, 
+                    @af:CosmosDBInput { connectionStringSetting: "CosmosDBConnection", databaseName: "db1", collectionName: "c1", 
+                                        id: "{Query.id}", partitionKey: "p1" } json dbReq)
+                    returns @af:HTTPOutput string|error {
+  return dbReq.toString();
+}
+
+@af:Function
+public function f14(@af:HTTPTrigger { } af:HTTPRequest httpReq, 
+                    @af:CosmosDBInput { connectionStringSetting: "CosmosDBConnection", databaseName: "db1", collectionName: "c1", 
+                                        id: "{Query.id}", partitionKey: "p1" } Person? dbReq)
+                    returns @af:HTTPOutput string|error {
+  return dbReq.toString();
+}
+
+@af:Function
+public function f15(@af:HTTPTrigger { route: "c1/{country}" } af:HTTPRequest httpReq, 
+                    @af:CosmosDBInput { connectionStringSetting: "CosmosDBConnection", databaseName: "db1", collectionName: "c1", 
+                                        sqlQuery: "select * from c1 where c1.country = {country}", 
+                                        partitionKey: "p1" } Person[] dbReq)
+                    returns @af:HTTPOutput string|error {
+  return dbReq.toString();
+}
+
 // executes every 10 seconds
 @af:Function
-public function f13(@af:TimerTrigger { schedule: "*/10 * * * * *" } json triggerInfo, 
+public function f20(@af:TimerTrigger { schedule: "*/10 * * * * *" } json triggerInfo, 
                     @af:QueueOutput { queueName: "queue3" } af:StringOutputBinding msg) 
                     returns error? {
   msg.value = triggerInfo.toString();
