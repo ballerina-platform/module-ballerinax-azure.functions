@@ -532,6 +532,19 @@ public class Utils {
         return ((isByteArray(ctx, memberTypes.get(0)) && ctx.symTable.nilType.equals(memberTypes.get(1)))
                 || (isByteArray(ctx, memberTypes.get(1)) && ctx.symTable.nilType.equals(memberTypes.get(0))));
     }
+    
+    public static boolean isOptionalString(GlobalContext ctx, BType type) {
+        if (!(type instanceof BUnionType)) {
+            return false;
+        }
+        BUnionType unionType = (BUnionType) type;
+        List<BType> memberTypes = new ArrayList<>(unionType.getMemberTypes());
+        if (memberTypes.size() != 2) {
+            return false;
+        }
+        return ((isStringType(ctx, memberTypes.get(0)) && ctx.symTable.nilType.equals(memberTypes.get(1)))
+                || (isStringType(ctx, memberTypes.get(1)) && ctx.symTable.nilType.equals(memberTypes.get(0))));
+    }
 
     public static JsonElement objectToJson(Object obj) {
         if (obj instanceof String) {

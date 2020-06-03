@@ -65,7 +65,7 @@ public function f7(@af:HTTPTrigger { } af:HTTPRequest req,
 
 @af:Function
 public function f8(@af:HTTPTrigger { } af:HTTPRequest req, 
-                   @af:BlobOutput { path: "bpath1/{Query.name}" } af:BytesOutputBinding bb)
+                   @af:BlobOutput { path: "bpath1/{Query.name}" } af:StringOutputBinding bb)
                    returns @af:HTTPOutput string|error {
   bb.value = req.body;
   return "Blob: " + req.query["name"].toString() + " Content: " + bb?.value.toString();
@@ -73,6 +73,17 @@ public function f8(@af:HTTPTrigger { } af:HTTPRequest req,
 
 @af:Function
 public function f9(@af:HTTPTrigger { } af:HTTPRequest req, 
+                   @af:BlobInput { path: "bpath1/{Query.name}" } string? blobIn)
+                   returns @af:HTTPOutput string|error {
+  int length = 0;
+  if blobIn is string {
+      length = blobIn.length();
+  }
+  return "Blob: " + req.query["name"].toString() + " Length: " + length.toString() + " Content: " + blobIn.toString();
+}
+
+@af:Function
+public function f10(@af:HTTPTrigger { } af:HTTPRequest req, 
                    @af:TwilioSmsOutput { fromNumber: "+12069845840" } af:TwilioSmsOutputBinding tb)
                    returns @af:HTTPOutput string|error {
   tb.to = req.query["to"].toString();
@@ -86,21 +97,21 @@ public type Person record {
 };
 
 @af:Function
-public function f10(@af:CosmosDBTrigger { connectionStringSetting: "CosmosDBConnection", databaseName: "db1", collectionName: "c1" } Person[] req, 
+public function f11(@af:CosmosDBTrigger { connectionStringSetting: "CosmosDBConnection", databaseName: "db1", collectionName: "c1" } Person[] req, 
                     @af:QueueOutput { queueName: "queue3" } af:StringOutputBinding outMsg) {
   outMsg.value = req.toString();
 }
 
 
 @af:Function
-public function f11(@af:CosmosDBTrigger { connectionStringSetting: "CosmosDBConnection", databaseName: "db1", collectionName: "c2" } json req, 
+public function f12(@af:CosmosDBTrigger { connectionStringSetting: "CosmosDBConnection", databaseName: "db1", collectionName: "c2" } json req, 
                     @af:QueueOutput { queueName: "queue3" } af:StringOutputBinding outMsg) {
   outMsg.value = req.toString();
 }
 
 // executes every 10 seconds
 @af:Function
-public function f12(@af:TimerTrigger { schedule: "*/10 * * * * *" } json triggerInfo, 
+public function f13(@af:TimerTrigger { schedule: "*/10 * * * * *" } json triggerInfo, 
                     @af:QueueOutput { queueName: "queue3" } af:StringOutputBinding msg) 
                     returns error? {
   msg.value = triggerInfo.toString();

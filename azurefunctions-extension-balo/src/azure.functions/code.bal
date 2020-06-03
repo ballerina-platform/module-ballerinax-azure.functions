@@ -19,8 +19,7 @@ import ballerina/io;
 import ballerina/system;
 import ballerina/lang.'int as ints;
 import ballerina/lang.'array as arrays;
-
-service dummyService = service { };
+import ballerina/lang.'string as strings;
 
 # HTTP binding data.
 # 
@@ -42,7 +41,7 @@ public type StringOutputBinding record {
 # 
 # + value - The byte[] value
 public type BytesOutputBinding record {
-    byte[]|string value?;
+    byte[] value?;
 };
 
 # Twilion SMS output binding data.
@@ -230,18 +229,22 @@ public function setStringOutput(HandlerParams params, string name, StringOutputB
 # + name - The parameter name
 # + binding - The binding data
 # + return - An error in failure
-public function setBlobOutput(HandlerParams params, string name, BytesOutputBinding binding) returns error? {
-    string|byte[]? value = binding?.value;
-    if (!(value is ())) {
+public function setBlobOutput(HandlerParams params, string name, any binding) returns error? {
+    string? value = ();
+    if binding is BytesOutputBinding {
+        // TODO issue: https://github.com/Azure/azure-functions-host/issues/6091
+        byte[]? bytes = binding?.value;
+        if bytes is byte[] {
+            value = bytes.toBase64();
+        }
+    } else if binding is StringOutputBinding {
+        value = binding?.value;        
+    }
+    if value is string {
         json content = params.result;
         json outputs = check content.Outputs;
         map<json> bvals = { };
-        if value is string {
-            bvals[name] = value;
-        } else {
-            //TODO issue: https://github.com/Azure/azure-functions-host/issues/6091
-            bvals[name] = value.toBase64();
-        }
+        bvals[name] = value;
         _ = check outputs.mergeJson(bvals);
     }
 }
@@ -368,7 +371,7 @@ public function getOptionalStringFromInputData(HandlerParams params, string name
 # + name - The input data entry name
 # + return - The binary value
 public function getBytesFromInputData(HandlerParams params, string name) returns byte[]|error {
-    var data = check getStringFromInputData(params, name);
+    string data = check getStringFromInputData(params, name);
     return arrays:fromBase64(data.toString());
 }
 
@@ -376,13 +379,47 @@ public function getBytesFromInputData(HandlerParams params, string name) returns
 # 
 # + params - The handler parameters
 # + name - The input data entry name
-# + return - The optional binary value
+# + return - The optional string value
 public function getOptionalBytesFromInputData(HandlerParams params, string name) returns byte[]?|error {
     string? data = check getOptionalStringFromInputData(params, name);
     if data == () || data == "null" {
         return ();
     } else {
         return arrays:fromBase64(data.toString());
+    }
+}
+
+# INTERNAL usage - Returns the string value converted from input binary data.
+# 
+# + params - The handler parameters
+# + name - The input data entry name
+# + return - The string value
+public function getStringConvertedBytesFromInputData(HandlerParams params, string name) returns string?|error {
+    string data = check getStringFromInputData(params, name);
+    var result = arrays:fromBase64(data.toString());
+    if result is error {
+        return result;
+    } else {
+        return check strings:fromBytes(result);
+    }
+}
+
+# INTERNAL usage - Returns the optional string value converted from input binary data.
+# 
+# + params - The handler parameters
+# + name - The input data entry name
+# + return - The optional binary value
+public function getOptionalStringConvertedBytesFromInputData(HandlerParams params, string name) returns string?|error {
+    string? data = check getOptionalStringFromInputData(params, name);
+    if data == () || data == "null" {
+        return ();
+    } else {
+        var result = arrays:fromBase64(data.toString());
+        if result is error {
+            return result;
+        } else {
+            return check strings:fromBytes(result);
+        }
     }
 }
 

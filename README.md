@@ -24,8 +24,7 @@ import ballerinax/azure.functions as af;
 
 @af:Function
 public function f1(@af:HTTPTrigger { authLevel: "anonymous" } string req, 
-                   @af:HTTPOutput af:HTTPBinding hb) 
-		   returns error? {
+                   @af:HTTPOutput af:HTTPBinding hb) returns error? {
   hb.payload = "Hello!";
 }
 
@@ -87,7 +86,7 @@ public function f7(@af:HTTPTrigger { } af:HTTPRequest req,
 
 @af:Function
 public function f8(@af:HTTPTrigger { } af:HTTPRequest req, 
-                   @af:BlobOutput { path: "bpath1/{Query.name}" } af:BytesOutputBinding bb)
+                   @af:BlobOutput { path: "bpath1/{Query.name}" } af:StringOutputBinding bb)
                    returns @af:HTTPOutput string|error {
   bb.value = req.body;
   return "Blob: " + req.query["name"].toString() + " Content: " + bb?.value.toString();
@@ -95,16 +94,45 @@ public function f8(@af:HTTPTrigger { } af:HTTPRequest req,
 
 @af:Function
 public function f9(@af:HTTPTrigger { } af:HTTPRequest req, 
-                   @af:TwilioSmsOutput { fromNumber: "+1xxxxxxxxxx" } af:TwilioSmsOutputBinding tb)
+                   @af:BlobInput { path: "bpath1/{Query.name}" } string? blobIn)
+                   returns @af:HTTPOutput string|error {
+  int length = 0;
+  if blobIn is string {
+      length = blobIn.length();
+  }
+  return "Blob: " + req.query["name"].toString() + " Length: " + length.toString() + " Content: " + blobIn.toString();
+}
+
+@af:Function
+public function f10(@af:HTTPTrigger { } af:HTTPRequest req, 
+                   @af:TwilioSmsOutput { fromNumber: "+12069845840" } af:TwilioSmsOutputBinding tb)
                    returns @af:HTTPOutput string|error {
   tb.to = req.query["to"].toString();
   tb.body = req.body.toString();
   return "Message - to: " + tb?.to.toString() + " body: " + tb?.body.toString();
 }
 
+public type Person record {
+  string name;
+  int birthYear;
+};
+
+@af:Function
+public function f11(@af:CosmosDBTrigger { connectionStringSetting: "CosmosDBConnection", databaseName: "db1", collectionName: "c1" } Person[] req, 
+                    @af:QueueOutput { queueName: "queue3" } af:StringOutputBinding outMsg) {
+  outMsg.value = req.toString();
+}
+
+
+@af:Function
+public function f12(@af:CosmosDBTrigger { connectionStringSetting: "CosmosDBConnection", databaseName: "db1", collectionName: "c2" } json req, 
+                    @af:QueueOutput { queueName: "queue3" } af:StringOutputBinding outMsg) {
+  outMsg.value = req.toString();
+}
+
 // executes every 10 seconds
 @af:Function
-public function f10(@af:TimerTrigger { schedule: "*/10 * * * * *" } json triggerInfo, 
+public function f13(@af:TimerTrigger { schedule: "*/10 * * * * *" } json triggerInfo, 
                     @af:QueueOutput { queueName: "queue3" } af:StringOutputBinding msg) 
                     returns error? {
   msg.value = triggerInfo.toString();
@@ -120,7 +148,7 @@ Compiling source
 
 Generating executables
 	functions.jar
-	@azure.functions:Function: f1, f2, f3, f4, f5, f6, f7, f8, f9, f10
+	@azure.functions:Function: f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13
 
 	Run the following command to deploy Ballerina Azure Functions:
 	az functionapp deployment source config-zip -g <resource_group> -n <function_app_name> --src azure-functions.zip

@@ -44,8 +44,12 @@ public class BlobTriggerParameterHandler extends AbstractParameterHandler {
             return Utils.createAzurePkgInvocationNode(this.ctx, "getBytesFromInputData",
                     Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
                     Utils.createStringLiteral(ctx.globalCtx, this.name));
-        } else {
-            throw this.createError("Type must be 'byte[]'");
+        } else if (Utils.isStringType(this.ctx.globalCtx, this.param.type)) {
+            return Utils.createAzurePkgInvocationNode(this.ctx, "getStringConvertedBytesFromInputData",
+                    Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
+                    Utils.createStringLiteral(ctx.globalCtx, this.name));
+        }  else {
+            throw this.createError("Type must be 'string' or 'byte[]'");
         }
     }
 
