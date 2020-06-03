@@ -21,6 +21,7 @@ import org.ballerinax.azurefunctions.handlers.blob.BlobInputParameterHandler;
 import org.ballerinax.azurefunctions.handlers.blob.BlobOutputParameterHandler;
 import org.ballerinax.azurefunctions.handlers.blob.BlobTriggerParameterHandler;
 import org.ballerinax.azurefunctions.handlers.context.ContextParameterHandler;
+import org.ballerinax.azurefunctions.handlers.cosmosdb.CosmosDBTriggerHandler;
 import org.ballerinax.azurefunctions.handlers.http.HTTPOutputParameterHandler;
 import org.ballerinax.azurefunctions.handlers.http.HTTPReturnHandler;
 import org.ballerinax.azurefunctions.handlers.http.HTTPTriggerParameterHandler;
@@ -71,6 +72,8 @@ public class HandlerFactory {
             return new TwilioSmsOutputParameterHandler(param, ann);
         } else if ("BindingName".equals(name)) {
             return new MetadataBindingParameterHandler(param, ann);
+        } else if ("CosmosDBTrigger".equals(name)) {
+            return new CosmosDBTriggerHandler(param, ann);
         } else {
             throw createParamError(ctx, param, "Parameter handler not found");
         }

@@ -45,7 +45,7 @@ public class QueueTriggerHandler extends AbstractParameterHandler {
                     Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
                     Utils.createStringLiteral(ctx.globalCtx, this.name));
         } else {
-            throw this.createError("Type '" + this.param.type.tsymbol.name.value + "' is not supported");
+            throw this.createError("Type must be 'string'");
         }
     }
 

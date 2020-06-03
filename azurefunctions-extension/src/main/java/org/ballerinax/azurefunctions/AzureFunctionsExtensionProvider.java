@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
 @JavaSPIService("org.ballerinalang.spi.SystemPackageRepositoryProvider")
 public class AzureFunctionsExtensionProvider implements SystemPackageRepositoryProvider {
 
+    @SuppressWarnings("rawtypes")
     @Override
     public Repo loadRepository() {
         return new JarRepo(SystemPackageRepositoryProvider.getClassUri(this));

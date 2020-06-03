@@ -45,7 +45,7 @@ public class BlobTriggerParameterHandler extends AbstractParameterHandler {
                     Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
                     Utils.createStringLiteral(ctx.globalCtx, this.name));
         } else {
-            throw this.createError("Type 'byte[]' is only supported");
+            throw this.createError("Type must be 'byte[]'");
         }
     }
 

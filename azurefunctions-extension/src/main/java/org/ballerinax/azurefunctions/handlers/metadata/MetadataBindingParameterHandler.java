@@ -48,7 +48,7 @@ public class MetadataBindingParameterHandler extends AbstractParameterHandler {
                     Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
                     Utils.createStringLiteral(this.ctx.globalCtx, this.name));
         } else {
-            throw this.createError("Type '" + this.param.type.tsymbol.name.value + "' is not supported");
+            throw this.createError("Type must be 'string'");
         }
     }
 

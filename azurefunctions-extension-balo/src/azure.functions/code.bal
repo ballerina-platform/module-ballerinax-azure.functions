@@ -453,7 +453,27 @@ public function getHTTPRequestFromInputData(HandlerParams params, string name) r
 public function getJsonFromInputData(HandlerParams params, string name) returns json|error {
     json payload = check getJsonFromHTTPReq(params);
     map<json> data = <map<json>> payload.Data;
-    return data[name];
+    // the unescape is because the input data JSON values are string escaped 
+    return unescapeJson(data[name]);
+}
+
+# INTERNAL usage - Returns a converted Ballerina value from input data.
+# 
+# + params - The handler parameters
+# + name - The input data entry name
+# + recordType - The record type descriptor
+# + return - The JSON value
+public function getBallerinaValueFromInputData(HandlerParams params, string name, 
+                                       typedesc<anydata> recordType) returns anydata|error {
+    json payload = check getJsonFromHTTPReq(params);
+    map<json> data = <map<json>> payload.Data;
+    // the unescape is because the input data JSON values are string escaped 
+    var result = unescapeJson(data[name]);
+    if result is error {
+        return result;
+    } else {
+        return recordType.constructFrom(result);
+    }
 }
 
 # INTERNAL usage - Sets the string return value.

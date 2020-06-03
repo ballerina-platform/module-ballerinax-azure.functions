@@ -64,6 +64,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValueField;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
@@ -186,6 +187,15 @@ public class Utils {
         varRef.symbol = varSymbol;
         varRef.type = varSymbol.type;
         return varRef;
+    }
+    
+    public static BLangTypedescExpr createTypeDescExpr(GlobalContext ctx, BType type) {
+        BLangTypedescExpr typeDescExpr = new BLangTypedescExpr();
+        typeDescExpr.pos = ctx.pos;
+        typeDescExpr.type = ctx.symTable.typeDesc;
+        typeDescExpr.resolvedType = type;
+        typeDescExpr.expectedType = ctx.symTable.typeDesc;
+        return typeDescExpr;
     }
     
     public static BLangSimpleVariable createVariable(GlobalContext ctx, BType type, String name, BSymbol owner) {
@@ -492,6 +502,14 @@ public class Utils {
 
     public static boolean isJsonType(GlobalContext ctx, BType type) {
         return ctx.symTable.jsonType.equals(type);
+    }
+    
+    public static boolean isRecordArrayType(GlobalContext ctx, BType type) {
+        if (!(type instanceof BArrayType)) {
+            return false;
+        }
+        BArrayType arrayType = (BArrayType) type;
+        return arrayType.eType.tag == ctx.symTable.recordType.tag;
     }
 
     public static boolean isByteArray(GlobalContext ctx, BType type) {

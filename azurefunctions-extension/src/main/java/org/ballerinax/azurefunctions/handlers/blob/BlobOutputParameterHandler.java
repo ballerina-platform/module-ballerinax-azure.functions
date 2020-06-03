@@ -44,7 +44,7 @@ public class BlobOutputParameterHandler extends AbstractParameterHandler {
     @Override
     public BLangExpression invocationProcess() throws AzureFunctionsException {
         if (!Utils.isAzurePkgType(ctx, "BytesOutputBinding", this.param.type)) {
-            throw this.createError("The parameter type must be 'BytesOutputBinding'");
+            throw this.createError("Type must be 'BytesOutputBinding'");
         }
         this.var = Utils.addAzurePkgRecordVarDef(this.ctx, "BytesOutputBinding", this.ctx.getNextVarName());
         return Utils.createVariableRef(this.ctx.globalCtx, this.var);
