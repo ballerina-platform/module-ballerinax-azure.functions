@@ -1,24 +1,3 @@
-# Ballerina Azure Functions Extension
-
-Annotation based Azure Functions extension implementation for Ballerina. 
-
-## Azure Setup
-
-* An Azure "Function App" needs to be created in a given resource group with the following requirements
-   - Runtime stack - "Java"
-   - Hosting operating system - "Windows" (default; Linux is not supported in Azure for custom handlers at the moment)
-
-## Supported Annotations:
-
-### @azure.functions:Function
-
-#### Custom 'host.json'
-
-A custom [host.json](https://docs.microsoft.com/en-us/azure/azure-functions/functions-host-json) file for the functions deployment can be optionally provided by placing a 'host.json' file in the current working directory where the Ballerina build is done. The required host.json properties are provided/overridden by the values derived from the source code by the compiler extension. 
-
-#### Usage Sample:
-
-```ballerina
 import ballerina/http;
 import ballerina/system;
 import ballerinax/azure.functions as af;
@@ -193,21 +172,3 @@ public function f19(@af:TimerTrigger { schedule: "*/10 * * * * *" } json trigger
                     returns error? {
   msg.value = triggerInfo.toString();
 }
-```
-
-The output of the Ballerina build is as follows:
-
-```bash
-$ ballerina build functions.bal 
-Compiling source
-	functions.bal
-
-Generating executables
-	functions.jar
-	@azure.functions:Function: f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16, f17, f18, f19
-
-	Run the following command to deploy Ballerina Azure Functions:
-	az functionapp deployment source config-zip -g <resource_group> -n <function_app_name> --src azure-functions.zip
-```
-
-
