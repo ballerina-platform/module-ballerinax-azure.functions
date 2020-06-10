@@ -71,25 +71,12 @@ task ballerinaBuild {
                 commandLine 'sh', '-c', "$distributionBinPath/ballerina build -c -a --skip-tests"
             }
         }
-        exec {
-            workingDir project.projectDir
-            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-                commandLine 'cmd', '/c', "$distributionBinPath/ballerina.bat doc -a"
-            } else {
-                commandLine 'sh', '-c', "$distributionBinPath/ballerina doc -a"
-            }
-        }
         copy {
             from file("$project.projectDir/Ballerina.toml")
             into file("${artifactAzureFunctionsBallerinaBirDir}/azure.functions/${tomlSemver}")
         }
-        copy {
-            from file("$project.projectDir/target/apidocs/azure.functions")
-            into file("$project.buildDir/apidocs/docs/azure.functions")
-        }
     }
     outputs.dir artifactAzureFunctionsBallerinaBirDir
-    outputs.dir file("$project.buildDir/apidocs")
     outputs.file artifactAzureFunctionsBallerinaJar
 }
 
