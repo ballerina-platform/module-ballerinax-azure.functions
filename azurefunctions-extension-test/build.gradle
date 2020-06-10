@@ -53,7 +53,7 @@ task copyBallerinaArtifacts {
     doLast {
         copy {
             from configurations.azureFunctionsBallerinaBirDir
-            into file("${distributionLocation}/bir-cache/")
+            into file("${distributionLocation}/bir-cache/ballerinax")
         }
         copy {
             from configurations.azureFunctionsBallerinaJar
@@ -79,3 +79,10 @@ test {
 	}
 }
 
+// Disable publishing artifacts
+tasks.withType(PublishToMavenRepository) {
+    enabled = false
+}
+tasks.withType(PublishToMavenLocal) {
+    enabled = false
+}

@@ -554,7 +554,7 @@ public function getBallerinaValueFromInputData(HandlerParams params, string name
     if result is error {
         return result;
     } else {
-        return recordType.constructFrom(result);
+        return result.cloneWithType(recordType);
     }
 }
 
@@ -570,7 +570,7 @@ public function getBallerinaValueFromInputDataDoubleEscape(HandlerParams params,
     if result is error {
         return result;
     } else {
-        return recordType.constructFrom(result);
+        return result.cloneWithType(recordType);
     }
 }
 
@@ -588,7 +588,7 @@ public function getOptionalBallerinaValueFromInputDataDoubleEscape(HandlerParams
     } else if result == () {
         return result;
     } else {
-        return recordType.constructFrom(result);
+        return result.cloneWithType(recordType);
     }
 }
 
@@ -619,7 +619,7 @@ public function setJsonReturn(HandlerParams params, json value) returns error? {
 # + return - An error in failure
 public function setBallerinaValueAsJsonReturn(HandlerParams params, anydata value) returns error? {
     json content = params.result;
-    _ = check content.mergeJson({ ReturnValue: check json.constructFrom(value) });
+    _ = check content.mergeJson({ ReturnValue: check value.cloneWithType(json) });
 }
 
 # INTERNAL usage - Sets the HTTP binding return value.
