@@ -16,15 +16,18 @@
  */
 
 plugins {
+    id "base"
     id "com.github.johnrengelman.shadow" version "5.2.0"
     id "com.github.spotbugs" version "4.0.5"
     id "de.undercouch.download" version "4.0.4"
+    id "net.researchgate.release" version "2.6.0"
 }
 
-ext.ballerinaLangVersion = "1.2.4"
+ext.ballerinaLangVersion = project.version
 ext.testngVersion = "6.14.3"
 ext.commomsIOVersion = "2.6"
 ext.commonsLoggingVersion = "1.2"
+ext.googleGsonVersion = "2.7"
 ext.slf4jVersion = "1.7.26"
 
 ext.puppycrawlCheckstyleVersion = "8.18"
@@ -33,11 +36,7 @@ ext.projectBuildSourceEncoding = "UTF-8"
 ext.projectReportingOutputEncoding = "UTF-8"
 
 allprojects {
-    group = 'org.ballerinax.azurefunctions'
-    version = '1.2.5-SNAPSHOT'
-
     apply plugin: 'jacoco'
-
     repositories {
         mavenLocal()
         maven {
@@ -53,10 +52,6 @@ allprojects {
         }
 
         maven {
-            url = 'https://maven.wso2.org/nexus/content/repositories/orgballerinalang-1509'
-        }
-
-        maven {
             url = 'https://repo.maven.apache.org/maven2'
         }
     }
@@ -64,9 +59,43 @@ allprojects {
 
 subprojects {
     apply plugin: 'java'
+    apply plugin: 'maven-publish'
+    publishing {
+        repositories {
+            maven {
+                if (project.version.endsWith('-SNAPSHOT')) {
+                    url "https://maven.wso2.org/nexus/content/repositories/snapshots/"
+                } else {
+                    url "https://maven.wso2.org/nexus/service/local/staging/deploy/maven2/"
+                }
+                credentials {
+                    username System.getenv("NEXUS_USERNAME")
+                    password System.getenv("NEXUS_PASSWORD")
+                }
+            }
+        }
+    }
+
+    release {
+        // Disable check snapshots temporarily
+        buildTasks = []
+        failOnSnapshotDependencies = false
+        failOnCommitNeeded = false
+        versionPropertyFile = 'gradle.properties'
+        tagTemplate = 'v${version}'
+        git {
+            // To release from any branch
+            requireBranch = null
+        }
+    }
+
+    afterReleaseBuild.dependsOn publishToMavenLocal
+    afterReleaseBuild.dependsOn publish
 }
 
 task codeCoverageReport(type: JacocoReport) {
+    dependsOn = subprojects.test
+
     executionData fileTree(project.rootDir.absolutePath).include("**/build/coverage-reports/*.exec")
 
     subprojects.each {

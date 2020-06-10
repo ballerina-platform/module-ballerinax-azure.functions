@@ -17,13 +17,8 @@
 
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
-<suite name="Ballerina-Kubernetes-Test-Suite">
-    <test name="ballerina-kubernetes-sample-tests" parallel="false">
-        <groups>
-            <run>
-                <exclude name="samCLITest"/>
-            </run>
-        </groups>
+<suite name="Ballerinax-Azure-Functions-Test-Suite">
+    <test name="ballerinax-azure-functions-tests" parallel="false">
         <classes>
             <class name="org.ballerinax.azurefunctions.test.DeploymentTest"/>
         </classes>
