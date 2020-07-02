@@ -32,30 +32,43 @@ import java.util.Map;
  */
 public class CosmosDBReturnHandler extends AbstractReturnHandler {
 
+    private Map<String, String> annonMap;
+
     public CosmosDBReturnHandler(BType retType, BLangAnnotationAttachment annotation) {
         super(retType, annotation);
+        this.annonMap = Utils.extractAnnotationKeyValues(this.annotation);
     }
 
     @Override
     public void postInvocationProcess(BLangExpression returnValueExpr) throws AzureFunctionsException {
         if (Utils.isJsonType(this.ctx.globalCtx, this.retType)) {
-            Utils.addAzurePkgFunctionCall(this.ctx, "setJsonReturn", true,
-                    Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams), returnValueExpr);
+            Utils.addAzurePkgFunctionCall(this.ctx, "setCosmosDBJsonReturn", true,
+                    Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams), returnValueExpr,
+                    Utils.createStringLiteral(this.ctx.globalCtx, pk()));
         } else if (Utils.isRecordType(this.ctx.globalCtx, this.retType)) {
-            Utils.addAzurePkgFunctionCall(this.ctx, "setBallerinaValueAsJsonReturn", true,
-                    Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams), returnValueExpr);
+            Utils.addAzurePkgFunctionCall(this.ctx, "setCosmosDBBallerinaValueAsJsonReturn", true,
+                    Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams), returnValueExpr,
+                    Utils.createStringLiteral(this.ctx.globalCtx, pk()));
         } else if (Utils.isRecordArrayType(this.ctx.globalCtx, this.retType)) {
-            Utils.addAzurePkgFunctionCall(this.ctx, "setBallerinaValueAsJsonReturn", true,
-                    Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams), returnValueExpr);
+            Utils.addAzurePkgFunctionCall(this.ctx, "setCosmosDBBallerinaValueAsJsonReturn", true,
+                    Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams), returnValueExpr,
+                    Utils.createStringLiteral(this.ctx.globalCtx, pk()));
         } else {            
             throw this.createError("Type '" + this.retType.tsymbol.name.value + "' is not supported");
         }
     }
 
+    private String pk() {
+        String pk = annonMap.get("partitionKey");
+        if (pk == null) {
+            pk = "";
+        }
+        return pk;
+    }
+
     @Override
     public Map<String, Object> generateBinding() {
         Map<String, Object> binding = new LinkedHashMap<>();
-        Map<String, String> annonMap = Utils.extractAnnotationKeyValues(this.annotation);
         binding.put("type", "cosmosDB");
         binding.put("connectionStringSetting", annonMap.get("connectionStringSetting"));
         binding.put("databaseName", annonMap.get("databaseName"));
