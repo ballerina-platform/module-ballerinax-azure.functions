@@ -15,21 +15,26 @@
  *
  */
 
-plugins {
-    id "com.gradle.enterprise" version "3.2"
+description = 'Ballerinax - AzureFunctions Extension Examples'
+
+task zipExamples(type: Zip) {
+   from 'examples/'
+   include '*'
+   include '*/*'
+   archiveFileName = "azurefunctions-extension-examples-${ballerinaLangVersion}.zip"
+   destinationDirectory = file(project.buildDir.absolutePath)
 }
 
-rootProject.name = 'azurefunctions-extension-parent'
-include(':build-config:checkstyle')
-include(':azurefunctions-extension')
-include(':azurefunctions-extension-balo')
-include(':azurefunctions-extension-test')
-include(':azurefunctions-extension-examples')
-
-gradleEnterprise {
-    buildScan {
-        termsOfServiceUrl = 'https://gradle.com/terms-of-service'
-        termsOfServiceAgree = 'yes'
-    }
+jar {
+   enabled = false
 }
 
+publishing {
+   publications {
+      mavenJava(MavenPublication) {
+         artifact source: zipExamples, extension: 'zip'
+      }
+   }
+}
+
+build.dependsOn zipExamples
