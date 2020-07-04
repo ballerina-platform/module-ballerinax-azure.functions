@@ -74,9 +74,6 @@ public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
         try {
             generatedFunctions.putAll(this.generateHandlerFunctions(bpn));
             this.registerHandlerFunctions(bpn, generatedFunctions);
-            // the following is a workaround in order to signal the runtime that we have a service
-            // running and the program should not exit
-            Utils.addDummyService(this.globalCtx, bpn);
         } catch (AzureFunctionsException e) {
             this.dlog.logDiagnostic(Diagnostic.Kind.ERROR, packageNode.getPosition(), e.getMessage());
         }
@@ -146,6 +143,11 @@ public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
         if (azureFunctions.isEmpty()) {
             return;
         }
+
+        // the following is a workaround in order to signal the runtime that we have a service
+        // running and the program should not exit
+        Utils.addDummyService(this.globalCtx, myPkg);
+
         BPackageSymbol azureFuncsPkgSymbol = this.globalCtx.azureFuncsPkgSymbol;
         if (azureFuncsPkgSymbol == null) {
             // this symbol will always be there, since the import is needed to add the annotation
