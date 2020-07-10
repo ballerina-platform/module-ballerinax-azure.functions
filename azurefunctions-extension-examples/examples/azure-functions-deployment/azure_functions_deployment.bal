@@ -96,7 +96,7 @@ public function cosmosDBToQueue2(@af:CosmosDBTrigger { connectionStringSetting: 
 public function httpTriggerCosmosDBInput1(@af:HTTPTrigger { } af:HTTPRequest httpReq, 
                                           @af:CosmosDBInput { connectionStringSetting: "CosmosDBConnection", 
                                           databaseName: "db1", collectionName: "c1", 
-                                          id: "{Query.id}", partitionKey: "p1" } json dbReq)
+                                          id: "{Query.id}" } json dbReq)
                                           returns @af:HTTPOutput string|error {
     return dbReq.toString();
 }
@@ -105,7 +105,7 @@ public function httpTriggerCosmosDBInput1(@af:HTTPTrigger { } af:HTTPRequest htt
 public function httpTriggerCosmosDBInput2(@af:HTTPTrigger { } af:HTTPRequest httpReq, 
                                           @af:CosmosDBInput { connectionStringSetting: "CosmosDBConnection", 
                                           databaseName: "db1", collectionName: "c1", 
-                                          id: "{Query.id}", partitionKey: "p1" } Person? dbReq)
+                                          id: "{Query.id}" } Person? dbReq)
                                           returns @af:HTTPOutput string|error {
     return dbReq.toString();
 }
@@ -114,8 +114,7 @@ public function httpTriggerCosmosDBInput2(@af:HTTPTrigger { } af:HTTPRequest htt
 public function httpTriggerCosmosDBInput3(@af:HTTPTrigger { route: "c1/{country}" } af:HTTPRequest httpReq, 
                                           @af:CosmosDBInput { connectionStringSetting: "CosmosDBConnection", 
                                           databaseName: "db1", collectionName: "c1", 
-                                          sqlQuery: "select * from c1 where c1.country = {country}", 
-                                          partitionKey: "p1" } Person[] dbReq)
+                                          sqlQuery: "select * from c1 where c1.country = {country}" } Person[] dbReq)
                                           returns @af:HTTPOutput string|error {
     return dbReq.toString();
 }
@@ -124,7 +123,7 @@ public function httpTriggerCosmosDBInput3(@af:HTTPTrigger { route: "c1/{country}
 @af:Function
 public function httpTriggerCosmosDBOutput1(@af:HTTPTrigger { } af:HTTPRequest httpReq, @af:HTTPOutput af:HTTPBinding hb) 
                                            returns @af:CosmosDBOutput { connectionStringSetting: "CosmosDBConnection", 
-                                           databaseName: "db1", collectionName: "c1", partitionKey: "p1" } json {
+                                           databaseName: "db1", collectionName: "c1" } json {
     json entry = { id: system:uuid(), name: "John Doe", birthYear: 1980 };
     hb.payload = "Adding entry: " + entry.toString();
     return entry;
@@ -133,7 +132,7 @@ public function httpTriggerCosmosDBOutput1(@af:HTTPTrigger { } af:HTTPRequest ht
 @af:Function
 public function httpTriggerCosmosDBOutput2(@af:HTTPTrigger { } af:HTTPRequest httpReq, @af:HTTPOutput af:HTTPBinding hb) 
                                            returns @af:CosmosDBOutput { connectionStringSetting: "CosmosDBConnection", 
-                                           databaseName: "db1", collectionName: "c1", partitionKey: "p1" } json {
+                                           databaseName: "db1", collectionName: "c1" } json {
     json entry = [{ id: system:uuid(), name: "John Doe A", birthYear: 1985 }, 
                   { id: system:uuid(), name: "John Doe B", birthYear: 1990 }];
     hb.payload = "Adding entries: " + entry.toString();
@@ -143,7 +142,7 @@ public function httpTriggerCosmosDBOutput2(@af:HTTPTrigger { } af:HTTPRequest ht
 @af:Function
 public function httpTriggerCosmosDBOutput3(@af:HTTPTrigger { } af:HTTPRequest httpReq) 
                                            returns @af:CosmosDBOutput { connectionStringSetting: "CosmosDBConnection", 
-                                           databaseName: "db1", collectionName: "c1", partitionKey: "p1" } Person[] {
+                                           databaseName: "db1", collectionName: "c1" } Person[] {
     Person[] persons = [];
     persons.push({id: system:uuid(), name: "Jack", birthYear: 2001});
     persons.push({id: system:uuid(), name: "Will", birthYear: 2005});
