@@ -94,7 +94,7 @@ public type Context object {
 
     public json metadata;
 
-    public function __init(HandlerParams hparams, boolean populateMetadata) returns error? {
+    public function init(HandlerParams hparams, boolean populateMetadata) returns error? {
         self.hparams = hparams;
         if populateMetadata {
             self.metadata = check getMetadata(self.hparams);
@@ -619,8 +619,9 @@ public function setJsonReturn(HandlerParams params, json value) returns error? {
 # + return - An error in failure
 public function setBallerinaValueAsJsonReturn(HandlerParams params, anydata value) returns error? {
     json content = params.result;
-    _ = check content.mergeJson({ ReturnValue: check value.cloneWithType(json) });
+    check setJsonReturn(params, check value.cloneWithType(json));
 }
+
 
 # INTERNAL usage - Sets the HTTP binding return value.
 # 
