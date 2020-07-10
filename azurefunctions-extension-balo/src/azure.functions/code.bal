@@ -612,27 +612,6 @@ public function setJsonReturn(HandlerParams params, json value) returns error? {
     _ = check content.mergeJson({ ReturnValue: value });
 }
 
-# INTERNAL usage - Sets the CosmosDS JSON return value.
-# 
-# + params - The handler parameters
-# + value - The JSON return value
-# + partitionKey - The partition key
-# + return - An error in failure
-public function setCosmosDBJsonReturn(HandlerParams params, json value, string partitionKey) returns error? {
-    json content = params.result;
-    if partitionKey.length() > 0 {
-        if value is json[] {
-            json[] valArray = <json[]> value;
-            foreach json valEntry in valArray {
-                _ = check valEntry.mergeJson({ pk: partitionKey });
-            }
-        } else {
-            _ = check value.mergeJson({ pk: partitionKey });
-        }
-    }
-    _ = check content.mergeJson({ ReturnValue: value });
-}
-
 # INTERNAL usage - Converts a Ballerina value to a JSON and set the return value.
 # 
 # + params - The handler parameters
@@ -643,17 +622,6 @@ public function setBallerinaValueAsJsonReturn(HandlerParams params, anydata valu
     check setJsonReturn(params, check value.cloneWithType(json));
 }
 
-# INTERNAL usage - Converts a CosmosDS Ballerina value to a JSON and set the return value.
-# 
-# + params - The handler parameters
-# + value - The value
-# + partitionKey - The partition key
-# + return - An error in failure
-public function setCosmosDBBallerinaValueAsJsonReturn(HandlerParams params, anydata value, 
-                                                      string partitionKey) returns error? {
-    json content = params.result;
-    check setCosmosDBJsonReturn(params, check value.cloneWithType(json), partitionKey);
-}
 
 # INTERNAL usage - Sets the HTTP binding return value.
 # 
