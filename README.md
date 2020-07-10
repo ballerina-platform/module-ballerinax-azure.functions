@@ -135,7 +135,7 @@ public function f12(@af:CosmosDBTrigger { connectionStringSetting: "CosmosDBConn
 @af:Function
 public function f13(@af:HTTPTrigger { } af:HTTPRequest httpReq, 
                     @af:CosmosDBInput { connectionStringSetting: "CosmosDBConnection", databaseName: "db1", collectionName: "c1", 
-                                        id: "{Query.id}", partitionKey: "p1" } json dbReq)
+                                        id: "{Query.id}" } json dbReq)
                     returns @af:HTTPOutput string|error {
   return dbReq.toString();
 }
@@ -143,7 +143,7 @@ public function f13(@af:HTTPTrigger { } af:HTTPRequest httpReq,
 @af:Function
 public function f14(@af:HTTPTrigger { } af:HTTPRequest httpReq, 
                     @af:CosmosDBInput { connectionStringSetting: "CosmosDBConnection", databaseName: "db1", collectionName: "c1", 
-                                        id: "{Query.id}", partitionKey: "p1" } Person? dbReq)
+                                        id: "{Query.id}" } Person? dbReq)
                     returns @af:HTTPOutput string|error {
   return dbReq.toString();
 }
@@ -151,8 +151,7 @@ public function f14(@af:HTTPTrigger { } af:HTTPRequest httpReq,
 @af:Function
 public function f15(@af:HTTPTrigger { route: "c1/{country}" } af:HTTPRequest httpReq, 
                     @af:CosmosDBInput { connectionStringSetting: "CosmosDBConnection", databaseName: "db1", collectionName: "c1", 
-                                        sqlQuery: "select * from c1 where c1.country = {country}", 
-                                        partitionKey: "p1" } Person[] dbReq)
+                                        sqlQuery: "select * from c1 where c1.country = {country}" } Person[] dbReq)
                     returns @af:HTTPOutput string|error {
   return dbReq.toString();
 }
@@ -160,7 +159,7 @@ public function f15(@af:HTTPTrigger { route: "c1/{country}" } af:HTTPRequest htt
 @af:Function
 public function f16(@af:HTTPTrigger { } af:HTTPRequest httpReq, @af:HTTPOutput af:HTTPBinding hb) 
                     returns @af:CosmosDBOutput { connectionStringSetting: "CosmosDBConnection", databaseName: "db1", 
-                                                 collectionName: "c1", partitionKey: "p1" } json {
+                                                 collectionName: "c1" } json {
   json entry = { id: system:uuid(), name: "John Doe", birthYear: 1980 };
   hb.payload = "Adding entry: " + entry.toString();
   return entry;
@@ -169,7 +168,7 @@ public function f16(@af:HTTPTrigger { } af:HTTPRequest httpReq, @af:HTTPOutput a
 @af:Function
 public function f17(@af:HTTPTrigger { } af:HTTPRequest httpReq, @af:HTTPOutput af:HTTPBinding hb) 
                     returns @af:CosmosDBOutput { connectionStringSetting: "CosmosDBConnection", databaseName: "db1", 
-                                                 collectionName: "c1", partitionKey: "p1" } json {
+                                                 collectionName: "c1" } json {
   json entry = [{ id: system:uuid(), name: "John Doe A", birthYear: 1985 }, { id: system:uuid(), name: "John Doe B", birthYear: 1990 }];
   hb.payload = "Adding entries: " + entry.toString();
   return entry;
@@ -178,8 +177,7 @@ public function f17(@af:HTTPTrigger { } af:HTTPRequest httpReq, @af:HTTPOutput a
 @af:Function
 public function f18(@af:HTTPTrigger { } af:HTTPRequest httpReq) 
                     returns @af:CosmosDBOutput { connectionStringSetting: "CosmosDBConnection", 
-                                                 databaseName: "db1", collectionName: "c1", 
-                                                 partitionKey: "p1" } Person[] {
+                                                 databaseName: "db1", collectionName: "c1" } Person[] {
   Person[] persons = [];
   persons.push({id: system:uuid(), name: "Jack", birthYear: 2001});
   persons.push({id: system:uuid(), name: "Will", birthYear: 2005});
