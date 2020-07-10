@@ -18,7 +18,9 @@
 description = 'Ballerinax - AzureFunctions Extension Examples'
 
 task zipExamples(type: Zip) {
-   from 'examples/'
+   from('examples/') {
+      into("azurefunctions-extension-examples-${ballerinaLangVersion}")
+   }
    include '*'
    include '*/*'
    archiveFileName = "azurefunctions-extension-examples-${ballerinaLangVersion}.zip"
