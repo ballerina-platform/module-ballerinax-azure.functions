@@ -184,7 +184,7 @@ public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
             OUT.println(msg);
             throw new BallerinaException(msg, e);
         }
-        OUT.println("\n\tRun the following command to deploy Ballerina Azure Functions:");
+        OUT.println("\n\tExecute the below command to deploy Ballerina Azure Functions:");
         OUT.println("\taz functionapp deployment source config-zip -g <resource_group> -n <function_app_name> --src " 
                 + Constants.AZURE_FUNCS_OUTPUT_ZIP_FILENAME);
     }
