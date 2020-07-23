@@ -5,7 +5,7 @@ Annotation based Azure Functions extension implementation for Ballerina.
 ## Azure Setup
 
 * An Azure "Function App" needs to be created in a given resource group with the following requirements
-   - Runtime stack - "Java"
+   - Runtime stack - "Java 8"
    - Hosting operating system - "Windows" (default; Linux is not supported in Azure for custom handlers at the moment)
 
 ## Supported Annotations:
