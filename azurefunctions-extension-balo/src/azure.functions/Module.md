@@ -2,6 +2,8 @@
 
 Annotation based Azure Functions extension implementation for Ballerina. 
 
+For information on the operations, which you can perform with this module, see [Objects](https://ballerina.io/swan-lake/learn/api-docs/ballerina/azure.functions/index.html#objects). For examples on the usage of the operations, see the [Azure Functions Deployment Example](https://ballerina.io/swan-lake/learn/by-example/azure-functions-deployment.html).
+
 ## Azure Setup
 
 * An Azure "Function App" needs to be created in a given resource group with the following requirements
