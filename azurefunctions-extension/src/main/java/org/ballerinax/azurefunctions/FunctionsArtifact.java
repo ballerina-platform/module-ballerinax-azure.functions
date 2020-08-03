@@ -98,7 +98,7 @@ public class FunctionsArtifact {
         }
         this.hostJson.add("version", new JsonPrimitive("2.0"));
         JsonObject httpWorker = new JsonObject();
-        this.hostJson.add("httpWorker", httpWorker);
+        this.hostJson.add("customHandler", httpWorker);
         JsonObject httpWorkerDesc = new JsonObject();
         httpWorker.add("description", httpWorkerDesc);
         httpWorkerDesc.add("defaultExecutablePath", new JsonPrimitive("java"));
