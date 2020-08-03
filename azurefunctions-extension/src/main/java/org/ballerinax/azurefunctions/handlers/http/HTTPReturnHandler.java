@@ -46,6 +46,14 @@ public class HTTPReturnHandler extends AbstractReturnHandler {
                 Utils.addAzurePkgFunctionCall(this.ctx, "setStringReturn", true,
                         Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams), returnValueExpr);
             }
+        } else if (Utils.isJsonType(this.ctx.globalCtx, this.retType)) {
+            if (Utils.isPureHTTPBinding(this.ctx)) {
+                Utils.addAzurePkgFunctionCall(this.ctx, "setPureJsonOutput", true,
+                        Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams), returnValueExpr);
+            } else {
+                Utils.addAzurePkgFunctionCall(this.ctx, "setJsonReturn", true,
+                        Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams), returnValueExpr);
+            }
         } else if (Utils.isAzurePkgType(ctx, "HTTPBinding", this.retType)) {
             if (Utils.isPureHTTPBinding(this.ctx)) {
                 Utils.addAzurePkgFunctionCall(this.ctx, "setPureHTTPOutput", true,

@@ -47,7 +47,7 @@ public class CosmosDBInputParameterHandler extends AbstractParameterHandler {
         boolean singleRecordQuery = this.isSingleRecordQuery();
         if (singleRecordQuery) {
             if (Utils.isJsonType(this.ctx.globalCtx, this.param.type)) {
-                return Utils.createAzurePkgInvocationNode(this.ctx, "getOptionalJsonFromInputDataDoubleEscape",
+                return Utils.createAzurePkgInvocationNode(this.ctx, "getJsonFromInputDataDoubleEscaped",
                         Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
                         Utils.createStringLiteral(ctx.globalCtx, this.name));
             } else if (Utils.isOptionalRecordType(this.ctx.globalCtx, this.param.type)) {
@@ -61,7 +61,7 @@ public class CosmosDBInputParameterHandler extends AbstractParameterHandler {
             }
         } else {        
             if (Utils.isJsonType(this.ctx.globalCtx, this.param.type)) {
-                return Utils.createAzurePkgInvocationNode(this.ctx, "getOptionalJsonFromInput",
+                return Utils.createAzurePkgInvocationNode(this.ctx, "getJsonFromInput",
                         Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
                         Utils.createStringLiteral(ctx.globalCtx, this.name));
             } else if (Utils.isRecordArrayType(this.ctx.globalCtx, this.param.type)) {

@@ -44,8 +44,12 @@ public class QueueTriggerHandler extends AbstractParameterHandler {
             return Utils.createAzurePkgInvocationNode(this.ctx, "getStringFromInputData",
                     Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
                     Utils.createStringLiteral(ctx.globalCtx, this.name));
+        } else if (Utils.isJsonType(this.ctx.globalCtx, this.param.type)) {
+            return Utils.createAzurePkgInvocationNode(this.ctx, "getJsonFromInputDataDoubleEscaped",
+                    Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
+                    Utils.createStringLiteral(ctx.globalCtx, this.name));
         } else {
-            throw this.createError("Type must be 'string'");
+            throw this.createError("Type must be 'string' or 'json'");
         }
     }
 
