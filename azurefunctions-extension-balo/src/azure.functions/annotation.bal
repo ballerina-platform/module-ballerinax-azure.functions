@@ -136,20 +136,20 @@ public type CosmosDBInputConfiguration record {|
     string collectionName;
     string id?;
     string sqlQuery?;
-    string partitionKey?;
+    string|int|float partitionKey?;
     string preferredLocations?;
 |};
 
 # @azurefunctions:CosmosDBInput annotation.
 public const annotation CosmosDBInputConfiguration CosmosDBInput on parameter;
 
-# CosmosDB input annotation configuration.
+# CosmosDB output annotation configuration.
 # 
 # + connectionStringSetting -  The name of the app setting which contains the connection string for CosmosDB account
 # + databaseName - The database name
 # + collectionName - The collection name
 # + createIfNotExists - Creates the collection is it does not exist
-# + partitionKey - The partition key value for lookups
+# + partitionKey - The partition key name
 # + collectionThroughput - The throughput of a newly created collection
 # + preferredLocations - A comma-seperated list of regions as preferred locations for geo-replicated database accounts
 # + useMultipleWriteLocations - If true, uses multi-region writes

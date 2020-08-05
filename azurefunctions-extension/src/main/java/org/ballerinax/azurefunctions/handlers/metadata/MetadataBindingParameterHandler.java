@@ -34,10 +34,10 @@ public class MetadataBindingParameterHandler extends AbstractParameterHandler {
 
     public MetadataBindingParameterHandler(BLangSimpleVariable param, BLangAnnotationAttachment annotation) {
         super(param, annotation, BindingType.METADATA);
-        Map<String, String> annonMap = Utils.extractAnnotationKeyValues(this.annotation);
-        String name = annonMap.get("name");
+        Map<String, Object> annonMap = Utils.extractAnnotationKeyValues(this.annotation);
+        Object name = annonMap.get("name");
         if (name != null) {
-            this.name = name;
+            this.name = name.toString();
         }
     }
     
