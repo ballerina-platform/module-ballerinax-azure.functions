@@ -61,15 +61,15 @@ public class TwilioSmsOutputParameterHandler extends AbstractParameterHandler {
     @Override
     public Map<String, Object> generateBinding() {
         Map<String, Object> binding = new LinkedHashMap<>();
-        Map<String, String> annonMap = Utils.extractAnnotationKeyValues(this.annotation);
+        Map<String, Object> annonMap = Utils.extractAnnotationKeyValues(this.annotation);
         binding.put("type", "twilioSms");
         binding.put("from", annonMap.get("fromNumber"));
-        String accountSidSetting = annonMap.get("accountSidSetting");
+        String accountSidSetting = (String) annonMap.get("accountSidSetting");
         if (accountSidSetting == null) {
             accountSidSetting = Constants.DEFAULT_TWILIO_ACCOUNT_SID_SETTING;
         }
         binding.put("accountSidSetting", accountSidSetting);
-        String authTokenSetting = annonMap.get("authTokenSetting");
+        String authTokenSetting = (String) annonMap.get("authTokenSetting");
         if (authTokenSetting == null) {
             authTokenSetting = Constants.DEFAULT_TWILIO_AUTH_TOKEN_SETTING;
         }
