@@ -599,13 +599,13 @@ public class Utils {
         bindings.add(createBindingObject(binding));
     }
 
-    public static Map<String, String> extractAnnotationKeyValues(BLangAnnotationAttachment annotation) {
+    public static Map<String, Object> extractAnnotationKeyValues(BLangAnnotationAttachment annotation) {
         BLangRecordLiteral record = (BLangRecordLiteral) annotation.expr;
         List<BLangRecordKeyValueField> fields = record.getFields().stream().map(x -> (BLangRecordKeyValueField) x)
                 .collect(Collectors.toList());
-        Map<String, String> annonMap = new HashMap<>();
+        Map<String, Object> annonMap = new HashMap<>();
         for (BLangRecordKeyValueField field : fields) {
-            annonMap.put(field.key.toString(), field.getValue().toString());
+            annonMap.put(field.key.toString(), ((BLangLiteral) field.getValue()).getValue());
         }
         return annonMap;
     }
