@@ -55,14 +55,14 @@ public class TimerTriggerHandler extends AbstractParameterHandler {
     @Override
     public Map<String, Object> generateBinding() {
         Map<String, Object> binding = new LinkedHashMap<>();
-        Map<String, String> annonMap = Utils.extractAnnotationKeyValues(this.annotation);
+        Map<String, Object> annonMap = Utils.extractAnnotationKeyValues(this.annotation);
         binding.put("type", "timerTrigger");
         binding.put("schedule", annonMap.get("schedule"));
-        String runOnStartup = annonMap.get("runOnStartup");
+        Boolean runOnStartup = (Boolean) annonMap.get("runOnStartup");
         if (runOnStartup == null) {
             runOnStartup = Constants.DEFAULT_TIMER_TRIGGER_RUNONSTARTUP;
         }
-        binding.put("runOnStartup", Boolean.parseBoolean(runOnStartup));
+        binding.put("runOnStartup", runOnStartup);
         return binding;
     }
     

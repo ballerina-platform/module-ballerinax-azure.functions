@@ -41,7 +41,7 @@ public class Constants {
     public static final String DEFAULT_STORAGE_CONNECTION_NAME = "AzureWebJobsStorage";
     public static final String DEFAULT_TWILIO_ACCOUNT_SID_SETTING = "AzureWebJobsTwilioAccountSid";
     public static final String DEFAULT_TWILIO_AUTH_TOKEN_SETTING = "AzureWebJobsTwilioAuthToken";
-    public static final String DEFAULT_TIMER_TRIGGER_RUNONSTARTUP = "true";
+    public static final boolean DEFAULT_TIMER_TRIGGER_RUNONSTARTUP = true;
     public static final boolean DEFAULT_COSMOS_DB_CREATELEASECOLLECTIONIFNOTEXISTS = true;
 
 }

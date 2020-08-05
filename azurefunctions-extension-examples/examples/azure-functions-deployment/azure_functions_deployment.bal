@@ -73,7 +73,7 @@ public function sendSMS(@af:HTTPTrigger { } af:HTTPRequest req,
 public type Person record {
     string id;
     string name;
-    int birthYear;
+    string country;
 };
 
 // CosmosDB record trigger
@@ -96,7 +96,7 @@ public function cosmosDBToQueue2(@af:CosmosDBTrigger { connectionStringSetting: 
 public function httpTriggerCosmosDBInput1(@af:HTTPTrigger { } af:HTTPRequest httpReq, 
                                           @af:CosmosDBInput { connectionStringSetting: "CosmosDBConnection", 
                                           databaseName: "db1", collectionName: "c1", 
-                                          id: "{Query.id}" } json dbReq)
+                                          id: "{Query.id}", partitionKey: "{Query.country}" } json dbReq)
                                           returns @af:HTTPOutput string|error {
     return dbReq.toString();
 }
@@ -105,7 +105,7 @@ public function httpTriggerCosmosDBInput1(@af:HTTPTrigger { } af:HTTPRequest htt
 public function httpTriggerCosmosDBInput2(@af:HTTPTrigger { } af:HTTPRequest httpReq, 
                                           @af:CosmosDBInput { connectionStringSetting: "CosmosDBConnection", 
                                           databaseName: "db1", collectionName: "c1", 
-                                          id: "{Query.id}" } Person? dbReq)
+                                          id: "{Query.id}", partitionKey: "{Query.country}" } Person? dbReq)
                                           returns @af:HTTPOutput string|error {
     return dbReq.toString();
 }
@@ -124,7 +124,7 @@ public function httpTriggerCosmosDBInput3(@af:HTTPTrigger { route: "c1/{country}
 public function httpTriggerCosmosDBOutput1(@af:HTTPTrigger { } af:HTTPRequest httpReq, @af:HTTPOutput af:HTTPBinding hb) 
                                            returns @af:CosmosDBOutput { connectionStringSetting: "CosmosDBConnection", 
                                            databaseName: "db1", collectionName: "c1" } json {
-    json entry = { id: system:uuid(), name: "John Doe", birthYear: 1980 };
+    json entry = { id: system:uuid(), name: "Saman", country: "Sri Lanka" };
     hb.payload = "Adding entry: " + entry.toString();
     return entry;
 }
@@ -133,8 +133,8 @@ public function httpTriggerCosmosDBOutput1(@af:HTTPTrigger { } af:HTTPRequest ht
 public function httpTriggerCosmosDBOutput2(@af:HTTPTrigger { } af:HTTPRequest httpReq, @af:HTTPOutput af:HTTPBinding hb) 
                                            returns @af:CosmosDBOutput { connectionStringSetting: "CosmosDBConnection", 
                                            databaseName: "db1", collectionName: "c1" } json {
-    json entry = [{ id: system:uuid(), name: "John Doe A", birthYear: 1985 }, 
-                  { id: system:uuid(), name: "John Doe B", birthYear: 1990 }];
+    json entry = [{ id: system:uuid(), name: "John Doe A", country: "USA" }, 
+                  { id: system:uuid(), name: "John Doe B", country: "USA" }];
     hb.payload = "Adding entries: " + entry.toString();
     return entry;
 }
@@ -144,8 +144,8 @@ public function httpTriggerCosmosDBOutput3(@af:HTTPTrigger { } af:HTTPRequest ht
                                            returns @af:CosmosDBOutput { connectionStringSetting: "CosmosDBConnection", 
                                            databaseName: "db1", collectionName: "c1" } Person[] {
     Person[] persons = [];
-    persons.push({id: system:uuid(), name: "Jack", birthYear: 2001});
-    persons.push({id: system:uuid(), name: "Will", birthYear: 2005});
+    persons.push({id: system:uuid(), name: "Jack", country: "UK"});
+    persons.push({id: system:uuid(), name: "Will", country: "UK"});
     return persons;
 }
 
@@ -155,4 +155,5 @@ public function queuePopulationTimer(@af:TimerTrigger { schedule: "*/10 * * * * 
                                      @af:QueueOutput { queueName: "queue4" } af:StringOutputBinding msg) {
     msg.value = triggerInfo.toString();
 }
+
 

@@ -15,11 +15,11 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/io;
 import ballerina/system;
 import ballerina/lang.'int as ints;
 import ballerina/lang.'array as arrays;
 import ballerina/lang.'string as strings;
+import ballerina/lang.'boolean as booleans;
 
 # HTTP binding data.
 # 
@@ -68,7 +68,7 @@ public type HTTPRequest record {
     map<string> query;
     map<string[]> headers;
     map<string> params;
-    string identities;
+    json[] identities;
     string body;
 };
 
@@ -107,11 +107,43 @@ public type Context object {
     # 
     # + msg - The log message
     public function log(string msg) {
-        json[] logs = <json[]> self.hparams.result.Logs;
-        logs.push(msg);
+        log(self.hparams, msg);
     }
 
 };
+
+# INTERNAL usage - Enters to function invocation logs.
+# 
+# + msg - The log message
+function log(HandlerParams hparams, string msg) {
+    json[] logs = <json[]> hparams.result.Logs;
+    logs.push(msg);
+}
+
+# INTERNAL usage - Checks if request tracing is enabled.
+# 
+# + return - The request tracing flag
+function isRequestTrace() returns boolean {
+    string? value = system:getEnv("BALLERINA_AZURE_FUNCTIONS_REQUEST_TRACE");
+    if value is string {
+        var flag = booleans:fromString(value);
+        if flag is boolean {
+            return flag;
+        } else {
+            return false;
+        }
+    } else {
+        return false;
+    }
+}
+
+function logError(HandlerParams hparams, error err) {
+    log(hparams, "ERROR: " + err.toString());
+}
+
+function logRequest(HandlerParams hparams, http:Request request) {
+    log(hparams, "REQUEST: " + request.getTextPayload().toString());
+}
 
 # Function handler type.
 type FunctionHandler (function (HandlerParams) returns error?);
@@ -135,16 +167,18 @@ service AzureFunctionsServer on hl {
             HandlerParams hparams = { request, response };
             error? err = trap handler(hparams);
             if err is error {
-                response.statusCode = 500;
-                response.setTextPayload(err.toString());
-                check caller->respond(response);
+                logError(hparams, err);
+                logRequest(hparams, request);
+                response.setJsonPayload(<@untainted> hparams.result);
             } else {
                 if !hparams.pure {
+                    if isRequestTrace() {
+                        logRequest(hparams, request);
+                    }
                     response.setJsonPayload(<@untainted> hparams.result);
                 }
-                check caller->respond(response);
             }
-            return err;
+            check caller->respond(response);
         } else {
             response.setTextPayload("function handler not found: " + <@untainted> functionName);
             response.statusCode = 404;
@@ -152,15 +186,6 @@ service AzureFunctionsServer on hl {
         }
     }
 
-}
-
-# INTERNAL usage - unescape a JSON encoded in a string.
-# 
-# + value - String escaped JSON value
-# + return - Unescaped JSON value.
-public function unescapeJson(json value) returns json|error {
-    io:StringReader sr = new(value.toString(), encoding = "UTF-8");
-    return <@untainted> sr.readJson();
 }
 
 # INTERNAL usage - extracts the metadata.
@@ -292,6 +317,16 @@ public function setPureStringOutput(HandlerParams params, string value) returns 
     params.pure = true;
 }
 
+# INTERNAL usage - Sets the pure JSON output.
+# 
+# + params - The handler parameters
+# + value - The value
+# + return - An error in failure
+public function setPureJsonOutput(HandlerParams params, json value) returns error? {
+    params.response.setJsonPayload(value.toJsonString());
+    params.pure = true;
+}
+
 # INTERNAL usage - Returns the HTTP request data.
 # 
 # + params - The handler parameters
@@ -308,19 +343,42 @@ public function getStringFromHTTPReq(HandlerParams params) returns string|error 
     return check <@untainted> params.request.getTextPayload();
 }
 
+# INTERNAL usage - Returns a parsed JSON value.
+# 
+# + input - The escaped JSON value
+# + return - The parsed JSON value
+function parseJson(string input) returns json|error {
+    json x = check input.fromJsonString();    
+    return x;
+}
+
+# INTERNAL usage - Returns a twice parsed JSON value.
+# 
+# + input - The escaped JSON value
+# + return - The parsed JSON value
+function parseJsonTwice(string input) returns json|error {
+    json x = check parseJson(input);
+    return parseJson(x.toJsonString());
+}
+
+# INTERNAL usage - Returns a json value from metadata.
+# 
+# + params - The handler parameters
+# + name - The metadata entry name
+# + return - The metadata entry value
+public function getJsonFromMetadata(HandlerParams params, string name) returns json|error {
+    map<json> metadata = <map<json>> check getMetadata(params);
+    return parseJson(metadata[name].toJsonString());
+}
+
 # INTERNAL usage - Returns a string value from metadata.
 # 
 # + params - The handler parameters
 # + name - The metadata entry name
 # + return - The metadata entry value
 public function getStringFromMetadata(HandlerParams params, string name) returns string|error {
-    map<json> metadata = <map<json>> check getMetadata(params);
-    json fld = check unescapeJson(metadata[name]);    
-    string result = fld.toJsonString();
-    if (result.startsWith("\"") && result.endsWith("\"")) {
-        result = result.substring(1, result.length() - 1);
-    }
-    return result;
+    json result = check getJsonFromMetadata(params, name);
+    return result.toJsonString();
 }
 
 # INTERNAL usage - Returns the JSON payload from the HTTP request.
@@ -347,7 +405,7 @@ public function getBinaryFromHTTPReq(HandlerParams params) returns byte[]|error 
 public function getStringFromInputData(HandlerParams params, string name) returns string|error {
     json payload = check getJsonFromHTTPReq(params);
     map<json> data = <map<json>> payload.Data;
-    return data[name].toString();
+    return data[name].toJsonString();
 }
 
 # INTERNAL usage - Returns the optional string value from input data.
@@ -358,12 +416,11 @@ public function getStringFromInputData(HandlerParams params, string name) return
 public function getOptionalStringFromInputData(HandlerParams params, string name) returns string?|error {
     json payload = check getJsonFromHTTPReq(params);
     map<json> data = <map<json>> payload.Data;
-    json entry = data[name];
-    if entry == () {
-        return ();
-    } else {
-        return entry.toString();
+    json result = data[name];
+    if result == () {
+       return ();
     }
+    return result.toJsonString();
 }
 
 # INTERNAL usage - Returns the binary value from input data.
@@ -383,7 +440,7 @@ public function getBytesFromInputData(HandlerParams params, string name) returns
 # + return - The optional string value
 public function getOptionalBytesFromInputData(HandlerParams params, string name) returns byte[]?|error {
     string? data = check getOptionalStringFromInputData(params, name);
-    if data == () || data == "null" {
+    if data == () {
         return ();
     } else {
         return arrays:fromBase64(data.toString());
@@ -395,7 +452,7 @@ public function getOptionalBytesFromInputData(HandlerParams params, string name)
 # + params - The handler parameters
 # + name - The input data entry name
 # + return - The string value
-public function getStringConvertedBytesFromInputData(HandlerParams params, string name) returns string?|error {
+public function getStringConvertedBytesFromInputData(HandlerParams params, string name) returns string|error {
     string data = check getStringFromInputData(params, name);
     var result = arrays:fromBase64(data.toString());
     if result is error {
@@ -412,7 +469,7 @@ public function getStringConvertedBytesFromInputData(HandlerParams params, strin
 # + return - The optional binary value
 public function getOptionalStringConvertedBytesFromInputData(HandlerParams params, string name) returns string?|error {
     string? data = check getOptionalStringFromInputData(params, name);
-    if data == () || data == "null" {
+    if data == () {
         return ();
     } else {
         var result = arrays:fromBase64(data.toString());
@@ -443,7 +500,7 @@ function extractHTTPHeaders(json headers) returns map<string[]> {
     map<string[]> result = {};
     foreach var key in headerMap.keys() {
         json[] values = <json[]> headerMap[key];
-        string[] headerVals = values.map(function (json j) returns string { return j.toString(); } );
+        string[] headerVals = values.map(function (json j) returns string { return j.toJsonString(); } );
         result[key] = headerVals;
     }
     return result;
@@ -457,7 +514,7 @@ function extractStringMap(json params) returns map<string> {
     map<json> paramMap = <map<json>> params;
     map<string> result = {};
     foreach var key in paramMap.keys() {
-        result[key] = paramMap[key].toString();
+        result[key] = paramMap[key].toJsonString();
     }
     return result;
 }
@@ -475,8 +532,10 @@ public function getHTTPRequestFromInputData(HandlerParams params, string name) r
     string method = hreq.Method.toString();
     map<string[]> headers = extractHTTPHeaders(check hreq.Headers);
     map<string> hparams = extractStringMap(check hreq.Params);
-    map<string> query = extractStringMap(check unescapeJson(check hreq.Query));
-    string identities = hreq.Identities.toString();
+    json qx = check hreq.Query;
+    map<string> query = extractStringMap(check parseJson(qx.toJsonString()));
+    json idx = check hreq.Identities;
+    json[] identities = <json[]> check parseJson(idx.toJsonString());
     string body = hreq.Body.toString();
     HTTPRequest req = { url: url, method: method, query: query, headers: headers, 
                         params: hparams, identities: identities, body: body };
@@ -491,8 +550,8 @@ public function getHTTPRequestFromInputData(HandlerParams params, string name) r
 public function getJsonFromInputData(HandlerParams params, string name) returns json|error {
     json payload = check getJsonFromHTTPReq(params);
     map<json> data = <map<json>> payload.Data;
-    // the unescape is because the input data JSON values are string escaped 
-    return unescapeJson(data[name]);
+    // the JSON parse is because the input data JSON values are string escaped 
+    return parseJson(data[name].toJsonString());
 }
 
 # INTERNAL usage - Returns the JSON value from input data - double escape.
@@ -500,46 +559,12 @@ public function getJsonFromInputData(HandlerParams params, string name) returns 
 # + params - The handler parameters
 # + name - The input data entry name
 # + return - The JSON value
-public function getJsonFromInputDataDoubleEscape(HandlerParams params, string name) returns json|error {
+public function getJsonFromInputDataDoubleEscaped(HandlerParams params, string name) returns json|error {
     json payload = check getJsonFromHTTPReq(params);
     map<json> data = <map<json>> payload.Data;
     json entry = data[name];
     // the unescape is because the input data JSON values are string escaped 
-    return unescapeJson(check unescapeJson(data[name]));
-}
-
-# INTERNAL usage - Returns the optional JSON value from input data.
-# 
-# + params - The handler parameters
-# + name - The input data entry name
-# + return - The JSON value
-public function getOptionalJsonFromInput(HandlerParams params, string name) returns json|error {
-    json payload = check getJsonFromHTTPReq(params);
-    map<json> data = <map<json>> payload.Data;
-    json entry = data[name];
-    if entry == () || entry == "null" {
-        return ();
-    } else {
-        // the unescape is because the input data JSON values are string escaped 
-        return unescapeJson(data[name]);
-    }
-}
-
-# INTERNAL usage - Returns the optional JSON value from input data - double escape.
-# 
-# + params - The handler parameters
-# + name - The input data entry name
-# + return - The JSON value
-public function getOptionalJsonFromInputDataDoubleEscape(HandlerParams params, string name) returns json|error {
-    json payload = check getJsonFromHTTPReq(params);
-    map<json> data = <map<json>> payload.Data;
-    json entry = data[name];
-    if entry == () || entry == "null" {
-        return ();
-    } else {
-        // the unescape is because the input data JSON values are string escaped 
-        return unescapeJson(check unescapeJson(data[name]));
-    }
+    return check parseJsonTwice(data[name].toJsonString());
 }
 
 # INTERNAL usage - Returns a converted Ballerina value from input data.
@@ -566,7 +591,7 @@ public function getBallerinaValueFromInputData(HandlerParams params, string name
 # + return - The JSON value
 public function getBallerinaValueFromInputDataDoubleEscape(HandlerParams params, string name, 
                                        typedesc<anydata> recordType) returns anydata?|error {
-    var result = getJsonFromInputDataDoubleEscape(params, name);
+    var result = getJsonFromInputDataDoubleEscaped(params, name);
     if result is error {
         return result;
     } else {
@@ -582,11 +607,11 @@ public function getBallerinaValueFromInputDataDoubleEscape(HandlerParams params,
 # + return - The JSON value
 public function getOptionalBallerinaValueFromInputDataDoubleEscape(HandlerParams params, string name, 
                                        typedesc<anydata> recordType) returns anydata?|error {
-    var result = getOptionalJsonFromInputDataDoubleEscape(params, name);
+    var result = getJsonFromInputDataDoubleEscaped(params, name);
     if result is error {
         return result;
     } else if result == () {
-        return result;
+        return ();
     } else {
         return result.cloneWithType(recordType);
     }
@@ -612,6 +637,27 @@ public function setJsonReturn(HandlerParams params, json value) returns error? {
     _ = check content.mergeJson({ ReturnValue: value });
 }
 
+# INTERNAL usage - Sets the CosmosDS JSON return value.
+# 
+# + params - The handler parameters
+# + value - The JSON return value
+# + partitionKey - The partition key
+# + return - An error in failure
+public function setCosmosDBJsonReturn(HandlerParams params, json value, string partitionKey) returns error? {
+    json content = params.result;
+    if partitionKey.length() > 0 {
+        if value is json[] {
+            json[] valArray = <json[]> value;
+            foreach json valEntry in valArray {
+                _ = check valEntry.mergeJson({ pk: partitionKey });
+            }
+        } else {
+            _ = check value.mergeJson({ pk: partitionKey });
+        }
+    }
+    _ = check content.mergeJson({ ReturnValue: value });
+}
+
 # INTERNAL usage - Converts a Ballerina value to a JSON and set the return value.
 # 
 # + params - The handler parameters
@@ -622,6 +668,17 @@ public function setBallerinaValueAsJsonReturn(HandlerParams params, anydata valu
     check setJsonReturn(params, check value.cloneWithType(json));
 }
 
+# INTERNAL usage - Converts a CosmosDS Ballerina value to a JSON and set the return value.
+# 
+# + params - The handler parameters
+# + value - The value
+# + partitionKey - The partition key
+# + return - An error in failure
+public function setCosmosDBBallerinaValueAsJsonReturn(HandlerParams params, anydata value, 
+                                                      string partitionKey) returns error? {
+    json content = params.result;
+    check setCosmosDBJsonReturn(params, check value.cloneWithType(json), partitionKey);
+}
 
 # INTERNAL usage - Sets the HTTP binding return value.
 # 

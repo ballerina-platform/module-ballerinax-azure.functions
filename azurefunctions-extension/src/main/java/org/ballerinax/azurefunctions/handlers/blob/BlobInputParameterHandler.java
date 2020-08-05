@@ -45,7 +45,7 @@ public class BlobInputParameterHandler extends AbstractParameterHandler {
                     Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
                     Utils.createStringLiteral(ctx.globalCtx, this.name));
         } else if (Utils.isOptionalString(this.ctx.globalCtx, this.param.type)) {
-            return Utils.createAzurePkgInvocationNode(this.ctx, "getStringConvertedBytesFromInputData",
+            return Utils.createAzurePkgInvocationNode(this.ctx, "getOptionalStringConvertedBytesFromInputData",
                     Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
                     Utils.createStringLiteral(ctx.globalCtx, this.name));
         } else {
@@ -59,11 +59,11 @@ public class BlobInputParameterHandler extends AbstractParameterHandler {
     @Override
     public Map<String, Object> generateBinding() {
         Map<String, Object> binding = new LinkedHashMap<>();
-        Map<String, String> annonMap = Utils.extractAnnotationKeyValues(this.annotation);
+        Map<String, Object> annonMap = Utils.extractAnnotationKeyValues(this.annotation);
         binding.put("type", "blob");
         binding.put("path", annonMap.get("path"));
         binding.put("dataType", "binary");
-        String connection = annonMap.get("connection");
+        String connection = (String) annonMap.get("connection");
         if (connection == null) {
             connection = Constants.DEFAULT_STORAGE_CONNECTION_NAME;
         }

@@ -83,7 +83,7 @@ public class HTTPTriggerParameterHandler extends AbstractParameterHandler {
     @Override
     public Map<String, Object> generateBinding() {
         Map<String, Object> binding = new LinkedHashMap<>();
-        Map<String, String> annonMap = Utils.extractAnnotationKeyValues(this.annotation);
+        Map<String, Object> annonMap = Utils.extractAnnotationKeyValues(this.annotation);
         binding.put("type", "httpTrigger");
         binding.put("authLevel", annonMap.get("authLevel"));
         binding.put("route", annonMap.get("route"));        
