@@ -19,7 +19,6 @@ package org.ballerinax.azurefunctions.handlers.http;
 
 import org.ballerinax.azurefunctions.AzureFunctionsException;
 import org.ballerinax.azurefunctions.BindingType;
-import org.ballerinax.azurefunctions.Constants;
 import org.ballerinax.azurefunctions.Utils;
 import org.ballerinax.azurefunctions.handlers.AbstractParameterHandler;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -40,40 +39,16 @@ public class HTTPTriggerParameterHandler extends AbstractParameterHandler {
     
     @Override
     public BLangExpression invocationProcess() throws AzureFunctionsException {
-        boolean httpRequestType = Utils.isHTTPRequestType(this.param.type);
-        if (Utils.isPureHTTPBinding(this.ctx)) {
-            if (httpRequestType) {
-                return Utils.createAzurePkgInvocationNode(this.ctx, "getHTTPRequestFromParams",
-                        Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams));
-            } else if (Utils.isStringType(this.ctx.globalCtx, this.param.type)) {
-                return Utils.createAzurePkgInvocationNode(this.ctx, "getStringFromHTTPReq",
-                        Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams));
-            } else if (Utils.isJsonType(this.ctx.globalCtx, this.param.type)) {
-                return Utils.createAzurePkgInvocationNode(this.ctx, "getJsonFromHTTPReq",
-                        Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams));
-            } else if (Utils.isByteArray(this.ctx.globalCtx, this.param.type)) {
-                return Utils.createAzurePkgInvocationNode(this.ctx, "getBinaryFromHTTPReq",
-                        Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams));
-            } else {
-                throw this.createError("Type '" + this.param.type.tsymbol.name.value + "' is not supported");
-            }
+        if (Utils.isAzurePkgType(this.ctx, "HTTPRequest", this.param.type)) {
+            return Utils.createAzurePkgInvocationNode(this.ctx, "getHTTPRequestFromInputData",
+                    Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
+                    Utils.createStringLiteral(ctx.globalCtx, this.name));
+        } else if (Utils.isStringType(this.ctx.globalCtx, this.param.type)) {
+            return Utils.createAzurePkgInvocationNode(this.ctx, "getBodyFromHTTPInputData",
+                    Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
+                    Utils.createStringLiteral(ctx.globalCtx, this.name));
         } else {
-            if (httpRequestType) {
-                throw this.createError(
-                        "In a non-pure HTTP scenario, the parameter type cannot be '" 
-                                + Constants.BALLERINA_ORG + "/" + Constants.HTTP_MODULE_NAME 
-                                + ":" + Constants.HTTP_REQUEST_NAME);
-            } else if (Utils.isAzurePkgType(this.ctx, "HTTPRequest", this.param.type)) {
-                return Utils.createAzurePkgInvocationNode(this.ctx, "getHTTPRequestFromInputData",
-                        Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
-                        Utils.createStringLiteral(ctx.globalCtx, this.name));
-            } else if (Utils.isStringType(this.ctx.globalCtx, this.param.type)) {
-                return Utils.createAzurePkgInvocationNode(this.ctx, "getBodyFromHTTPInputData",
-                        Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
-                        Utils.createStringLiteral(ctx.globalCtx, this.name));
-            } else {
-                throw this.createError("Type '" + this.param.type.tsymbol.name.value + "' is not supported");
-            }
+            throw this.createError("Type '" + this.param.type.tsymbol.name.value + "' is not supported");
         }
     }
 
