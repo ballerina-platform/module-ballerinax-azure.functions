@@ -106,6 +106,7 @@ public class FunctionsArtifact {
         JsonArray workerArgs = new JsonArray();
         workerArgs.add("-jar");
         httpWorkerDesc.add("arguments", workerArgs);
+        httpWorker.add("enableForwardingHttpRequest", new JsonPrimitive(false));
         JsonObject extensionBundle = new JsonObject();
         this.hostJson.add("extensionBundle", extensionBundle);
         extensionBundle.add("id", new JsonPrimitive("Microsoft.Azure.Functions.ExtensionBundle"));
