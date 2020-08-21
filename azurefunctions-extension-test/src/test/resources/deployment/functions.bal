@@ -163,7 +163,7 @@ public function httpTriggerCosmosDBOutput3(
     return persons;
 }
 
-// A timer function which is executed every 10 seconds.
+// A timer function, which is executed every 10 seconds.
 @af:Function
 public function queuePopulationTimer(
             @af:TimerTrigger { schedule: "*/10 * * * * *" } json triggerInfo, 
