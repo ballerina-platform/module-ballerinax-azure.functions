@@ -19,15 +19,14 @@ A custom [host.json](https://docs.microsoft.com/en-us/azure/azure-functions/func
 #### Usage Sample:
 
 ```ballerina
-import ballerina/http;
 import ballerina/system;
 import ballerinax/azure.functions as af;
 
 // HTTP request/response with no authentication
 @af:Function
-public function hello(@af:HTTPTrigger { authLevel: "anonymous" } http:Request req) 
+public function hello(@af:HTTPTrigger { authLevel: "anonymous" } string payload) 
                       returns @af:HTTPOutput string|error {
-    return "Hello, " + check <@untainted> req.getTextPayload() + "!";
+    return "Hello, " + payload + "!";
 }
 
 // HTTP request to add data to a queue
@@ -154,7 +153,7 @@ public function httpTriggerCosmosDBInput3(
 public function httpTriggerCosmosDBOutput1(
     @af:HTTPTrigger { } af:HTTPRequest httpReq, @af:HTTPOutput af:HTTPBinding hb) 
     returns @af:CosmosDBOutput { connectionStringSetting: "CosmosDBConnection", 
-                                databaseName: "db1", collectionName: "c1" } json {
+                                 databaseName: "db1", collectionName: "c1" } json {
     json entry = { id: system:uuid(), name: "Saman", country: "Sri Lanka" };
     hb.payload = "Adding entry: " + entry.toString();
     return entry;
@@ -205,5 +204,3 @@ Generating executables
         azure_functions_deployment.jar
         @azure.functions:Function: hello, fromHttpToQueue, fromQueueToQueue, fromBlobToQueue, httpTriggerBlobInput, httpTriggerBlobOutput, sendSMS, cosmosDBToQueue1, cosmosDBToQueue2, httpTriggerCosmosDBInput1, httpTriggerCosmosDBInput2, httpTriggerCosmosDBInput3, httpTriggerCosmosDBOutput1, httpTriggerCosmosDBOutput2, httpTriggerCosmosDBOutput3, queuePopulationTimer
 ```
-
-
