@@ -2,9 +2,9 @@
 
 Annotation based Azure Functions extension implementation for Ballerina. 
 
-- For information on the operations, which you can perform with this module, see [Objects](https://ballerina.io/learn/api-docs/ballerina/azure.functions/index.html#objects). 
-- For more information on the deployment, see the [Azure Functions Deployment Guide](https://ballerina.io/learn/deployment/azure-functions/).
-- For examples on the usage of the operations, see the [Azure Functions Deployment Example](https://ballerina.io/learn/by-example/azure-functions-deployment.html).
+- For information on the operations, which you can perform with this module, see [Objects](/learn/api-docs/ballerina/azure.functions/index.html#objects). 
+- For more information on the deployment, see the [Azure Functions Deployment Guide](/learn/deployment/azure-functions/).
+- For examples on the usage of the operations, see the [Azure Functions Deployment Example](/learn/by-example/azure-functions-deployment.html).
 
 ## Azure Setup
 
