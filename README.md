@@ -2,6 +2,10 @@
 
 Annotation based Azure Functions extension implementation for Ballerina. 
 
+[![Build Status](https://wso2.org/jenkins/buildStatus/icon?job=ballerinax%2Fmodule-ballerinax-azure.functions)](https://wso2.org/jenkins/job/ballerinax/job/module-ballerinax-azure.functions/)
+![Ballerina Azure Functions Build](https://github.com/ballerina-platform/module-ballerinax-azure.functions/workflows/Ballerina%20Azure%20Functions%20Build/badge.svg)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
 ## Azure Setup
 
 * An Azure "Function App" needs to be created in a given resource group with the following requirements
