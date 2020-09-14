@@ -25,6 +25,7 @@ import com.google.gson.JsonPrimitive;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.types.TypeKind;
@@ -200,7 +201,7 @@ public class Utils {
         var.pos = ctx.pos;
         var.name = ASTBuilderUtil.createIdentifier(ctx.pos, name);
         var.type = type;
-        var.symbol = new BVarSymbol(0, new Name(name), type.tsymbol.pkgID, type, owner, var.pos);
+        var.symbol = new BVarSymbol(0, new Name(name), type.tsymbol.pkgID, type, owner, var.pos, SymbolOrigin.VIRTUAL);
         return var;
     }
 
@@ -321,7 +322,7 @@ public class Utils {
         bLangFunction.body = createBlockStmt(ctx.pos);
         BInvokableSymbol functionSymbol = Symbols.createFunctionSymbol(Flags.asMask(bLangFunction.flagSet),
                 new Name(bLangFunction.name.value), packageNode.packageID,
-                bLangFunction.type, packageNode.symbol, true, bLangFunction.pos);
+                bLangFunction.type, packageNode.symbol, true, bLangFunction.pos, SymbolOrigin.VIRTUAL);
         functionSymbol.type = bLangFunction.type;
         functionSymbol.retType = retType.type;
         functionSymbol.scope = new Scope(functionSymbol);
@@ -556,10 +557,10 @@ public class Utils {
         objectTypeNode.generatedInitFunction.symbol = new BInvokableSymbol(SymTag.FUNCTION, 0, new Name(name),
                 packageNode.symbol.pkgID,
                 new BInvokableType(new ArrayList<>(), ctx.symTable.noType, ctx.symTable.noType, null),
-                packageNode.symbol, typeDef.pos);
+                packageNode.symbol, typeDef.pos, SymbolOrigin.VIRTUAL);
         typeDef.setTypeNode(objectTypeNode);
         BObjectTypeSymbol ts = new BObjectTypeSymbol(SymTag.SERVICE, 0, new Name(name), packageNode.symbol.pkgID, null,
-                packageNode.symbol, typeDef.pos);
+                packageNode.symbol, typeDef.pos, SymbolOrigin.VIRTUAL);
         BObjectType objectType = new BServiceType(ts);
         ts.type = objectType;
         objectTypeNode.symbol = ts;

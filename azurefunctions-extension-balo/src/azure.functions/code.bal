@@ -88,7 +88,7 @@ public type HandlerParams record {
 # The request context holder. 
 # 
 # + metadata - The context metadata
-public type Context object {
+public class Context {
 
     HandlerParams hparams;    
 
@@ -110,7 +110,7 @@ public type Context object {
         log(self.hparams, msg);
     }
 
-};
+}
 
 # INTERNAL usage - Enters to function invocation logs.
 # 
