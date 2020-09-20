@@ -94,7 +94,7 @@ public class Context {
 
     public json metadata;
 
-    public function init(HandlerParams hparams, boolean populateMetadata) returns error? {
+    public isolated function init(HandlerParams hparams, boolean populateMetadata) returns error? {
         self.hparams = hparams;
         if populateMetadata {
             self.metadata = check getMetadata(self.hparams);
@@ -106,7 +106,7 @@ public class Context {
     # Enters to function invocation logs.
     # 
     # + msg - The log message
-    public function log(string msg) {
+    public isolated function log(string msg) {
         log(self.hparams, msg);
     }
 
@@ -115,7 +115,7 @@ public class Context {
 # INTERNAL usage - Enters to function invocation logs.
 # 
 # + msg - The log message
-function log(HandlerParams hparams, string msg) {
+isolated function log(HandlerParams hparams, string msg) {
     json[] logs = <json[]> hparams.result.Logs;
     logs.push(msg);
 }
@@ -123,7 +123,7 @@ function log(HandlerParams hparams, string msg) {
 # INTERNAL usage - Checks if request tracing is enabled.
 # 
 # + return - The request tracing flag
-function isRequestTrace() returns boolean {
+isolated function isRequestTrace() returns boolean {
     string? value = system:getEnv("BALLERINA_AZURE_FUNCTIONS_REQUEST_TRACE");
     if value is string {
         var flag = booleans:fromString(value);
@@ -137,11 +137,11 @@ function isRequestTrace() returns boolean {
     }
 }
 
-function logError(HandlerParams hparams, error err) {
+isolated function logError(HandlerParams hparams, error err) {
     log(hparams, "ERROR: " + err.toString());
 }
 
-function logRequest(HandlerParams hparams, http:Request request) {
+isolated function logRequest(HandlerParams hparams, http:Request request) {
     log(hparams, "REQUEST: " + request.getTextPayload().toString());
 }
 
@@ -192,7 +192,7 @@ service AzureFunctionsServer on hl {
 # 
 # + hparams - The handler parameters
 # + return - The metadata JSON
-public function getMetadata(HandlerParams hparams) returns json|error {
+public isolated function getMetadata(HandlerParams hparams) returns json|error {
     json payload = check <@untainted> hparams.request.getJsonPayload();
     json metadata = check payload.Metadata;
     return metadata;
@@ -203,7 +203,7 @@ public function getMetadata(HandlerParams hparams) returns json|error {
 # + hparams - The handler parameters
 # + populateMetadata - The flag to populate metadata
 # + return - The function context
-public function createContext(HandlerParams hparams, boolean populateMetadata) returns Context|error {
+public isolated function createContext(HandlerParams hparams, boolean populateMetadata) returns Context|error {
     return new Context(hparams, populateMetadata);
 }
 
@@ -221,7 +221,7 @@ public function __register(string name, FunctionHandler funcHandler) {
 # + name - The parameter name
 # + binding - The binding data
 # + return - An error in failure
-public function setHTTPOutput(HandlerParams params, string name, HTTPBinding binding) returns error? {
+public isolated function setHTTPOutput(HandlerParams params, string name, HTTPBinding binding) returns error? {
     string? payload = binding?.payload;
     if (payload is string) {
         json content = params.result;
@@ -238,7 +238,7 @@ public function setHTTPOutput(HandlerParams params, string name, HTTPBinding bin
 # + name - The parameter name
 # + binding - The binding data
 # + return - An error in failure
-public function setStringOutput(HandlerParams params, string name, StringOutputBinding binding) returns error? {
+public isolated function setStringOutput(HandlerParams params, string name, StringOutputBinding binding) returns error? {
     string? value = binding?.value;
     if (value is string) {
         json content = params.result;
@@ -255,7 +255,7 @@ public function setStringOutput(HandlerParams params, string name, StringOutputB
 # + name - The parameter name
 # + binding - The binding data
 # + return - An error in failure
-public function setBlobOutput(HandlerParams params, string name, any binding) returns error? {
+public isolated function setBlobOutput(HandlerParams params, string name, any binding) returns error? {
     string? value = ();
     if binding is BytesOutputBinding {
         // TODO issue: https://github.com/Azure/azure-functions-host/issues/6091
@@ -281,7 +281,7 @@ public function setBlobOutput(HandlerParams params, string name, any binding) re
 # + name - The parameter name
 # + binding - The binding data
 # + return - An error in failure
-public function setTwilioSmsOutput(HandlerParams params, string name, TwilioSmsOutputBinding binding) returns error? {
+public isolated function setTwilioSmsOutput(HandlerParams params, string name, TwilioSmsOutputBinding binding) returns error? {
     string? to = binding?.to;
     string? body = binding?.body;
     if to is string && body is string {
@@ -298,7 +298,7 @@ public function setTwilioSmsOutput(HandlerParams params, string name, TwilioSmsO
 # + params - The handler parameters
 # + binding - The binding data
 # + return - An error in failure
-public function setPureHTTPOutput(HandlerParams params, HTTPBinding binding) returns error? {
+public isolated function setPureHTTPOutput(HandlerParams params, HTTPBinding binding) returns error? {
     string? payload = binding?.payload;
     if payload is string {
         params.response.statusCode = binding.statusCode;
@@ -312,7 +312,7 @@ public function setPureHTTPOutput(HandlerParams params, HTTPBinding binding) ret
 # + params - The handler parameters
 # + value - The value
 # + return - An error in failure
-public function setPureStringOutput(HandlerParams params, string value) returns error? {
+public isolated function setPureStringOutput(HandlerParams params, string value) returns error? {
     params.response.setTextPayload(value);
     params.pure = true;
 }
@@ -322,7 +322,7 @@ public function setPureStringOutput(HandlerParams params, string value) returns 
 # + params - The handler parameters
 # + value - The value
 # + return - An error in failure
-public function setPureJsonOutput(HandlerParams params, json value) returns error? {
+public isolated function setPureJsonOutput(HandlerParams params, json value) returns error? {
     params.response.setJsonPayload(value.toJsonString());
     params.pure = true;
 }
@@ -331,7 +331,7 @@ public function setPureJsonOutput(HandlerParams params, json value) returns erro
 # 
 # + params - The handler parameters
 # + return - The HTTP request
-public function getHTTPRequestFromParams(HandlerParams params) returns http:Request|error {
+public isolated function getHTTPRequestFromParams(HandlerParams params) returns http:Request|error {
     return params.request;
 }
 
@@ -339,7 +339,7 @@ public function getHTTPRequestFromParams(HandlerParams params) returns http:Requ
 # 
 # + params - The handler parameters
 # + return - The string payload
-public function getStringFromHTTPReq(HandlerParams params) returns string|error {
+public isolated function getStringFromHTTPReq(HandlerParams params) returns string|error {
     return check <@untainted> params.request.getTextPayload();
 }
 
@@ -347,7 +347,7 @@ public function getStringFromHTTPReq(HandlerParams params) returns string|error 
 # 
 # + input - The escaped JSON value
 # + return - The parsed JSON value
-function parseJson(string input) returns json|error {
+isolated function parseJson(string input) returns json|error {
     json x = check input.fromJsonString();    
     return x;
 }
@@ -356,7 +356,7 @@ function parseJson(string input) returns json|error {
 # 
 # + input - The escaped JSON value
 # + return - The parsed JSON value
-function parseJsonTwice(string input) returns json|error {
+isolated function parseJsonTwice(string input) returns json|error {
     json x = check parseJson(input);
     return parseJson(x.toJsonString());
 }
@@ -366,7 +366,7 @@ function parseJsonTwice(string input) returns json|error {
 # + params - The handler parameters
 # + name - The metadata entry name
 # + return - The metadata entry value
-public function getJsonFromMetadata(HandlerParams params, string name) returns json|error {
+public isolated function getJsonFromMetadata(HandlerParams params, string name) returns json|error {
     map<json> metadata = <map<json>> check getMetadata(params);
     return parseJson(metadata[name].toJsonString());
 }
@@ -376,7 +376,7 @@ public function getJsonFromMetadata(HandlerParams params, string name) returns j
 # + params - The handler parameters
 # + name - The metadata entry name
 # + return - The metadata entry value
-public function getStringFromMetadata(HandlerParams params, string name) returns string|error {
+public isolated function getStringFromMetadata(HandlerParams params, string name) returns string|error {
     json result = check getJsonFromMetadata(params, name);
     return result.toJsonString();
 }
@@ -385,7 +385,7 @@ public function getStringFromMetadata(HandlerParams params, string name) returns
 # 
 # + params - The handler parameters
 # + return - The JSON payload
-public function getJsonFromHTTPReq(HandlerParams params) returns json|error {
+public isolated function getJsonFromHTTPReq(HandlerParams params) returns json|error {
     return check <@untainted> params.request.getJsonPayload();
 }
 
@@ -393,7 +393,7 @@ public function getJsonFromHTTPReq(HandlerParams params) returns json|error {
 # 
 # + params - The handler parameters
 # + return - The binary payload
-public function getBinaryFromHTTPReq(HandlerParams params) returns byte[]|error {
+public isolated function getBinaryFromHTTPReq(HandlerParams params) returns byte[]|error {
     return check <@untainted> params.request.getBinaryPayload();
 }
 
@@ -402,7 +402,7 @@ public function getBinaryFromHTTPReq(HandlerParams params) returns byte[]|error 
 # + params - The handler parameters
 # + name - The input data entry name
 # + return - The string value
-public function getStringFromInputData(HandlerParams params, string name) returns string|error {
+public isolated function getStringFromInputData(HandlerParams params, string name) returns string|error {
     json payload = check getJsonFromHTTPReq(params);
     map<json> data = <map<json>> payload.Data;
     return data[name].toJsonString();
@@ -413,7 +413,7 @@ public function getStringFromInputData(HandlerParams params, string name) return
 # + params - The handler parameters
 # + name - The input data entry name
 # + return - The optional string value
-public function getOptionalStringFromInputData(HandlerParams params, string name) returns string?|error {
+public isolated function getOptionalStringFromInputData(HandlerParams params, string name) returns string?|error {
     json payload = check getJsonFromHTTPReq(params);
     map<json> data = <map<json>> payload.Data;
     json result = data[name];
@@ -428,7 +428,7 @@ public function getOptionalStringFromInputData(HandlerParams params, string name
 # + params - The handler parameters
 # + name - The input data entry name
 # + return - The binary value
-public function getBytesFromInputData(HandlerParams params, string name) returns byte[]|error {
+public isolated function getBytesFromInputData(HandlerParams params, string name) returns byte[]|error {
     string data = check getStringFromInputData(params, name);
     return arrays:fromBase64(data.toString());
 }
@@ -438,7 +438,7 @@ public function getBytesFromInputData(HandlerParams params, string name) returns
 # + params - The handler parameters
 # + name - The input data entry name
 # + return - The optional string value
-public function getOptionalBytesFromInputData(HandlerParams params, string name) returns byte[]?|error {
+public isolated function getOptionalBytesFromInputData(HandlerParams params, string name) returns byte[]?|error {
     string? data = check getOptionalStringFromInputData(params, name);
     if data == () {
         return ();
@@ -452,7 +452,7 @@ public function getOptionalBytesFromInputData(HandlerParams params, string name)
 # + params - The handler parameters
 # + name - The input data entry name
 # + return - The string value
-public function getStringConvertedBytesFromInputData(HandlerParams params, string name) returns string|error {
+public isolated function getStringConvertedBytesFromInputData(HandlerParams params, string name) returns string|error {
     string data = check getStringFromInputData(params, name);
     var result = arrays:fromBase64(data.toString());
     if result is error {
@@ -467,7 +467,7 @@ public function getStringConvertedBytesFromInputData(HandlerParams params, strin
 # + params - The handler parameters
 # + name - The input data entry name
 # + return - The optional binary value
-public function getOptionalStringConvertedBytesFromInputData(HandlerParams params, string name) returns string?|error {
+public isolated function getOptionalStringConvertedBytesFromInputData(HandlerParams params, string name) returns string?|error {
     string? data = check getOptionalStringFromInputData(params, name);
     if data == () {
         return ();
@@ -500,7 +500,7 @@ function extractHTTPHeaders(json headers) returns map<string[]> {
     map<string[]> result = {};
     foreach var key in headerMap.keys() {
         json[] values = <json[]> headerMap[key];
-        string[] headerVals = values.map(function (json j) returns string { return j.toJsonString(); } );
+        string[] headerVals = values.map(isolated function (json j) returns string { return j.toJsonString(); } );
         result[key] = headerVals;
     }
     return result;
@@ -510,7 +510,7 @@ function extractHTTPHeaders(json headers) returns map<string[]> {
 # 
 # + params - The params JSON
 # + return - The string map
-function extractStringMap(json params) returns map<string> {
+isolated function extractStringMap(json params) returns map<string> {
     map<json> paramMap = <map<json>> params;
     map<string> result = {};
     foreach var key in paramMap.keys() {
@@ -547,7 +547,7 @@ public function getHTTPRequestFromInputData(HandlerParams params, string name) r
 # + params - The handler parameters
 # + name - The input data entry name
 # + return - The JSON value
-public function getJsonFromInputData(HandlerParams params, string name) returns json|error {
+public isolated function getJsonFromInputData(HandlerParams params, string name) returns json|error {
     json payload = check getJsonFromHTTPReq(params);
     map<json> data = <map<json>> payload.Data;
     // the JSON parse is because the input data JSON values are string escaped 
@@ -559,7 +559,7 @@ public function getJsonFromInputData(HandlerParams params, string name) returns 
 # + params - The handler parameters
 # + name - The input data entry name
 # + return - The JSON value
-public function getJsonFromInputDataDoubleEscaped(HandlerParams params, string name) returns json|error {
+public isolated function getJsonFromInputDataDoubleEscaped(HandlerParams params, string name) returns json|error {
     json payload = check getJsonFromHTTPReq(params);
     map<json> data = <map<json>> payload.Data;
     json entry = data[name];
@@ -573,7 +573,7 @@ public function getJsonFromInputDataDoubleEscaped(HandlerParams params, string n
 # + name - The input data entry name
 # + recordType - The record type descriptor
 # + return - The JSON value
-public function getBallerinaValueFromInputData(HandlerParams params, string name, 
+public isolated function getBallerinaValueFromInputData(HandlerParams params, string name,
                                        typedesc<anydata> recordType) returns anydata|error {
     var result = getJsonFromInputData(params, name);
     if result is error {
@@ -589,7 +589,7 @@ public function getBallerinaValueFromInputData(HandlerParams params, string name
 # + name - The input data entry name
 # + recordType - The record type descriptor
 # + return - The JSON value
-public function getBallerinaValueFromInputDataDoubleEscape(HandlerParams params, string name, 
+public isolated function getBallerinaValueFromInputDataDoubleEscape(HandlerParams params, string name,
                                        typedesc<anydata> recordType) returns anydata?|error {
     var result = getJsonFromInputDataDoubleEscaped(params, name);
     if result is error {
@@ -605,7 +605,7 @@ public function getBallerinaValueFromInputDataDoubleEscape(HandlerParams params,
 # + name - The input data entry name
 # + recordType - The record type descriptor
 # + return - The JSON value
-public function getOptionalBallerinaValueFromInputDataDoubleEscape(HandlerParams params, string name, 
+public isolated function getOptionalBallerinaValueFromInputDataDoubleEscape(HandlerParams params, string name,
                                        typedesc<anydata> recordType) returns anydata?|error {
     var result = getJsonFromInputDataDoubleEscaped(params, name);
     if result is error {
@@ -622,7 +622,7 @@ public function getOptionalBallerinaValueFromInputDataDoubleEscape(HandlerParams
 # + params - The handler parameters
 # + value - The string return value
 # + return - An error in failure
-public function setStringReturn(HandlerParams params, string value) returns error? {
+public isolated function setStringReturn(HandlerParams params, string value) returns error? {
     json content = params.result;
     _ = check content.mergeJson({ ReturnValue: value });
 }
@@ -632,7 +632,7 @@ public function setStringReturn(HandlerParams params, string value) returns erro
 # + params - The handler parameters
 # + value - The JSON return value
 # + return - An error in failure
-public function setJsonReturn(HandlerParams params, json value) returns error? {
+public isolated function setJsonReturn(HandlerParams params, json value) returns error? {
     json content = params.result;
     _ = check content.mergeJson({ ReturnValue: value });
 }
@@ -643,7 +643,7 @@ public function setJsonReturn(HandlerParams params, json value) returns error? {
 # + value - The JSON return value
 # + partitionKey - The partition key
 # + return - An error in failure
-public function setCosmosDBJsonReturn(HandlerParams params, json value, string partitionKey) returns error? {
+public isolated function setCosmosDBJsonReturn(HandlerParams params, json value, string partitionKey) returns error? {
     json content = params.result;
     if partitionKey.length() > 0 {
         if value is json[] {
@@ -663,7 +663,7 @@ public function setCosmosDBJsonReturn(HandlerParams params, json value, string p
 # + params - The handler parameters
 # + value - The value
 # + return - An error in failure
-public function setBallerinaValueAsJsonReturn(HandlerParams params, anydata value) returns error? {
+public isolated function setBallerinaValueAsJsonReturn(HandlerParams params, anydata value) returns error? {
     json content = params.result;
     check setJsonReturn(params, check value.cloneWithType(json));
 }
@@ -674,7 +674,7 @@ public function setBallerinaValueAsJsonReturn(HandlerParams params, anydata valu
 # + value - The value
 # + partitionKey - The partition key
 # + return - An error in failure
-public function setCosmosDBBallerinaValueAsJsonReturn(HandlerParams params, anydata value, 
+public isolated function setCosmosDBBallerinaValueAsJsonReturn(HandlerParams params, anydata value,
                                                       string partitionKey) returns error? {
     json content = params.result;
     check setCosmosDBJsonReturn(params, check value.cloneWithType(json), partitionKey);
@@ -685,7 +685,7 @@ public function setCosmosDBBallerinaValueAsJsonReturn(HandlerParams params, anyd
 # + params - The handler parameters
 # + binding - The HTTP binding return value
 # + return - An error in failure
-public function setHTTPReturn(HandlerParams params, HTTPBinding binding) returns error? {
+public isolated function setHTTPReturn(HandlerParams params, HTTPBinding binding) returns error? {
     string? payload = binding?.payload;
     if (payload is string) {
         json content = params.result;
