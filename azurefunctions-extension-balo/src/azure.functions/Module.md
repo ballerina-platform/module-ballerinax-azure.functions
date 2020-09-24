@@ -2,7 +2,7 @@
 
 Annotation based Azure Functions extension implementation for Ballerina. 
 
-- For information on the operations, which you can perform with this module, see [Objects](/swan-lake/learn/api-docs/ballerina/azure.functions/index.html#objects). 
+- For information on the operations, which you can perform with this module, see [Classes](/swan-lake/learn/api-docs/ballerina/azure.functions/index.html#classes). 
 - For more information on the deployment, see the [Azure Functions Deployment Guide](/swan-lake/learn/deployment/azure-functions/).
 - For examples on the usage of the operations, see the [Azure Functions Deployment Example](/swan-lake/learn/by-example/azure-functions-deployment.html).
 
