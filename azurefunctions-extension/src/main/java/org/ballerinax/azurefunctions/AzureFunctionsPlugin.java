@@ -19,14 +19,13 @@ package org.ballerinax.azurefunctions;
 
 import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
+import org.ballerinalang.core.util.exceptions.BallerinaException;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -78,13 +77,13 @@ public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
             this.dlog.logDiagnostic(Diagnostic.Kind.ERROR, packageNode.getPosition(), e.getMessage());
         }
     }
-    
+
     private FunctionDeploymentContext createFuncDeplContext(BLangPackage packageNode, BLangFunction sourceFunc)
             throws AzureFunctionsException {
         FunctionDeploymentContext ctx = new FunctionDeploymentContext();
         ctx.sourceFunction = sourceFunc;
         ctx.globalCtx = this.globalCtx;
-        BLangFunction func = Utils.createHandlerFunction(this.globalCtx, sourceFunc.pos, 
+        BLangFunction func = Utils.createHandlerFunction(this.globalCtx, sourceFunc.pos,
                 sourceFunc.name.value, packageNode);
         ctx.function = func;
         ctx.handlerParams = func.getParameters().get(0).symbol;
@@ -119,7 +118,7 @@ public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
         }
         ReturnHandler retHandler = ctx.returnHandler;
         if (retHandler != null) {
-            retHandler.postInvocationProcess(Utils.createVariableRef(ctx.globalCtx, (BVarSymbol) retVal.symbol));
+            retHandler.postInvocationProcess(Utils.createVariableRef(ctx.globalCtx, retVal.symbol));
         }
         return ctx;
     }
@@ -169,7 +168,7 @@ public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
             Utils.addRegisterCall(this.globalCtx, myPkg.pos, azureFuncsPkgSymbol, body, name, func);
         }
     }
-        
+
     @Override
     public void codeGenerated(PackageID packageID, Path binaryPath) {
         if (generatedFunctions.isEmpty()) {
@@ -185,12 +184,12 @@ public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
             throw new BallerinaException(msg, e);
         }
         OUT.println("\n\tExecute the below command to deploy Ballerina Azure Functions:");
-        OUT.println("\taz functionapp deployment source config-zip -g <resource_group> -n <function_app_name> --src " 
+        OUT.println("\taz functionapp deployment source config-zip -g <resource_group> -n <function_app_name> --src "
                 + Constants.AZURE_FUNCS_OUTPUT_ZIP_FILENAME);
     }
-    
+
     private void generateFunctionsArtifact(Map<String, FunctionDeploymentContext> functions, Path binaryPath,
-            String outputFileName) throws AzureFunctionsException, IOException {
+                                           String outputFileName) throws AzureFunctionsException, IOException {
         new FunctionsArtifact(functions, binaryPath).generate(outputFileName);
     }
 
