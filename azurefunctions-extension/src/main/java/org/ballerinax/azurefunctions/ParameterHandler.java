@@ -17,22 +17,22 @@
  */
 package org.ballerinax.azurefunctions;
 
-import org.ballerinalang.model.expressions.Expression;
+import org.ballerinalang.core.model.expressions.Expression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 /**
  * Represents an Azure function parameter handler.
  */
 public interface ParameterHandler {
-    
+
     /**
      * Initializes the {@link ParameterHandler}. This can be used for any initialization operations before
-     * the preInvocationProcess call is made. 
-     * 
+     * the preInvocationProcess call is made.
+     *
      * @param context The handler context
      * @throws AzureFunctionsException thrown if an error occurs
      */
-    public void init(FunctionDeploymentContext context) throws AzureFunctionsException;
+    void init(FunctionDeploymentContext context) throws AzureFunctionsException;
 
     /**
      * Called when generating the azure function invocation statement. This will be used for scenarios
@@ -43,20 +43,20 @@ public interface ParameterHandler {
      * @return The expression which represents the parameter value
      * @throws AzureFunctionsException thrown if an error occurs
      */
-    public BLangExpression invocationProcess() throws AzureFunctionsException;
+    BLangExpression invocationProcess() throws AzureFunctionsException;
 
     /**
      * Called after the function call statement is generated. This can be used for scenarios like processing
      * any output bindings, where we need to extra data from the parameter and populate the output JSON value
-     * that is referenced using the context instance. 
+     * that is referenced using the context instance.
      */
-    public void postInvocationProcess() throws AzureFunctionsException;
+    void postInvocationProcess() throws AzureFunctionsException;
 
     /**
      * Retreives the binding type.
-     * 
+     *
      * @return The binding type
      */
-    public BindingType getBindingType();
+    BindingType getBindingType();
 
 }

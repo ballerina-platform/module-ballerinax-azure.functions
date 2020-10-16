@@ -125,20 +125,22 @@ public class FunctionsArtifact {
         // if an earlier generated file is there, delete it, or else
         // this will merge content to the earlier artifact
         Files.deleteIfExists(Paths.get(outputFileName));
-        Map<String, String> env = new HashMap<>(); 
+        Map<String, String> env = new HashMap<>();
         env.put("create", "true");
         URI uri = URI.create("jar:file:" + this.binaryPath.toAbsolutePath().getParent()
-                .resolve(outputFileName).toUri().getPath());        
-        try (FileSystem zipfs = FileSystems.newFileSystem(uri, env)) {
-            Files.copy(this.binaryPath, zipfs.getPath("/" + this.binaryPath.getFileName()),
-                    StandardCopyOption.REPLACE_EXISTING);
-            Files.copy(this.jtos(this.hostJson), zipfs.getPath("/" + HOST_JSON_NAME), 
-                    StandardCopyOption.REPLACE_EXISTING);
-            for (Map.Entry<String, FunctionDeploymentContext> entry : this.functions.entrySet()) {
-                Path functionDir = zipfs.getPath("/" + entry.getKey());
-                Files.createDirectory(functionDir);
-                Files.copy(this.jtos(entry.getValue().functionDefinition), functionDir.resolve(FUNCTION_JSON_NAME),
+                .resolve(outputFileName).toUri().getPath());
+        if (this.binaryPath != null) {
+            try (FileSystem zipfs = FileSystems.newFileSystem(uri, env)) {
+                Files.copy(this.binaryPath, zipfs.getPath("/" + this.binaryPath.getFileName()),
                         StandardCopyOption.REPLACE_EXISTING);
+                Files.copy(this.jtos(this.hostJson), zipfs.getPath("/" + HOST_JSON_NAME),
+                        StandardCopyOption.REPLACE_EXISTING);
+                for (Map.Entry<String, FunctionDeploymentContext> entry : this.functions.entrySet()) {
+                    Path functionDir = zipfs.getPath("/" + entry.getKey());
+                    Files.createDirectory(functionDir);
+                    Files.copy(this.jtos(entry.getValue().functionDefinition), functionDir.resolve(FUNCTION_JSON_NAME),
+                            StandardCopyOption.REPLACE_EXISTING);
+                }
             }
         }
     }
