@@ -22,6 +22,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -110,7 +111,7 @@ public class Utils {
         return null;
     }
 
-    public static void addRegisterCall(GlobalContext ctx, DiagnosticPos pos, BPackageSymbol pkgSymbol,
+    public static void addRegisterCall(GlobalContext ctx, Location pos, BPackageSymbol pkgSymbol,
                                        BLangBlockFunctionBody blockStmt, String name, BLangFunction func) {
         BLangInvocation inv = createInvocationNode(pkgSymbol, Constants.AZURE_FUNCS_REG_FUNCTION_NAME,
                 createStringLiteral(ctx, name), createVariableRef(ctx, func.symbol));
@@ -288,7 +289,7 @@ public class Utils {
         return ctx.azureFuncsPkgSymbol.scope.lookup(new Name(Constants.REQUEST_PARAMS_TYPE)).symbol.type;
     }
 
-    public static BLangFunction createHandlerFunction(GlobalContext ctx, DiagnosticPos pos,
+    public static BLangFunction createHandlerFunction(GlobalContext ctx, Location pos,
                                                       String baseName, BLangPackage packageNode) {
         List<String> paramNames = Arrays.asList(Constants.REQUEST_PARAMS_NAME);
         List<BType> paramTypes = Arrays.asList(extractRequestParamsType(ctx));
@@ -336,7 +337,7 @@ public class Utils {
         return bLangFunction;
     }
 
-    public static BLangFunctionBody createBlockStmt(DiagnosticPos pos) {
+    public static BLangFunctionBody createBlockStmt(Location pos) {
         final BLangFunctionBody blockNode = (BLangFunctionBody) TreeBuilder.createBlockFunctionBodyNode();
         blockNode.pos = pos;
         return blockNode;

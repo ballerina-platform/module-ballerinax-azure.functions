@@ -21,6 +21,7 @@ dependencies {
     compile "com.google.code.gson:gson:${googleGsonVersion}"
     implementation "org.ballerinalang:ballerina-lang:${ballerinaLangVersion}"
     implementation "org.ballerinalang:ballerina-core:${ballerinaLangVersion}"
+    implementation "org.ballerinalang:ballerina-tools-api:${ballerinaLangVersion}"
 }
 
 description = 'Ballerinax - Azure Functions Extension Plugin'

@@ -17,13 +17,13 @@
  */
 package org.ballerinax.azurefunctions;
 
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
 import org.ballerinalang.core.util.exceptions.BallerinaException;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.PackageNode;
-import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
@@ -74,7 +74,7 @@ public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
             generatedFunctions.putAll(this.generateHandlerFunctions(bpn));
             this.registerHandlerFunctions(bpn, generatedFunctions);
         } catch (AzureFunctionsException e) {
-            this.dlog.logDiagnostic(Diagnostic.Kind.ERROR, packageNode.getPosition(), e.getMessage());
+            this.dlog.logDiagnostic(DiagnosticSeverity.ERROR, bpn.packageID, packageNode.getPosition(), e.getMessage());
         }
     }
 
@@ -177,7 +177,7 @@ public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
         }
         OUT.println("\t@azure.functions:Function: " + String.join(", ", generatedFunctions.keySet()));
         try {
-            this.generateFunctionsArtifact(generatedFunctions, binaryPath, Constants.AZURE_FUNCS_OUTPUT_ZIP_FILENAME);
+            this.generateFunctionsArtifact(generatedFunctions, binaryPath);
         } catch (AzureFunctionsException | IOException e) {
             String msg = "Error generating Azure Functions: " + e.getMessage();
             OUT.println(msg);
@@ -188,9 +188,9 @@ public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
                 + Constants.AZURE_FUNCS_OUTPUT_ZIP_FILENAME);
     }
 
-    private void generateFunctionsArtifact(Map<String, FunctionDeploymentContext> functions, Path binaryPath,
-                                           String outputFileName) throws AzureFunctionsException, IOException {
-        new FunctionsArtifact(functions, binaryPath).generate(outputFileName);
+    private void generateFunctionsArtifact(Map<String, FunctionDeploymentContext> functions, Path binaryPath)
+            throws AzureFunctionsException, IOException {
+        new FunctionsArtifact(functions, binaryPath).generate(Constants.AZURE_FUNCS_OUTPUT_ZIP_FILENAME);
     }
 
 }
