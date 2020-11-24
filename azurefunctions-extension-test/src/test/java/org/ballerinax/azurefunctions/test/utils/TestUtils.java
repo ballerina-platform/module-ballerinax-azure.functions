@@ -42,7 +42,7 @@ public class TestUtils {
             System.getProperty("ballerinaPack")));
     private static final Path BALLERINA_COMMAND = DISTRIBUTION_PATH
             .resolve((System.getProperty("os.name").toLowerCase(Locale.getDefault()).contains("win") ?
-                      "ballerina.bat" : "ballerina"));
+                    "ballerina.bat" : "ballerina"));
     private static final Path LAYER_DIR = Paths.get("src").resolve("test").resolve("resources").resolve("layer-pkg")
             .toAbsolutePath().normalize();
     private static final String BUILD = "build";
@@ -50,7 +50,7 @@ public class TestUtils {
     private static final String COMPILING = "Compiling: ";
     private static final String RUNNING = "Running: ";
     private static final String EXIT_CODE = "Exit code: ";
-    
+
     private static String logOutput(InputStream inputStream) throws IOException {
         StringBuilder output = new StringBuilder();
         try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream))) {
@@ -61,7 +61,7 @@ public class TestUtils {
         }
         return output.toString();
     }
-    
+
     /**
      * Compile a ballerina file in a given directory.
      *
@@ -73,26 +73,26 @@ public class TestUtils {
      */
     public static ProcessOutput compileBallerinaFile(Path sourceDirectory, String fileName) throws InterruptedException,
             IOException {
-        
+
         Path ballerinaInternalLog = Paths.get(sourceDirectory.toAbsolutePath().toString(), "ballerina-internal.log");
         if (ballerinaInternalLog.toFile().exists()) {
             log.warn("Deleting already existing ballerina-internal.log file.");
             FileUtils.deleteQuietly(ballerinaInternalLog.toFile());
         }
-        
-        ProcessBuilder pb = new ProcessBuilder(BALLERINA_COMMAND.toString(), BUILD, fileName);
+
+        ProcessBuilder pb = new ProcessBuilder(BALLERINA_COMMAND.toString(), BUILD, "-c");
         log.info(COMPILING + sourceDirectory.normalize().resolve(fileName));
         log.debug(EXECUTING_COMMAND + pb.command());
         pb.directory(sourceDirectory.toFile());
         Process process = pb.start();
         int exitCode = process.waitFor();
-        
+
         // log ballerina-internal.log content
         if (Files.exists(ballerinaInternalLog)) {
             log.info("ballerina-internal.log file found. content: ");
             log.info(FileUtils.readFileToString(ballerinaInternalLog.toFile(), Charset.defaultCharset()));
         }
-        
+
         ProcessOutput po = new ProcessOutput();
         log.info(EXIT_CODE + exitCode);
         po.setExitCode(exitCode);
@@ -100,5 +100,5 @@ public class TestUtils {
         po.setErrOutput(logOutput(process.getErrorStream()));
         return po;
     }
-    
+
 }

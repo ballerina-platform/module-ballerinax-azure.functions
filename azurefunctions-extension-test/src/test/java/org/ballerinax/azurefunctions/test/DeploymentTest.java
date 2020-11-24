@@ -41,7 +41,7 @@ public class DeploymentTest {
     public void testAzureFunctionsDeployment() throws Exception {
         ProcessOutput processOutput = TestUtils.compileBallerinaFile(SOURCE_DIR.resolve("deployment"), "functions.bal");
         Assert.assertEquals(processOutput.getExitCode(), 0);
-        Assert.assertTrue(processOutput.getStdOutput().contains("@azure.functions"));
+        Assert.assertTrue(processOutput.getStdOutput().contains("@azure_functions"));
         
         // check if the executable jar and the host.json files are in the generated zip file
         Path zipFilePath = SOURCE_DIR.resolve("deployment").resolve("azure-functions.zip");

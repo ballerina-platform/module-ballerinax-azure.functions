@@ -17,11 +17,12 @@
  */
 package org.ballerinax.azurefunctions;
 
+import io.ballerina.projects.Project;
+import io.ballerina.projects.internal.model.Target;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
 import org.ballerinalang.core.util.exceptions.BallerinaException;
-import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
@@ -170,14 +171,14 @@ public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
     }
 
     @Override
-    public void codeGenerated(PackageID packageID, Path binaryPath) {
+    public void codeGenerated(Project project, Target target) {
         if (generatedFunctions.isEmpty()) {
             // no azure functions, nothing else to do
             return;
         }
         OUT.println("\t@azure.functions:Function: " + String.join(", ", generatedFunctions.keySet()));
         try {
-            this.generateFunctionsArtifact(generatedFunctions, binaryPath);
+            this.generateFunctionsArtifact(generatedFunctions, target.getExecutablePath(project.currentPackage()));
         } catch (AzureFunctionsException | IOException e) {
             String msg = "Error generating Azure Functions: " + e.getMessage();
             OUT.println(msg);

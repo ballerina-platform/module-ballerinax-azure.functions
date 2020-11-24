@@ -21,14 +21,15 @@ description = 'Ballerinax - Azure Functions Extension Annotations'
 
 configurations {
     balTools
-    azureFunctionsBallerinaBirDir
-    azureFunctionsBallerinaJar
+    zipPartent
+    extensionPlugin
 }
 
 dependencies {
     balTools("org.ballerinalang:jballerina-tools:${ballerinaLangVersion}") {
         transitive = false
     }
+    extensionPlugin project(path: ":azurefunctions-extension")
 }
 
 jar {
@@ -71,24 +72,11 @@ task copyStdlibs(type: Copy) {
     /* Standard Libraries */
     configurations.ballerinaStdLibs.resolvedConfiguration.resolvedArtifacts.each { artifact ->
         def artifactExtractedPath = "${buildDir}/extracted-distribution/" + artifact.name + "-zip"
-        into("bir-cache/") {
-            from "${artifactExtractedPath}/caches/bir"
+        into("repo/balo") {
+            from "${artifactExtractedPath}/balo/"
         }
-        into("bre/lib/") {
-            from "${artifactExtractedPath}/libs"
-        }
-        into("docs/") {
-            from "${artifactExtractedPath}/docs"
-        }
-        // pack to new cache
-        into("cache/bir/") {
-            from "${artifactExtractedPath}/caches/bir"
-        }
-        into("cache/balo/") {
-            from "${artifactExtractedPath}/caches/balo"
-        }
-        into("cache/jar/") {
-            from "${artifactExtractedPath}/caches/jar"
+        into("repo/cache") {
+            from "${artifactExtractedPath}/cache"
         }
     }
 }
@@ -103,8 +91,10 @@ def ballerinaToml = file("$project.projectDir/Ballerina.toml")
 def semverMatcher = ballerinaToml.getText("UTF-8") =~ /(([0-9]+)\.([0-9]+)\.([0-9]+))/
 def tomlSemver = semverMatcher[0][1]
 
-def artifactAzureFunctionsBallerinaBirDir = file("$project.projectDir/target/caches/bir_cache/ballerinax")
-def artifactAzureFunctionsBallerinaJar = file("$project.projectDir/target/caches/jar_cache/ballerinax/azure.functions/${tomlSemver}/ballerinax-azure.functions-${tomlSemver}.jar")
+def artifactParent = file("$project.projectDir/build/target/azurefunctions-ballerinax-zip/")
+def artifactDocs = file("$project.buildDir/apidocs/docs/")
+def artifactBalo = file("$project.projectDir/target/balo")
+def artifactCache = file("$project.projectDir/target/cache/")
 
 task ballerinaBuild {
     dependsOn unzip
@@ -114,36 +104,45 @@ task ballerinaBuild {
         exec {
             workingDir project.projectDir
             if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-                commandLine 'cmd', '/c', "$distributionBinPath/ballerina.bat doc azure.functions"
+                commandLine 'cmd', '/c', "$distributionBinPath/ballerina.bat doc"
             } else {
-                commandLine 'sh', '-c', "$distributionBinPath/ballerina doc azure.functions"
+                commandLine 'sh', '-c', "$distributionBinPath/ballerina doc"
             }
         }
         copy {
-            from file("$project.projectDir/target/apidocs/azure.functions")
-            into file("$project.buildDir/apidocs/docs/azure.functions")
+            from file("$project.projectDir/target/apidocs/azure_functions")
+            into file("$project.buildDir/apidocs/docs/azure_functions")
         }
         exec {
             workingDir project.projectDir
             if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-                commandLine 'cmd', '/c', "$distributionBinPath/ballerina.bat build -c -a --skip-tests"
+                commandLine 'cmd', '/c', "$distributionBinPath/ballerina.bat build -c"
             } else {
-                commandLine 'sh', '-c', "$distributionBinPath/ballerina build -c -a --skip-tests"
+                commandLine 'sh', '-c', "$distributionBinPath/ballerina build -c"
             }
         }
         copy {
-            from file("$project.projectDir/Ballerina.toml")
-            into file("${artifactAzureFunctionsBallerinaBirDir}/azure.functions/${tomlSemver}")
+            from file("$artifactBalo")
+            into file("$artifactParent/balo/ballerinax/azure_functions/$tomlSemver")
+        }
+        copy {
+            from file("$artifactDocs")
+            into file("$artifactParent/docs")
+        }
+        copy {
+            from configurations.extensionPlugin
+            into file("${artifactParent}/libs")
+        }
+        copy {
+            from file("$artifactCache")
+            into file("$artifactParent/cache")
         }
     }
-    outputs.dir artifactAzureFunctionsBallerinaBirDir
-    outputs.dir file("$project.buildDir/apidocs")
-    outputs.file artifactAzureFunctionsBallerinaJar
+    outputs.dir file("$artifactParent")
 }
 
 artifacts {
-    azureFunctionsBallerinaBirDir file: artifactAzureFunctionsBallerinaBirDir, builtBy: ballerinaBuild
-    azureFunctionsBallerinaJar file: artifactAzureFunctionsBallerinaJar, builtBy: ballerinaBuild
+    zipPartent file: artifactParent, builtBy: ballerinaBuild
 }
 
 task createArtifactZip(type: Zip) {

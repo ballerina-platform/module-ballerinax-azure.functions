@@ -298,7 +298,7 @@ public isolated function setTwilioSmsOutput(HandlerParams params, string name, T
 # + params - The handler parameters
 # + binding - The binding data
 # + return - An error in failure
-public isolated function setPureHTTPOutput(HandlerParams params, HTTPBinding binding) returns error? {
+public function setPureHTTPOutput(HandlerParams params, HTTPBinding binding) returns error? {
     string? payload = binding?.payload;
     if payload is string {
         params.response.statusCode = binding.statusCode;
@@ -312,7 +312,7 @@ public isolated function setPureHTTPOutput(HandlerParams params, HTTPBinding bin
 # + params - The handler parameters
 # + value - The value
 # + return - An error in failure
-public isolated function setPureStringOutput(HandlerParams params, string value) returns error? {
+public function setPureStringOutput(HandlerParams params, string value) returns error? {
     params.response.setTextPayload(value);
     params.pure = true;
 }
@@ -495,7 +495,7 @@ public function getBodyFromHTTPInputData(HandlerParams params, string name) retu
 # 
 # + headers - The headers JSON
 # + return - The headers map
-function extractHTTPHeaders(json headers) returns map<string[]> {
+isolated function extractHTTPHeaders(json headers) returns map<string[]> {
     map<json> headerMap = <map<json>> headers;
     map<string[]> result = {};
     foreach var key in headerMap.keys() {
