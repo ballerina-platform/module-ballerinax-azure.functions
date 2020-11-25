@@ -1,5 +1,5 @@
 import ballerina/system;
-import ballerinax/azure.functions as af;
+import ballerinax/azure_functions as af;
 
 // HTTP request/response with no authentication
 @af:Function
