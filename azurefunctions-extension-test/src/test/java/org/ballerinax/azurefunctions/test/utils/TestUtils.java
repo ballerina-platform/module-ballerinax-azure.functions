@@ -80,7 +80,7 @@ public class TestUtils {
             FileUtils.deleteQuietly(ballerinaInternalLog.toFile());
         }
 
-        ProcessBuilder pb = new ProcessBuilder(BALLERINA_COMMAND.toString(), BUILD, "-c");
+        ProcessBuilder pb = new ProcessBuilder(BALLERINA_COMMAND.toString(), BUILD, fileName);
         log.info(COMPILING + sourceDirectory.normalize().resolve(fileName));
         log.debug(EXECUTING_COMMAND + pb.command());
         pb.directory(sourceDirectory.toFile());
