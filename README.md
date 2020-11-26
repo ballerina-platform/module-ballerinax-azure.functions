@@ -14,7 +14,7 @@ Annotation based Azure Functions extension implementation for Ballerina.
 
 ## Supported Annotations:
 
-### @azure.functions:Function
+### @azure_functions:Function
 
 #### Custom 'host.json'
 
@@ -24,7 +24,7 @@ A custom [host.json](https://docs.microsoft.com/en-us/azure/azure-functions/func
 
 ```ballerina
 import ballerina/system;
-import ballerinax/azure.functions as af;
+import ballerinax/azure_functions as af;
 
 // HTTP request/response with no authentication
 @af:Function
@@ -206,5 +206,5 @@ Compiling source
 
 Generating executables
         azure_functions_deployment.jar
-        @azure.functions:Function: hello, fromHttpToQueue, fromQueueToQueue, fromBlobToQueue, httpTriggerBlobInput, httpTriggerBlobOutput, sendSMS, cosmosDBToQueue1, cosmosDBToQueue2, httpTriggerCosmosDBInput1, httpTriggerCosmosDBInput2, httpTriggerCosmosDBInput3, httpTriggerCosmosDBOutput1, httpTriggerCosmosDBOutput2, httpTriggerCosmosDBOutput3, queuePopulationTimer
+        @azure_functions:Function: hello, fromHttpToQueue, fromQueueToQueue, fromBlobToQueue, httpTriggerBlobInput, httpTriggerBlobOutput, sendSMS, cosmosDBToQueue1, cosmosDBToQueue2, httpTriggerCosmosDBInput1, httpTriggerCosmosDBInput2, httpTriggerCosmosDBInput3, httpTriggerCosmosDBOutput1, httpTriggerCosmosDBOutput2, httpTriggerCosmosDBOutput3, queuePopulationTimer
 ```
