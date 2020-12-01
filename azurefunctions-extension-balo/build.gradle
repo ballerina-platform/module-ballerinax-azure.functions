@@ -43,6 +43,8 @@ clean {
 }
 
 def bDistribution = file("$project.buildDir/extracted-distribution/jballerina-tools-${ballerinaLangVersion}")
+def extensionPluginArtifact = file("$project.projectDir/../azurefunctions-extension/build/libs/")
+
 task unzip {
     doLast {
         configurations.balTools.resolvedConfiguration.resolvedArtifacts.each { artifact ->
@@ -130,7 +132,7 @@ task ballerinaBuild {
             into file("$artifactParent/docs")
         }
         copy {
-            from configurations.extensionPlugin
+            from file("$extensionPluginArtifact")
             into file("${artifactParent}/libs")
         }
         copy {
