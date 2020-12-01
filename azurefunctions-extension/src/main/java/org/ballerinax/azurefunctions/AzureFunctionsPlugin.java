@@ -34,6 +34,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Path;
@@ -185,8 +186,13 @@ public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
             throw new BallerinaException(msg, e);
         }
         OUT.println("\n\tExecute the below command to deploy Ballerina Azure Functions:");
-        OUT.println("\taz functionapp deployment source config-zip -g <resource_group> -n <function_app_name> --src "
-                + Constants.AZURE_FUNCS_OUTPUT_ZIP_FILENAME);
+        try {
+            OUT.println("\taz functionapp deployment source config-zip -g <resource_group> -n <function_app_name> " +
+                    "--src " + target.getExecutablePath(project.currentPackage()).getParent().toString() +
+                    File.separator + Constants.AZURE_FUNCS_OUTPUT_ZIP_FILENAME + "\n\n");
+        } catch (IOException e) {
+            //ignored;
+        }
     }
 
     private void generateFunctionsArtifact(Map<String, FunctionDeploymentContext> functions, Path binaryPath)
