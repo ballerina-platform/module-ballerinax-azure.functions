@@ -158,6 +158,16 @@ publishing {
             artifact source: createArtifactZip, extension: 'zip'
         }
     }
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/ballerina-platform/module-ballerinax-azure.functions")
+            credentials {
+                username = System.getenv("packageUser")
+                password = System.getenv("packagePAT")
+            }
+        }
+    }
 }
 
 unpackStdLibs.dependsOn unzip
