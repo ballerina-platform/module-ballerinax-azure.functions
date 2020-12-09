@@ -152,15 +152,9 @@ listener http:Listener hl = new(check ints:fromString(system:getEnv("FUNCTIONS_C
 
 map<FunctionHandler> dispatchMap = {};
 
-@http:ServiceConfig {
-    basePath: "/"
-}
-service AzureFunctionsServer on hl {
+service http:Service / on hl {
 
-    @http:ResourceConfig {
-        path: "/{functionName}"
-    }
-    resource function dispatch(http:Caller caller, http:Request request, string functionName) returns @tainted error? {
+    resource function 'default [string functionName](http:Caller caller, http:Request request) returns @tainted error? {
         FunctionHandler? handler = dispatchMap[functionName];
         http:Response response = new;
         if handler is FunctionHandler {
@@ -298,7 +292,7 @@ public isolated function setTwilioSmsOutput(HandlerParams params, string name, T
 # + params - The handler parameters
 # + binding - The binding data
 # + return - An error in failure
-public function setPureHTTPOutput(HandlerParams params, HTTPBinding binding) returns error? {
+public isolated function setPureHTTPOutput(HandlerParams params, HTTPBinding binding) returns error? {
     string? payload = binding?.payload;
     if payload is string {
         params.response.statusCode = binding.statusCode;
@@ -312,7 +306,7 @@ public function setPureHTTPOutput(HandlerParams params, HTTPBinding binding) ret
 # + params - The handler parameters
 # + value - The value
 # + return - An error in failure
-public function setPureStringOutput(HandlerParams params, string value) returns error? {
+public isolated function setPureStringOutput(HandlerParams params, string value) returns error? {
     params.response.setTextPayload(value);
     params.pure = true;
 }
@@ -486,7 +480,7 @@ public isolated function getOptionalStringConvertedBytesFromInputData(HandlerPar
 # + params - The handler parameters
 # + name - The input data entry name
 # + return - The HTTP body
-public function getBodyFromHTTPInputData(HandlerParams params, string name) returns string|error {
+public isolated function getBodyFromHTTPInputData(HandlerParams params, string name) returns string|error {
     HTTPRequest req = check getHTTPRequestFromInputData(params, name);
     return req.body;
 }
@@ -524,7 +518,7 @@ isolated function extractStringMap(json params) returns map<string> {
 # + params - The handler parameters
 # + name - The input data entry name
 # + return - The HTTP request
-public function getHTTPRequestFromInputData(HandlerParams params, string name) returns HTTPRequest|error {
+public isolated function getHTTPRequestFromInputData(HandlerParams params, string name) returns HTTPRequest|error {
     json payload = check getJsonFromHTTPReq(params);
     map<json> data = <map<json>> payload.Data;
     json hreq = data[name];
