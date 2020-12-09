@@ -44,7 +44,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -562,7 +561,7 @@ public class Utils {
         typeDef.setTypeNode(objectTypeNode);
         BObjectTypeSymbol ts = new BObjectTypeSymbol(SymTag.SERVICE, 0, new Name(name), packageNode.symbol.pkgID, null,
                 packageNode.symbol, typeDef.pos, SymbolOrigin.VIRTUAL);
-        BObjectType objectType = new BServiceType(ts);
+        BObjectType objectType = new BObjectType(ts);
         ts.type = objectType;
         objectTypeNode.symbol = ts;
         objectTypeNode.type = objectType;
