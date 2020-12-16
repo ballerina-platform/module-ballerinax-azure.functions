@@ -21,6 +21,7 @@ import io.ballerina.tools.diagnostics.Location;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 /**
  * Global context information.
@@ -31,10 +32,13 @@ public class GlobalContext {
 
     public BPackageSymbol azureFuncsPkgSymbol;
 
+    public Names names;
+
     public Location pos;
 
     public GlobalContext(CompilerContext cctx) {
         this.symTable = SymbolTable.getInstance(cctx);
+        this.names = Names.getInstance(cctx);
     }
 
 }
