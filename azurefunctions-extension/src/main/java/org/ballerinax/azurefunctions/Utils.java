@@ -35,15 +35,12 @@ import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -54,7 +51,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
-import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
@@ -66,7 +62,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
-import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -80,6 +75,7 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -545,29 +541,31 @@ public class Utils {
         return annonMap;
     }
 
-    public static void addDummyService(GlobalContext ctx, BLangPackage packageNode) {
-        String name = Constants.DUMMY_SERVICE_NAME;
-        BLangTypeDefinition typeDef = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
-        BLangIdentifier serviceTypeID = ASTBuilderUtil.createIdentifier(ctx.pos, name);
-        typeDef.setName(serviceTypeID);
-        typeDef.flagSet.add(Flag.SERVICE);
-        typeDef.pos = ctx.pos;
-        BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) TreeBuilder.createObjectTypeNode();
-        objectTypeNode.generatedInitFunction = (BLangFunction) TreeBuilder.createFunctionNode();
-        objectTypeNode.generatedInitFunction.symbol = new BInvokableSymbol(SymTag.FUNCTION, 0, new Name(name),
-                packageNode.symbol.pkgID,
-                new BInvokableType(new ArrayList<>(), ctx.symTable.noType, ctx.symTable.noType, null),
-                packageNode.symbol, typeDef.pos, SymbolOrigin.VIRTUAL);
-        typeDef.setTypeNode(objectTypeNode);
-        BObjectTypeSymbol ts = new BObjectTypeSymbol(SymTag.SERVICE, 0, new Name(name), packageNode.symbol.pkgID, null,
-                packageNode.symbol, typeDef.pos, SymbolOrigin.VIRTUAL);
-        BObjectType objectType = new BObjectType(ts);
-        ts.type = objectType;
-        objectTypeNode.symbol = ts;
-        objectTypeNode.type = objectType;
-        objectTypeNode.pos = ctx.pos;
-        typeDef.symbol = ts;
-        packageNode.addTypeDefinition(typeDef);
+    public static void addDummyListener(GlobalContext ctx, BLangPackage packageNode) {
+        BSymbol symbol = Objects.requireNonNull(
+                Objects.requireNonNull(packageNode.symbol.scope.entries.entrySet().stream()
+                        .filter(e -> e.getValue().symbol.name.value.equals("azure_functions"))
+                        .findFirst().orElse(null)).getValue().symbol.scope.entries.entrySet()
+                        .stream().filter(en -> en.getKey().value.equals("hl"))
+                        .findFirst().orElse(null)).getValue().symbol;
+        BLangSimpleVariable listener = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
+        BVarSymbol bVarSymbol = new BVarSymbol(Flags.PUBLIC | Flags.LISTENER, ctx.names.fromString("$testListener"),
+                packageNode.packageID, symbol.type,
+                symbol.owner, packageNode.symbol.pos, symbol.origin);
+        listener.type = symbol.type;
+        listener.name = new BLangIdentifier();
+        listener.name.value = "$testListener";
+        listener.pos = packageNode.pos;
+        listener.symbol = bVarSymbol;
+
+        BLangSimpleVarRef simpleVarRef = new BLangSimpleVarRef();
+        simpleVarRef.type = symbol.type;
+        simpleVarRef.symbol = symbol;
+        listener.expr = simpleVarRef;
+        listener.addFlag(Flag.PUBLIC);
+        listener.addFlag(Flag.LISTENER);
+        packageNode.symbol.scope.define(bVarSymbol.name, bVarSymbol);
+        packageNode.addGlobalVariable(listener);
     }
 
 }

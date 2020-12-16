@@ -148,7 +148,7 @@ isolated function logRequest(HandlerParams hparams, http:Request request) {
 # Function handler type.
 type FunctionHandler (function (HandlerParams) returns error?);
 
-listener http:Listener hl = new(check ints:fromString(system:getEnv("FUNCTIONS_CUSTOMHANDLER_PORT")));
+@untainted public listener http:Listener hl = new(check ints:fromString(system:getEnv("FUNCTIONS_CUSTOMHANDLER_PORT")));
 
 map<FunctionHandler> dispatchMap = {};
 

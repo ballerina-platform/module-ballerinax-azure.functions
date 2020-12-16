@@ -145,9 +145,9 @@ public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
             return;
         }
 
-        // the following is a workaround in order to signal the runtime that we have a service
+        // the following is a workaround in order to signal the runtime that we have a listener
         // running and the program should not exit
-        Utils.addDummyService(this.globalCtx, myPkg);
+        Utils.addDummyListener(this.globalCtx, myPkg);
 
         BPackageSymbol azureFuncsPkgSymbol = this.globalCtx.azureFuncsPkgSymbol;
         if (azureFuncsPkgSymbol == null) {
