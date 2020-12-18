@@ -1,6 +1,6 @@
 # Module Overview
 
-Annotation based Azure Functions extension implementation for Ballerina. 
+This module provides an annotation based Azure Functions extension implementation for Ballerina. 
 
 - For information on the operations, which you can perform with this module, see [Classes](/swan-lake/learn/api-docs/ballerina/azure.functions/index.html#classes). 
 - For more information on the deployment, see the [Azure Functions Deployment Guide](/swan-lake/learn/deployment/azure-functions/).
@@ -9,7 +9,7 @@ Annotation based Azure Functions extension implementation for Ballerina.
 ## Azure Setup
 
 * An Azure "Function App" needs to be created in a given resource group with the following requirements
-   - Runtime stack - "Java 8"
+   - Runtime stack - "Java 11"
    - Hosting operating system - "Windows" (default; Linux is not supported in Azure for custom handlers at the moment)
 
 ## Supported Annotations:
