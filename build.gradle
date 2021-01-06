@@ -57,7 +57,7 @@ allprojects {
         
         /* ballerina-lang staging repo */
         maven {
-            url = 'https://maven.wso2.org/nexus/content/repositories/orgballerinalang-1615'
+            url = 'https://maven.wso2.org/nexus/content/repositories/orgballerinalang-1636'
         }
     }
 }
