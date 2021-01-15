@@ -26,9 +26,6 @@ public class Constants {
     public static final String MAIN_FUNC_NAME = "main";
     public static final String AZURE_FUNCTIONS_MODULE_NAME = "azure.functions";
     public static final String BALLERINA_ORG = "ballerina";
-    public static final String HTTP_MODULE_NAME = "http";
-    public static final String HTTP_REQUEST_NAME = "Request";
-    public static final String HTTP_MODULE_VERSION = "0.0.0";
     public static final String REQUEST_PARAMS_TYPE = "HandlerParams";
     public static final String REQUEST_PARAMS_NAME = "params";
     public static final String AZURE_FUNCTIONS_PACKAGE_ORG = "ballerinax"; 
@@ -41,7 +38,7 @@ public class Constants {
     public static final String DEFAULT_STORAGE_CONNECTION_NAME = "AzureWebJobsStorage";
     public static final String DEFAULT_TWILIO_ACCOUNT_SID_SETTING = "AzureWebJobsTwilioAccountSid";
     public static final String DEFAULT_TWILIO_AUTH_TOKEN_SETTING = "AzureWebJobsTwilioAuthToken";
-    public static final String DEFAULT_TIMER_TRIGGER_RUNONSTARTUP = "true";
+    public static final boolean DEFAULT_TIMER_TRIGGER_RUNONSTARTUP = true;
     public static final boolean DEFAULT_COSMOS_DB_CREATELEASECOLLECTIONIFNOTEXISTS = true;
 
 }

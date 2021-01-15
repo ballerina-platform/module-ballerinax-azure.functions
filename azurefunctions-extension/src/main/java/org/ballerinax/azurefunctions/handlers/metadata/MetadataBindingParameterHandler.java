@@ -34,21 +34,25 @@ public class MetadataBindingParameterHandler extends AbstractParameterHandler {
 
     public MetadataBindingParameterHandler(BLangSimpleVariable param, BLangAnnotationAttachment annotation) {
         super(param, annotation, BindingType.METADATA);
-        Map<String, String> annonMap = Utils.extractAnnotationKeyValues(this.annotation);
-        String name = annonMap.get("name");
+        Map<String, Object> annonMap = Utils.extractAnnotationKeyValues(this.annotation);
+        Object name = annonMap.get("name");
         if (name != null) {
-            this.name = name;
+            this.name = name.toString();
         }
     }
     
     @Override
     public BLangExpression invocationProcess() throws AzureFunctionsException {
-        if (Utils.isStringType(this.ctx.globalCtx, this.param.type)) {
+        if (Utils.isJsonType(this.ctx.globalCtx, this.param.type)) {
+            return Utils.createAzurePkgInvocationNode(this.ctx, "getJsonFromMetadata",
+                    Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
+                    Utils.createStringLiteral(this.ctx.globalCtx, this.name));
+        } else if (Utils.isStringType(this.ctx.globalCtx, this.param.type)) {
             return Utils.createAzurePkgInvocationNode(this.ctx, "getStringFromMetadata",
                     Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
                     Utils.createStringLiteral(this.ctx.globalCtx, this.name));
         } else {
-            throw this.createError("Type must be 'string'");
+            throw this.createError("Type must be 'json' or 'string'");
         }
     }
 
