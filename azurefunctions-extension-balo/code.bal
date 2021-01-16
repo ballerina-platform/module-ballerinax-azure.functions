@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/system;
+import ballerina/os;
 import ballerina/lang.'int as ints;
 import ballerina/lang.'array as arrays;
 import ballerina/lang.'string as strings;
@@ -116,7 +116,7 @@ public class Context {
 # 
 # + msg - The log message
 isolated function log(HandlerParams hparams, string msg) {
-    json[] logs = <json[]> hparams.result.Logs;
+    json[] logs = <json[]> checkpanic hparams.result.Logs;
     logs.push(msg);
 }
 
@@ -124,7 +124,7 @@ isolated function log(HandlerParams hparams, string msg) {
 # 
 # + return - The request tracing flag
 isolated function isRequestTrace() returns boolean {
-    string? value = system:getEnv("BALLERINA_AZURE_FUNCTIONS_REQUEST_TRACE");
+    string? value = os:getEnv("BALLERINA_AZURE_FUNCTIONS_REQUEST_TRACE");
     if value is string {
         var flag = booleans:fromString(value);
         if flag is boolean {
@@ -142,13 +142,15 @@ isolated function logError(HandlerParams hparams, error err) {
 }
 
 isolated function logRequest(HandlerParams hparams, http:Request request) {
-    log(hparams, "REQUEST: " + request.getTextPayload().toString());
+    var payload = request.getTextPayload();
+    string val = payload is error ? payload.toString() : payload.toString();
+    log(hparams, "REQUEST: " + val);
 }
 
 # Function handler type.
 type FunctionHandler (function (HandlerParams) returns error?);
 
-@untainted public listener http:Listener hl = new(check ints:fromString(system:getEnv("FUNCTIONS_CUSTOMHANDLER_PORT")));
+@untainted public listener http:Listener hl = new(check ints:fromString(os:getEnv("FUNCTIONS_CUSTOMHANDLER_PORT")));
 
 map<FunctionHandler> dispatchMap = {};
 
@@ -398,7 +400,7 @@ public isolated function getBinaryFromHTTPReq(HandlerParams params) returns byte
 # + return - The string value
 public isolated function getStringFromInputData(HandlerParams params, string name) returns string|error {
     json payload = check getJsonFromHTTPReq(params);
-    map<json> data = <map<json>> payload.Data;
+    map<json> data = <map<json>> checkpanic payload.Data;
     return data[name].toJsonString();
 }
 
@@ -409,7 +411,7 @@ public isolated function getStringFromInputData(HandlerParams params, string nam
 # + return - The optional string value
 public isolated function getOptionalStringFromInputData(HandlerParams params, string name) returns string?|error {
     json payload = check getJsonFromHTTPReq(params);
-    map<json> data = <map<json>> payload.Data;
+    map<json> data = <map<json>> check payload.Data;
     json result = data[name];
     if result == () {
        return ();
@@ -520,17 +522,21 @@ isolated function extractStringMap(json params) returns map<string> {
 # + return - The HTTP request
 public isolated function getHTTPRequestFromInputData(HandlerParams params, string name) returns HTTPRequest|error {
     json payload = check getJsonFromHTTPReq(params);
-    map<json> data = <map<json>> payload.Data;
+    map<json> data = <map<json>> check payload.Data;
     json hreq = data[name];
-    string url = hreq.Url.toString();
-    string method = hreq.Method.toString();
+    var urlVal = hreq.Url;
+    string url = urlVal is error ? urlVal.toString() : urlVal.toString();
+    var methodVal = hreq.Method;
+    string method = methodVal is error ? methodVal.toString() : methodVal.toString();
     map<string[]> headers = extractHTTPHeaders(check hreq.Headers);
     map<string> hparams = extractStringMap(check hreq.Params);
     json qx = check hreq.Query;
     map<string> query = extractStringMap(check parseJson(qx.toJsonString()));
     json idx = check hreq.Identities;
-    json[] identities = <json[]> check parseJson(idx.toJsonString());
-    string body = hreq.Body.toString();
+    json identitiesTemp = check parseJson(idx.toJsonString());
+    json[] identities = <json[]> identitiesTemp;
+    var bodyVal = hreq.Url;
+    string body = bodyVal is error ? bodyVal.toString() : bodyVal.toString();
     HTTPRequest req = { url: url, method: method, query: query, headers: headers, 
                         params: hparams, identities: identities, body: body };
     return req;
@@ -543,7 +549,7 @@ public isolated function getHTTPRequestFromInputData(HandlerParams params, strin
 # + return - The JSON value
 public isolated function getJsonFromInputData(HandlerParams params, string name) returns json|error {
     json payload = check getJsonFromHTTPReq(params);
-    map<json> data = <map<json>> payload.Data;
+    map<json> data = <map<json>> check payload.Data;
     // the JSON parse is because the input data JSON values are string escaped 
     return parseJson(data[name].toJsonString());
 }
@@ -555,7 +561,7 @@ public isolated function getJsonFromInputData(HandlerParams params, string name)
 # + return - The JSON value
 public isolated function getJsonFromInputDataDoubleEscaped(HandlerParams params, string name) returns json|error {
     json payload = check getJsonFromHTTPReq(params);
-    map<json> data = <map<json>> payload.Data;
+    map<json> data = <map<json>> check payload.Data;
     json entry = data[name];
     // the unescape is because the input data JSON values are string escaped 
     return check parseJsonTwice(data[name].toJsonString());

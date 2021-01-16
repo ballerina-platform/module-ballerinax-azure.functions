@@ -23,7 +23,7 @@ A custom [host.json](https://docs.microsoft.com/en-us/azure/azure-functions/func
 #### Usage Sample:
 
 ```ballerina
-import ballerina/system;
+import ballerina/uuid;
 import ballerinax/azure_functions as af;
 
 // HTTP request/response with no authentication
@@ -158,7 +158,7 @@ public function httpTriggerCosmosDBOutput1(
     @af:HTTPTrigger { } af:HTTPRequest httpReq, @af:HTTPOutput af:HTTPBinding hb) 
     returns @af:CosmosDBOutput { connectionStringSetting: "CosmosDBConnection", 
                                  databaseName: "db1", collectionName: "c1" } json {
-    json entry = { id: system:uuid(), name: "Saman", country: "Sri Lanka" };
+    json entry = { id: uuid:createType1AsString(), name: "Saman", country: "Sri Lanka" };
     hb.payload = "Adding entry: " + entry.toString();
     return entry;
 }
@@ -170,8 +170,8 @@ public function httpTriggerCosmosDBOutput2(
         returns @af:CosmosDBOutput { 
             connectionStringSetting: "CosmosDBConnection", 
             databaseName: "db1", collectionName: "c1" } json {
-    json entry = [{ id: system:uuid(), name: "John Doe A", country: "USA" }, 
-                  { id: system:uuid(), name: "John Doe B", country: "USA" }];
+    json entry = [{ id: uuid:createType1AsString(), name: "John Doe A", country: "USA" }, 
+                  { id: uuid:createType1AsString(), name: "John Doe B", country: "USA" }];
     hb.payload = "Adding entries: " + entry.toString();
     return entry;
 }
@@ -183,8 +183,8 @@ public function httpTriggerCosmosDBOutput3(
                         connectionStringSetting: "CosmosDBConnection", 
                         databaseName: "db1", collectionName: "c1" } Person[] {
     Person[] persons = [];
-    persons.push({id: system:uuid(), name: "Jack", country: "UK"});
-    persons.push({id: system:uuid(), name: "Will", country: "UK"});
+    persons.push({id: uuid:createType1AsString(), name: "Jack", country: "UK"});
+    persons.push({id: uuid:createType1AsString(), name: "Will", country: "UK"});
     return persons;
 }
 

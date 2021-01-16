@@ -432,7 +432,7 @@ public class Utils {
     }
 
     public static boolean isJsonType(GlobalContext ctx, BType type) {
-        return ctx.symTable.jsonType.equals(type);
+        return ctx.symTable.jsonType.tsymbol.equals(type.tsymbol);
     }
 
     public static boolean isRecordType(GlobalContext ctx, BType type) {

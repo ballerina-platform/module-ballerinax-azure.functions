@@ -158,6 +158,7 @@ publishing {
             artifact source: createArtifactZip, extension: 'zip'
         }
     }
+
     repositories {
         maven {
             name = "GitHubPackages"
