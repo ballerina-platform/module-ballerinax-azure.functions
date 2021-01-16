@@ -133,7 +133,7 @@ public function httpTriggerCosmosDBOutput1(
     @af:HTTPTrigger { } af:HTTPRequest httpReq, @af:HTTPOutput af:HTTPBinding hb) 
     returns @af:CosmosDBOutput { connectionStringSetting: "CosmosDBConnection",
                                  databaseName: "db1", collectionName: "c1" } json {
-    json entry = { id:  uuid:createType1AsString(), name: "Saman", country: "Sri Lanka" };
+    json entry = { id: uuid:createType1AsString(), name: "Saman", country: "Sri Lanka" };
     hb.payload = "Adding entry: " + entry.toString();
     return entry;
 }
