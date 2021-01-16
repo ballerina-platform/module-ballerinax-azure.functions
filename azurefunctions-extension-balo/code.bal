@@ -411,7 +411,7 @@ public isolated function getStringFromInputData(HandlerParams params, string nam
 # + return - The optional string value
 public isolated function getOptionalStringFromInputData(HandlerParams params, string name) returns string?|error {
     json payload = check getJsonFromHTTPReq(params);
-    map<json> data = <map<json>> checkpanic payload.Data;
+    map<json> data = <map<json>> check payload.Data;
     json result = data[name];
     if result == () {
        return ();
@@ -522,7 +522,7 @@ isolated function extractStringMap(json params) returns map<string> {
 # + return - The HTTP request
 public isolated function getHTTPRequestFromInputData(HandlerParams params, string name) returns HTTPRequest|error {
     json payload = check getJsonFromHTTPReq(params);
-    map<json> data = <map<json>> checkpanic payload.Data;
+    map<json> data = <map<json>> check payload.Data;
     json hreq = data[name];
     var urlVal = hreq.Url;
     string url = urlVal is error ? urlVal.toString() : urlVal.toString();
@@ -549,7 +549,7 @@ public isolated function getHTTPRequestFromInputData(HandlerParams params, strin
 # + return - The JSON value
 public isolated function getJsonFromInputData(HandlerParams params, string name) returns json|error {
     json payload = check getJsonFromHTTPReq(params);
-    map<json> data = <map<json>> checkpanic payload.Data;
+    map<json> data = <map<json>> check payload.Data;
     // the JSON parse is because the input data JSON values are string escaped 
     return parseJson(data[name].toJsonString());
 }
@@ -561,7 +561,7 @@ public isolated function getJsonFromInputData(HandlerParams params, string name)
 # + return - The JSON value
 public isolated function getJsonFromInputDataDoubleEscaped(HandlerParams params, string name) returns json|error {
     json payload = check getJsonFromHTTPReq(params);
-    map<json> data = <map<json>> checkpanic payload.Data;
+    map<json> data = <map<json>> check payload.Data;
     json entry = data[name];
     // the unescape is because the input data JSON values are string escaped 
     return check parseJsonTwice(data[name].toJsonString());
