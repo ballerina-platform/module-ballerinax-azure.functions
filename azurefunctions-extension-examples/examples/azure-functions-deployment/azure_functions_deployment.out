@@ -1,7 +1,7 @@
 # Prerequisites: Azure CLI tools installation and configuration
 
 # Build the Ballerina program to generate the Azure Functions
-ballerina build azure_functions_deployment.bal
+bal build azure_functions_deployment.bal
 Compiling source
 	azure_functions_deployment.bal
 

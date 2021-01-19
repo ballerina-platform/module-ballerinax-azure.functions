@@ -18,7 +18,7 @@ Annotation based Azure Functions extension implementation for Ballerina.
 
 #### Custom 'host.json'
 
-A custom [host.json](https://docs.microsoft.com/en-us/azure/azure-functions/functions-host-json) file for the functions deployment can be optionally provided by placing a 'host.json' file in the current working directory where the Ballerina build is done. The required host.json properties are provided/overridden by the values derived from the source code by the compiler extension. 
+A custom [host.json](https://docs.microsoft.com/en-us/azure/azure-functions/functions-host-json) file for the functions deployment can be optionally provided by placing a 'host.json' file in the current working directory where the bal build is done. The required host.json properties are provided/overridden by the values derived from the source code by the compiler extension. 
 
 #### Usage Sample:
 
@@ -197,10 +197,10 @@ public function queuePopulationTimer(
 }
 ```
 
-The output of the Ballerina build is as follows:
+The output of the bal build is as follows:
 
 ```bash
-$ ballerina build azure_functions_deployment.bal 
+$ bal build azure_functions_deployment.bal 
 Compiling source
         azure_functions_deployment.bal
 
