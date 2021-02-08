@@ -31,12 +31,12 @@ dependencies {
     testImplementation "org.slf4j:slf4j-log4j12:${slf4jVersion}"
 
     azureFunctionsExtensionPlugin project(":azurefunctions-extension")
-    zipPartent project(path: ":azurefunctions-extension-balo", configuration: "zipPartent")
+    zipPartent project(path: ":azurefunctions-extension-bala", configuration: "zipPartent")
 }
 
 description = 'Ballerinax - Azure Functions Extension Tests'
 
-def distributionLocation = project(":azurefunctions-extension-balo").buildDir.absolutePath + "/extracted-distribution/jballerina-tools-${ballerinaLangVersion}"
+def distributionLocation = project(":azurefunctions-extension-bala").buildDir.absolutePath + "/extracted-distribution/jballerina-tools-${ballerinaLangVersion}"
 def zipDirLocation = configurations.zipPartent.singleFile
 
 task copyBalAzureFunctionsExt {
@@ -52,8 +52,8 @@ task copyBallerinaArtifacts {
     dependsOn configurations.zipPartent
     doLast {
         copy {
-            from file("$zipDirLocation/balo/ballerinax")
-            into file("${distributionLocation}/repo/balo/ballerinax")
+            from file("$zipDirLocation/bala/ballerinax")
+            into file("${distributionLocation}/repo/bala/ballerinax")
         }
         copy {
             from file("$zipDirLocation/cache/ballerinax")
@@ -73,7 +73,7 @@ test {
     useTestNG() {
         suites 'src/test/resources/testng.xml'
         systemProperties = [
-            ballerinaPack: System.getProperty('ballerinaPack', project.projectDir.absolutePath + "/../azurefunctions-extension-balo/build/extracted-distribution/jballerina-tools-${ballerinaLangVersion}/bin"),
+            ballerinaPack: System.getProperty('ballerinaPack', project.projectDir.absolutePath + "/../azurefunctions-extension-bala/build/extracted-distribution/jballerina-tools-${ballerinaLangVersion}/bin"),
             ballerinaLayer: System.getProperty('ballerinaPack', project.projectDir.absolutePath + "/../ballerina-layer/bootstrap"),
             sampleDir: System.getProperty('sampleDir', project.projectDir.absolutePath + "/../samples")
         ]
