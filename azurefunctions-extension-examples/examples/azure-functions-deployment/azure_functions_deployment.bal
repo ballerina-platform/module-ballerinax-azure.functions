@@ -134,7 +134,6 @@ public function httpTriggerCosmosDBOutput1(
     returns @af:CosmosDBOutput { connectionStringSetting: "CosmosDBConnection", 
                                  databaseName: "db1", collectionName: "c1" } json {
     json entry = { id: uuid:createType1AsString(), name: "Saman", country: "Sri Lanka" };
-    string entryString = entry is error ? entry.toString() : entry.toString();
     hb.payload = "Adding entry: " + entry.toString();
     return entry;
 }
@@ -146,8 +145,8 @@ public function httpTriggerCosmosDBOutput2(
         returns @af:CosmosDBOutput { 
             connectionStringSetting: "CosmosDBConnection", 
             databaseName: "db1", collectionName: "c1" } json {
-    json entry = [{ id: system:createType1AsString(), name: "John Doe A", country: "USA" },
-                  { id: system:createType1AsString(), name: "John Doe B", country: "USA" }];
+    json entry = [{ id: uuid:createType1AsString(), name: "John Doe A", country: "USA" },
+                  { id: uuid:createType1AsString(), name: "John Doe B", country: "USA" }];
     hb.payload = "Adding entries: " + entry.toString();
     return entry;
 }
