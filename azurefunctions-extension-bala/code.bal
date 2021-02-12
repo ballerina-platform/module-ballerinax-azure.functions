@@ -535,7 +535,7 @@ public isolated function getHTTPRequestFromInputData(HandlerParams params, strin
     json idx = check hreq.Identities;
     json identitiesTemp = check parseJson(idx.toJsonString());
     json[] identities = <json[]> identitiesTemp;
-    var bodyVal = hreq.Url;
+    var bodyVal = hreq.Body;
     string body = bodyVal is error ? bodyVal.toString() : bodyVal.toString();
     HTTPRequest req = { url: url, method: method, query: query, headers: headers, 
                         params: hparams, identities: identities, body: body };
