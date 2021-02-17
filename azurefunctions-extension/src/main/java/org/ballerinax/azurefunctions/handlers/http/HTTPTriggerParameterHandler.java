@@ -17,53 +17,69 @@
  */
 package org.ballerinax.azurefunctions.handlers.http;
 
+import io.ballerina.compiler.api.symbols.ParameterSymbol;
+import io.ballerina.compiler.syntax.tree.AnnotationNode;
+import io.ballerina.compiler.syntax.tree.ExpressionNode;
+import io.ballerina.compiler.syntax.tree.NodeFactory;
+import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
+import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinax.azurefunctions.AzureFunctionsException;
 import org.ballerinax.azurefunctions.BindingType;
-import org.ballerinax.azurefunctions.Utils;
+import org.ballerinax.azurefunctions.Constants;
+import org.ballerinax.azurefunctions.STUtil;
 import org.ballerinax.azurefunctions.handlers.AbstractParameterHandler;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Implementation for the input parameter handler annotation "@HTTPTrigger".
  */
 public class HTTPTriggerParameterHandler extends AbstractParameterHandler {
 
-    public HTTPTriggerParameterHandler(BLangSimpleVariable param, BLangAnnotationAttachment annotation) {
-        super(param, annotation, BindingType.TRIGGER);
+    public HTTPTriggerParameterHandler(ParameterSymbol variableSymbol, RequiredParameterNode param) {
+        super(variableSymbol, param, BindingType.TRIGGER);
     }
-    
+
     @Override
-    public BLangExpression invocationProcess() throws AzureFunctionsException {
-        if (Utils.isAzurePkgType(this.ctx, "HTTPRequest", this.param.type)) {
-            return Utils.createAzurePkgInvocationNode(this.ctx, "getHTTPRequestFromInputData",
-                    Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
-                    Utils.createStringLiteral(ctx.globalCtx, this.name));
-        } else if (Utils.isStringType(this.ctx.globalCtx, this.param.type)) {
-            return Utils.createAzurePkgInvocationNode(this.ctx, "getBodyFromHTTPInputData",
-                    Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
-                    Utils.createStringLiteral(ctx.globalCtx, this.name));
+    public ExpressionNode invocationProcess() throws AzureFunctionsException {
+        PositionalArgumentNode paramsArg = NodeFactory.createPositionalArgumentNode(
+                NodeFactory.createSimpleNameReferenceNode(NodeFactory.createIdentifierToken(Constants.PARAMS)));
+        if (STUtil.isAzurePkgType(this.variableSymbol, "HTTPRequest")) {
+            PositionalArgumentNode stringArg =
+                    NodeFactory.createPositionalArgumentNode(STUtil.createStringLiteral(this.name));
+            return STUtil.createAfFunctionInvocationNode("getHTTPRequestFromInputData", true, paramsArg, stringArg);
+        } else if (STUtil.isStringType(this.variableSymbol)) {
+            PositionalArgumentNode stringArg = NodeFactory.createPositionalArgumentNode(NodeFactory
+                    .createBasicLiteralNode(SyntaxKind.STRING_LITERAL, NodeFactory
+                            .createLiteralValueToken(SyntaxKind.STRING_LITERAL_TOKEN, "\"" + this.name + "\"",
+                                    NodeFactory.createEmptyMinutiaeList(), NodeFactory.createEmptyMinutiaeList())));
+            return STUtil.createAfFunctionInvocationNode("getBodyFromHTTPInputData", true, paramsArg, stringArg);
         } else {
-            throw this.createError("Type '" + this.param.type.tsymbol.name.value + "' is not supported");
+            throw new AzureFunctionsException(STUtil.getAFDiagnostic(this.param.typeName().location(), "AZ0008",
+                    "unsupported.param.type", DiagnosticSeverity.ERROR,
+                    "type '" + this.param.typeName().toString() + "'" +
+                            " is not supported"));
         }
     }
 
     @Override
-    public void postInvocationProcess() { }
+    public void postInvocationProcess() {
+    }
 
     @Override
-    public Map<String, Object> generateBinding() {
+    public Map<String, Object> generateBinding() throws AzureFunctionsException {
         Map<String, Object> binding = new LinkedHashMap<>();
-        Map<String, Object> annonMap = Utils.extractAnnotationKeyValues(this.annotation);
+        Optional<AnnotationNode> annotationNode = STUtil.extractAzureFunctionAnnotation(param.annotations());
+        Map<String, Object> annonMap = STUtil.extractAnnotationKeyValues(annotationNode.orElseThrow());
         binding.put("type", "httpTrigger");
         binding.put("authLevel", annonMap.get("authLevel"));
-        binding.put("route", annonMap.get("route"));        
-        binding.put("methods", new String[] { "get", "post", "put", "delete" });
+        binding.put("route", annonMap.get("route"));
+        binding.put("methods", new String[]{ "get", "post", "put", "delete" });
         return binding;
     }
-    
+
 }

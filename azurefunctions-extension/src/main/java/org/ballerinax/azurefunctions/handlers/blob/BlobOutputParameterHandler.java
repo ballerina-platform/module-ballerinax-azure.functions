@@ -17,54 +17,68 @@
  */
 package org.ballerinax.azurefunctions.handlers.blob;
 
+import io.ballerina.compiler.api.symbols.ParameterSymbol;
+import io.ballerina.compiler.syntax.tree.AnnotationNode;
+import io.ballerina.compiler.syntax.tree.ExpressionNode;
+import io.ballerina.compiler.syntax.tree.NodeFactory;
+import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
+import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
+import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinax.azurefunctions.AzureFunctionsException;
 import org.ballerinax.azurefunctions.BindingType;
 import org.ballerinax.azurefunctions.Constants;
-import org.ballerinax.azurefunctions.Utils;
+import org.ballerinax.azurefunctions.STUtil;
 import org.ballerinax.azurefunctions.handlers.AbstractParameterHandler;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Implementation for the output parameter handler annotation "@BlobOutput".
  */
 public class BlobOutputParameterHandler extends AbstractParameterHandler {
 
-    private BVarSymbol var;
+    private SimpleNameReferenceNode var;
 
-    public BlobOutputParameterHandler(BLangSimpleVariable param, BLangAnnotationAttachment annotation) {
-        super(param, annotation, BindingType.OUTPUT);
+    public BlobOutputParameterHandler(ParameterSymbol variableSymbol, RequiredParameterNode param) {
+        super(variableSymbol, param, BindingType.OUTPUT);
     }
 
     @Override
-    public BLangExpression invocationProcess() throws AzureFunctionsException {
-        if (Utils.isAzurePkgType(ctx, "BytesOutputBinding", this.param.type)) {
-             this.var = Utils.addAzurePkgRecordVarDef(this.ctx, "BytesOutputBinding", this.ctx.getNextVarName());
-        } else if (Utils.isAzurePkgType(ctx, "StringOutputBinding", this.param.type)) {
-            this.var = Utils.addAzurePkgRecordVarDef(this.ctx, "StringOutputBinding", this.ctx.getNextVarName());
+    public ExpressionNode invocationProcess() throws AzureFunctionsException {
+        if (STUtil.isAzurePkgType(this.variableSymbol, "BytesOutputBinding")) {
+            this.var = STUtil.addAzurePkgRecordVarDef(this.ctx, "BytesOutputBinding", this.ctx.getNextVarName());
+        } else if (STUtil.isAzurePkgType(this.variableSymbol, "StringOutputBinding")) {
+            this.var = STUtil.addAzurePkgRecordVarDef(this.ctx, "StringOutputBinding", this.ctx.getNextVarName());
         } else {
-            throw this.createError("Type must be 'BytesOutputBinding' or 'StringOutputBinding'");
+            throw new AzureFunctionsException(STUtil.getAFDiagnostic(param.typeName().location(), "AZ0007",
+                    "required.type", DiagnosticSeverity.ERROR,
+                    "Type must be 'BytesOutputBinding' or 'StringOutputBinding'"));
         }
-        return Utils.createVariableRef(this.ctx.globalCtx, this.var);
+        return this.var;
     }
 
     @Override
     public void postInvocationProcess() throws AzureFunctionsException {
-        Utils.addAzurePkgFunctionCall(this.ctx, "setBlobOutput", true,
-                Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
-                Utils.createStringLiteral(this.ctx.globalCtx, this.name),
-                Utils.createVariableRef(this.ctx.globalCtx, this.var));
+        PositionalArgumentNode paramsArg = NodeFactory.createPositionalArgumentNode(
+                STUtil.createVariableRef("params"));
+
+        PositionalArgumentNode stringArg =
+                NodeFactory.createPositionalArgumentNode(STUtil.createStringLiteral(this.name));
+
+        PositionalArgumentNode varArg = NodeFactory.createPositionalArgumentNode(
+                STUtil.createVariableRef(var.name().text()));
+
+        STUtil.addAzurePkgFunctionCallStatement(this.ctx, "setBlobOutput", true, paramsArg, stringArg, varArg);
     }
 
     @Override
-    public Map<String, Object> generateBinding() {
+    public Map<String, Object> generateBinding() throws AzureFunctionsException {
         Map<String, Object> binding = new LinkedHashMap<>();
-        Map<String, Object> annonMap = Utils.extractAnnotationKeyValues(this.annotation);
+        Optional<AnnotationNode> annotationNode = STUtil.extractAzureFunctionAnnotation(param.annotations());
+        Map<String, Object> annonMap = STUtil.extractAnnotationKeyValues(annotationNode.orElseThrow());
         binding.put("type", "blob");
         binding.put("path", annonMap.get("path"));
         // According to: https://github.com/Azure/azure-functions-host/issues/6091
@@ -77,5 +91,5 @@ public class BlobOutputParameterHandler extends AbstractParameterHandler {
         return binding;
 
     }
-    
+
 }

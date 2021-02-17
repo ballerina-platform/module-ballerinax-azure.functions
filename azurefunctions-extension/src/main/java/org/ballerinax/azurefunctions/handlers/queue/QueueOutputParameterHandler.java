@@ -17,51 +17,64 @@
  */
 package org.ballerinax.azurefunctions.handlers.queue;
 
+import io.ballerina.compiler.api.symbols.ParameterSymbol;
+import io.ballerina.compiler.syntax.tree.AnnotationNode;
+import io.ballerina.compiler.syntax.tree.ExpressionNode;
+import io.ballerina.compiler.syntax.tree.NodeFactory;
+import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
+import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
+import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinax.azurefunctions.AzureFunctionsException;
 import org.ballerinax.azurefunctions.BindingType;
 import org.ballerinax.azurefunctions.Constants;
-import org.ballerinax.azurefunctions.Utils;
+import org.ballerinax.azurefunctions.STUtil;
 import org.ballerinax.azurefunctions.handlers.AbstractParameterHandler;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Implementation for the output parameter handler annotation "@QueueOutput".
  */
 public class QueueOutputParameterHandler extends AbstractParameterHandler {
 
-    private BVarSymbol var;
+    private SimpleNameReferenceNode var;
 
-    public QueueOutputParameterHandler(BLangSimpleVariable param, BLangAnnotationAttachment annotation) {
-        super(param, annotation, BindingType.OUTPUT);
+    public QueueOutputParameterHandler(ParameterSymbol variableSymbol, RequiredParameterNode param) {
+        super(variableSymbol, param, BindingType.OUTPUT);
     }
 
     @Override
-    public BLangExpression invocationProcess() throws AzureFunctionsException {
-        if (!Utils.isAzurePkgType(ctx, "StringOutputBinding", this.param.type)) {
-            throw this.createError("Type must be 'StringOutputBinding'");
+    public ExpressionNode invocationProcess() throws AzureFunctionsException {
+        if (!STUtil.isAzurePkgType(this.variableSymbol, "StringOutputBinding")) {
+            throw new AzureFunctionsException(STUtil.getAFDiagnostic(param.typeName().location(), "AZ0007",
+                    "required.type", DiagnosticSeverity.ERROR, "type must be StringOutputBinding"));
         }
-        this.var = Utils.addAzurePkgRecordVarDef(this.ctx, "StringOutputBinding", this.ctx.getNextVarName());
-        return Utils.createVariableRef(this.ctx.globalCtx, this.var);
+        this.var = STUtil.addAzurePkgRecordVarDef(this.ctx, "StringOutputBinding", this.ctx.getNextVarName());
+        return this.var;
     }
 
     @Override
     public void postInvocationProcess() throws AzureFunctionsException {
-        Utils.addAzurePkgFunctionCall(this.ctx, "setStringOutput", true,
-                Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
-                Utils.createStringLiteral(this.ctx.globalCtx, this.name),
-                Utils.createVariableRef(this.ctx.globalCtx, this.var));
+        PositionalArgumentNode paramsArg = NodeFactory.createPositionalArgumentNode(
+                STUtil.createVariableRef("params"));
+
+        PositionalArgumentNode stringArg =
+                NodeFactory.createPositionalArgumentNode(STUtil.createStringLiteral(this.name));
+
+        PositionalArgumentNode varArg = NodeFactory.createPositionalArgumentNode(
+                STUtil.createVariableRef(var.name().text()));
+
+        STUtil.addAzurePkgFunctionCallStatement(this.ctx, "setStringOutput", true, paramsArg, stringArg, varArg);
     }
 
     @Override
-    public Map<String, Object> generateBinding() {
+    public Map<String, Object> generateBinding() throws AzureFunctionsException {
         Map<String, Object> binding = new LinkedHashMap<>();
-        Map<String, Object> annonMap = Utils.extractAnnotationKeyValues(this.annotation);
+        Optional<AnnotationNode> annotationNode = STUtil.extractAzureFunctionAnnotation(param.annotations());
+        Map<String, Object> annonMap = STUtil.extractAnnotationKeyValues(annotationNode.orElseThrow());
         binding.put("type", "queue");
         binding.put("queueName", annonMap.get("queueName"));
         String connection = (String) annonMap.get("connection");

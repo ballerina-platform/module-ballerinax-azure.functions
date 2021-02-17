@@ -22,7 +22,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 
@@ -61,8 +60,7 @@ public class FunctionsArtifact {
 
     private Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-    public FunctionsArtifact(Map<String, FunctionDeploymentContext> functions, Path binaryPath)
-            throws AzureFunctionsException {
+    public FunctionsArtifact(Map<String, FunctionDeploymentContext> functions, Path binaryPath) throws IOException {
         this.functions = functions;
         this.binaryPath = binaryPath;
         this.generateHostJson();
@@ -76,22 +74,20 @@ public class FunctionsArtifact {
         return binaryPath;
     }
 
-    private JsonObject readExistingHostJson() throws AzureFunctionsException {
+    private JsonObject readExistingHostJson() throws IOException {
         File file = new File(HOST_JSON_NAME);
         if (file.exists()) {
             try (BufferedReader reader = new BufferedReader(
                     new InputStreamReader(new FileInputStream(file), Constants.CHARSET))) {
                 JsonParser parser = new JsonParser();
                 return parser.parse(reader).getAsJsonObject();
-            } catch (JsonParseException | IOException e) {
-                throw new AzureFunctionsException("Error in reading host.json: " + e.getMessage());
             }
         } else {
             return null;
         }
     }
 
-    private void generateHostJson() throws AzureFunctionsException {
+    private void generateHostJson() throws IOException {
         this.hostJson = readExistingHostJson();
         if (this.hostJson == null) {
             this.hostJson = new JsonObject();
@@ -102,7 +98,10 @@ public class FunctionsArtifact {
         JsonObject httpWorkerDesc = new JsonObject();
         httpWorker.add("description", httpWorkerDesc);
         httpWorkerDesc.add("defaultExecutablePath", new JsonPrimitive("java"));
-        httpWorkerDesc.add("defaultWorkerPath", new JsonPrimitive(this.binaryPath.getFileName().toString()));
+        Path fileName = this.binaryPath.getFileName();
+        if (fileName != null) {
+            httpWorkerDesc.add("defaultWorkerPath", new JsonPrimitive(fileName.toString()));
+        }
         JsonArray workerArgs = new JsonArray();
         workerArgs.add("-jar");
         httpWorkerDesc.add("arguments", workerArgs);
@@ -127,19 +126,22 @@ public class FunctionsArtifact {
         Files.deleteIfExists(Paths.get(outputFileName));
         Map<String, String> env = new HashMap<>();
         env.put("create", "true");
-        URI uri = URI.create("jar:file:" + this.binaryPath.toAbsolutePath().getParent()
-                .resolve(outputFileName).toUri().getPath());
-        if (this.binaryPath != null) {
-            try (FileSystem zipfs = FileSystems.newFileSystem(uri, env)) {
-                Files.copy(this.binaryPath, zipfs.getPath("/" + this.binaryPath.getFileName()),
-                        StandardCopyOption.REPLACE_EXISTING);
-                Files.copy(this.jtos(this.hostJson), zipfs.getPath("/" + HOST_JSON_NAME),
-                        StandardCopyOption.REPLACE_EXISTING);
-                for (Map.Entry<String, FunctionDeploymentContext> entry : this.functions.entrySet()) {
-                    Path functionDir = zipfs.getPath("/" + entry.getKey());
-                    Files.createDirectory(functionDir);
-                    Files.copy(this.jtos(entry.getValue().functionDefinition), functionDir.resolve(FUNCTION_JSON_NAME),
+        Path parent = this.binaryPath.toAbsolutePath().getParent();
+        if (parent != null) {
+            URI uri = URI.create("jar:file:" + parent.resolve(outputFileName).toUri().getPath());
+            if (this.binaryPath != null) {
+                try (FileSystem zipfs = FileSystems.newFileSystem(uri, env)) {
+                    Files.copy(this.binaryPath, zipfs.getPath("/" + this.binaryPath.getFileName()),
                             StandardCopyOption.REPLACE_EXISTING);
+                    Files.copy(this.jtos(this.hostJson), zipfs.getPath("/" + HOST_JSON_NAME),
+                            StandardCopyOption.REPLACE_EXISTING);
+                    for (Map.Entry<String, FunctionDeploymentContext> entry : this.functions.entrySet()) {
+                        Path functionDir = zipfs.getPath("/" + entry.getKey());
+                        Files.createDirectory(functionDir);
+                        Files.copy(this.jtos(entry.getValue().getFunctionDefinition()),
+                                functionDir.resolve(FUNCTION_JSON_NAME),
+                                StandardCopyOption.REPLACE_EXISTING);
+                    }
                 }
             }
         }

@@ -19,11 +19,20 @@
 <FindBugsFilter>
 
     <Match>
-        <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
+        <!-- As values are populated from invocation and post invocation is not called if null-->
+        <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"/>
     </Match>
 
     <Match>
-        <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"/>
+        <!-- As kind checks are used-->
+        <Bug pattern="BC_UNCONFIRMED_CAST"/>
+    </Match>
+    
+    
+    <Match>
+        <!--Until dlog is removed-->
+        <Class name="org.ballerinax.azurefunctions.AzureFunctionsPlugin"/>
+        <Bug pattern="URF_UNREAD_FIELD"/>
     </Match>
 
     <!--https://github.com/spotbugs/spotbugs/issues/756-->

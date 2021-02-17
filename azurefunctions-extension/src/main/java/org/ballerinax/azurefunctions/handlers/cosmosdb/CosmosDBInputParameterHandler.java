@@ -17,71 +17,132 @@
  */
 package org.ballerinax.azurefunctions.handlers.cosmosdb;
 
+import io.ballerina.compiler.api.symbols.ParameterSymbol;
+import io.ballerina.compiler.syntax.tree.AnnotationNode;
+import io.ballerina.compiler.syntax.tree.ArrayTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.ExpressionNode;
+import io.ballerina.compiler.syntax.tree.NodeFactory;
+import io.ballerina.compiler.syntax.tree.OptionalTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
+import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinax.azurefunctions.AzureFunctionsException;
 import org.ballerinax.azurefunctions.BindingType;
-import org.ballerinax.azurefunctions.Utils;
+import org.ballerinax.azurefunctions.Constants;
+import org.ballerinax.azurefunctions.STUtil;
 import org.ballerinax.azurefunctions.handlers.AbstractParameterHandler;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Implementation for the input parameter handler annotation "@CosmosDBInput".
  */
 public class CosmosDBInputParameterHandler extends AbstractParameterHandler {
 
-    public CosmosDBInputParameterHandler(BLangSimpleVariable param, BLangAnnotationAttachment annotation) {
-        super(param, annotation, BindingType.INPUT);
-    }
-    
-    private boolean isSingleRecordQuery() {
-        Map<String, Object> annonMap = Utils.extractAnnotationKeyValues(this.annotation);
-        return annonMap.get("id") != null;
+    private Map<String, TypeDefinitionNode> generatedTypeDefinitions;
+
+    public CosmosDBInputParameterHandler(ParameterSymbol variableSymbol, RequiredParameterNode param,
+                                         Map<String, TypeDefinitionNode> generatedTypeDefinitions) {
+        super(variableSymbol, param, BindingType.INPUT);
+        this.generatedTypeDefinitions = generatedTypeDefinitions;
     }
 
     @Override
-    public BLangExpression invocationProcess() throws AzureFunctionsException {
+    public ExpressionNode invocationProcess() throws AzureFunctionsException {
         boolean singleRecordQuery = this.isSingleRecordQuery();
+        PositionalArgumentNode params = NodeFactory.createPositionalArgumentNode(
+                NodeFactory.createSimpleNameReferenceNode(NodeFactory.createIdentifierToken(Constants.PARAMS)));
         if (singleRecordQuery) {
-            if (Utils.isJsonType(this.ctx.globalCtx, this.param.type)) {
-                return Utils.createAzurePkgInvocationNode(this.ctx, "getParsedJsonFromJsonStringFromInputData",
-                        Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
-                        Utils.createStringLiteral(ctx.globalCtx, this.name));
-            } else if (Utils.isOptionalRecordType(this.ctx.globalCtx, this.param.type)) {
-                return Utils.createAzurePkgInvocationNode(this.ctx,
-                        "getOptionalBallerinaValueFromInputData",
-                        Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
-                        Utils.createStringLiteral(ctx.globalCtx, this.name),
-                        Utils.createTypeDescExpr(ctx.globalCtx, this.param.type));
+            if (STUtil.isJsonType(this.variableSymbol)) {
+                PositionalArgumentNode stringArg =
+                        NodeFactory.createPositionalArgumentNode(NodeFactory
+                                .createBasicLiteralNode(SyntaxKind.STRING_LITERAL, NodeFactory
+                                        .createLiteralValueToken(SyntaxKind.STRING_LITERAL_TOKEN,
+                                                "\"" + this.name + "\"",
+                                                NodeFactory.createEmptyMinutiaeList(),
+                                                NodeFactory.createEmptyMinutiaeList())));
+                return STUtil.createAfFunctionInvocationNode("getParsedJsonFromJsonStringFromInputData", true, params,
+                        stringArg);
+            } else if (STUtil.isOptionalRecordType(this.variableSymbol)) {
+                PositionalArgumentNode stringArg =
+                        NodeFactory.createPositionalArgumentNode(NodeFactory
+                                .createBasicLiteralNode(SyntaxKind.STRING_LITERAL, NodeFactory
+                                        .createLiteralValueToken(SyntaxKind.STRING_LITERAL_TOKEN,
+                                                "\"" + this.name + "\"",
+                                                NodeFactory.createEmptyMinutiaeList(),
+                                                NodeFactory.createEmptyMinutiaeList())));
+                OptionalTypeDescriptorNode optionalTypeDescriptor = (OptionalTypeDescriptorNode) param.typeName();
+                TypeDefinitionNode optionalTypeDefinitionNode =
+                        STUtil.createOptionalTypeDefinitionNode(optionalTypeDescriptor);
+                generatedTypeDefinitions.put(optionalTypeDefinitionNode.typeName().text(), optionalTypeDefinitionNode);
+                PositionalArgumentNode typeDesc =
+                        NodeFactory.createPositionalArgumentNode(NodeFactory.createSimpleNameReferenceNode(
+                                NodeFactory.createIdentifierToken(optionalTypeDefinitionNode.typeName().text())));
+                ExpressionNode checkedExpr =
+                        STUtil.createAfFunctionInvocationNode("getOptionalBallerinaValueFromInputData", true, params,
+                                stringArg, typeDesc);
+                return NodeFactory.createTypeCastExpressionNode(NodeFactory.createToken(SyntaxKind.LT_TOKEN),
+                        NodeFactory.createTypeCastParamNode(NodeFactory.createEmptyNodeList(), optionalTypeDescriptor),
+                        NodeFactory.createToken(SyntaxKind.GT_TOKEN), checkedExpr);
             } else {
-                throw this.createError("Type must be 'json' or an optional record type");
+                throw new AzureFunctionsException(STUtil.getAFDiagnostic(this.param.typeName().location(), "AZ0008",
+                        "unsupported.param.type", DiagnosticSeverity.ERROR,
+                        "type '" + this.param.typeName().toString() + "'" +
+                                " is not supported"));
             }
-        } else {        
-            if (Utils.isJsonType(this.ctx.globalCtx, this.param.type)) {
-                return Utils.createAzurePkgInvocationNode(this.ctx, "getJsonFromInput",
-                        Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
-                        Utils.createStringLiteral(ctx.globalCtx, this.name));
-            } else if (Utils.isRecordArrayType(this.ctx.globalCtx, this.param.type)) {
-                return Utils.createAzurePkgInvocationNode(this.ctx, "getBallerinaValueFromInputData",
-                        Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
-                        Utils.createStringLiteral(ctx.globalCtx, this.name),
-                        Utils.createTypeDescExpr(ctx.globalCtx, this.param.type));
+        } else {
+            if (STUtil.isJsonType(this.variableSymbol)) {
+                PositionalArgumentNode stringArg =
+                        NodeFactory.createPositionalArgumentNode(NodeFactory
+                                .createBasicLiteralNode(SyntaxKind.STRING_LITERAL, NodeFactory
+                                        .createLiteralValueToken(SyntaxKind.STRING_LITERAL_TOKEN,
+                                                "\"" + this.name + "\"",
+                                                NodeFactory.createEmptyMinutiaeList(),
+                                                NodeFactory.createEmptyMinutiaeList())));
+                return STUtil.createAfFunctionInvocationNode("getJsonFromInput", true, params, stringArg);
+            } else if (STUtil.isRecordArrayType(this.variableSymbol)) {
+                PositionalArgumentNode stringArg =
+                        NodeFactory.createPositionalArgumentNode(NodeFactory
+                                .createBasicLiteralNode(SyntaxKind.STRING_LITERAL, NodeFactory
+                                        .createLiteralValueToken(SyntaxKind.STRING_LITERAL_TOKEN,
+                                                "\"" + this.name + "\"",
+                                                NodeFactory.createEmptyMinutiaeList(),
+                                                NodeFactory.createEmptyMinutiaeList())));
+                ArrayTypeDescriptorNode arrayTypeDescriptor = (ArrayTypeDescriptorNode) param.typeName();
+                TypeDefinitionNode arrayTypeDefinitionNode = STUtil.createArrayTypeDefinitionNode(arrayTypeDescriptor);
+                generatedTypeDefinitions.put(arrayTypeDefinitionNode.typeName().text(), arrayTypeDefinitionNode);
+                PositionalArgumentNode typeDesc =
+                        NodeFactory.createPositionalArgumentNode(NodeFactory.createSimpleNameReferenceNode(
+                                NodeFactory.createIdentifierToken(arrayTypeDefinitionNode.typeName().text())));
+                ExpressionNode checkedExpr =
+                        STUtil.createAfFunctionInvocationNode("getBallerinaValueFromInputData", true, params,
+                                stringArg, typeDesc);
+
+                return NodeFactory.createTypeCastExpressionNode(NodeFactory.createToken(SyntaxKind.LT_TOKEN),
+                        NodeFactory.createTypeCastParamNode(NodeFactory.createEmptyNodeList(), arrayTypeDescriptor),
+                        NodeFactory.createToken(SyntaxKind.GT_TOKEN), checkedExpr);
             } else {
-                throw this.createError("Type must be 'json' or an array record type");
+                throw new AzureFunctionsException(STUtil.getAFDiagnostic(this.param.typeName().location(), "AZ0008",
+                        "unsupported.param.type", DiagnosticSeverity.ERROR,
+                        "type '" + this.param.typeName().toString() + "'" +
+                                " is not supported"));
             }
         }
     }
 
     @Override
-    public void postInvocationProcess() throws AzureFunctionsException { }
+    public void postInvocationProcess() throws AzureFunctionsException {
+    }
 
     @Override
-    public Map<String, Object> generateBinding() {
+    public Map<String, Object> generateBinding() throws AzureFunctionsException {
         Map<String, Object> binding = new LinkedHashMap<>();
-        Map<String, Object> annonMap = Utils.extractAnnotationKeyValues(this.annotation);
+        Optional<AnnotationNode> annotationNode = STUtil.extractAzureFunctionAnnotation(param.annotations());
+        Map<String, Object> annonMap = STUtil.extractAnnotationKeyValues(annotationNode.orElseThrow());
         binding.put("type", "cosmosDB");
         binding.put("connectionStringSetting", annonMap.get("connectionStringSetting"));
         binding.put("databaseName", annonMap.get("databaseName"));
@@ -93,4 +154,9 @@ public class CosmosDBInputParameterHandler extends AbstractParameterHandler {
         return binding;
     }
     
+    private boolean isSingleRecordQuery() throws AzureFunctionsException {
+        Optional<AnnotationNode> annotationNode = STUtil.extractAzureFunctionAnnotation(param.annotations());
+        Map<String, Object> annonMap = STUtil.extractAnnotationKeyValues(annotationNode.orElseThrow());
+        return annonMap.get("id") != null;
+    }
 }

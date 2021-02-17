@@ -17,13 +17,13 @@
  */
 package org.ballerinax.azurefunctions.handlers;
 
+import io.ballerina.compiler.api.symbols.ParameterSymbol;
+import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
 import org.ballerinax.azurefunctions.AzureFunctionsException;
 import org.ballerinax.azurefunctions.BindingType;
 import org.ballerinax.azurefunctions.FunctionDeploymentContext;
 import org.ballerinax.azurefunctions.ParameterHandler;
-import org.ballerinax.azurefunctions.Utils;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.ballerinax.azurefunctions.STUtil;
 
 import java.util.Map;
 
@@ -31,26 +31,26 @@ import java.util.Map;
  * Abstract class with common operations implemented for {@link ParameterHandler}.
  */
 public abstract class AbstractParameterHandler implements ParameterHandler {
-    
+
     protected FunctionDeploymentContext ctx;
 
-    protected BLangSimpleVariable param;
-
-    protected BLangAnnotationAttachment annotation;
+    protected RequiredParameterNode param;
 
     protected String name;
 
     protected BindingType bindingType;
 
-    public AbstractParameterHandler(BLangSimpleVariable param, BLangAnnotationAttachment annotation,
-            BindingType bindingType) {
+    protected ParameterSymbol variableSymbol;
+
+    public AbstractParameterHandler(ParameterSymbol variableSymbol, RequiredParameterNode param,
+                                    BindingType bindingType) {
+        this.variableSymbol = variableSymbol;
         this.param = param;
-        this.annotation = annotation;
-        this.name = this.param.name.value;
+        this.name = this.param.paramName().get().text();
         this.bindingType = bindingType;
     }
 
-    public void init(FunctionDeploymentContext ctx) {
+    public void init(FunctionDeploymentContext ctx) throws AzureFunctionsException {
         this.ctx = ctx;
         this.processBinding();
     }
@@ -63,25 +63,20 @@ public abstract class AbstractParameterHandler implements ParameterHandler {
         }
     }
 
-    private void processBinding() {
+    private void processBinding() throws AzureFunctionsException {
         Map<String, Object> binding = this.generateBinding();
         if (binding == null) {
             return;
         }
         binding.put("direction", this.extractBindingDirection());
         binding.put("name", this.name);
-        Utils.addFunctionBinding(this.ctx, binding);
+        STUtil.addFunctionBinding(this.ctx, binding);
     }
 
     public BindingType getBindingType() {
         return bindingType;
     }
 
-    public AzureFunctionsException createError(String msg) {
-        return new AzureFunctionsException("Error at function: '" + ctx.sourceFunction.name.value + "' parameter: '"
-                + param.name.value + "' - " + msg);
-    }
-
-    public abstract Map<String, Object> generateBinding();
+    public abstract Map<String, Object> generateBinding() throws AzureFunctionsException;
 
 }

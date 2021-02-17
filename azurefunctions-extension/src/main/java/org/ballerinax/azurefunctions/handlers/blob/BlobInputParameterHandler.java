@@ -17,49 +17,63 @@
  */
 package org.ballerinax.azurefunctions.handlers.blob;
 
+import io.ballerina.compiler.api.symbols.ParameterSymbol;
+import io.ballerina.compiler.syntax.tree.AnnotationNode;
+import io.ballerina.compiler.syntax.tree.ExpressionNode;
+import io.ballerina.compiler.syntax.tree.NodeFactory;
+import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
+import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinax.azurefunctions.AzureFunctionsException;
 import org.ballerinax.azurefunctions.BindingType;
 import org.ballerinax.azurefunctions.Constants;
-import org.ballerinax.azurefunctions.Utils;
+import org.ballerinax.azurefunctions.STUtil;
 import org.ballerinax.azurefunctions.handlers.AbstractParameterHandler;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Implementation for the input parameter handler annotation "@BlobInput".
  */
 public class BlobInputParameterHandler extends AbstractParameterHandler {
 
-    public BlobInputParameterHandler(BLangSimpleVariable param, BLangAnnotationAttachment annotation) {
-        super(param, annotation, BindingType.INPUT);
+    public BlobInputParameterHandler(ParameterSymbol variableSymbol, RequiredParameterNode param) {
+        super(variableSymbol, param, BindingType.INPUT);
     }
 
     @Override
-    public BLangExpression invocationProcess() throws AzureFunctionsException {
-        if (Utils.isOptionalByteArray(this.ctx.globalCtx, this.param.type)) {
-            return Utils.createAzurePkgInvocationNode(this.ctx, "getOptionalBytesFromInputData",
-                    Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
-                    Utils.createStringLiteral(ctx.globalCtx, this.name));
-        } else if (Utils.isOptionalString(this.ctx.globalCtx, this.param.type)) {
-            return Utils.createAzurePkgInvocationNode(this.ctx, "getOptionalStringConvertedBytesFromInputData",
-                    Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
-                    Utils.createStringLiteral(ctx.globalCtx, this.name));
+    public ExpressionNode invocationProcess() throws AzureFunctionsException {
+        PositionalArgumentNode paramsArg = NodeFactory.createPositionalArgumentNode(
+                NodeFactory.createSimpleNameReferenceNode(NodeFactory.createIdentifierToken(Constants.PARAMS)));
+        if (STUtil.isOptionalByteArrayType(this.variableSymbol)) {
+            PositionalArgumentNode stringArg =
+                    NodeFactory.createPositionalArgumentNode(STUtil.createStringLiteral(this.name));
+            return STUtil.createAfFunctionInvocationNode("getOptionalBytesFromInputData", true, paramsArg, stringArg);
+        } else if (STUtil.isOptionalStringType(this.variableSymbol)) {
+            PositionalArgumentNode stringArg =
+                    NodeFactory.createPositionalArgumentNode(STUtil.createStringLiteral(this.name));
+            return STUtil
+                    .createAfFunctionInvocationNode("getOptionalStringConvertedBytesFromInputData", true, paramsArg,
+                            stringArg);
         } else {
-            throw this.createError("Type must be 'string?' or 'byte[]?'");
+            throw new AzureFunctionsException(STUtil.getAFDiagnostic(this.param.typeName().location(), "AZ0008",
+                    "unsupported.param.type", DiagnosticSeverity.ERROR,
+                    "type '" + this.param.typeName().toString() + "'" +
+                            " is not supported"));
         }
     }
 
     @Override
-    public void postInvocationProcess() throws AzureFunctionsException { }
+    public void postInvocationProcess() throws AzureFunctionsException {
+    }
 
     @Override
-    public Map<String, Object> generateBinding() {
+    public Map<String, Object> generateBinding() throws AzureFunctionsException {
         Map<String, Object> binding = new LinkedHashMap<>();
-        Map<String, Object> annonMap = Utils.extractAnnotationKeyValues(this.annotation);
+        Optional<AnnotationNode> annotationNode = STUtil.extractAzureFunctionAnnotation(param.annotations());
+        Map<String, Object> annonMap = STUtil.extractAnnotationKeyValues(annotationNode.orElseThrow());
         binding.put("type", "blob");
         binding.put("path", annonMap.get("path"));
         binding.put("dataType", "binary");
@@ -70,5 +84,5 @@ public class BlobInputParameterHandler extends AbstractParameterHandler {
         binding.put("connection", connection);
         return binding;
     }
-    
+
 }

@@ -17,12 +17,16 @@
  */
 package org.ballerinax.azurefunctions.handlers.context;
 
+import io.ballerina.compiler.api.symbols.ParameterSymbol;
+import io.ballerina.compiler.syntax.tree.ExpressionNode;
+import io.ballerina.compiler.syntax.tree.NodeFactory;
+import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
+import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinax.azurefunctions.AzureFunctionsException;
 import org.ballerinax.azurefunctions.BindingType;
-import org.ballerinax.azurefunctions.Utils;
+import org.ballerinax.azurefunctions.STUtil;
 import org.ballerinax.azurefunctions.handlers.AbstractParameterHandler;
-import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 import java.util.Map;
 
@@ -31,23 +35,28 @@ import java.util.Map;
  */
 public class ContextParameterHandler extends AbstractParameterHandler {
 
-    public ContextParameterHandler(BLangSimpleVariable param) {
-        super(param, null, BindingType.CONTEXT);
-    }
-    
-    @Override
-    public BLangExpression invocationProcess() throws AzureFunctionsException {
-        return Utils.createAzurePkgInvocationNode(this.ctx, "createContext",
-                Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
-                Utils.createBooleanLiteral(this.ctx.globalCtx, true));
+    public ContextParameterHandler(ParameterSymbol variableSymbol, RequiredParameterNode param) {
+        super(variableSymbol, param, BindingType.CONTEXT);
     }
 
     @Override
-    public void postInvocationProcess() { }
+    public ExpressionNode invocationProcess() throws AzureFunctionsException {
+        PositionalArgumentNode params = NodeFactory.createPositionalArgumentNode(
+                NodeFactory.createSimpleNameReferenceNode(NodeFactory.createIdentifierToken("params")));
+        PositionalArgumentNode trueArg = NodeFactory.createPositionalArgumentNode(
+                NodeFactory.createBasicLiteralNode(SyntaxKind.BOOLEAN_LITERAL,
+                        NodeFactory.createToken(SyntaxKind.TRUE_KEYWORD)));
+
+        return STUtil.createAfFunctionInvocationNode("createContext", true, params, trueArg);
+    }
+
+    @Override
+    public void postInvocationProcess() {
+    }
 
     @Override
     public Map<String, Object> generateBinding() {
         return null;
     }
-    
+
 }

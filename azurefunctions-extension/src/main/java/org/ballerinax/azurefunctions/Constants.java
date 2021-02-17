@@ -31,8 +31,6 @@ public class Constants {
     public static final String AZURE_FUNCTIONS_PACKAGE_ORG = "ballerinax"; 
     public static final String AZURE_FUNCTIONS_CONTEXT_NAME = "Context";
     public static final String AZURE_FUNCS_OUTPUT_ZIP_FILENAME = "azure-functions.zip";
-    public static final String GEN_FUNC_SUFFIX = "0dadec8e-7c9c-44c3-88ea-f947acc3add7";
-    public static final String DUMMY_SERVICE_NAME = "249b70ab-c5b5-4758-9d50-193f9dbb6eb6";
     public static final String FUNCTION_BINDINGS_NAME = "bindings";
     public static final String CHARSET = "UTF-8";
     public static final String DEFAULT_STORAGE_CONNECTION_NAME = "AzureWebJobsStorage";
@@ -40,5 +38,10 @@ public class Constants {
     public static final String DEFAULT_TWILIO_AUTH_TOKEN_SETTING = "AzureWebJobsTwilioAuthToken";
     public static final boolean DEFAULT_TIMER_TRIGGER_RUNONSTARTUP = true;
     public static final boolean DEFAULT_COSMOS_DB_CREATELEASECOLLECTIONIFNOTEXISTS = true;
-
-}
+    public static final String AZURE_FUNCTIONS_TYPE_PREFIX =
+            AZURE_FUNCTIONS_PACKAGE_ORG + "/" + AZURE_FUNCTIONS_MODULE_NAME + ":1.0.0";
+     public static final String GENERATED_FILE_NAME = "az-func-generated-handler.bal";
+     public static final String PARAMS = "params";
+     public static final String IMPORT_ALIAS = "af";
+     public static final String AWS_FUNCTION_TYPE = "Function";
+ }
