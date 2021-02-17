@@ -17,45 +17,57 @@
  */
 package org.ballerinax.azurefunctions.handlers.timer;
 
+import io.ballerina.compiler.api.symbols.ParameterSymbol;
+import io.ballerina.compiler.syntax.tree.AnnotationNode;
+import io.ballerina.compiler.syntax.tree.ExpressionNode;
+import io.ballerina.compiler.syntax.tree.NodeFactory;
+import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
+import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinax.azurefunctions.AzureFunctionsException;
 import org.ballerinax.azurefunctions.BindingType;
 import org.ballerinax.azurefunctions.Constants;
-import org.ballerinax.azurefunctions.Utils;
+import org.ballerinax.azurefunctions.STUtil;
 import org.ballerinax.azurefunctions.handlers.AbstractParameterHandler;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Implementation for the input parameter handler annotation "@TimerTrigger".
  */
 public class TimerTriggerHandler extends AbstractParameterHandler {
 
-    public TimerTriggerHandler(BLangSimpleVariable param, BLangAnnotationAttachment annotation) {
-        super(param, annotation, BindingType.TRIGGER);
+    public TimerTriggerHandler(ParameterSymbol variableSymbol, RequiredParameterNode param) {
+        super(variableSymbol, param, BindingType.TRIGGER);
     }
 
     @Override
-    public BLangExpression invocationProcess() throws AzureFunctionsException {
-        if (Utils.isJsonType(this.ctx.globalCtx, this.param.type)) {
-            return Utils.createAzurePkgInvocationNode(this.ctx, "getJsonFromInputData",
-                    Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
-                    Utils.createStringLiteral(ctx.globalCtx, this.name));
+    public ExpressionNode invocationProcess() throws AzureFunctionsException {
+        if (STUtil.isJsonType(this.variableSymbol)) {
+            PositionalArgumentNode paramsArg = NodeFactory.createPositionalArgumentNode(
+                    NodeFactory.createSimpleNameReferenceNode(NodeFactory.createIdentifierToken("params")));
+            PositionalArgumentNode stringArg =
+                    NodeFactory.createPositionalArgumentNode(STUtil.createStringLiteral(this.name));
+            return STUtil.createAfFunctionInvocationNode("getJsonFromInputData", true, paramsArg, stringArg);
         } else {
-            throw this.createError("Type must be 'json'");
+            throw new AzureFunctionsException(STUtil.getAFDiagnostic(this.param.typeName().location(), "AZ0008",
+                    "unsupported.param.type", DiagnosticSeverity.ERROR,
+                    "type '" + this.param.typeName().toString() + "'" +
+                            " is not supported"));
         }
     }
 
     @Override
-    public void postInvocationProcess() throws AzureFunctionsException { }
+    public void postInvocationProcess() throws AzureFunctionsException {
+    }
 
     @Override
-    public Map<String, Object> generateBinding() {
+    public Map<String, Object> generateBinding() throws AzureFunctionsException {
         Map<String, Object> binding = new LinkedHashMap<>();
-        Map<String, Object> annonMap = Utils.extractAnnotationKeyValues(this.annotation);
+        Optional<AnnotationNode> annotationNode = STUtil.extractAzureFunctionAnnotation(param.annotations());
+        Map<String, Object> annonMap = STUtil.extractAnnotationKeyValues(annotationNode.orElseThrow());
         binding.put("type", "timerTrigger");
         binding.put("schedule", annonMap.get("schedule"));
         Boolean runOnStartup = (Boolean) annonMap.get("runOnStartup");
@@ -65,5 +77,5 @@ public class TimerTriggerHandler extends AbstractParameterHandler {
         binding.put("runOnStartup", runOnStartup);
         return binding;
     }
-    
+
 }

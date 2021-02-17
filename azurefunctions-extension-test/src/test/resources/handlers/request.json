@@ -1,0 +1,72 @@
+{
+    "Data": {
+        "payload": {
+            "Url": "https://functions1778.azurewebsites.net/api/hello",
+            "Method": "POST",
+            "Query": {},
+            "Headers": {
+                "Accept": ["/"],
+                "Connection": ["Keep-Alive"],
+                "Content-Length": ["4"],
+                "Content-Type": ["application/x-www-form-urlencoded"],
+                "Host": ["functions1778.azurewebsites.net"],
+                "Max-Forwards": ["9"],
+                "User-Agent": ["curl/7.71.1"],
+                "X-WAWS-Unencoded-URL": ["/api/hello"],
+                "CLIENT-IP": ["10.0.128.35:48692"],
+                "X-ARR-LOG-ID": ["b1d1b77a-689a-41a0-8e6e-aeb9563c7c41"],
+                "X-SITE-DEPLOYMENT-ID": ["functions1778"],
+                "WAS-DEFAULT-HOSTNAME": ["functions1778.azurewebsites.net"],
+                "X-Original-URL": ["/api/hello"],
+                "X-Forwarded-For": ["45.30.94.9:41710"],
+                "X-ARR-SSL": ["2048|256|C=US, O=Microsoft Corporation, CN=Microsoft RSA TLS CA 01|CN=*.azurewebsites.net"],
+                "X-Forwarded-Proto": ["https"],
+                "X-AppService-Proto": ["https"],
+                "X-Forwarded-TlsVersion": ["1.2"],
+                "DISGUISED-HOST": ["functions1778.azurewebsites.net"]
+            },
+            "Params": {},
+            "Identities": [{
+                "AuthenticationType": null,
+                "IsAuthenticated": false,
+                "Actor": null,
+                "BootstrapContext": null,
+                "Claims": [],
+                "Label": null,
+                "Name": null,
+                "NameClaimType": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name",
+                "RoleClaimType": "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+            }],
+            "Body": "Jack"
+        }
+    },
+    "Metadata": {
+        "Query": {},
+        "Headers": {
+            "Accept": "/",
+            "Connection": "Keep-Alive",
+            "Content-Length": "4",
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Host": "functions1778.azurewebsites.net",
+            "Max-Forwards": "9",
+            "User-Agent": "curl/7.71.1",
+            "X-WAWS-Unencoded-URL": "/api/hello",
+            "CLIENT-IP": "10.0.128.35:48692",
+            "X-ARR-LOG-ID": "b1d1b77a-689a-41a0-8e6e-aeb9563c7c41",
+            "X-SITE-DEPLOYMENT-ID": "functions1778",
+            "WAS-DEFAULT-HOSTNAME": "functions1778.azurewebsites.net",
+            "X-Original-URL": "/api/hello",
+            "X-Forwarded-For": "45.30.94.9:41710",
+            "X-ARR-SSL": "2048|256|C=US, O=Microsoft Corporation, CN=Microsoft RSA TLS CA 01|CN=*.azurewebsites.net",
+            "X-Forwarded-Proto": "https",
+            "X-AppService-Proto": "https",
+            "X-Forwarded-TlsVersion": "1.2",
+            "DISGUISED-HOST": "functions1778.azurewebsites.net"
+        },
+        "sys": {
+            "MethodName": "hello",
+            "UtcNow": "2021-03-04T08:34:27.8576813Z",
+            "RandGuid": "6795274a-8fd2-4061-8bfa-54ee3929dbcd"
+        }
+    }
+}

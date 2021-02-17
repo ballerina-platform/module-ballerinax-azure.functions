@@ -25,6 +25,10 @@ configurations {
 dependencies {
     implementation project(':azurefunctions-extension')
 
+    testImplementation "org.ballerinalang:ballerina-lang:${ballerinaLangVersion}"
+    testImplementation "org.ballerinalang:ballerina-core:${ballerinaLangVersion}"
+    testImplementation "org.ballerinalang:ballerina-parser:${ballerinaLangVersion}"
+    testImplementation "org.ballerinalang:ballerina-tools-api:${ballerinaLangVersion}"
     testImplementation "org.testng:testng:${testngVersion}"
     testImplementation "commons-io:commons-io:${commomsIOVersion}"
     testImplementation "commons-logging:commons-logging:${commonsLoggingVersion}"
@@ -59,7 +63,6 @@ task copyBallerinaArtifacts {
             from file("$zipDirLocation/cache/ballerinax")
             into file("${distributionLocation}/repo/cache/ballerinax")
         }
-
     }
 }
 
@@ -74,6 +77,7 @@ test {
         suites 'src/test/resources/testng.xml'
         systemProperties = [
             ballerinaPack: System.getProperty('ballerinaPack', project.projectDir.absolutePath + "/../azurefunctions-extension-bala/build/extracted-distribution/jballerina-tools-${ballerinaLangVersion}/bin"),
+            "ballerina.home": System.getProperty('ballerinaPack', project.projectDir.absolutePath + "/../azurefunctions-extension-bala/build/extracted-distribution/jballerina-tools-${ballerinaLangVersion}"),
             ballerinaLayer: System.getProperty('ballerinaPack', project.projectDir.absolutePath + "/../ballerina-layer/bootstrap"),
             sampleDir: System.getProperty('sampleDir', project.projectDir.absolutePath + "/../samples"),
             jacocoAgentLine: "-javaagent:${configurations.jacocoRuntime.asPath}=destfile=${test.jacoco.destinationFile.absolutePath},append=true,inclnolocationclasses=true,exclclassloader=jdk.internal.reflect.DelegatingClassLoader"

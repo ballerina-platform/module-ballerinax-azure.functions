@@ -17,49 +17,62 @@
  */
 package org.ballerinax.azurefunctions.handlers.blob;
 
+import io.ballerina.compiler.api.symbols.ParameterSymbol;
+import io.ballerina.compiler.syntax.tree.AnnotationNode;
+import io.ballerina.compiler.syntax.tree.ExpressionNode;
+import io.ballerina.compiler.syntax.tree.NodeFactory;
+import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
+import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinax.azurefunctions.AzureFunctionsException;
 import org.ballerinax.azurefunctions.BindingType;
 import org.ballerinax.azurefunctions.Constants;
-import org.ballerinax.azurefunctions.Utils;
+import org.ballerinax.azurefunctions.STUtil;
 import org.ballerinax.azurefunctions.handlers.AbstractParameterHandler;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Implementation for the input parameter handler annotation "@BlobTrigger".
  */
 public class BlobTriggerParameterHandler extends AbstractParameterHandler {
 
-    public BlobTriggerParameterHandler(BLangSimpleVariable param, BLangAnnotationAttachment annotation) {
-        super(param, annotation, BindingType.TRIGGER);
+    public BlobTriggerParameterHandler(ParameterSymbol variableSymbol, RequiredParameterNode param) {
+        super(variableSymbol, param, BindingType.TRIGGER);
     }
 
     @Override
-    public BLangExpression invocationProcess() throws AzureFunctionsException {
-        if (Utils.isByteArray(this.ctx.globalCtx, this.param.type)) {
-            return Utils.createAzurePkgInvocationNode(this.ctx, "getBytesFromInputData",
-                    Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
-                    Utils.createStringLiteral(ctx.globalCtx, this.name));
-        } else if (Utils.isStringType(this.ctx.globalCtx, this.param.type)) {
-            return Utils.createAzurePkgInvocationNode(this.ctx, "getStringConvertedBytesFromInputData",
-                    Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
-                    Utils.createStringLiteral(ctx.globalCtx, this.name));
-        }  else {
-            throw this.createError("Type must be 'string' or 'byte[]'");
+    public ExpressionNode invocationProcess() throws AzureFunctionsException {
+        PositionalArgumentNode paramsArg = NodeFactory.createPositionalArgumentNode(
+                NodeFactory.createSimpleNameReferenceNode(NodeFactory.createIdentifierToken(Constants.PARAMS)));
+        if (STUtil.isByteArrayType(this.variableSymbol)) {
+            PositionalArgumentNode stringArg =
+                    NodeFactory.createPositionalArgumentNode(STUtil.createStringLiteral(this.name));
+            return STUtil.createAfFunctionInvocationNode("getBytesFromInputData", true, paramsArg, stringArg);
+        } else if (STUtil.isStringType(this.variableSymbol)) {
+            PositionalArgumentNode stringArg =
+                    NodeFactory.createPositionalArgumentNode(STUtil.createStringLiteral(this.name));
+            return STUtil.createAfFunctionInvocationNode("getStringConvertedBytesFromInputData", true, paramsArg,
+                    stringArg);
+        } else {
+            throw new AzureFunctionsException(STUtil.getAFDiagnostic(this.param.typeName().location(), "AZ0008",
+                    "unsupported.param.type", DiagnosticSeverity.ERROR,
+                    "type '" + this.param.typeName().toString() + "'" +
+                            " is not supported"));
         }
     }
 
     @Override
-    public void postInvocationProcess() throws AzureFunctionsException { }
+    public void postInvocationProcess() throws AzureFunctionsException {
+    }
 
     @Override
-    public Map<String, Object> generateBinding() {
+    public Map<String, Object> generateBinding() throws AzureFunctionsException {
         Map<String, Object> binding = new LinkedHashMap<>();
-        Map<String, Object> annonMap = Utils.extractAnnotationKeyValues(this.annotation);
+        Optional<AnnotationNode> annotationNode = STUtil.extractAzureFunctionAnnotation(param.annotations());
+        Map<String, Object> annonMap = STUtil.extractAnnotationKeyValues(annotationNode.orElseThrow());
         binding.put("type", "blobTrigger");
         binding.put("path", annonMap.get("path"));
         binding.put("dataType", "binary");
@@ -70,5 +83,5 @@ public class BlobTriggerParameterHandler extends AbstractParameterHandler {
         binding.put("connection", connection);
         return binding;
     }
-    
+
 }

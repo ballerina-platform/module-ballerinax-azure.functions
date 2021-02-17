@@ -17,7 +17,7 @@
  */
 package org.ballerinax.azurefunctions;
 
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import io.ballerina.compiler.syntax.tree.ExpressionNode;
 
 /**
  * Represents an Azure function return value handler.
@@ -42,6 +42,6 @@ public interface ReturnHandler {
      * 
      * @throws AzureFunctionsException thrown if an error occurs
      */
-    public void postInvocationProcess(BLangExpression returnValueExpr) throws AzureFunctionsException;
+    public void postInvocationProcess(ExpressionNode returnValueExpr) throws AzureFunctionsException;
 
 }
