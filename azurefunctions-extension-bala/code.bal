@@ -313,16 +313,6 @@ public isolated function setPureStringOutput(HandlerParams params, string value)
     params.pure = true;
 }
 
-# INTERNAL usage - Sets the pure JSON output.
-# 
-# + params - The handler parameters
-# + value - The value
-# + return - An error in failure
-public isolated function setPureJsonOutput(HandlerParams params, json value) returns error? {
-    params.response.setJsonPayload(value.toJsonString());
-    params.pure = true;
-}
-
 # INTERNAL usage - Returns the HTTP request data.
 # 
 # + params - The handler parameters
@@ -348,15 +338,6 @@ isolated function parseJson(string input) returns json|error {
     return x;
 }
 
-# INTERNAL usage - Returns a twice parsed JSON value.
-# 
-# + input - The escaped JSON value
-# + return - The parsed JSON value
-isolated function parseJsonTwice(string input) returns json|error {
-    json x = check parseJson(input);
-    return parseJson(x.toJsonString());
-}
-
 # INTERNAL usage - Returns a json value from metadata.
 # 
 # + params - The handler parameters
@@ -364,7 +345,7 @@ isolated function parseJsonTwice(string input) returns json|error {
 # + return - The metadata entry value
 public isolated function getJsonFromMetadata(HandlerParams params, string name) returns json|error {
     map<json> metadata = <map<json>> check getMetadata(params);
-    return parseJson(metadata[name].toJsonString());
+    return parseJson(metadata[name].toString());
 }
 
 # INTERNAL usage - Returns a string value from metadata.
@@ -374,7 +355,7 @@ public isolated function getJsonFromMetadata(HandlerParams params, string name) 
 # + return - The metadata entry value
 public isolated function getStringFromMetadata(HandlerParams params, string name) returns string|error {
     json result = check getJsonFromMetadata(params, name);
-    return result.toJsonString();
+    return result.toString();
 }
 
 # INTERNAL usage - Returns the JSON payload from the HTTP request.
@@ -400,8 +381,17 @@ public isolated function getBinaryFromHTTPReq(HandlerParams params) returns byte
 # + return - The string value
 public isolated function getStringFromInputData(HandlerParams params, string name) returns string|error {
     json payload = check getJsonFromHTTPReq(params);
-    map<json> data = <map<json>> checkpanic payload.Data;
-    return data[name].toJsonString();
+    map<json> data = <map<json>> check payload.Data;
+    return data[name].toString();
+}
+
+# INTERNAL usage - Returns the JSON string value from input data.
+# 
+# + params - The handler parameters
+# + name - The input data entry name
+# + return - The string value
+public isolated function getJsonStringFromInputData(HandlerParams params, string name) returns string|error {
+    return (check getJsonFromInputData(params, name)).toString();
 }
 
 # INTERNAL usage - Returns the optional string value from input data.
@@ -416,7 +406,7 @@ public isolated function getOptionalStringFromInputData(HandlerParams params, st
     if result == () {
        return ();
     }
-    return result.toJsonString();
+    return result.toString();
 }
 
 # INTERNAL usage - Returns the binary value from input data.
@@ -496,7 +486,7 @@ isolated function extractHTTPHeaders(json headers) returns map<string[]> {
     map<string[]> result = {};
     foreach var key in headerMap.keys() {
         json[] values = <json[]> headerMap[key];
-        string[] headerVals = values.map(isolated function (json j) returns string { return j.toJsonString(); } );
+        string[] headerVals = values.map(isolated function (json j) returns string { return j.toString(); } );
         result[key] = headerVals;
     }
     return result;
@@ -510,7 +500,7 @@ isolated function extractStringMap(json params) returns map<string> {
     map<json> paramMap = <map<json>> params;
     map<string> result = {};
     foreach var key in paramMap.keys() {
-        result[key] = paramMap[key].toJsonString();
+        result[key] = paramMap[key].toString();
     }
     return result;
 }
@@ -531,9 +521,9 @@ public isolated function getHTTPRequestFromInputData(HandlerParams params, strin
     map<string[]> headers = extractHTTPHeaders(check hreq.Headers);
     map<string> hparams = extractStringMap(check hreq.Params);
     json qx = check hreq.Query;
-    map<string> query = extractStringMap(check parseJson(qx.toJsonString()));
+    map<string> query = extractStringMap(check parseJson(qx.toString()));
     json idx = check hreq.Identities;
-    json identitiesTemp = check parseJson(idx.toJsonString());
+    json identitiesTemp = check parseJson(idx.toString());
     json[] identities = <json[]> identitiesTemp;
     var bodyVal = hreq.Body;
     string body = bodyVal is error ? bodyVal.toString() : bodyVal.toString();
@@ -548,23 +538,16 @@ public isolated function getHTTPRequestFromInputData(HandlerParams params, strin
 # + name - The input data entry name
 # + return - The JSON value
 public isolated function getJsonFromInputData(HandlerParams params, string name) returns json|error {
-    json payload = check getJsonFromHTTPReq(params);
-    map<json> data = <map<json>> check payload.Data;
-    // the JSON parse is because the input data JSON values are string escaped 
-    return parseJson(data[name].toJsonString());
+    return parseJson(check getStringFromInputData(params, name));
 }
 
-# INTERNAL usage - Returns the JSON value from input data - double escape.
+# INTERNAL usage - JSON parse the string value available from "getJsonStringFromInputData".
 # 
 # + params - The handler parameters
 # + name - The input data entry name
 # + return - The JSON value
-public isolated function getJsonFromInputDataDoubleEscaped(HandlerParams params, string name) returns json|error {
-    json payload = check getJsonFromHTTPReq(params);
-    map<json> data = <map<json>> check payload.Data;
-    json entry = data[name];
-    // the unescape is because the input data JSON values are string escaped 
-    return check parseJsonTwice(data[name].toJsonString());
+public isolated function getParsedJsonFromJsonStringFromInputData(HandlerParams params, string name) returns json|error {
+    return parseJson(check getJsonStringFromInputData(params, name));
 }
 
 # INTERNAL usage - Returns a converted Ballerina value from input data.
@@ -583,31 +566,15 @@ public isolated function getBallerinaValueFromInputData(HandlerParams params, st
     }
 }
 
-# INTERNAL usage - Returns the converted Ballerina value from input data - double escape.
+# INTERNAL usage - Returns the optional converted Ballerina value from "getParsedJsonFromJsonStringFromInputData".
 # 
 # + params - The handler parameters
 # + name - The input data entry name
 # + recordType - The record type descriptor
 # + return - The JSON value
-public isolated function getBallerinaValueFromInputDataDoubleEscape(HandlerParams params, string name,
+public isolated function getOptionalBallerinaValueFromInputData(HandlerParams params, string name,
                                        typedesc<anydata> recordType) returns anydata?|error {
-    var result = getJsonFromInputDataDoubleEscaped(params, name);
-    if result is error {
-        return result;
-    } else {
-        return result.cloneWithType(recordType);
-    }
-}
-
-# INTERNAL usage - Returns the optional converted Ballerina value from input data - double escape.
-# 
-# + params - The handler parameters
-# + name - The input data entry name
-# + recordType - The record type descriptor
-# + return - The JSON value
-public isolated function getOptionalBallerinaValueFromInputDataDoubleEscape(HandlerParams params, string name,
-                                       typedesc<anydata> recordType) returns anydata?|error {
-    var result = getJsonFromInputDataDoubleEscaped(params, name);
+    var result = getParsedJsonFromJsonStringFromInputData(params, name);
     if result is error {
         return result;
     } else if result == () {
