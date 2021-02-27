@@ -43,14 +43,12 @@ public class BlobOutputParameterHandler extends AbstractParameterHandler {
 
     @Override
     public BLangExpression invocationProcess() throws AzureFunctionsException {
-        // TODO issue: https://github.com/Azure/azure-functions-host/issues/6091
-        // if (Utils.isAzurePkgType(ctx, "BytesOutputBinding", this.param.type)) {
-        //     this.var = Utils.addAzurePkgRecordVarDef(this.ctx, "BytesOutputBinding", this.ctx.getNextVarName());
-        // }
-        if (Utils.isAzurePkgType(ctx, "StringOutputBinding", this.param.type)) {
+        if (Utils.isAzurePkgType(ctx, "BytesOutputBinding", this.param.type)) {
+             this.var = Utils.addAzurePkgRecordVarDef(this.ctx, "BytesOutputBinding", this.ctx.getNextVarName());
+        } else if (Utils.isAzurePkgType(ctx, "StringOutputBinding", this.param.type)) {
             this.var = Utils.addAzurePkgRecordVarDef(this.ctx, "StringOutputBinding", this.ctx.getNextVarName());
         } else {
-            throw this.createError("Type must be 'StringOutputBinding'");
+            throw this.createError("Type must be 'BytesOutputBinding' or 'StringOutputBinding'");
         }
         return Utils.createVariableRef(this.ctx.globalCtx, this.var);
     }
@@ -69,7 +67,8 @@ public class BlobOutputParameterHandler extends AbstractParameterHandler {
         Map<String, Object> annonMap = Utils.extractAnnotationKeyValues(this.annotation);
         binding.put("type", "blob");
         binding.put("path", annonMap.get("path"));
-        binding.put("dataType", "binary");
+        // According to: https://github.com/Azure/azure-functions-host/issues/6091
+        binding.put("dataType", "string");
         String connection = (String) annonMap.get("connection");
         if (connection == null) {
             connection = Constants.DEFAULT_STORAGE_CONNECTION_NAME;

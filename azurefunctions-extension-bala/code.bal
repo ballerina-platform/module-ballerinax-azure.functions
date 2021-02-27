@@ -254,13 +254,15 @@ public isolated function setStringOutput(HandlerParams params, string name, Stri
 public isolated function setBlobOutput(HandlerParams params, string name, any binding) returns error? {
     string? value = ();
     if binding is BytesOutputBinding {
-        // TODO issue: https://github.com/Azure/azure-functions-host/issues/6091
         byte[]? bytes = binding?.value;
         if bytes is byte[] {
             value = bytes.toBase64();
         }
     } else if binding is StringOutputBinding {
-        value = binding?.value;        
+        string? text = binding?.value;
+        if text is string {
+            value = text.toBytes().toBase64();
+        }
     }
     if value is string {
         json content = params.result;
