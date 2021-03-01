@@ -47,12 +47,12 @@ public class CosmosDBInputParameterHandler extends AbstractParameterHandler {
         boolean singleRecordQuery = this.isSingleRecordQuery();
         if (singleRecordQuery) {
             if (Utils.isJsonType(this.ctx.globalCtx, this.param.type)) {
-                return Utils.createAzurePkgInvocationNode(this.ctx, "getJsonFromInputDataDoubleEscaped",
+                return Utils.createAzurePkgInvocationNode(this.ctx, "getParsedJsonFromJsonStringFromInputData",
                         Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
                         Utils.createStringLiteral(ctx.globalCtx, this.name));
             } else if (Utils.isOptionalRecordType(this.ctx.globalCtx, this.param.type)) {
                 return Utils.createAzurePkgInvocationNode(this.ctx,
-                        "getOptionalBallerinaValueFromInputDataDoubleEscape",
+                        "getOptionalBallerinaValueFromInputData",
                         Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
                         Utils.createStringLiteral(ctx.globalCtx, this.name),
                         Utils.createTypeDescExpr(ctx.globalCtx, this.param.type));
