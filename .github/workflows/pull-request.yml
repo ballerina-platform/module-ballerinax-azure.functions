@@ -6,9 +6,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      GITHUB_TOKEN: ${{ secrets.BALLERINA_STDLIB_TOKEN }}
       packageUser: ${{ github.actor }}
-      packagePAT: ${{ secrets.BALLERINA_STDLIB_TOKEN }}
+      packagePAT: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
