@@ -5,6 +5,7 @@ Annotation based Azure Functions extension implementation for Ballerina.
 [![Daily build](https://github.com/ballerina-platform/module-ballerinax-azure.functions/workflows/Daily%20build/badge.svg)](https://github.com/ballerina-platform/module-ballerinax-azure.functions/actions?query=workflow%3A%22Daily+build%22)
 ![Ballerina Azure Functions Build](https://github.com/ballerina-platform/module-ballerinax-azure.functions/workflows/Ballerina%20Azure%20Functions%20Build/badge.svg)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![codecov](https://codecov.io/gh/ballerina-platform/module-ballerinax-azure.functions/branch/master/graph/badge.svg)](https://codecov.io/gh/ballerina-platform/module-ballerinax-azure.functions)
 
 ## Azure Setup
 
