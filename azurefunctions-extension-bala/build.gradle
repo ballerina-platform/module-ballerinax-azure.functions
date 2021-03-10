@@ -113,7 +113,7 @@ task ballerinaBuild {
             }
         }
         copy {
-            from file("$project.projectDir/target/apidocs/azure_functions")
+            from file("$project.projectDir/target/apidocs/ballerinax/azure_functions")
             into file("$project.buildDir/apidocs/docs/azure_functions")
         }
         exec {
