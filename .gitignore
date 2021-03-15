@@ -37,3 +37,4 @@ target
 .ballerina
 .idea
 *.iml
+*Dependencies.toml
