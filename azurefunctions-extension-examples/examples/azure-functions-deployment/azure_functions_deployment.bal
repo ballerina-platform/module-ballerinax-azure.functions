@@ -61,6 +61,16 @@ public function httpTriggerBlobOutput(@af:HTTPTrigger { } af:HTTPRequest req,
             bb?.value.toString();
 }
 
+// HTTP request to add a new blob
+@af:Function
+public function httpTriggerBlobOutput2(@af:HTTPTrigger { } af:HTTPRequest req,
+        @af:BlobOutput { path: "bpath1/{Query.name}" } af:BytesOutputBinding bb)
+        returns @af:HTTPOutput string|error {
+    bb.value = [65, 66, 67, 97, 98];
+    return "Blob: " + req.query["name"].toString() + " Content: " +
+            bb?.value.toString();
+}
+
 // Sending an SMS
 @af:Function
 public function sendSMS(@af:HTTPTrigger { } af:HTTPRequest req, 
