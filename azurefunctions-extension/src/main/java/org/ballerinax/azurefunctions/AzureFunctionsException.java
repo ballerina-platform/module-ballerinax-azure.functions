@@ -17,19 +17,26 @@
  */
 package org.ballerinax.azurefunctions;
 
+import io.ballerina.tools.diagnostics.Diagnostic;
+
 /**
- * Represents Azure functions compilter extension errors.
+ * Represents Azure functions compiler extension errors.
  */
 public class AzureFunctionsException extends Exception {
 
     private static final long serialVersionUID = -6540373040546296073L;
+    private transient Diagnostic diagnostic;
 
-    public AzureFunctionsException(String msg) {
-        super(msg);
+    public AzureFunctionsException(Diagnostic diagnostic) {
+        super(diagnostic.message());
+        this.diagnostic = diagnostic;
     }
 
-    public AzureFunctionsException(String msg, Throwable cause) {
-        super(msg, cause);
+    public AzureFunctionsException(Diagnostic diagnostic, Throwable cause) {
+        super(diagnostic.message(), cause);
     }
 
+    public Diagnostic getDiagnostic() {
+        return diagnostic;
+    }
 }

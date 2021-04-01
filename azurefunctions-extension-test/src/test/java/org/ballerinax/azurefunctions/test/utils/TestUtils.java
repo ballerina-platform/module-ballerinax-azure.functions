@@ -26,12 +26,17 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Random;
 
 /**
  * Test utility class.
@@ -47,6 +52,7 @@ public class TestUtils {
     private static final Path LAYER_DIR = Paths.get("src").resolve("test").resolve("resources").resolve("layer-pkg")
             .toAbsolutePath().normalize();
     private static final String BUILD = "build";
+    private static final String RUN = "run";
     private static final String EXECUTING_COMMAND = "Executing command: ";
     private static final String COMPILING = "Compiling: ";
     private static final String RUNNING = "Running: ";
@@ -65,15 +71,14 @@ public class TestUtils {
     }
 
     /**
-     * Compile a ballerina file in a given directory.
+     * Compile a ballerina project in a given directory.
      *
      * @param sourceDirectory Ballerina source directory
-     * @param fileName        Ballerina source file name
      * @return Exit code
      * @throws InterruptedException if an error occurs while compiling
      * @throws IOException          if an error occurs while writing file
      */
-    public static ProcessOutput compileBallerinaFile(Path sourceDirectory, String fileName) throws InterruptedException,
+    public static ProcessOutput compileBallerinaProject(Path sourceDirectory) throws InterruptedException,
             IOException {
 
         Path ballerinaInternalLog = Paths.get(sourceDirectory.toAbsolutePath().toString(), "ballerina-internal.log");
@@ -82,10 +87,10 @@ public class TestUtils {
             FileUtils.deleteQuietly(ballerinaInternalLog.toFile());
         }
 
-        ProcessBuilder pb = new ProcessBuilder(BALLERINA_COMMAND.toString(), BUILD, fileName);
+        ProcessBuilder pb = new ProcessBuilder(BALLERINA_COMMAND.toString(), BUILD);
         Map<String, String> environment = pb.environment();
         addJavaAgents(environment);
-        log.info(COMPILING + sourceDirectory.normalize().resolve(fileName));
+        log.info(COMPILING + sourceDirectory);
         log.debug(EXECUTING_COMMAND + pb.command());
         pb.directory(sourceDirectory.toFile());
         Process process = pb.start();
@@ -124,5 +129,62 @@ public class TestUtils {
             return "";
         }
         return jacocoArgLine + " ";
+    }
+
+    /**
+     * Compile a run ballerina project in a given directory.
+     *
+     * @param sourceDirectory Ballerina source directory
+     * @return Exit code
+     * @throws InterruptedException if an error occurs while compiling or running
+     * @throws IOException          if an error occurs while writing file
+     */
+    public static String runBallerinaProject(Path sourceDirectory) throws InterruptedException, 
+            IOException {
+        Path ballerinaInternalLog = Paths.get(sourceDirectory.toAbsolutePath().toString(), "ballerina-internal.log");
+        if (ballerinaInternalLog.toFile().exists()) {
+            log.warn("Deleting already existing ballerina-internal.log file.");
+            FileUtils.deleteQuietly(ballerinaInternalLog.toFile());
+        }
+
+        ProcessBuilder pb = new ProcessBuilder(BALLERINA_COMMAND.toString(), RUN);
+        log.info(COMPILING + sourceDirectory.normalize());
+        log.debug(EXECUTING_COMMAND + pb.command());
+        pb.directory(sourceDirectory.toFile());
+        Map<String, String> environment = pb.environment();
+        int port = generateRandomPort();
+        environment.put("FUNCTIONS_CUSTOMHANDLER_PORT", Integer.toString(port));
+        Process process = pb.start();
+        Thread.sleep(15000);
+        String returnValue = invokeFunction(sourceDirectory.getParent().resolve("request.json"), port);
+        process.destroy();
+        // log ballerina-internal.log content
+        if (Files.exists(ballerinaInternalLog)) {
+            log.info("ballerina-internal.log file found. content: ");
+            log.info(FileUtils.readFileToString(ballerinaInternalLog.toFile(), Charset.defaultCharset()));
+        }
+
+        return returnValue;
+    }
+
+    private static String invokeFunction(Path payload, int port) throws IOException, InterruptedException {
+        HttpClient httpClient = HttpClient.newBuilder()
+                .version(HttpClient.Version.HTTP_2)
+                .build();
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .POST(HttpRequest.BodyPublishers.ofFile(payload))
+                .uri(URI.create("http://localhost:" + port + "/hello"))
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        return response.body();
+    }
+
+    private static int generateRandomPort() {
+        Random r = new Random();
+        int low = 1000;
+        int high = 10000;
+        return r.nextInt(high - low) + low;
     }
 }

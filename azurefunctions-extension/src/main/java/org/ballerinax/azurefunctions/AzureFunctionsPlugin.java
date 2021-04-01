@@ -17,32 +17,32 @@
  */
 package org.ballerinax.azurefunctions;
 
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
+import io.ballerina.projects.DocumentConfig;
+import io.ballerina.projects.DocumentId;
+import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.internal.model.Target;
-import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
 import org.ballerinalang.core.util.exceptions.BallerinaException;
-import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
-import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 /**
  * Compiler plugin to process Azure Functions function annotations.
@@ -56,119 +56,55 @@ public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
 
     private DiagnosticLog dlog;
 
-    private GlobalContext globalCtx;
-
     @Override
     public void init(DiagnosticLog dlog) {
         this.dlog = dlog;
     }
 
-    public void setCompilerContext(CompilerContext cctx) {
-        this.globalCtx = new GlobalContext(cctx);
+    @Override
+    public void process(PackageNode packageNode) {
+        super.process(packageNode);
     }
 
     @Override
-    public void process(PackageNode packageNode) {
-        BLangPackage bpn = (BLangPackage) packageNode;
-        this.globalCtx.pos = bpn.pos;
-        this.globalCtx.azureFuncsPkgSymbol = Utils.extractAzureFuncsPackageSymbol(bpn);
-        try {
-            generatedFunctions.putAll(this.generateHandlerFunctions(bpn));
-            this.registerHandlerFunctions(bpn, generatedFunctions);
-        } catch (AzureFunctionsException e) {
-            this.dlog.logDiagnostic(DiagnosticSeverity.ERROR, bpn.packageID, packageNode.getPosition(), e.getMessage());
-        }
-    }
-
-    private FunctionDeploymentContext createFuncDeplContext(BLangPackage packageNode, BLangFunction sourceFunc)
-            throws AzureFunctionsException {
-        FunctionDeploymentContext ctx = new FunctionDeploymentContext();
-        ctx.sourceFunction = sourceFunc;
-        ctx.globalCtx = this.globalCtx;
-        BLangFunction func = Utils.createHandlerFunction(this.globalCtx, sourceFunc.pos,
-                sourceFunc.name.value, packageNode);
-        ctx.function = func;
-        ctx.handlerParams = func.getParameters().get(0).symbol;
-        // all the parameter handlers needs to be created and put to the context first
-        // before the init and other operations are called
-        for (BLangSimpleVariable param : sourceFunc.getParameters()) {
-            ctx.parameterHandlers.add(HandlerFactory.createParameterHandler(ctx, param));
-        }
-        ctx.returnHandler = HandlerFactory.createReturnHandler(ctx,
-                Utils.extractNonErrorType(ctx.globalCtx, sourceFunc.getReturnTypeNode().type),
-                sourceFunc.getReturnTypeAnnotationAttachments());
-        for (ParameterHandler ph : ctx.parameterHandlers) {
-            ph.init(ctx);
-        }
-        if (ctx.returnHandler != null) {
-            ctx.returnHandler.init(ctx);
-        }
-        return ctx;
-    }
-
-    private FunctionDeploymentContext generateHandlerFunction(BLangPackage packageNode, BLangFunction sourceFunc)
-            throws AzureFunctionsException {
-        FunctionDeploymentContext ctx = this.createFuncDeplContext(packageNode, sourceFunc);
-        List<BLangExpression> args = new ArrayList<>();
-        for (ParameterHandler ph : ctx.parameterHandlers) {
-            args.add(Utils.createCheckedExpr(ctx.globalCtx, ph.invocationProcess()));
-        }
-        BLangSimpleVariable retVal = Utils.addFunctionCall(ctx, sourceFunc.symbol, true,
-                args.toArray(new BLangExpression[0]));
-        for (ParameterHandler ph : ctx.parameterHandlers) {
-            ph.postInvocationProcess();
-        }
-        ReturnHandler retHandler = ctx.returnHandler;
-        if (retHandler != null) {
-            retHandler.postInvocationProcess(Utils.createVariableRef(ctx.globalCtx, retVal.symbol));
-        }
-        return ctx;
-    }
-
-    private Map<String, FunctionDeploymentContext> generateHandlerFunctions(BLangPackage packageNode)
-            throws AzureFunctionsException {
-        Map<String, FunctionDeploymentContext> funcCtxs = new LinkedHashMap<>();
-        for (FunctionNode fn : packageNode.getFunctions()) {
-            BLangFunction bfn = (BLangFunction) fn;
-            if (Utils.isAzureFunction(bfn, this.dlog)) {
-                funcCtxs.put(bfn.name.value, this.generateHandlerFunction(packageNode, bfn));
+    public List<Diagnostic> codeAnalyze(Project project) {
+        AzureFunctionExtractor azureFunctionExtractor = new AzureFunctionExtractor(project);
+        List<Diagnostic> diagnostics = new ArrayList<>(azureFunctionExtractor.validateModules());
+        List<FunctionDefinitionNode> extractedFunctions = azureFunctionExtractor.extractFunctions();
+        Module module = project.currentPackage().getDefaultModule();
+        SemanticModel semanticModel = module.getCompilation().getSemanticModel();
+        Map<String, TypeDefinitionNode> typeDefinitions = new HashMap<>();
+        FunctionHandlerGenerator functionGenerator = new FunctionHandlerGenerator(semanticModel, typeDefinitions);
+        for (FunctionDefinitionNode function : extractedFunctions) {
+            try {
+                FunctionDeploymentContext functionDeploymentContext =
+                        functionGenerator.generateHandlerFunction(function);
+                generatedFunctions.put(function.functionName().text(), functionDeploymentContext);
+            } catch (AzureFunctionsException e) {
+                return Collections.singletonList(e.getDiagnostic());
             }
         }
-        for (FunctionDeploymentContext ctx : funcCtxs.values()) {
-            packageNode.addFunction(ctx.function);
+
+        DocumentConfig documentConfig = generateHandlerDocument(project, typeDefinitions, module);
+        //Used to avoid duplicate documents as codeAnalyze is getting called multiple times
+        if (!STUtil.isDocumentExistInModule(module, documentConfig)) {
+            module.modify().addDocument(documentConfig).apply();
+            project.currentPackage().getCompilation();
         }
-        return funcCtxs;
+        return diagnostics;
     }
 
-    private void registerHandlerFunctions(BLangPackage myPkg, Map<String, FunctionDeploymentContext> azureFunctions) {
-        if (azureFunctions.isEmpty()) {
-            return;
-        }
+    private DocumentConfig generateHandlerDocument(Project project, Map<String, TypeDefinitionNode> typeDefinitions,
+                                                   Module module) {
+        FunctionDefinitionNode mainFunction = STUtil.createMainFunction(generatedFunctions.values());
+        ModulePartNode modulePartNode =
+                STUtil.createModulePartNode(generatedFunctions.values(), mainFunction, typeDefinitions);
 
-        // the following is a workaround in order to signal the runtime that we have a listener
-        // running and the program should not exit
-        Utils.addDummyListener(this.globalCtx, myPkg);
-
-        BPackageSymbol azureFuncsPkgSymbol = this.globalCtx.azureFuncsPkgSymbol;
-        if (azureFuncsPkgSymbol == null) {
-            // this symbol will always be there, since the import is needed to add the annotation
-            throw new BallerinaException("Azure Functions package symbol cannot be found");
-        }
-        BLangFunction epFunc = Utils.extractMainFunction(myPkg);
-        if (epFunc == null) {
-            // main function is not there, lets create our own one
-            epFunc = Utils.createFunction(this.globalCtx, Constants.MAIN_FUNC_NAME, myPkg);
-            myPkg.addFunction(epFunc);
-        } else {
-            // clear out the existing statements
-            ((BLangBlockFunctionBody) epFunc.body).stmts.clear();
-        }
-        BLangBlockFunctionBody body = (BLangBlockFunctionBody) epFunc.body;
-        for (Entry<String, FunctionDeploymentContext> entry : azureFunctions.entrySet()) {
-            String name = entry.getKey();
-            BLangFunction func = entry.getValue().function;
-            Utils.addRegisterCall(this.globalCtx, myPkg.pos, azureFuncsPkgSymbol, body, name, func);
-        }
+        String newFileContent = modulePartNode.toSourceCode();
+        String fileName = module.moduleName().toString() + "-" + Constants.GENERATED_FILE_NAME;
+        Path filePath = project.sourceRoot().resolve(fileName);
+        DocumentId newDocumentId = DocumentId.create(filePath.toString(), module.moduleId());
+        return DocumentConfig.from(newDocumentId, newFileContent, fileName);
     }
 
     @Override
@@ -180,24 +116,27 @@ public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
         OUT.println("\t@azure_functions:Function: " + String.join(", ", generatedFunctions.keySet()));
         try {
             this.generateFunctionsArtifact(generatedFunctions, target.getExecutablePath(project.currentPackage()));
-        } catch (AzureFunctionsException | IOException e) {
+        } catch (IOException e) {
             String msg = "Error generating Azure Functions: " + e.getMessage();
             OUT.println(msg);
             throw new BallerinaException(msg, e);
         }
         OUT.println("\n\tExecute the below command to deploy Ballerina Azure Functions:");
         try {
-            OUT.println("\taz functionapp deployment source config-zip -g <resource_group> -n <function_app_name> " +
-                    "--src " + target.getExecutablePath(project.currentPackage()).getParent().toString() +
-                    File.separator + Constants.AZURE_FUNCS_OUTPUT_ZIP_FILENAME + "\n\n");
+            Path parent = target.getExecutablePath(project.currentPackage()).getParent();
+            if (parent != null) {
+                OUT.println(
+                        "\taz functionapp deployment source config-zip -g <resource_group> -n <function_app_name> " +
+                                "--src " + parent.toString() + File.separator +
+                                Constants.AZURE_FUNCS_OUTPUT_ZIP_FILENAME + "\n\n");
+            }
         } catch (IOException e) {
             //ignored;
         }
     }
 
     private void generateFunctionsArtifact(Map<String, FunctionDeploymentContext> functions, Path binaryPath)
-            throws AzureFunctionsException, IOException {
+            throws IOException {
         new FunctionsArtifact(functions, binaryPath).generate(Constants.AZURE_FUNCS_OUTPUT_ZIP_FILENAME);
     }
-
 }

@@ -19,8 +19,7 @@ package org.ballerinax.azurefunctions;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,29 +31,64 @@ public class FunctionDeploymentContext {
 
     private static final String VAR_PREFIX = "v";
 
-    public GlobalContext globalCtx;
+    private List<ParameterHandler> parameterHandlers = new ArrayList<>();
 
-    public BVarSymbol handlerParams;
+    private ReturnHandler returnHandler;
 
-    public List<ParameterHandler> parameterHandlers = new ArrayList<>();
+    private JsonObject functionDefinition;
 
-    public ReturnHandler returnHandler;
+    private FunctionDefinitionNode sourceFunction;
 
-    public JsonObject functionDefinition;
-
-    public BLangFunction sourceFunction;
-
-    public BLangFunction function;
+    private FunctionDefinitionNode function;
 
     private int varCounter = 0;
 
     public FunctionDeploymentContext() {
-        this.functionDefinition = new JsonObject();
-        this.functionDefinition.add(Constants.FUNCTION_BINDINGS_NAME, new JsonArray());
+        this.setFunctionDefinition(new JsonObject());
+        this.getFunctionDefinition().add(Constants.FUNCTION_BINDINGS_NAME, new JsonArray());
     }
 
     public String getNextVarName() {
         return VAR_PREFIX + (++varCounter);
     }
-    
+
+    public List<ParameterHandler> getParameterHandlers() {
+        return parameterHandlers;
+    }
+
+    public void setParameterHandlers(List<ParameterHandler> parameterHandlers) {
+        this.parameterHandlers = parameterHandlers;
+    }
+
+    public ReturnHandler getReturnHandler() {
+        return returnHandler;
+    }
+
+    public void setReturnHandler(ReturnHandler returnHandler) {
+        this.returnHandler = returnHandler;
+    }
+
+    public JsonObject getFunctionDefinition() {
+        return functionDefinition;
+    }
+
+    public void setFunctionDefinition(JsonObject functionDefinition) {
+        this.functionDefinition = functionDefinition;
+    }
+
+    public FunctionDefinitionNode getSourceFunction() {
+        return sourceFunction;
+    }
+
+    public void setSourceFunction(FunctionDefinitionNode sourceFunction) {
+        this.sourceFunction = sourceFunction;
+    }
+
+    public FunctionDefinitionNode getFunction() {
+        return function;
+    }
+
+    public void setFunction(FunctionDefinitionNode function) {
+        this.function = function;
+    }
 }

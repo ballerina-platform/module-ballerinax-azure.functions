@@ -30,6 +30,7 @@
 hs_err_pid*
 
 *Ballerina.lock
+*Dependencies.toml
 
 # generated files
 build

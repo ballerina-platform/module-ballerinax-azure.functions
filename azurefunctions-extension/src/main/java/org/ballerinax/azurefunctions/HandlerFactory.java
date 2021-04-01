@@ -17,6 +17,22 @@
  */
 package org.ballerinax.azurefunctions;
 
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.AnnotationSymbol;
+import io.ballerina.compiler.api.symbols.ParameterSymbol;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.syntax.tree.AnnotationNode;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeList;
+import io.ballerina.compiler.syntax.tree.ParameterNode;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
+import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinax.azurefunctions.handlers.blob.BlobInputParameterHandler;
 import org.ballerinax.azurefunctions.handlers.blob.BlobOutputParameterHandler;
 import org.ballerinax.azurefunctions.handlers.blob.BlobTriggerParameterHandler;
@@ -32,86 +48,107 @@ import org.ballerinax.azurefunctions.handlers.queue.QueueOutputParameterHandler;
 import org.ballerinax.azurefunctions.handlers.queue.QueueTriggerHandler;
 import org.ballerinax.azurefunctions.handlers.timer.TimerTriggerHandler;
 import org.ballerinax.azurefunctions.handlers.twilio.TwilioSmsOutputParameterHandler;
-import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 
-import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * Factory class to create parameter and return handlers.
  */
 public class HandlerFactory {
-    
-    public static ParameterHandler createParameterHandler(FunctionDeploymentContext ctx, BLangSimpleVariable param)
+
+    public static ParameterHandler createParameterHandler(ParameterNode param, SemanticModel semanticModel,
+                                                          Map<String, TypeDefinitionNode> generatedTypeDefinitions)
             throws AzureFunctionsException {
-        if (Utils.isContextType(param.type)) {
-            return new ContextParameterHandler(param);
+        if (param.kind() != SyntaxKind.REQUIRED_PARAM) {
+            throw new AzureFunctionsException(STUtil.getAFDiagnostic(param.location(), "AZ0004",
+                    "required.param.supported", DiagnosticSeverity.ERROR, "only required params are supported"));
         }
-        BLangAnnotationAttachment ann = Utils.extractAzureFunctionAnnotation(param.getAnnotationAttachments());
-        if (ann == null) {
-            throw createParamError(ctx, param, "Invalid annotation or type");
+        RequiredParameterNode requiredParameterNode = (RequiredParameterNode) param;
+        if (requiredParameterNode.paramName().isEmpty()) {
+            throw new AzureFunctionsException(STUtil.getAFDiagnostic(param.location(), "AZ0005",
+                    "required.param.name", DiagnosticSeverity.ERROR, "param name is required"));
         }
-        String name = ann.getAnnotationName().getValue();
-        if ("HTTPOutput".equals(name)) {
-            return new HTTPOutputParameterHandler(param, ann);
-        } else if ("HTTPTrigger".equals(name)) {
-            return new HTTPTriggerParameterHandler(param, ann);
-        } else if ("QueueOutput".equals(name)) {
-            return new QueueOutputParameterHandler(param, ann);
-        } else if ("QueueTrigger".equals(name)) {
-            return new QueueTriggerHandler(param, ann);
-        } else if ("TimerTrigger".equals(name)) {
-            return new TimerTriggerHandler(param, ann);
-        } else if ("BlobTrigger".equals(name)) {
-            return new BlobTriggerParameterHandler(param, ann);
-        } else if ("BlobInput".equals(name)) {
-            return new BlobInputParameterHandler(param, ann);
-        } else if ("BlobOutput".equals(name)) {
-            return new BlobOutputParameterHandler(param, ann);
-        } else if ("TwilioSmsOutput".equals(name)) {
-            return new TwilioSmsOutputParameterHandler(param, ann);
-        } else if ("BindingName".equals(name)) {
-            return new MetadataBindingParameterHandler(param, ann);
-        } else if ("CosmosDBTrigger".equals(name)) {
-            return new CosmosDBTriggerHandler(param, ann);
-        } else if ("CosmosDBInput".equals(name)) {
-            return new CosmosDBInputParameterHandler(param, ann);
-        } else {
-            throw createParamError(ctx, param, "Parameter handler not found");
+        Optional<Symbol> paramSymbol = semanticModel.symbol(requiredParameterNode.paramName().get());
+        if (paramSymbol.isEmpty() || paramSymbol.get().kind() != SymbolKind.PARAMETER) {
+            throw new AzureFunctionsException(STUtil.getAFDiagnostic(param.location(), "AZ0010",
+                    "symbol.not.found", DiagnosticSeverity.ERROR, "parameter symbol not found"));
+        }
+        ParameterSymbol variableSymbol = (ParameterSymbol) paramSymbol.get();
+        if (STUtil.isContextType(variableSymbol)) {
+            return new ContextParameterHandler(variableSymbol, requiredParameterNode);
+        }
+
+        Optional<AnnotationSymbol> annotationNode =
+                STUtil.extractAzureFunctionAnnotation(variableSymbol.annotations());
+        if (annotationNode.isEmpty()) {
+            throw new AzureFunctionsException(STUtil.getAFDiagnostic(requiredParameterNode.location(), "AZ0006",
+                    "missing.required.annotation", DiagnosticSeverity.ERROR, "azure functions annotation is required"));
+        }
+
+        String annotationName = annotationNode.get().getName().orElseThrow();
+        switch (annotationName) {
+            case "HTTPOutput":
+                return new HTTPOutputParameterHandler(variableSymbol, requiredParameterNode);
+            case "HTTPTrigger":
+                return new HTTPTriggerParameterHandler(variableSymbol, requiredParameterNode);
+            case "QueueOutput":
+                return new QueueOutputParameterHandler(variableSymbol, requiredParameterNode);
+            case "QueueTrigger":
+                return new QueueTriggerHandler(variableSymbol, requiredParameterNode);
+            case "TimerTrigger":
+                return new TimerTriggerHandler(variableSymbol, requiredParameterNode);
+            case "BlobTrigger":
+                return new BlobTriggerParameterHandler(variableSymbol, requiredParameterNode);
+            case "BlobInput":
+                return new BlobInputParameterHandler(variableSymbol, requiredParameterNode);
+            case "BlobOutput":
+                return new BlobOutputParameterHandler(variableSymbol, requiredParameterNode);
+            case "TwilioSmsOutput":
+                return new TwilioSmsOutputParameterHandler(variableSymbol, requiredParameterNode);
+            case "BindingName":
+                return new MetadataBindingParameterHandler(variableSymbol, requiredParameterNode);
+            case "CosmosDBTrigger":
+                return new CosmosDBTriggerHandler(variableSymbol, requiredParameterNode,
+                        generatedTypeDefinitions);
+            case "CosmosDBInput":
+                return new CosmosDBInputParameterHandler(variableSymbol, requiredParameterNode,
+                        generatedTypeDefinitions);
+            default:
+                throw new AzureFunctionsException(
+                        STUtil.getAFDiagnostic(annotationNode.get().getLocation().orElseThrow(),
+                                "AZ0006", "unsupported.param.handler", DiagnosticSeverity.ERROR,
+                                "param handler not found for the type: " + annotationName));
         }
     }
 
-    public static ReturnHandler createReturnHandler(FunctionDeploymentContext ctx, BType retType,
-            List<BLangAnnotationAttachment> annons) throws AzureFunctionsException {
-        SymbolTable symTable = ctx.globalCtx.symTable;
-        if (symTable.nilType.equals(retType) || symTable.noType.equals(retType)) {
+    public static ReturnHandler createReturnHandler(TypeSymbol symbol,
+                                                    ReturnTypeDescriptorNode returnTypeDescriptorNode)
+            throws AzureFunctionsException {
+        //TODO avoid using syntax tree and use semantic api instead when the its supported.
+        //https://github.com/ballerina-platform/ballerina-lang/issues/27225
+        TypeSymbol retType = STUtil.getMainParamType(symbol);
+        NodeList<AnnotationNode> annotations = returnTypeDescriptorNode.annotations();
+        Optional<AnnotationNode> azureAnnotations = STUtil.extractAzureFunctionAnnotation(annotations);
+        if (azureAnnotations.isEmpty()) {
             return null;
         }
-        BLangAnnotationAttachment ann = Utils.extractAzureFunctionAnnotation(annons);
-        if (ann == null) {
-            throw createReturnError(ctx, "Invalid annotation");
+        Node annotReference = azureAnnotations.get().annotReference();
+        if (annotReference.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+            throw new AzureFunctionsException(
+                    STUtil.getAFDiagnostic(annotReference.location(), "AZ0002", "unexpected.node.type",
+                            DiagnosticSeverity.ERROR, "unexpected node type"));
         }
-        String name = ann.getAnnotationName().getValue();
+
+        String name = ((QualifiedNameReferenceNode) annotReference).identifier().text();
         if ("HTTPOutput".equals(name)) {
-            return new HTTPReturnHandler(retType, ann);
+            return new HTTPReturnHandler(retType, azureAnnotations.get());
         } else if ("CosmosDBOutput".equals(name)) {
-            return new CosmosDBReturnHandler(retType, ann);
-        }  else {
-            throw createReturnError(ctx, "Return handler not found for the type: " + retType);
+            return new CosmosDBReturnHandler(retType, azureAnnotations.get());
+        } else {
+            throw new AzureFunctionsException(
+                    STUtil.getAFDiagnostic(annotReference.location(), "AZ0001", "unsupported.return.handler",
+                            DiagnosticSeverity.ERROR, "return handler not found for the type: " + symbol.signature()));
         }
     }
-
-    private static AzureFunctionsException createParamError(FunctionDeploymentContext ctx, BLangSimpleVariable param,
-            String msg) {
-        return new AzureFunctionsException("Error at function: '" + ctx.sourceFunction.name.value + "' parameter: '"
-                + param.name.value + "' - " + msg);
-    }
-
-    private static AzureFunctionsException createReturnError(FunctionDeploymentContext ctx, String msg) {
-        return new AzureFunctionsException("Error at function: '" 
-                + ctx.sourceFunction.name.value + " return - " + msg);
-    }
-
 }

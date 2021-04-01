@@ -17,12 +17,19 @@
  */
 package org.ballerinax.azurefunctions.handlers.http;
 
+import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.syntax.tree.AnnotationNode;
+import io.ballerina.compiler.syntax.tree.ExpressionNode;
+import io.ballerina.compiler.syntax.tree.IdentifierToken;
+import io.ballerina.compiler.syntax.tree.NodeFactory;
+import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinax.azurefunctions.AzureFunctionsException;
-import org.ballerinax.azurefunctions.Utils;
+import org.ballerinax.azurefunctions.Constants;
+import org.ballerinax.azurefunctions.STUtil;
 import org.ballerinax.azurefunctions.handlers.AbstractReturnHandler;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -32,23 +39,28 @@ import java.util.Map;
  */
 public class HTTPReturnHandler extends AbstractReturnHandler {
 
-    public HTTPReturnHandler(BType retType, BLangAnnotationAttachment annotation) {
+    public HTTPReturnHandler(TypeSymbol retType, AnnotationNode annotation) {
         super(retType, annotation);
     }
 
     @Override
-    public void postInvocationProcess(BLangExpression returnValueExpr) throws AzureFunctionsException {
-        if (Utils.isStringType(this.ctx.globalCtx, this.retType)) {
-            Utils.addAzurePkgFunctionCall(this.ctx, "setStringReturn", true, 
-            Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams), returnValueExpr);
-        } else if (Utils.isJsonType(this.ctx.globalCtx, this.retType)) {
-            Utils.addAzurePkgFunctionCall(this.ctx, "setJsonReturn", true, 
-            Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams), returnValueExpr);
-        } else if (Utils.isAzurePkgType(ctx, "HTTPBinding", this.retType)) {
-            Utils.addAzurePkgFunctionCall(this.ctx, "setHTTPReturn", true, 
-            Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams), returnValueExpr);
-        } else {            
-            throw this.createError("Type '" + this.retType.tsymbol.name.value + "' is not supported");
+    public void postInvocationProcess(ExpressionNode returnValueExpr) throws AzureFunctionsException {
+        PositionalArgumentNode paramsArg = NodeFactory.createPositionalArgumentNode(
+                STUtil.createVariableRef(Constants.PARAMS));
+        if (retType.typeKind() == TypeDescKind.STRING) {
+            PositionalArgumentNode returnExpr = NodeFactory.createPositionalArgumentNode(returnValueExpr);
+            STUtil.addAzurePkgFunctionCallStatement(this.ctx, "setStringReturn", true, paramsArg, returnExpr);
+        } else if (retType.typeKind() == TypeDescKind.JSON) {
+            PositionalArgumentNode returnExpr = NodeFactory.createPositionalArgumentNode(returnValueExpr);
+            STUtil.addAzurePkgFunctionCallStatement(this.ctx, "setJsonReturn", true, paramsArg, returnExpr);
+        } else if (retType.typeKind() == TypeDescKind.TYPE_REFERENCE && retType.signature().endsWith("HTTPBinding")) {
+            PositionalArgumentNode returnExpr = NodeFactory.createPositionalArgumentNode(returnValueExpr);
+            STUtil.addAzurePkgFunctionCallStatement(this.ctx, "setHTTPReturn", true, paramsArg, returnExpr);
+        } else {
+            IdentifierToken identifier = ((QualifiedNameReferenceNode) annotation.annotReference()).identifier();
+            throw new AzureFunctionsException(STUtil.getAFDiagnostic(returnValueExpr.location(), "AZ0007",
+                    "unsupported.return.annotation", DiagnosticSeverity.ERROR, "Type '" + identifier.text() + "' is " +
+                            "not supported"));
         }
     }
 
@@ -58,5 +70,5 @@ public class HTTPReturnHandler extends AbstractReturnHandler {
         binding.put("type", "http");
         return binding;
     }
-    
+
 }

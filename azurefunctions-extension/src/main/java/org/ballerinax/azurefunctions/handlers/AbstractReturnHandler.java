@@ -17,12 +17,12 @@
  */
 package org.ballerinax.azurefunctions.handlers;
 
+import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import org.ballerinax.azurefunctions.AzureFunctionsException;
 import org.ballerinax.azurefunctions.FunctionDeploymentContext;
 import org.ballerinax.azurefunctions.ReturnHandler;
-import org.ballerinax.azurefunctions.Utils;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.ballerinax.azurefunctions.STUtil;
 
 import java.util.Map;
 
@@ -33,38 +33,33 @@ public abstract class AbstractReturnHandler implements ReturnHandler {
     
     protected FunctionDeploymentContext ctx;
 
-    protected BType retType;
+    protected TypeSymbol retType;
 
-    protected BLangAnnotationAttachment annotation;
+    protected AnnotationNode annotation;
     
-    public AbstractReturnHandler(BType retType, BLangAnnotationAttachment annotation) {
+    public AbstractReturnHandler(TypeSymbol retType, AnnotationNode annotation) {
         this.retType = retType;
         this.annotation = annotation;
     }
 
-    public void init(FunctionDeploymentContext ctx) {
+    public void init(FunctionDeploymentContext ctx) throws AzureFunctionsException {
         this.ctx = ctx;
         this.processBinding();
     }
 
-    private void processBinding() {
+    private void processBinding() throws AzureFunctionsException {
         Map<String, Object> binding = this.generateBinding();
         if (binding == null) {
             return;
         }
         binding.put("direction", "out");
         binding.put("name", "$return");
-        Utils.addFunctionBinding(this.ctx, binding);
+        STUtil.addFunctionBinding(this.ctx, binding);
     }
 
-    public AzureFunctionsException createError(String msg) {
-        return new AzureFunctionsException("Error at function: '" 
-                + ctx.sourceFunction.name.value + " return - " + msg);
-    }
+    public abstract Map<String, Object> generateBinding() throws AzureFunctionsException;
 
-    public abstract Map<String, Object> generateBinding();
-
-    public BLangAnnotationAttachment getAnnotation() {
+    public AnnotationNode getAnnotation() {
         return annotation;
     }
 
