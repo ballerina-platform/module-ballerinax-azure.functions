@@ -139,5 +139,4 @@ public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
             throws IOException {
         new FunctionsArtifact(functions, binaryPath).generate(Constants.AZURE_FUNCS_OUTPUT_ZIP_FILENAME);
     }
-
 }
