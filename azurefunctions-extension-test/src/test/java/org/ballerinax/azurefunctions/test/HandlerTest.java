@@ -48,7 +48,7 @@ public class HandlerTest {
                 Module module = project.currentPackage().module(moduleId);
                 for (DocumentId documentId : module.documentIds()) {
                     Document document = module.document(documentId);
-                    if (document.name().equals("main.bal")) {
+                    if ("main.bal".equals(document.name())) {
                         continue;
                     }
 

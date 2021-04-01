@@ -54,14 +54,14 @@ public class AzureFunctionVisitor extends NodeVisitor {
             return;
         }
         String orgName = importDeclarationNode.orgName().get().orgName().text();
-        if (!orgName.equals("ballerinax")) {
+        if (!Constants.AZURE_FUNCTIONS_PACKAGE_ORG.equals(orgName)) {
             return;
         }
         if (importDeclarationNode.moduleName().size() != 1) {
             return;
         }
         String moduleName = importDeclarationNode.moduleName().get(0).text();
-        if (moduleName.equals("azure_functions")) {
+        if (Constants.AZURE_FUNCTIONS_MODULE_NAME.equals(moduleName)) {
             this.moduleName = moduleName;
         }
         if (importDeclarationNode.prefix().isEmpty()) {
