@@ -70,6 +70,7 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -531,6 +532,9 @@ public class Utils {
     }
 
     public static Map<String, Object> extractAnnotationKeyValues(BLangAnnotationAttachment annotation) {
+        if (annotation.expr == null) {
+            return Collections.emptyMap();
+        }
         BLangRecordLiteral record = (BLangRecordLiteral) annotation.expr;
         List<BLangRecordKeyValueField> fields = record.getFields().stream().map(x -> (BLangRecordKeyValueField) x)
                 .collect(Collectors.toList());
