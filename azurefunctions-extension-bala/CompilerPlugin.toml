@@ -1,0 +1,6 @@
+[plugin]
+id = "azure-functions"
+class = "org.ballerinax.azurefunctions.AzureCompilerPlugin"
+
+[[dependency]]
+path = "../azurefunctions-extension/build/libs/azurefunctions-extension-@azf.extension.version@.jar"

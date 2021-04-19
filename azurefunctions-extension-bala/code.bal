@@ -114,8 +114,9 @@ public class Context {
 
 # INTERNAL usage - Enters to function invocation logs.
 # 
+# + hparams - the handler parameters object
 # + msg - The log message
-isolated function log(HandlerParams hparams, string msg) {
+public isolated function log(HandlerParams hparams, string msg) {
     json[] logs = <json[]> checkpanic hparams.result.Logs;
     logs.push(msg);
 }
@@ -123,7 +124,7 @@ isolated function log(HandlerParams hparams, string msg) {
 # INTERNAL usage - Checks if request tracing is enabled.
 # 
 # + return - The request tracing flag
-isolated function isRequestTrace() returns boolean {
+public isolated function isRequestTrace() returns boolean {
     string? value = os:getEnv("BALLERINA_AZURE_FUNCTIONS_REQUEST_TRACE");
     if value is string {
         var flag = booleans:fromString(value);
@@ -137,11 +138,11 @@ isolated function isRequestTrace() returns boolean {
     }
 }
 
-isolated function logError(HandlerParams hparams, error err) {
+public isolated function logError(HandlerParams hparams, error err) {
     log(hparams, "ERROR: " + err.toString());
 }
 
-isolated function logRequest(HandlerParams hparams, http:Request request) {
+public isolated function logRequest(HandlerParams hparams, http:Request request) {
     var payload = request.getTextPayload();
     string val = payload is error ? payload.toString() : payload.toString();
     log(hparams, "REQUEST: " + val);
@@ -152,36 +153,21 @@ type FunctionHandler (function (HandlerParams) returns error?);
 
 @untainted public listener http:Listener hl = new(check ints:fromString(os:getEnv("FUNCTIONS_CUSTOMHANDLER_PORT")));
 
-map<FunctionHandler> dispatchMap = {};
-
-service http:Service / on hl {
-
-    resource function 'default [string functionName](http:Caller caller, http:Request request) returns @tainted error? {
-        FunctionHandler? handler = dispatchMap[functionName];
-        http:Response response = new;
-        if handler is FunctionHandler {
-            HandlerParams hparams = { request, response };
-            error? err = trap handler(hparams);
-            if err is error {
-                logError(hparams, err);
-                logRequest(hparams, request);
-                response.setJsonPayload(<@untainted> hparams.result);
-            } else {
-                if !hparams.pure {
-                    if isRequestTrace() {
-                        logRequest(hparams, request);
-                    }
-                    response.setJsonPayload(<@untainted> hparams.result);
-                }
-            }
-            check caller->respond(response);
-        } else {
-            response.setTextPayload("function handler not found: " + <@untainted> functionName);
-            response.statusCode = 404;
-            check caller->respond(response);
-        }
+public isolated function handleFunctionResposne(error? err, HandlerParams hparams) {
+    http:Request request = hparams.request;
+    http:Response response = hparams.response;
+    if err is error {
+       logError(hparams, err);
+       logRequest(hparams, request);
+       response.setJsonPayload(<@untainted> hparams.result);
+    } else {
+       if !hparams.pure {
+           if isRequestTrace() {
+               logRequest(hparams, request);
+           }
+           response.setJsonPayload(<@untainted> hparams.result);
+       }
     }
-
 }
 
 # INTERNAL usage - extracts the metadata.
@@ -201,14 +187,6 @@ public isolated function getMetadata(HandlerParams hparams) returns json|error {
 # + return - The function context
 public isolated function createContext(HandlerParams hparams, boolean populateMetadata) returns Context|error {
     return new Context(hparams, populateMetadata);
-}
-
-# INTERNAL usage - registers a handler function.
-# 
-# + name - The name of the function
-# + funcHandler - The function handler
-public function __register(string name, FunctionHandler funcHandler) {
-    dispatchMap[name] = funcHandler;
 }
 
 # INTERNAL usage - Sets the HTTP output.
