@@ -39,21 +39,14 @@ public class HTTPReturnHandler extends AbstractReturnHandler {
     @Override
     public void postInvocationProcess(BLangExpression returnValueExpr) throws AzureFunctionsException {
         if (Utils.isStringType(this.ctx.globalCtx, this.retType)) {
-            if (Utils.isPureHTTPBinding(this.ctx)) {
-                Utils.addAzurePkgFunctionCall(this.ctx, "setPureStringOutput", true,
-                        Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams), returnValueExpr);
-            } else {
-                Utils.addAzurePkgFunctionCall(this.ctx, "setStringReturn", true,
-                        Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams), returnValueExpr);
-            }
+            Utils.addAzurePkgFunctionCall(this.ctx, "setStringReturn", true, 
+            Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams), returnValueExpr);
+        } else if (Utils.isJsonType(this.ctx.globalCtx, this.retType)) {
+            Utils.addAzurePkgFunctionCall(this.ctx, "setJsonReturn", true, 
+            Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams), returnValueExpr);
         } else if (Utils.isAzurePkgType(ctx, "HTTPBinding", this.retType)) {
-            if (Utils.isPureHTTPBinding(this.ctx)) {
-                Utils.addAzurePkgFunctionCall(this.ctx, "setPureHTTPOutput", true,
-                        Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams), returnValueExpr);
-            } else {
-                Utils.addAzurePkgFunctionCall(this.ctx, "setHTTPReturn", true,
-                        Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams), returnValueExpr);
-            }
+            Utils.addAzurePkgFunctionCall(this.ctx, "setHTTPReturn", true, 
+            Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams), returnValueExpr);
         } else {            
             throw this.createError("Type '" + this.retType.tsymbol.name.value + "' is not supported");
         }

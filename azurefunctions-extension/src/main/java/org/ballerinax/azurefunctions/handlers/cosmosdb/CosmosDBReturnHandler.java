@@ -55,25 +55,16 @@ public class CosmosDBReturnHandler extends AbstractReturnHandler {
     @Override
     public Map<String, Object> generateBinding() {
         Map<String, Object> binding = new LinkedHashMap<>();
-        Map<String, String> annonMap = Utils.extractAnnotationKeyValues(this.annotation);
+        Map<String, Object> annonMap = Utils.extractAnnotationKeyValues(this.annotation);
         binding.put("type", "cosmosDB");
         binding.put("connectionStringSetting", annonMap.get("connectionStringSetting"));
         binding.put("databaseName", annonMap.get("databaseName"));
         binding.put("collectionName", annonMap.get("collectionName"));
-        String createIfNotExists = annonMap.get("createIfNotExists");
-        if (createIfNotExists != null) {
-            binding.put("createIfNotExists", Boolean.parseBoolean(createIfNotExists));
-        }
+        binding.put("createIfNotExists", annonMap.get("createIfNotExists"));
         binding.put("partitionKey", annonMap.get("partitionKey"));
-        String collectionThroughput = annonMap.get("collectionThroughput");
-        if (collectionThroughput != null) {
-            binding.put("collectionThroughput", Integer.parseInt(collectionThroughput));
-        }
+        binding.put("collectionThroughput", annonMap.get("collectionThroughput"));
         binding.put("preferredLocations", annonMap.get("preferredLocations"));
-        String useMultipleWriteLocations = annonMap.get("useMultipleWriteLocations");
-        if (useMultipleWriteLocations != null) {
-            binding.put("useMultipleWriteLocations", Boolean.parseBoolean(useMultipleWriteLocations));
-        }
+        binding.put("useMultipleWriteLocations", annonMap.get("useMultipleWriteLocations"));
         return binding;
     }
     

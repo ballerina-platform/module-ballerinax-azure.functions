@@ -1,3 +1,28 @@
+# Module Overview
+
+Annotation based Azure Functions extension implementation for Ballerina. 
+
+- For information on the operations, which you can perform with this module, see [Objects](/learn/api-docs/ballerina/azure.functions/index.html#objects). 
+- For more information on the deployment, see the [Azure Functions Deployment Guide](/learn/deployment/azure-functions/).
+- For examples on the usage of the operations, see the [Azure Functions Deployment Example](/learn/by-example/azure-functions-deployment.html).
+
+## Azure Setup
+
+* An Azure "Function App" needs to be created in a given resource group with the following requirements
+   - Runtime stack - "Java 8"
+   - Hosting operating system - "Windows" (default; Linux is not supported in Azure for custom handlers at the moment)
+
+## Supported Annotations:
+
+### @azure.functions:Function
+
+#### Custom 'host.json'
+
+A custom [host.json](https://docs.microsoft.com/en-us/azure/azure-functions/functions-host-json) file for the functions deployment can be optionally provided by placing a 'host.json' file in the current working directory where the Ballerina build is done. The required host.json properties are provided/overridden by the values derived from the source code by the compiler extension. 
+
+#### Usage Sample:
+
+```ballerina
 import ballerina/system;
 import ballerinax/azure.functions as af;
 
@@ -163,10 +188,25 @@ public function httpTriggerCosmosDBOutput3(
     return persons;
 }
 
-// A timer function, which is executed every 10 seconds.
+// A timer function which is executed every 10 seconds.
 @af:Function
 public function queuePopulationTimer(
             @af:TimerTrigger { schedule: "*/10 * * * * *" } json triggerInfo, 
             @af:QueueOutput { queueName: "queue4" } af:StringOutputBinding msg) {
     msg.value = triggerInfo.toString();
 }
+```
+
+The output of the Ballerina build is as follows:
+
+```bash
+$ ballerina build azure_functions_deployment.bal 
+Compiling source
+        azure_functions_deployment.bal
+
+Generating executables
+        azure_functions_deployment.jar
+        @azure.functions:Function: hello, fromHttpToQueue, fromQueueToQueue, fromBlobToQueue, httpTriggerBlobInput, httpTriggerBlobOutput, sendSMS, cosmosDBToQueue1, cosmosDBToQueue2, httpTriggerCosmosDBInput1, httpTriggerCosmosDBInput2, httpTriggerCosmosDBInput3, httpTriggerCosmosDBOutput1, httpTriggerCosmosDBOutput2, httpTriggerCosmosDBOutput3, queuePopulationTimer
+```
+
+

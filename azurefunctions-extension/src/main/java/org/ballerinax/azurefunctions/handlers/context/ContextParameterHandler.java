@@ -39,7 +39,7 @@ public class ContextParameterHandler extends AbstractParameterHandler {
     public BLangExpression invocationProcess() throws AzureFunctionsException {
         return Utils.createAzurePkgInvocationNode(this.ctx, "createContext",
                 Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
-                Utils.createBooleanLiteral(this.ctx.globalCtx, !Utils.isPureHTTPBinding(this.ctx)));
+                Utils.createBooleanLiteral(this.ctx.globalCtx, true));
     }
 
     @Override

@@ -98,7 +98,7 @@ public class FunctionsArtifact {
         }
         this.hostJson.add("version", new JsonPrimitive("2.0"));
         JsonObject httpWorker = new JsonObject();
-        this.hostJson.add("httpWorker", httpWorker);
+        this.hostJson.add("customHandler", httpWorker);
         JsonObject httpWorkerDesc = new JsonObject();
         httpWorker.add("description", httpWorkerDesc);
         httpWorkerDesc.add("defaultExecutablePath", new JsonPrimitive("java"));
@@ -106,6 +106,7 @@ public class FunctionsArtifact {
         JsonArray workerArgs = new JsonArray();
         workerArgs.add("-jar");
         httpWorkerDesc.add("arguments", workerArgs);
+        httpWorker.add("enableForwardingHttpRequest", new JsonPrimitive(false));
         JsonObject extensionBundle = new JsonObject();
         this.hostJson.add("extensionBundle", extensionBundle);
         extensionBundle.add("id", new JsonPrimitive("Microsoft.Azure.Functions.ExtensionBundle"));

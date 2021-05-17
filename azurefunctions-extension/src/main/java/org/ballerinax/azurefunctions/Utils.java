@@ -29,9 +29,6 @@ import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
-import org.ballerinax.azurefunctions.handlers.http.HTTPOutputParameterHandler;
-import org.ballerinax.azurefunctions.handlers.http.HTTPReturnHandler;
-import org.ballerinax.azurefunctions.handlers.http.HTTPTriggerParameterHandler;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
@@ -403,16 +400,6 @@ public class Utils {
         return expr;
     }
 
-    public static boolean isSingleInputBinding(FunctionDeploymentContext ctx) {
-        int count = 0;
-        for (ParameterHandler ph : ctx.parameterHandlers) {
-            if (ph.getBindingType() == BindingType.INPUT || ph.getBindingType() == BindingType.TRIGGER) {
-                count++;
-            }
-        }
-        return count == 1;
-    }
-
     public static boolean isSingleOutputBinding(FunctionDeploymentContext ctx) {
         return getOutputBindingCount(ctx) == 1;
     }
@@ -427,48 +414,6 @@ public class Utils {
         return count;
     }
 
-    public static boolean isHTTPTriggerAvailable(FunctionDeploymentContext ctx) {
-        for (ParameterHandler ph : ctx.parameterHandlers) {
-            if (ph.getBindingType() == BindingType.TRIGGER) {
-                if (ph instanceof HTTPTriggerParameterHandler) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    public static boolean isHTTPOutputAvailable(FunctionDeploymentContext ctx) {
-        for (ParameterHandler ph : ctx.parameterHandlers) {
-            if (ph.getBindingType() == BindingType.OUTPUT) {
-                if (ph instanceof HTTPOutputParameterHandler) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    public static boolean isPureHTTPBinding(FunctionDeploymentContext ctx) {
-        if (!isSingleInputBinding(ctx)) {
-            return false;
-        }
-        if (!isHTTPTriggerAvailable(ctx)) {
-            return false;
-        }
-        int outBindingCount = getOutputBindingCount(ctx);
-        if (outBindingCount > 1) {
-            return false;
-        }
-        if (outBindingCount == 1 && !isHTTPOutputAvailable(ctx)) {
-            return false;
-        }
-        if (ctx.returnHandler != null && !(ctx.returnHandler instanceof HTTPReturnHandler)) {
-            return false;
-        }
-        return true;
-    }
-
     public static int getFunctionTriggerCount(FunctionDeploymentContext ctx) {
         int count = 0;
         for (ParameterHandler ph : ctx.parameterHandlers) {
@@ -477,17 +422,6 @@ public class Utils {
             }
         }
         return count;
-    }
-
-    public static boolean isHTTPModule(PackageID pkgId) {
-        return Constants.BALLERINA_ORG.equals(pkgId.orgName.value)
-                && Constants.HTTP_MODULE_NAME.equals(pkgId.name.value);
-    }
-
-    public static boolean isHTTPRequestType(BType type) {
-        String name = type.tsymbol.name.value;
-        PackageID pkgId = type.tsymbol.pkgID;
-        return Constants.HTTP_REQUEST_NAME.equals(name) && Utils.isHTTPModule(pkgId);
     }
 
     public static boolean isContextType(BType type) {
@@ -599,13 +533,13 @@ public class Utils {
         bindings.add(createBindingObject(binding));
     }
 
-    public static Map<String, String> extractAnnotationKeyValues(BLangAnnotationAttachment annotation) {
+    public static Map<String, Object> extractAnnotationKeyValues(BLangAnnotationAttachment annotation) {
         BLangRecordLiteral record = (BLangRecordLiteral) annotation.expr;
         List<BLangRecordKeyValueField> fields = record.getFields().stream().map(x -> (BLangRecordKeyValueField) x)
                 .collect(Collectors.toList());
-        Map<String, String> annonMap = new HashMap<>();
+        Map<String, Object> annonMap = new HashMap<>();
         for (BLangRecordKeyValueField field : fields) {
-            annonMap.put(field.key.toString(), field.getValue().toString());
+            annonMap.put(field.key.toString(), ((BLangLiteral) field.getValue()).getValue());
         }
         return annonMap;
     }

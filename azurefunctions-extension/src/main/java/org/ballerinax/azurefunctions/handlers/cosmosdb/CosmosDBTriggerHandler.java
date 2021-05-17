@@ -60,7 +60,7 @@ public class CosmosDBTriggerHandler extends AbstractParameterHandler {
     @Override
     public Map<String, Object> generateBinding() {
         Map<String, Object> binding = new LinkedHashMap<>();
-        Map<String, String> annonMap = Utils.extractAnnotationKeyValues(this.annotation);
+        Map<String, Object> annonMap = Utils.extractAnnotationKeyValues(this.annotation);
         binding.put("type", "cosmosDBTrigger");
         binding.put("connectionStringSetting", annonMap.get("connectionStringSetting"));
         binding.put("databaseName", annonMap.get("databaseName"));
@@ -68,47 +68,20 @@ public class CosmosDBTriggerHandler extends AbstractParameterHandler {
         binding.put("leaseConnectionStringSetting", annonMap.get("leaseConnectionStringSetting"));
         binding.put("leaseDatabaseName", annonMap.get("leaseDatabaseName"));
         binding.put("leaseCollectionName", annonMap.get("leaseCollectionName"));
-        String createLeaseCollectionIfNotExistsStr = annonMap.get("createLeaseCollectionIfNotExists");
-        Boolean createLeaseCollectionIfNotExists;
-        if (createLeaseCollectionIfNotExistsStr != null) {
-            createLeaseCollectionIfNotExists = Boolean.valueOf(createLeaseCollectionIfNotExistsStr);
-        } else {
+        Boolean createLeaseCollectionIfNotExists = (Boolean) annonMap.get("createLeaseCollectionIfNotExists");
+        if (createLeaseCollectionIfNotExists == null) {
             createLeaseCollectionIfNotExists = Constants.DEFAULT_COSMOS_DB_CREATELEASECOLLECTIONIFNOTEXISTS;
         }
         binding.put("createLeaseCollectionIfNotExists", createLeaseCollectionIfNotExists);
-        String leasesCollectionThroughput = annonMap.get("leasesCollectionThroughput");
-        if (leasesCollectionThroughput != null) {
-            binding.put("leasesCollectionThroughput", Integer.parseInt(leasesCollectionThroughput));
-        }
+        binding.put("leasesCollectionThroughput", annonMap.get("leasesCollectionThroughput"));
         binding.put("leaseCollectionPrefix", annonMap.get("leaseCollectionPrefix"));
-        String feedPollDelay = annonMap.get("feedPollDelay");
-        if (feedPollDelay != null) {
-            binding.put("feedPollDelay", Integer.parseInt(feedPollDelay));
-        }
-        String leaseAcquireInterval = annonMap.get("leaseAcquireInterval");
-        if (leaseAcquireInterval != null) {
-            binding.put("leaseAcquireInterval", Integer.parseInt(leaseAcquireInterval));
-        }
-        String leaseExpirationInterval = annonMap.get("leaseExpirationInterval");
-        if (leaseExpirationInterval != null) {
-            binding.put("leaseExpirationInterval", Integer.parseInt(leaseExpirationInterval));
-        }
-        String leaseRenewInterval = annonMap.get("leaseRenewInterval");
-        if (leaseRenewInterval != null) {
-            binding.put("leaseRenewInterval", Integer.parseInt(leaseRenewInterval));
-        }
-        String checkpointFrequency = annonMap.get("checkpointFrequency");
-        if (checkpointFrequency != null) {
-            binding.put("checkpointFrequency", Integer.parseInt(checkpointFrequency));
-        }
-        String maxItemsPerInvocation = annonMap.get("maxItemsPerInvocation");
-        if (maxItemsPerInvocation != null) {
-            binding.put("maxItemsPerInvocation", Integer.parseInt(maxItemsPerInvocation));
-        }
-        String startFromBeginning = annonMap.get("startFromBeginning");
-        if (startFromBeginning != null) {
-            binding.put("startFromBeginning", Boolean.parseBoolean(startFromBeginning));
-        }
+        binding.put("feedPollDelay", annonMap.get("feedPollDelay"));
+        binding.put("leaseAcquireInterval", annonMap.get("leaseAcquireInterval"));
+        binding.put("leaseExpirationInterval", annonMap.get("leaseExpirationInterval"));
+        binding.put("leaseRenewInterval", annonMap.get("leaseRenewInterval"));
+        binding.put("checkpointFrequency", annonMap.get("checkpointFrequency"));
+        binding.put("maxItemsPerInvocation", annonMap.get("maxItemsPerInvocation"));
+        binding.put("startFromBeginning", annonMap.get("startFromBeginning"));
         binding.put("preferredLocations", annonMap.get("preferredLocations"));
         return binding;
     }
