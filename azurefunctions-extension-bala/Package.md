@@ -10,7 +10,7 @@ This module provides an annotation based [Azure Functions](https://azure.microso
 
 * An Azure "Function App" needs to be created in a given resource group with the following requirements
    - Runtime stack - "Java 11"
-   - Hosting operating system - "Windows" (default; Linux is not supported in Azure for custom handlers at the moment)
+   - Hosting operating system - "Windows" (This is the default and Linux is not supported in Azure for custom handlers at the moment)
 
 ## Supported Annotations:
 
@@ -28,4 +28,3 @@ To report bugs, request new features, start new discussions, view project boards
 - Discuss code changes of the Ballerina project in [ballerina-dev@googlegroups.com](mailto:ballerina-dev@googlegroups.com).
 - Chat live with us via our [Slack channel](https://ballerina.io/community/slack/).
 - Post all technical questions on Stack Overflow with the [#ballerina](https://stackoverflow.com/questions/tagged/ballerina) tag.
-
