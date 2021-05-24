@@ -1,6 +1,6 @@
 ## Overview
 
-This module provides an annotation based [Azure Functions](https://azure.microsoft.com/en-us/services/functions/) extension implementation for Ballerina. 
+This module provides an annotation-based [Azure Functions](https://azure.microsoft.com/en-us/services/functions/) extension implementation for Ballerina. 
  
 
 ## Supported Annotations:
@@ -199,4 +199,3 @@ Generating executables
         azure_functions_deployment.jar
         @azure.functions:Function: hello, fromHttpToQueue, fromQueueToQueue, fromBlobToQueue, httpTriggerBlobInput, httpTriggerBlobOutput, sendSMS, cosmosDBToQueue1, cosmosDBToQueue2, httpTriggerCosmosDBInput1, httpTriggerCosmosDBInput2, httpTriggerCosmosDBInput3, httpTriggerCosmosDBOutput1, httpTriggerCosmosDBOutput2, httpTriggerCosmosDBOutput3, queuePopulationTimer
 ```
-
