@@ -1,6 +1,6 @@
 ## Package Overview
 
-This module provides an annotation based [Azure Functions](https://azure.microsoft.com/en-us/services/functions/) extension implementation for Ballerina language. 
+This module provides an annotation-based [Azure Functions](https://azure.microsoft.com/en-us/services/functions/) extension implementation for Ballerina. 
 
 - For information on the operations, which you can perform with this module, see [API Docs](https://docs.central.ballerina.io/ballerinax/azure-functions/). 
 - For more information on the deployment, see the [Azure Functions Deployment Guide](https://ballerina.io/swan-lake/learn/user-guide/deployment/azure-functions/).
