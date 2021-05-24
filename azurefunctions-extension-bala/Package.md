@@ -18,7 +18,7 @@ This module provides an annotation based [Azure Functions](https://azure.microso
 
 #### Custom 'host.json'
 
-A custom [host.json](https://docs.microsoft.com/en-us/azure/azure-functions/functions-host-json) file for the functions deployment can be optionally provided by placing a 'host.json' file in the current working directory where the bal build is done. The required host.json properties are provided/overridden by the values derived from the source code by the compiler extension. 
+A custom [host.json](https://docs.microsoft.com/en-us/azure/azure-functions/functions-host-json) file for the functions deployment can be optionally provided by placing a 'host.json' file in the current working directory in which the `bal build` is done. The required `host.json` properties are provided/overridden by the values derived from the source code by the compiler extension. 
 
 ### Report Issues
 
@@ -28,5 +28,4 @@ To report bugs, request new features, start new discussions, view project boards
 - Discuss code changes of the Ballerina project in [ballerina-dev@googlegroups.com](mailto:ballerina-dev@googlegroups.com).
 - Chat live with us via our [Slack channel](https://ballerina.io/community/slack/).
 - Post all technical questions on Stack Overflow with the [#ballerina](https://stackoverflow.com/questions/tagged/ballerina) tag.
-
 
