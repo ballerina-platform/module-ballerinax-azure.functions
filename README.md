@@ -37,7 +37,7 @@ public function hello(@af:HTTPTrigger { authLevel: "anonymous" } string payload)
 // HTTP request to add data to a queue
 @af:Function
 public function fromHttpToQueue(af:Context ctx, 
-            @af:HTTPTrigger {} af:HTTPRequest req, 
+            @af:HTTPTrigger af:HTTPRequest req, 
             @af:QueueOutput { queueName: "queue1" } af:StringOutputBinding msg) 
             returns @af:HTTPOutput af:HTTPBinding {
     msg.value = req.body;
@@ -58,7 +58,7 @@ public function fromQueueToQueue(af:Context ctx,
 @af:Function
 public function fromBlobToQueue(af:Context ctx, 
         @af:BlobTrigger { path: "bpath1/{name}" } byte[] blobIn,
-        @af:BindingName { } string name,
+        @af:BindingName  string name,
         @af:QueueOutput { queueName: "queue3" } af:StringOutputBinding outMsg) 
         returns error? {
     outMsg.value = "Name: " + name + " Content: " + blobIn.toString();
@@ -66,7 +66,7 @@ public function fromBlobToQueue(af:Context ctx,
 
 // HTTP request to read a blob value
 @af:Function
-public function httpTriggerBlobInput(@af:HTTPTrigger { } af:HTTPRequest req, 
+public function httpTriggerBlobInput(@af:HTTPTrigger af:HTTPRequest req, 
                     @af:BlobInput { path: "bpath1/{Query.name}" } byte[]? blobIn)
                     returns @af:HTTPOutput string {
     int length = 0;
@@ -79,7 +79,7 @@ public function httpTriggerBlobInput(@af:HTTPTrigger { } af:HTTPRequest req,
 
 // HTTP request to add a new blob
 @af:Function
-public function httpTriggerBlobOutput(@af:HTTPTrigger { } af:HTTPRequest req, 
+public function httpTriggerBlobOutput(@af:HTTPTrigger af:HTTPRequest req, 
         @af:BlobOutput { path: "bpath1/{Query.name}" } af:StringOutputBinding bb)
         returns @af:HTTPOutput string|error {
     bb.value = req.body;
@@ -87,9 +87,19 @@ public function httpTriggerBlobOutput(@af:HTTPTrigger { } af:HTTPRequest req,
             bb?.value.toString();
 }
 
+// HTTP request to add a new blob
+@af:Function
+public function httpTriggerBlobOutput2(@af:HTTPTrigger af:HTTPRequest req,
+        @af:BlobOutput { path: "bpath1/{Query.name}" } af:BytesOutputBinding bb)
+        returns @af:HTTPOutput string|error {
+    bb.value = [65, 66, 67, 97, 98];
+    return "Blob: " + req.query["name"].toString() + " Content: " +
+            bb?.value.toString();
+}
+
 // Sending an SMS
 @af:Function
-public function sendSMS(@af:HTTPTrigger { } af:HTTPRequest req, 
+public function sendSMS(@af:HTTPTrigger af:HTTPRequest req, 
                         @af:TwilioSmsOutput { fromNumber: "+12069845840" } 
                                               af:TwilioSmsOutputBinding tb)
                         returns @af:HTTPOutput string {
@@ -124,7 +134,7 @@ public function cosmosDBToQueue2(@af:CosmosDBTrigger {
 // HTTP request to read CosmosDB records
 @af:Function
 public function httpTriggerCosmosDBInput1(
-            @af:HTTPTrigger { } af:HTTPRequest httpReq, 
+            @af:HTTPTrigger af:HTTPRequest httpReq, 
             @af:CosmosDBInput { connectionStringSetting: "CosmosDBConnection", 
                 databaseName: "db1", collectionName: "c1", 
                 id: "{Query.id}", partitionKey: "{Query.country}" } json dbReq)
@@ -134,7 +144,7 @@ public function httpTriggerCosmosDBInput1(
 
 @af:Function
 public function httpTriggerCosmosDBInput2(
-            @af:HTTPTrigger { } af:HTTPRequest httpReq, 
+            @af:HTTPTrigger af:HTTPRequest httpReq, 
             @af:CosmosDBInput { connectionStringSetting: "CosmosDBConnection", 
                 databaseName: "db1", collectionName: "c1", 
                 id: "{Query.id}", partitionKey: "{Query.country}" } Person? dbReq)
@@ -156,7 +166,7 @@ public function httpTriggerCosmosDBInput3(
 // HTTP request to write records to CosmosDB
 @af:Function
 public function httpTriggerCosmosDBOutput1(
-    @af:HTTPTrigger { } af:HTTPRequest httpReq, @af:HTTPOutput af:HTTPBinding hb) 
+    @af:HTTPTrigger af:HTTPRequest httpReq, @af:HTTPOutput af:HTTPBinding hb) 
     returns @af:CosmosDBOutput { connectionStringSetting: "CosmosDBConnection", 
                                  databaseName: "db1", collectionName: "c1" } json {
     json entry = { id: uuid:createType1AsString(), name: "Saman", country: "Sri Lanka" };
@@ -166,12 +176,12 @@ public function httpTriggerCosmosDBOutput1(
 
 @af:Function
 public function httpTriggerCosmosDBOutput2(
-        @af:HTTPTrigger { } af:HTTPRequest httpReq, 
+        @af:HTTPTrigger af:HTTPRequest httpReq, 
         @af:HTTPOutput af:HTTPBinding hb) 
         returns @af:CosmosDBOutput { 
             connectionStringSetting: "CosmosDBConnection", 
             databaseName: "db1", collectionName: "c1" } json {
-    json entry = [{ id: uuid:createType1AsString(), name: "John Doe A", country: "USA" }, 
+    json entry = [{ id: uuid:createType1AsString(), name: "John Doe A", country: "USA" },
                   { id: uuid:createType1AsString(), name: "John Doe B", country: "USA" }];
     hb.payload = "Adding entries: " + entry.toString();
     return entry;
@@ -179,7 +189,7 @@ public function httpTriggerCosmosDBOutput2(
 
 @af:Function
 public function httpTriggerCosmosDBOutput3(
-                    @af:HTTPTrigger { } af:HTTPRequest httpReq) 
+                    @af:HTTPTrigger af:HTTPRequest httpReq) 
                     returns @af:CosmosDBOutput { 
                         connectionStringSetting: "CosmosDBConnection", 
                         databaseName: "db1", collectionName: "c1" } Person[] {
