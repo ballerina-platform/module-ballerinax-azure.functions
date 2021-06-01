@@ -24,7 +24,6 @@ include(':build-config:checkstyle')
 include(':azurefunctions-extension')
 include(':azurefunctions-extension-bala')
 include(':azurefunctions-extension-test')
-include(':azurefunctions-extension-examples')
 
 gradleEnterprise {
     buildScan {
