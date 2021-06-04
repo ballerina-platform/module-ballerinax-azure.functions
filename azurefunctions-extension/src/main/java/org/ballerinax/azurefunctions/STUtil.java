@@ -421,11 +421,7 @@ public class STUtil {
                         NodeFactory.createToken(SyntaxKind.CLOSE_BRACE_TOKEN));
 
         memberDeclarationNodeList.add(serviceDeclarationNode);
-
-//        for (FunctionDeploymentContext functionDeploymentContext : functionDeploymentContexts) {
-//            memberDeclarationNodeList.add(functionDeploymentContext.getFunction());
-//        }
-
+        
         NodeList<ModuleMemberDeclarationNode> nodeList = NodeFactory.createNodeList(memberDeclarationNodeList);
         Token eofToken = NodeFactory.createToken(SyntaxKind.EOF_TOKEN, NodeFactory.createEmptyMinutiaeList(),
                 STUtil.generateMinutiaeListWithNewline());

@@ -226,7 +226,6 @@ task ballerinaBuild {
                 }
             }
             // extract bala file to artifact cache directory
-            println("$project.projectDir/target/bala")
             file("$project.projectDir/target/bala").eachFileMatch(~/.*.bala/) { balaFile ->
                 copy {
                     from zipTree(balaFile)
@@ -245,7 +244,6 @@ task ballerinaBuild {
                     from zipTree(balaFile)
                     into file("$artifactParent/bala/${packageOrg}/${packageName}/${tomlVersion}/${platform}")
                 }
-                delete(balaFile)
             }
             copy {
                 from file("$artifactDocs")
@@ -287,7 +285,6 @@ task ballerinaBuild {
                 if (Os.isFamily(Os.FAMILY_WINDOWS)) {
                     commandLine 'cmd', '/c', "$distributionBinPath/bal.bat push && exit %%ERRORLEVEL%% --repository=local"
                 } else {
-                    println(project.projectDir)
                     commandLine 'sh', '-c', "$distributionBinPath/bal push --repository=local"
                 }
             }
