@@ -18,8 +18,8 @@
 apply from: "$rootDir/gradle/javaProject.gradle"
 
 configurations {
+    bDistributionDir
     azureFunctionsExtensionPlugin
-    zipPartent
 }
 
 dependencies {
@@ -35,50 +35,19 @@ dependencies {
     testImplementation "org.slf4j:slf4j-log4j12:${slf4jVersion}"
 
     azureFunctionsExtensionPlugin project(":azurefunctions-extension")
-    zipPartent project(path: ":azurefunctions-extension-bala", configuration: "zipPartent")
+    bDistributionDir project(path: ":azurefunctions-extension-bala", configuration: "bDistributionDir")
 }
 
 description = 'Ballerinax - Azure Functions Extension Tests'
 
-def distributionLocation = project(":azurefunctions-extension-bala").buildDir.absolutePath + "/extracted-distribution/jballerina-tools-${ballerinaLangVersion}"
-def zipDirLocation = configurations.zipPartent.singleFile
-
-task copyBalAzureFunctionsExt {
-    doLast {
-        copy {
-            from configurations.azureFunctionsExtensionPlugin
-            into file("${distributionLocation}/bre/lib/")
-        }
-    }
-}
-
-task copyBallerinaArtifacts {
-    dependsOn configurations.zipPartent
-    doLast {
-        copy {
-            from file("$zipDirLocation/bala/ballerinax")
-            into file("${distributionLocation}/repo/bala/ballerinax")
-        }
-        copy {
-            from file("$zipDirLocation/cache/ballerinax")
-            into file("${distributionLocation}/repo/cache/ballerinax")
-        }
-    }
-}
-
-task prepareDistribution {
-    dependsOn copyBalAzureFunctionsExt
-    dependsOn copyBallerinaArtifacts
-}
+def distributionLocation = configurations.bDistributionDir.singleFile
 
 test {
-    dependsOn prepareDistribution
+    dependsOn(":azurefunctions-extension-bala:ballerinaBuild")
     useTestNG() {
         suites 'src/test/resources/testng.xml'
         systemProperties = [
-            ballerinaPack: System.getProperty('ballerinaPack', project.projectDir.absolutePath + "/../azurefunctions-extension-bala/build/extracted-distribution/jballerina-tools-${ballerinaLangVersion}/bin"),
-            "ballerina.home": System.getProperty('ballerinaPack', project.projectDir.absolutePath + "/../azurefunctions-extension-bala/build/extracted-distribution/jballerina-tools-${ballerinaLangVersion}"),
-            ballerinaLayer: System.getProperty('ballerinaPack', project.projectDir.absolutePath + "/../ballerina-layer/bootstrap"),
+            "ballerina.home": System.getProperty('ballerina.home', distributionLocation.absolutePath),
             sampleDir: System.getProperty('sampleDir', project.projectDir.absolutePath + "/../samples"),
             jacocoAgentLine: "-javaagent:${configurations.jacocoRuntime.asPath}=destfile=${test.jacoco.destinationFile.absolutePath},append=true,inclnolocationclasses=true,exclclassloader=jdk.internal.reflect.DelegatingClassLoader"
         ]

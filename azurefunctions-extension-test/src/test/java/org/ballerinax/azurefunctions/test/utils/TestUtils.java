@@ -45,12 +45,10 @@ public class TestUtils {
 
     private static final Log log = LogFactory.getLog(TestUtils.class);
     private static final Path DISTRIBUTION_PATH = Paths.get(FilenameUtils.separatorsToSystem(
-            System.getProperty("ballerinaPack")));
+            System.getProperty("ballerina.home"))).resolve("bin");
     private static final Path BALLERINA_COMMAND = DISTRIBUTION_PATH
             .resolve((System.getProperty("os.name").toLowerCase(Locale.getDefault()).contains("win") ?
                     "bal.bat" : "bal"));
-    private static final Path LAYER_DIR = Paths.get("src").resolve("test").resolve("resources").resolve("layer-pkg")
-            .toAbsolutePath().normalize();
     private static final String BUILD = "build";
     private static final String RUN = "run";
     private static final String EXECUTING_COMMAND = "Executing command: ";
@@ -155,7 +153,7 @@ public class TestUtils {
         int port = generateRandomPort();
         environment.put("FUNCTIONS_CUSTOMHANDLER_PORT", Integer.toString(port));
         Process process = pb.start();
-        Thread.sleep(15000);
+        Thread.sleep(30000);
         String returnValue = invokeFunction(sourceDirectory.getParent().resolve("request.json"), port);
         process.destroy();
         // log ballerina-internal.log content

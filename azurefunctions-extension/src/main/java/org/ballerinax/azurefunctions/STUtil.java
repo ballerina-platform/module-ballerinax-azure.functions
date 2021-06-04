@@ -22,6 +22,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
@@ -41,6 +42,7 @@ import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
+import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ListenerDeclarationNode;
 import io.ballerina.compiler.syntax.tree.MappingConstructorExpressionNode;
@@ -55,14 +57,17 @@ import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.OptionalTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
 import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
+import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.StatementNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.compiler.syntax.tree.TrapExpressionNode;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
@@ -70,6 +75,7 @@ import io.ballerina.compiler.syntax.tree.UnionTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentConfig;
+import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
@@ -78,6 +84,7 @@ import io.ballerina.tools.diagnostics.Location;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -98,10 +105,12 @@ public class STUtil {
      */
     public static FunctionDefinitionNode createHandlerFunction(String baseName) {
         QualifiedNameReferenceNode azHandlerParamsType =
-                NodeFactory.createQualifiedNameReferenceNode(NodeFactory.createIdentifierToken(Constants.IMPORT_ALIAS),
-                        NodeFactory.createToken(SyntaxKind.COLON_TOKEN),
-                        NodeFactory.createIdentifierToken("HandlerParams", NodeFactory.createEmptyMinutiaeList(),
-                                generateMinutiaeListWithWhitespace()));
+                NodeFactory
+                        .createQualifiedNameReferenceNode(NodeFactory.createIdentifierToken(Constants.AF_IMPORT_ALIAS),
+                                NodeFactory.createToken(SyntaxKind.COLON_TOKEN),
+                                NodeFactory
+                                        .createIdentifierToken("HandlerParams", NodeFactory.createEmptyMinutiaeList(),
+                                                generateMinutiaeListWithWhitespace()));
         RequiredParameterNode requiredParameterNode =
                 NodeFactory.createRequiredParameterNode(NodeFactory.createEmptyNodeList(), azHandlerParamsType,
                         NodeFactory.createIdentifierToken(Constants.REQUEST_PARAMS_NAME));
@@ -135,6 +144,154 @@ public class STUtil {
                         generateMinutiaeListWithWhitespace()), NodeFactory.createIdentifierToken(baseName +
                         "Handler", NodeFactory.createEmptyMinutiaeList(), generateMinutiaeListWithWhitespace()),
                 NodeFactory.createEmptyNodeList(), functionSignatureNode, emptyFunctionBodyNode);
+    }
+
+    public static FunctionDefinitionNode createResourceFunction(String baseName) {
+        QualifiedNameReferenceNode httpCallerType =
+                NodeFactory.createQualifiedNameReferenceNode(NodeFactory.createIdentifierToken(Constants.HTTP_IMPORT),
+                        NodeFactory.createToken(SyntaxKind.COLON_TOKEN),
+                        NodeFactory.createIdentifierToken("Caller", NodeFactory.createEmptyMinutiaeList(),
+                                generateMinutiaeListWithWhitespace()));
+        RequiredParameterNode callerParamNode =
+                NodeFactory.createRequiredParameterNode(NodeFactory.createEmptyNodeList(), httpCallerType,
+                        NodeFactory.createIdentifierToken(Constants.HTTP_CALLER_PARAMS_NAME));
+
+        QualifiedNameReferenceNode httpRequestType =
+                NodeFactory.createQualifiedNameReferenceNode(NodeFactory.createIdentifierToken(Constants.HTTP_IMPORT),
+                        NodeFactory.createToken(SyntaxKind.COLON_TOKEN),
+                        NodeFactory.createIdentifierToken("Request", NodeFactory.createEmptyMinutiaeList(),
+                                generateMinutiaeListWithWhitespace()));
+        RequiredParameterNode requestParamNode =
+                NodeFactory.createRequiredParameterNode(NodeFactory.createEmptyNodeList(), httpRequestType,
+                        NodeFactory.createIdentifierToken(Constants.HTTP_REQUEST_PARAMS_NAME));
+
+        OptionalTypeDescriptorNode optionalErrorTypeDescriptorNode =
+                NodeFactory.createOptionalTypeDescriptorNode(NodeFactory
+                                .createErrorTypeDescriptorNode(NodeFactory.createToken(SyntaxKind.ERROR_KEYWORD), null),
+                        NodeFactory.createToken(SyntaxKind.QUESTION_MARK_TOKEN, NodeFactory.createEmptyMinutiaeList(),
+                                generateMinutiaeListWithWhitespace()));
+
+        ReturnTypeDescriptorNode returnTypeDescriptorNode =
+                NodeFactory.createReturnTypeDescriptorNode(NodeFactory
+                                .createToken(SyntaxKind.RETURNS_KEYWORD, NodeFactory.createEmptyMinutiaeList(),
+                                        generateMinutiaeListWithWhitespace()),
+                        NodeFactory.createEmptyNodeList(), optionalErrorTypeDescriptorNode);
+        FunctionSignatureNode functionSignatureNode =
+                NodeFactory.createFunctionSignatureNode(NodeFactory.createToken(SyntaxKind.OPEN_PAREN_TOKEN),
+                        NodeFactory.createSeparatedNodeList(callerParamNode,
+                                NodeFactory.createToken(SyntaxKind.COMMA_TOKEN), requestParamNode),
+                        NodeFactory.createToken(SyntaxKind.CLOSE_PAREN_TOKEN), returnTypeDescriptorNode);
+
+        QualifiedNameReferenceNode httpResponseType =
+                NodeFactory.createQualifiedNameReferenceNode(NodeFactory.createIdentifierToken(Constants.HTTP_IMPORT),
+                        NodeFactory.createToken(SyntaxKind.COLON_TOKEN),
+                        NodeFactory.createIdentifierToken("Response", NodeFactory.createEmptyMinutiaeList(),
+                                generateMinutiaeListWithWhitespace()));
+
+        CaptureBindingPatternNode response =
+                NodeFactory.createCaptureBindingPatternNode(
+                        NodeFactory.createIdentifierToken("response", NodeFactory.createEmptyMinutiaeList(),
+                                generateMinutiaeListWithWhitespace()));
+
+        TypedBindingPatternNode responseTypeBindingNode =
+                NodeFactory.createTypedBindingPatternNode(httpResponseType, response);
+
+        ImplicitNewExpressionNode implicitNewExpressionNode =
+                NodeFactory.createImplicitNewExpressionNode(NodeFactory.createToken(SyntaxKind.NEW_KEYWORD), null);
+
+        VariableDeclarationNode responseDeclNode =
+                NodeFactory.createVariableDeclarationNode(NodeFactory.createEmptyNodeList(), null,
+                        responseTypeBindingNode, NodeFactory.createToken(SyntaxKind.EQUAL_TOKEN),
+                        implicitNewExpressionNode,
+                        NodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN));
+
+        QualifiedNameReferenceNode afHandlerParamType =
+                NodeFactory
+                        .createQualifiedNameReferenceNode(NodeFactory.createIdentifierToken(Constants.AF_IMPORT_ALIAS),
+                                NodeFactory.createToken(SyntaxKind.COLON_TOKEN),
+                                NodeFactory.createIdentifierToken(Constants.REQUEST_PARAMS_TYPE,
+                                        NodeFactory.createEmptyMinutiaeList(),
+                                        generateMinutiaeListWithWhitespace()));
+
+        CaptureBindingPatternNode params =
+                NodeFactory.createCaptureBindingPatternNode(
+                        NodeFactory.createIdentifierToken(Constants.REQUEST_PARAMS_NAME,
+                                NodeFactory.createEmptyMinutiaeList(),
+                                generateMinutiaeListWithWhitespace()));
+
+        TypedBindingPatternNode paramsTypeBindingNode =
+                NodeFactory.createTypedBindingPatternNode(afHandlerParamType, params);
+
+        SpecificFieldNode requestParam =
+                NodeFactory.createSpecificFieldNode(null, NodeFactory.createIdentifierToken("request"), null, null);
+
+        SpecificFieldNode responseParam =
+                NodeFactory.createSpecificFieldNode(null, NodeFactory.createIdentifierToken("response"), null, null);
+
+        MappingConstructorExpressionNode argList =
+                NodeFactory.createMappingConstructorExpressionNode(NodeFactory.createToken(SyntaxKind.OPEN_BRACE_TOKEN),
+                        NodeFactory
+                                .createSeparatedNodeList(requestParam, NodeFactory.createToken(SyntaxKind.COMMA_TOKEN),
+                                        responseParam), NodeFactory.createToken(SyntaxKind.CLOSE_BRACE_TOKEN));
+
+        VariableDeclarationNode paramDeclNode =
+                NodeFactory.createVariableDeclarationNode(NodeFactory.createEmptyNodeList(), null,
+                        paramsTypeBindingNode, NodeFactory.createToken(SyntaxKind.EQUAL_TOKEN), argList,
+                        NodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN));
+
+        PositionalArgumentNode paramsArg = NodeFactory.createPositionalArgumentNode(
+                NodeFactory.createSimpleNameReferenceNode(NodeFactory.createIdentifierToken(Constants.PARAMS)));
+        TrapExpressionNode trappedHandlerCall = NodeFactory.createTrapExpressionNode(SyntaxKind.TRAP_EXPRESSION,
+                NodeFactory.createToken(SyntaxKind.TRAP_KEYWORD,
+                        NodeFactory.createEmptyMinutiaeList(),
+                        STUtil.generateMinutiaeListWithWhitespace()), createMethodInvocationNode(
+                        baseName + "Handler", paramsArg));
+        PositionalArgumentNode handlerArg = NodeFactory.createPositionalArgumentNode(trappedHandlerCall);
+
+        ExpressionStatementNode expressionStatementNode =
+                NodeFactory.createExpressionStatementNode(SyntaxKind.CALL_STATEMENT, createAfFunctionInvocationNode(
+                        "handleFunctionResposne", false, handlerArg, paramsArg),
+                        NodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN));
+
+        SimpleNameReferenceNode caller =
+                NodeFactory.createSimpleNameReferenceNode(NodeFactory.createIdentifierToken("caller"));
+        SimpleNameReferenceNode respond =
+                NodeFactory.createSimpleNameReferenceNode(NodeFactory.createIdentifierToken("respond"));
+        SimpleNameReferenceNode responseVar =
+                NodeFactory.createSimpleNameReferenceNode(NodeFactory.createIdentifierToken("response"));
+        RemoteMethodCallActionNode remoteMethodCallActionNode = NodeFactory
+                .createRemoteMethodCallActionNode(caller, NodeFactory.createToken(SyntaxKind.RIGHT_ARROW_TOKEN),
+                        respond, NodeFactory.createToken(SyntaxKind.OPEN_PAREN_TOKEN),
+                        NodeFactory.createSeparatedNodeList(NodeFactory.createPositionalArgumentNode(responseVar)),
+                        NodeFactory.createToken(SyntaxKind.CLOSE_PAREN_TOKEN));
+        ExpressionStatementNode checkedResponseExpr =
+                NodeFactory.createExpressionStatementNode(SyntaxKind.ACTION_STATEMENT,
+                        NodeFactory.createCheckExpressionNode(SyntaxKind.CHECK_ACTION,
+                                NodeFactory.createToken(SyntaxKind.CHECK_KEYWORD, NodeFactory.createEmptyMinutiaeList(),
+                                        STUtil.generateMinutiaeListWithWhitespace()), remoteMethodCallActionNode),
+                        NodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN));
+
+        FunctionBodyBlockNode functionBodyNode =
+                NodeFactory.createFunctionBodyBlockNode(
+                        NodeFactory.createToken(SyntaxKind.OPEN_BRACE_TOKEN, NodeFactory.createEmptyMinutiaeList(),
+                                STUtil.generateMinutiaeListWithNewline()), null,
+                        NodeFactory.createNodeList(responseDeclNode, paramDeclNode, expressionStatementNode,
+                                checkedResponseExpr),
+                        NodeFactory.createToken(SyntaxKind.CLOSE_BRACE_TOKEN));
+
+        NodeList<Node> relativeResPath = NodeFactory
+                .createNodeList(NodeFactory.createIdentifierToken(baseName, NodeFactory.createEmptyMinutiaeList(),
+                        generateMinutiaeListWithWhitespace()));
+
+        return NodeFactory.createFunctionDefinitionNode(
+                SyntaxKind.FUNCTION_DEFINITION, null,
+                NodeFactory.createNodeList(NodeFactory.createToken(SyntaxKind.RESOURCE_KEYWORD,
+                        NodeFactory.createEmptyMinutiaeList(), generateMinutiaeListWithWhitespace())),
+                NodeFactory.createToken(SyntaxKind.FUNCTION_KEYWORD, NodeFactory.createEmptyMinutiaeList(),
+                        generateMinutiaeListWithWhitespace()), NodeFactory
+                        .createIdentifierToken("'default", NodeFactory.createEmptyMinutiaeList(),
+                                generateMinutiaeListWithWhitespace()), relativeResPath, functionSignatureNode,
+                functionBodyNode);
     }
 
     /**
@@ -180,12 +337,10 @@ public class STUtil {
      * Generates top level ballerina document node with imports, typedesc, main method and handler functions.
      *
      * @param functionDeploymentContexts list of contexts containing original and generated function information
-     * @param mainFunction               generated main function
      * @param generatedTypeDefinitions   type descriptors that needs to be generated
      * @return module part node
      */
     public static ModulePartNode createModulePartNode(Collection<FunctionDeploymentContext> functionDeploymentContexts,
-                                                      FunctionDefinitionNode mainFunction,
                                                       Map<String, TypeDefinitionNode> generatedTypeDefinitions) {
 
         ImportDeclarationNode afImport =
@@ -199,7 +354,7 @@ public class STUtil {
                         NodeFactory.createImportPrefixNode(NodeFactory.createToken(SyntaxKind.AS_KEYWORD,
                                 STUtil.generateMinutiaeListWithWhitespace(),
                                 STUtil.generateMinutiaeListWithWhitespace()),
-                                NodeFactory.createIdentifierToken(Constants.IMPORT_ALIAS)),
+                                NodeFactory.createIdentifierToken(Constants.AF_IMPORT_ALIAS)),
                         NodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN, NodeFactory.createEmptyMinutiaeList(),
                                 STUtil.generateMinutiaeListWithNewline()));
 
@@ -218,10 +373,11 @@ public class STUtil {
                         NodeFactory.createIdentifierToken("Listener", NodeFactory.createEmptyMinutiaeList(),
                                 generateMinutiaeListWithWhitespace()));
         QualifiedNameReferenceNode listenerRef =
-                NodeFactory.createQualifiedNameReferenceNode(NodeFactory.createIdentifierToken(Constants.IMPORT_ALIAS),
-                        NodeFactory.createToken(SyntaxKind.COLON_TOKEN),
-                        NodeFactory.createIdentifierToken("hl", NodeFactory.createEmptyMinutiaeList(),
-                                generateMinutiaeListWithWhitespace()));
+                NodeFactory
+                        .createQualifiedNameReferenceNode(NodeFactory.createIdentifierToken(Constants.AF_IMPORT_ALIAS),
+                                NodeFactory.createToken(SyntaxKind.COLON_TOKEN),
+                                NodeFactory.createIdentifierToken("hl", NodeFactory.createEmptyMinutiaeList(),
+                                        generateMinutiaeListWithWhitespace()));
 
         ListenerDeclarationNode listener =
                 NodeFactory.createListenerDeclarationNode(null, NodeFactory.createToken(SyntaxKind.PUBLIC_KEYWORD,
@@ -232,13 +388,40 @@ public class STUtil {
                                 "__testListener"), NodeFactory.createToken(SyntaxKind.EQUAL_TOKEN), listenerRef,
                         NodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN));
         memberDeclarationNodeList.add(listener);
-        memberDeclarationNodeList.add(mainFunction);
 
         memberDeclarationNodeList.addAll(generatedTypeDefinitions.values());
 
-        for (FunctionDeploymentContext functionDeploymentContext : functionDeploymentContexts) {
-            memberDeclarationNodeList.add(functionDeploymentContext.getFunction());
+        QualifiedNameReferenceNode httpService =
+                NodeFactory.createQualifiedNameReferenceNode(NodeFactory.createIdentifierToken("http"),
+                        NodeFactory.createToken(SyntaxKind.COLON_TOKEN),
+                        NodeFactory.createIdentifierToken("Service", NodeFactory.createEmptyMinutiaeList(),
+                                generateMinutiaeListWithWhitespace()));
+
+        NodeList<Node> absResPathList = NodeFactory.createNodeList(NodeFactory.createToken(SyntaxKind.SLASH_TOKEN));
+
+        SeparatedNodeList<ExpressionNode> listenerReff = NodeFactory.createSeparatedNodeList(NodeFactory
+                .createSimpleNameReferenceNode(
+                        NodeFactory.createIdentifierToken("__testListener", NodeFactory.createEmptyMinutiaeList(),
+                                generateMinutiaeListWithWhitespace())));
+
+        List<Node> resourceFunctions = new ArrayList<>();
+        for (FunctionDeploymentContext context : functionDeploymentContexts) {
+            resourceFunctions.add(createResourceFunction(context.getSourceFunction().functionName().text()));
+            resourceFunctions.add(context.getFunction());
         }
+
+        ServiceDeclarationNode serviceDeclarationNode =
+                NodeFactory.createServiceDeclarationNode(null, NodeFactory.createEmptyNodeList(),
+                        NodeFactory.createToken(SyntaxKind.SERVICE_KEYWORD, NodeFactory.createEmptyMinutiaeList(),
+                                generateMinutiaeListWithWhitespace()), httpService, absResPathList,
+                        NodeFactory.createToken(SyntaxKind.ON_KEYWORD, generateMinutiaeListWithWhitespace(),
+                                generateMinutiaeListWithWhitespace()), listenerReff,
+                        NodeFactory.createToken(SyntaxKind.OPEN_BRACE_TOKEN),
+                        NodeFactory.createNodeList(resourceFunctions),
+                        NodeFactory.createToken(SyntaxKind.CLOSE_BRACE_TOKEN));
+
+        memberDeclarationNodeList.add(serviceDeclarationNode);
+        
         NodeList<ModuleMemberDeclarationNode> nodeList = NodeFactory.createNodeList(memberDeclarationNodeList);
         Token eofToken = NodeFactory.createToken(SyntaxKind.EOF_TOKEN, NodeFactory.createEmptyMinutiaeList(),
                 STUtil.generateMinutiaeListWithNewline());
@@ -281,8 +464,20 @@ public class STUtil {
     }
 
     public static boolean isContextType(ParameterSymbol symbol) {
-        return symbol.typeDescriptor().signature()
-                .equals(Constants.AZURE_FUNCTIONS_TYPE_PREFIX + ":" + Constants.AZURE_FUNCTIONS_CONTEXT_NAME);
+        Optional<ModuleSymbol> module = symbol.typeDescriptor().getModule();
+        if (module.isEmpty()) {
+            return false;
+        }
+        ModuleID id = module.get().id();
+        if (!(id.orgName().equals(Constants.AZURE_FUNCTIONS_PACKAGE_ORG) &&
+                id.moduleName().equals(Constants.AZURE_FUNCTIONS_MODULE_NAME))) {
+            return false;
+        }
+        Optional<String> name = symbol.typeDescriptor().getName();
+        if (name.isEmpty()) {
+            return false;
+        }
+        return name.get().equals(Constants.AZURE_FUNCTIONS_CONTEXT_NAME);
     }
 
     public static void addFunctionBinding(FunctionDeploymentContext ctx, Map<String, Object> binding) {
@@ -329,7 +524,7 @@ public class STUtil {
             if (node.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
                 QualifiedNameReferenceNode refNode = (QualifiedNameReferenceNode) node;
                 String text = refNode.modulePrefix().text();
-                if (text.equals(Constants.IMPORT_ALIAS) || text.equals(Constants.AZURE_FUNCTIONS_MODULE_NAME)) {
+                if (text.equals(Constants.AF_IMPORT_ALIAS) || text.equals(Constants.AZURE_FUNCTIONS_MODULE_NAME)) {
                     return Optional.of(an);
                 }
             }
@@ -343,7 +538,9 @@ public class STUtil {
             if (module.isEmpty()) {
                 return Optional.empty();
             }
-            if (module.get().id().toString().equals(Constants.AZURE_FUNCTIONS_TYPE_PREFIX)) {
+            ModuleID id = module.get().id();
+            if (id.orgName().equals(Constants.AZURE_FUNCTIONS_PACKAGE_ORG) &&
+                    id.moduleName().equals(Constants.AZURE_FUNCTIONS_MODULE_NAME)) {
                 return Optional.of(annotationSymbol);
             }
         }
@@ -351,8 +548,20 @@ public class STUtil {
     }
 
     public static boolean isAzurePkgType(ParameterSymbol variableSymbol, String name) {
-        return variableSymbol.typeDescriptor().signature()
-                .equals(Constants.AZURE_FUNCTIONS_TYPE_PREFIX + ":" + name);
+        Optional<ModuleSymbol> module = variableSymbol.typeDescriptor().getModule();
+        if (module.isEmpty()) {
+            return false;
+        }
+        ModuleID id = module.get().id();
+        if (!(id.orgName().equals(Constants.AZURE_FUNCTIONS_PACKAGE_ORG) &&
+                id.moduleName().equals(Constants.AZURE_FUNCTIONS_MODULE_NAME))) {
+            return false;
+        }
+        Optional<String> name1 = variableSymbol.typeDescriptor().getName();
+        if (name1.isEmpty()) {
+            return false;
+        }
+        return name1.get().equals(name);
     }
 
     public static boolean isStringType(ParameterSymbol variableSymbol) {
@@ -443,6 +652,9 @@ public class STUtil {
 
     public static Map<String, Object> extractAnnotationKeyValues(AnnotationNode annotation)
             throws AzureFunctionsException {
+        if (annotation.annotValue().isEmpty()) {
+            return Collections.emptyMap();
+        }
         MappingConstructorExpressionNode mappingConstructorExpressionNode = annotation.annotValue().get();
         Map<String, Object> annonMap = new HashMap<>();
         for (MappingFieldNode field : mappingConstructorExpressionNode.fields()) {
@@ -492,8 +704,10 @@ public class STUtil {
     public static SimpleNameReferenceNode addAzurePkgRecordVarDef(FunctionDeploymentContext ctx, String type,
                                                                   String name) {
         QualifiedNameReferenceNode typeDesc =
-                NodeFactory.createQualifiedNameReferenceNode(NodeFactory.createIdentifierToken(Constants.IMPORT_ALIAS),
-                        NodeFactory.createToken(SyntaxKind.COLON_TOKEN), NodeFactory.createIdentifierToken(type));
+                NodeFactory
+                        .createQualifiedNameReferenceNode(NodeFactory.createIdentifierToken(Constants.AF_IMPORT_ALIAS),
+                                NodeFactory.createToken(SyntaxKind.COLON_TOKEN),
+                                NodeFactory.createIdentifierToken(type));
         TypedBindingPatternNode typedBindingPatternNode = NodeFactory.createTypedBindingPatternNode(typeDesc,
                 NodeFactory.createCaptureBindingPatternNode(NodeFactory.createIdentifierToken(name,
                         generateMinutiaeListWithWhitespace(), NodeFactory.createEmptyMinutiaeList())));
@@ -529,12 +743,24 @@ public class STUtil {
                 NodeFactory.createToken(SyntaxKind.CLOSE_PAREN_TOKEN));
     }
 
+    public static ExpressionNode createMethodInvocationNode(String functionName, PositionalArgumentNode... args) {
+        SimpleNameReferenceNode simpleNameReferenceNode =
+                NodeFactory.createSimpleNameReferenceNode(NodeFactory.createIdentifierToken(functionName));
+        SimpleNameReferenceNode selfRef =
+                NodeFactory.createSimpleNameReferenceNode(NodeFactory.createIdentifierToken("self"));
+        SeparatedNodeList<FunctionArgumentNode> separatedNodeList = getFunctionParamList(args);
+        return NodeFactory.createMethodCallExpressionNode(selfRef, NodeFactory.createToken(SyntaxKind.DOT_TOKEN),
+                simpleNameReferenceNode, NodeFactory.createToken(SyntaxKind.OPEN_PAREN_TOKEN), separatedNodeList,
+                NodeFactory.createToken(SyntaxKind.CLOSE_PAREN_TOKEN));
+    }
+
     public static ExpressionNode createAfFunctionInvocationNode(String functionName,
                                                                 boolean checked, PositionalArgumentNode... args) {
         QualifiedNameReferenceNode qualifiedNameReferenceNode =
-                NodeFactory.createQualifiedNameReferenceNode(NodeFactory.createIdentifierToken(Constants.IMPORT_ALIAS),
-                        NodeFactory.createToken(SyntaxKind.COLON_TOKEN),
-                        NodeFactory.createIdentifierToken(functionName));
+                NodeFactory
+                        .createQualifiedNameReferenceNode(NodeFactory.createIdentifierToken(Constants.AF_IMPORT_ALIAS),
+                                NodeFactory.createToken(SyntaxKind.COLON_TOKEN),
+                                NodeFactory.createIdentifierToken(functionName));
         SeparatedNodeList<FunctionArgumentNode> separatedNodeList = getFunctionParamList(args);
 
         FunctionCallExpressionNode expression =
@@ -636,8 +862,9 @@ public class STUtil {
      * @return status of the document existence of the module
      */
     public static boolean isDocumentExistInModule(Module module, DocumentConfig document) {
-        for (Document moduleDoc : module.documents()) {
-            if (moduleDoc.name().equals(document.name())) {
+        for (DocumentId documentId : module.documentIds()) {
+            Document doc = module.document(documentId);
+            if (document.name().equals(doc.name())) {
                 return true;
             }
         }

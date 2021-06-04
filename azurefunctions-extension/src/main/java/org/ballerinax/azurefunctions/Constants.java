@@ -28,6 +28,8 @@ public class Constants {
     public static final String BALLERINA_ORG = "ballerina";
     public static final String REQUEST_PARAMS_TYPE = "HandlerParams";
     public static final String REQUEST_PARAMS_NAME = "params";
+    public static final String HTTP_CALLER_PARAMS_NAME = "caller";
+    public static final String HTTP_REQUEST_PARAMS_NAME = "request";
     public static final String AZURE_FUNCTIONS_PACKAGE_ORG = "ballerinax"; 
     public static final String AZURE_FUNCTIONS_CONTEXT_NAME = "Context";
     public static final String AZURE_FUNCS_OUTPUT_ZIP_FILENAME = "azure-functions.zip";
@@ -42,6 +44,7 @@ public class Constants {
             AZURE_FUNCTIONS_PACKAGE_ORG + "/" + AZURE_FUNCTIONS_MODULE_NAME + ":1.0.0";
      public static final String GENERATED_FILE_NAME = "az-func-generated-handler.bal";
      public static final String PARAMS = "params";
-     public static final String IMPORT_ALIAS = "af";
+     public static final String AF_IMPORT_ALIAS = "af";
+     public static final String HTTP_IMPORT = "http";
      public static final String AWS_FUNCTION_TYPE = "Function";
  }

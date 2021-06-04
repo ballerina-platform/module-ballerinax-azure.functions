@@ -23,7 +23,7 @@ import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
-import io.ballerina.projects.Project;
+import io.ballerina.projects.Package;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinax.azurefunctions.validators.MainFunctionValidator;
 import org.ballerinax.azurefunctions.validators.SubmoduleValidator;
@@ -38,14 +38,14 @@ import java.util.List;
  */
 public class AzureFunctionExtractor {
 
-    private final Project project;
+    private final Package currentPackage;
 
-    public AzureFunctionExtractor(Project project) {
-        this.project = project;
+    public AzureFunctionExtractor(Package currentPackage) {
+        this.currentPackage = currentPackage;
     }
 
     public List<FunctionDefinitionNode> extractFunctions() {
-        Module module = project.currentPackage().getDefaultModule();
+        Module module = this.currentPackage.getDefaultModule();
         List<FunctionDefinitionNode> moduleFunctions = new ArrayList<>();
         for (DocumentId documentId : module.documentIds()) {
             Document document = module.document(documentId);
@@ -59,8 +59,8 @@ public class AzureFunctionExtractor {
 
     public List<Diagnostic> validateModules() {
         List<Diagnostic> diagnostics = new ArrayList<>();
-        for (ModuleId moduleId : project.currentPackage().moduleIds()) {
-            Module module = project.currentPackage().module(moduleId);
+        for (ModuleId moduleId : this.currentPackage.moduleIds()) {
+            Module module = this.currentPackage.module(moduleId);
             for (DocumentId documentId : module.documentIds()) {
                 Document document = module.document(documentId);
                 Node rootNode = document.syntaxTree().rootNode();
