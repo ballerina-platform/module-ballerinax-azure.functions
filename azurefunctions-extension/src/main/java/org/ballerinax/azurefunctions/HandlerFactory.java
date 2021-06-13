@@ -46,7 +46,7 @@ public class HandlerFactory {
     
     public static ParameterHandler createParameterHandler(FunctionDeploymentContext ctx, BLangSimpleVariable param)
             throws AzureFunctionsException {
-        if (Utils.isContextType(param.type)) {
+        if (Utils.isContextType(param.getBType())) {
             return new ContextParameterHandler(param);
         }
         BLangAnnotationAttachment ann = Utils.extractAzureFunctionAnnotation(param.getAnnotationAttachments());

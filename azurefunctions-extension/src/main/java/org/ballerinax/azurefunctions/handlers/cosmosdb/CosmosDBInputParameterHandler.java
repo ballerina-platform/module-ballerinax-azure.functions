@@ -46,29 +46,29 @@ public class CosmosDBInputParameterHandler extends AbstractParameterHandler {
     public BLangExpression invocationProcess() throws AzureFunctionsException {
         boolean singleRecordQuery = this.isSingleRecordQuery();
         if (singleRecordQuery) {
-            if (Utils.isJsonType(this.ctx.globalCtx, this.param.type)) {
+            if (Utils.isJsonType(this.ctx.globalCtx, this.param.getBType())) {
                 return Utils.createAzurePkgInvocationNode(this.ctx, "getParsedJsonFromJsonStringFromInputData",
                         Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
                         Utils.createStringLiteral(ctx.globalCtx, this.name));
-            } else if (Utils.isOptionalRecordType(this.ctx.globalCtx, this.param.type)) {
+            } else if (Utils.isOptionalRecordType(this.ctx.globalCtx, this.param.getBType())) {
                 return Utils.createAzurePkgInvocationNode(this.ctx,
                         "getOptionalBallerinaValueFromInputData",
                         Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
                         Utils.createStringLiteral(ctx.globalCtx, this.name),
-                        Utils.createTypeDescExpr(ctx.globalCtx, this.param.type));
+                        Utils.createTypeDescExpr(ctx.globalCtx, this.param.getBType()));
             } else {
                 throw this.createError("Type must be 'json' or an optional record type");
             }
         } else {        
-            if (Utils.isJsonType(this.ctx.globalCtx, this.param.type)) {
+            if (Utils.isJsonType(this.ctx.globalCtx, this.param.getBType())) {
                 return Utils.createAzurePkgInvocationNode(this.ctx, "getJsonFromInput",
                         Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
                         Utils.createStringLiteral(ctx.globalCtx, this.name));
-            } else if (Utils.isRecordArrayType(this.ctx.globalCtx, this.param.type)) {
+            } else if (Utils.isRecordArrayType(this.ctx.globalCtx, this.param.getBType())) {
                 return Utils.createAzurePkgInvocationNode(this.ctx, "getBallerinaValueFromInputData",
                         Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
                         Utils.createStringLiteral(ctx.globalCtx, this.name),
-                        Utils.createTypeDescExpr(ctx.globalCtx, this.param.type));
+                        Utils.createTypeDescExpr(ctx.globalCtx, this.param.getBType()));
             } else {
                 throw this.createError("Type must be 'json' or an array record type");
             }

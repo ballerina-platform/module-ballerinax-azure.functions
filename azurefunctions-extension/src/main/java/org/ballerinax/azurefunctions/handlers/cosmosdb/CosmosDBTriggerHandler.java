@@ -40,15 +40,15 @@ public class CosmosDBTriggerHandler extends AbstractParameterHandler {
 
     @Override
     public BLangExpression invocationProcess() throws AzureFunctionsException {
-        if (Utils.isJsonType(this.ctx.globalCtx, this.param.type)) {
+        if (Utils.isJsonType(this.ctx.globalCtx, this.param.getBType())) {
             return Utils.createAzurePkgInvocationNode(this.ctx, "getJsonFromInputData",
                     Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
                     Utils.createStringLiteral(ctx.globalCtx, this.name));
-        } else if (Utils.isRecordArrayType(this.ctx.globalCtx, this.param.type)) {
+        } else if (Utils.isRecordArrayType(this.ctx.globalCtx, this.param.getBType())) {
             return Utils.createAzurePkgInvocationNode(this.ctx, "getBallerinaValueFromInputData",
                     Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
                     Utils.createStringLiteral(ctx.globalCtx, this.name),
-                    Utils.createTypeDescExpr(ctx.globalCtx, this.param.type));
+                    Utils.createTypeDescExpr(ctx.globalCtx, this.param.getBType()));
         } else {
             throw this.createError("Type must be 'json' or a record array type");
         }

@@ -140,8 +140,8 @@ public class Utils {
             expr = inv;
         }
         BLangSimpleVariableDef varDef = (BLangSimpleVariableDef) TreeBuilder.createSimpleVariableDefinitionNode();
-        varDef.type = expr.type;
-        varDef.var = createVariable(ctx.globalCtx, expr.type, ctx.getNextVarName(), ctx.function.symbol);
+        varDef.setBType(expr.getBType());
+        varDef.var = createVariable(ctx.globalCtx, expr.getBType(), ctx.getNextVarName(), ctx.function.symbol);
         varDef.var.expr = expr;
         ((BLangBlockFunctionBody) ctx.function.body).addStatement(varDef);
         return varDef.var;
@@ -157,7 +157,7 @@ public class Utils {
         BLangLiteral stringLit = new BLangLiteral();
         stringLit.pos = ctx.pos;
         stringLit.value = value;
-        stringLit.type = ctx.symTable.stringType;
+        stringLit.setBType(ctx.symTable.stringType);
         return stringLit;
     }
 
@@ -165,13 +165,13 @@ public class Utils {
         BLangLiteral stringLit = new BLangLiteral();
         stringLit.pos = ctx.pos;
         stringLit.value = value;
-        stringLit.type = ctx.symTable.booleanType;
+        stringLit.setBType(ctx.symTable.booleanType);
         return stringLit;
     }
 
     public static BLangExpression createEmptyRecordLiteral(BType type) {
         BLangRecordLiteral recordLit = new BLangRecordLiteral();
-        recordLit.type = type;
+        recordLit.setBType(type);
         return recordLit;
     }
 
@@ -180,14 +180,14 @@ public class Utils {
         varRef.pos = ctx.pos;
         varRef.variableName = ASTBuilderUtil.createIdentifier(ctx.pos, varSymbol.name.value);
         varRef.symbol = varSymbol;
-        varRef.type = varSymbol.type;
+        varRef.setBType(varSymbol.type);
         return varRef;
     }
 
     public static BLangTypedescExpr createTypeDescExpr(GlobalContext ctx, BType type) {
         BLangTypedescExpr typeDescExpr = new BLangTypedescExpr();
         typeDescExpr.pos = ctx.pos;
-        typeDescExpr.type = ctx.symTable.typeDesc;
+        typeDescExpr.setBType(ctx.symTable.typeDesc);
         typeDescExpr.resolvedType = type;
         typeDescExpr.expectedType = ctx.symTable.typeDesc;
         return typeDescExpr;
@@ -197,7 +197,7 @@ public class Utils {
         BLangSimpleVariable var = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
         var.pos = ctx.pos;
         var.name = ASTBuilderUtil.createIdentifier(ctx.pos, name);
-        var.type = type;
+        var.setBType(type);
         var.symbol = new BVarSymbol(0, new Name(name), type.tsymbol.pkgID, type, owner, var.pos, SymbolOrigin.VIRTUAL);
         return var;
     }
@@ -205,8 +205,8 @@ public class Utils {
     public static BLangSimpleVariable addJSONVarDef(FunctionDeploymentContext ctx, String name, BSymbol owner,
                                                     BLangBlockFunctionBody body) {
         BLangSimpleVariableDef varDef = (BLangSimpleVariableDef) TreeBuilder.createSimpleVariableDefinitionNode();
-        varDef.type = ctx.globalCtx.symTable.jsonType;
-        varDef.var = createVariable(ctx.globalCtx, varDef.type, name, owner);
+        varDef.setBType(ctx.globalCtx.symTable.jsonType);
+        varDef.var = createVariable(ctx.globalCtx, varDef.getBType(), name, owner);
         varDef.var.expr = createEmptyRecordLiteral(ctx.globalCtx.symTable.mapJsonType);
         varDef.pos = ctx.globalCtx.pos;
         body.addStatement(varDef);
@@ -227,9 +227,9 @@ public class Utils {
         GlobalContext globalCtx = ctx.globalCtx;
         BLangFunction func = ctx.function;
         BLangSimpleVariableDef varDef = (BLangSimpleVariableDef) TreeBuilder.createSimpleVariableDefinitionNode();
-        varDef.type = lookupAzurePkgType(ctx, type);
-        varDef.var = createVariable(globalCtx, varDef.type, name, func.symbol);
-        varDef.var.expr = createEmptyRecordLiteral(varDef.type);
+        varDef.setBType(lookupAzurePkgType(ctx, type));
+        varDef.var = createVariable(globalCtx, varDef.getBType(), name, func.symbol);
+        varDef.var.expr = createEmptyRecordLiteral(varDef.getBType());
         varDef.pos = globalCtx.pos;
         ((BLangBlockFunctionBody) func.getBody()).addStatement(varDef);
         return varDef.var.symbol;
@@ -237,19 +237,19 @@ public class Utils {
 
     public static BLangType createJsonTypeNode(GlobalContext ctx) {
         BLangType nillType = new BLangValueType(TypeKind.JSON);
-        nillType.type = ctx.symTable.jsonType;
+        nillType.setBType(ctx.symTable.jsonType);
         return nillType;
     }
 
     public static BLangType createNillTypeNode(GlobalContext ctx) {
         BLangType nillType = new BLangValueType(TypeKind.NIL);
-        nillType.type = ctx.symTable.nilType;
+        nillType.setBType(ctx.symTable.nilType);
         return nillType;
     }
 
     public static BLangType createErrorNillTypeNode(GlobalContext ctx) {
         BLangType errorNillType = new BLangValueType(TypeKind.UNION);
-        errorNillType.type = ctx.symTable.errorOrNilType;
+        errorNillType.setBType(ctx.symTable.errorOrNilType);
         return errorNillType;
     }
 
@@ -272,7 +272,7 @@ public class Utils {
         invocationNode.name = name;
         invocationNode.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         invocationNode.symbol = funcSymbol;
-        invocationNode.type = funcSymbol.getType().getReturnType();
+        invocationNode.setBType(funcSymbol.getType().getReturnType());
         invocationNode.requiredArgs = Arrays.asList(args);
         return invocationNode;
     }
@@ -299,7 +299,7 @@ public class Utils {
                                           BLangBlockFunctionBody body) {
         BLangReturn ret = new BLangReturn();
         ret.pos = pos;
-        ret.type = var.type;
+        ret.setBType(var.type);
         ret.expr = createVariableRef(ctx, var);
         body.addStatement(ret);
     }
@@ -315,13 +315,13 @@ public class Utils {
         bLangFunction.setName(funcName);
         bLangFunction.flagSet = EnumSet.of(Flag.PUBLIC);
         bLangFunction.pos = ctx.pos;
-        bLangFunction.type = new BInvokableType(paramTypes, retType.type, null);
+        bLangFunction.setBType(new BInvokableType(paramTypes, retType.getBType(), null));
         bLangFunction.body = createBlockStmt(ctx.pos);
         BInvokableSymbol functionSymbol = Symbols.createFunctionSymbol(Flags.asMask(bLangFunction.flagSet),
                 new Name(bLangFunction.name.value), packageNode.packageID,
-                bLangFunction.type, packageNode.symbol, true, bLangFunction.pos, SymbolOrigin.VIRTUAL);
-        functionSymbol.type = bLangFunction.type;
-        functionSymbol.retType = retType.type;
+                bLangFunction.getBType(), packageNode.symbol, true, bLangFunction.pos, SymbolOrigin.VIRTUAL);
+        functionSymbol.type = bLangFunction.getBType();
+        functionSymbol.retType = retType.getBType();
         functionSymbol.scope = new Scope(functionSymbol);
         bLangFunction.symbol = functionSymbol;
         for (int i = 0; i < paramNames.size(); i++) {
@@ -393,7 +393,7 @@ public class Utils {
     public static BLangExpression createCheckedExpr(GlobalContext ctx, BLangExpression subexpr) {
         BLangCheckedExpr expr = new BLangCheckedExpr();
         expr.expr = subexpr;
-        expr.type = extractNonErrorType(ctx, subexpr.type);
+        expr.setBType(extractNonErrorType(ctx, subexpr.getBType()));
         expr.equivalentErrorTypeList = new ArrayList<>();
         return expr;
     }
@@ -556,14 +556,14 @@ public class Utils {
         BVarSymbol bVarSymbol = new BVarSymbol(Flags.PUBLIC | Flags.LISTENER, ctx.names.fromString("$testListener"),
                 packageNode.packageID, symbol.type,
                 symbol.owner, packageNode.symbol.pos, symbol.origin);
-        listener.type = symbol.type;
+        listener.setBType(symbol.type);
         listener.name = new BLangIdentifier();
         listener.name.value = "$testListener";
         listener.pos = packageNode.pos;
         listener.symbol = bVarSymbol;
 
         BLangSimpleVarRef simpleVarRef = new BLangSimpleVarRef();
-        simpleVarRef.type = symbol.type;
+        simpleVarRef.setBType(symbol.type);
         simpleVarRef.symbol = symbol;
         listener.expr = simpleVarRef;
         listener.addFlag(Flag.PUBLIC);

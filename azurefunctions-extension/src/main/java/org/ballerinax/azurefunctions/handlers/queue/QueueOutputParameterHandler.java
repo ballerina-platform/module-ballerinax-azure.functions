@@ -43,7 +43,7 @@ public class QueueOutputParameterHandler extends AbstractParameterHandler {
 
     @Override
     public BLangExpression invocationProcess() throws AzureFunctionsException {
-        if (!Utils.isAzurePkgType(ctx, "StringOutputBinding", this.param.type)) {
+        if (!Utils.isAzurePkgType(ctx, "StringOutputBinding", this.param.getBType())) {
             throw this.createError("Type must be 'StringOutputBinding'");
         }
         this.var = Utils.addAzurePkgRecordVarDef(this.ctx, "StringOutputBinding", this.ctx.getNextVarName());

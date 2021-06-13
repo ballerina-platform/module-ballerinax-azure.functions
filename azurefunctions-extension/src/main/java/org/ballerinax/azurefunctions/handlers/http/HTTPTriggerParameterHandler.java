@@ -39,16 +39,16 @@ public class HTTPTriggerParameterHandler extends AbstractParameterHandler {
     
     @Override
     public BLangExpression invocationProcess() throws AzureFunctionsException {
-        if (Utils.isAzurePkgType(this.ctx, "HTTPRequest", this.param.type)) {
+        if (Utils.isAzurePkgType(this.ctx, "HTTPRequest", this.param.getBType())) {
             return Utils.createAzurePkgInvocationNode(this.ctx, "getHTTPRequestFromInputData",
                     Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
                     Utils.createStringLiteral(ctx.globalCtx, this.name));
-        } else if (Utils.isStringType(this.ctx.globalCtx, this.param.type)) {
+        } else if (Utils.isStringType(this.ctx.globalCtx, this.param.getBType())) {
             return Utils.createAzurePkgInvocationNode(this.ctx, "getBodyFromHTTPInputData",
                     Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
                     Utils.createStringLiteral(ctx.globalCtx, this.name));
         } else {
-            throw this.createError("Type '" + this.param.type.tsymbol.name.value + "' is not supported");
+            throw this.createError("Type '" + this.param.getBType().tsymbol.name.value + "' is not supported");
         }
     }
 
