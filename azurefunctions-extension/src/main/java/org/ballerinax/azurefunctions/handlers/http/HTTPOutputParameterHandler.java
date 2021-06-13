@@ -42,7 +42,7 @@ public class HTTPOutputParameterHandler extends AbstractParameterHandler {
 
     @Override
     public BLangExpression invocationProcess() throws AzureFunctionsException {
-        if (!Utils.isAzurePkgType(ctx, "HTTPBinding", this.param.type)) {
+        if (!Utils.isAzurePkgType(ctx, "HTTPBinding", this.param.getBType())) {
             throw this.createError("Type must be 'HTTPBinding'");
         }
         this.var = Utils.addAzurePkgRecordVarDef(this.ctx, "HTTPBinding", this.ctx.getNextVarName());

@@ -43,7 +43,7 @@ public class TwilioSmsOutputParameterHandler extends AbstractParameterHandler {
 
     @Override
     public BLangExpression invocationProcess() throws AzureFunctionsException {
-        if (!Utils.isAzurePkgType(ctx, "TwilioSmsOutputBinding", this.param.type)) {
+        if (!Utils.isAzurePkgType(ctx, "TwilioSmsOutputBinding", this.param.getBType())) {
             throw this.createError("Type must be 'TwilioSmsOutputBinding'");
         }
         this.var = Utils.addAzurePkgRecordVarDef(this.ctx, "TwilioSmsOutputBinding", this.ctx.getNextVarName());

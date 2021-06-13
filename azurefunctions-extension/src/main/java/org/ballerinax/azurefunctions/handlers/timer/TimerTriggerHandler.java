@@ -40,7 +40,7 @@ public class TimerTriggerHandler extends AbstractParameterHandler {
 
     @Override
     public BLangExpression invocationProcess() throws AzureFunctionsException {
-        if (Utils.isJsonType(this.ctx.globalCtx, this.param.type)) {
+        if (Utils.isJsonType(this.ctx.globalCtx, this.param.getBType())) {
             return Utils.createAzurePkgInvocationNode(this.ctx, "getJsonFromInputData",
                     Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
                     Utils.createStringLiteral(ctx.globalCtx, this.name));

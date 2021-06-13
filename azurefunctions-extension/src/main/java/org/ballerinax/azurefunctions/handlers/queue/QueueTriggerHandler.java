@@ -40,11 +40,11 @@ public class QueueTriggerHandler extends AbstractParameterHandler {
 
     @Override
     public BLangExpression invocationProcess() throws AzureFunctionsException {
-        if (Utils.isStringType(this.ctx.globalCtx, this.param.type)) {
+        if (Utils.isStringType(this.ctx.globalCtx, this.param.getBType())) {
             return Utils.createAzurePkgInvocationNode(this.ctx, "getJsonStringFromInputData",
                     Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
                     Utils.createStringLiteral(ctx.globalCtx, this.name));
-        } else if (Utils.isJsonType(this.ctx.globalCtx, this.param.type)) {
+        } else if (Utils.isJsonType(this.ctx.globalCtx, this.param.getBType())) {
             return Utils.createAzurePkgInvocationNode(this.ctx, "getParsedJsonFromJsonStringFromInputData",
                     Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
                     Utils.createStringLiteral(ctx.globalCtx, this.name));

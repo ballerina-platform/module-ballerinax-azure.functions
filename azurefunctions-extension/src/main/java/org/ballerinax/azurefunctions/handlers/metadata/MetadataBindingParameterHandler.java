@@ -43,11 +43,11 @@ public class MetadataBindingParameterHandler extends AbstractParameterHandler {
     
     @Override
     public BLangExpression invocationProcess() throws AzureFunctionsException {
-        if (Utils.isJsonType(this.ctx.globalCtx, this.param.type)) {
+        if (Utils.isJsonType(this.ctx.globalCtx, this.param.getBType())) {
             return Utils.createAzurePkgInvocationNode(this.ctx, "getJsonFromMetadata",
                     Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
                     Utils.createStringLiteral(this.ctx.globalCtx, this.name));
-        } else if (Utils.isStringType(this.ctx.globalCtx, this.param.type)) {
+        } else if (Utils.isStringType(this.ctx.globalCtx, this.param.getBType())) {
             return Utils.createAzurePkgInvocationNode(this.ctx, "getStringFromMetadata",
                     Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
                     Utils.createStringLiteral(this.ctx.globalCtx, this.name));

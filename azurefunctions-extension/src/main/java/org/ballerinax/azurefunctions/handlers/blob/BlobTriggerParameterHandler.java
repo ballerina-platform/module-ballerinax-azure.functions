@@ -40,11 +40,11 @@ public class BlobTriggerParameterHandler extends AbstractParameterHandler {
 
     @Override
     public BLangExpression invocationProcess() throws AzureFunctionsException {
-        if (Utils.isByteArray(this.ctx.globalCtx, this.param.type)) {
+        if (Utils.isByteArray(this.ctx.globalCtx, this.param.getBType())) {
             return Utils.createAzurePkgInvocationNode(this.ctx, "getBytesFromInputData",
                     Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
                     Utils.createStringLiteral(ctx.globalCtx, this.name));
-        } else if (Utils.isStringType(this.ctx.globalCtx, this.param.type)) {
+        } else if (Utils.isStringType(this.ctx.globalCtx, this.param.getBType())) {
             return Utils.createAzurePkgInvocationNode(this.ctx, "getStringConvertedBytesFromInputData",
                     Utils.createVariableRef(ctx.globalCtx, ctx.handlerParams),
                     Utils.createStringLiteral(ctx.globalCtx, this.name));
