@@ -107,16 +107,16 @@ public class STUtil {
         QualifiedNameReferenceNode azHandlerParamsType =
                 NodeFactory
                         .createQualifiedNameReferenceNode(NodeFactory.createIdentifierToken(Constants.AF_IMPORT_ALIAS),
-                                NodeFactory.createToken(SyntaxKind.COLON_TOKEN),
-                                NodeFactory
+                                NodeFactory.createToken(SyntaxKind.COLON_TOKEN), NodeFactory
                                         .createIdentifierToken("HandlerParams", NodeFactory.createEmptyMinutiaeList(),
                                                 generateMinutiaeListWithWhitespace()));
         RequiredParameterNode requiredParameterNode =
                 NodeFactory.createRequiredParameterNode(NodeFactory.createEmptyNodeList(), azHandlerParamsType,
                         NodeFactory.createIdentifierToken(Constants.REQUEST_PARAMS_NAME));
         OptionalTypeDescriptorNode optionalErrorTypeDescriptorNode =
-                NodeFactory.createOptionalTypeDescriptorNode(NodeFactory
-                                .createErrorTypeDescriptorNode(NodeFactory.createToken(SyntaxKind.ERROR_KEYWORD), null),
+                NodeFactory.createOptionalTypeDescriptorNode(
+                        NodeFactory.createParameterizedTypeDescriptorNode(SyntaxKind.ERROR_TYPE_DESC,
+                                NodeFactory.createToken(SyntaxKind.ERROR_KEYWORD), null),
                         NodeFactory.createToken(SyntaxKind.QUESTION_MARK_TOKEN, NodeFactory.createEmptyMinutiaeList(),
                                 generateMinutiaeListWithWhitespace()));
 
@@ -166,8 +166,9 @@ public class STUtil {
                         NodeFactory.createIdentifierToken(Constants.HTTP_REQUEST_PARAMS_NAME));
 
         OptionalTypeDescriptorNode optionalErrorTypeDescriptorNode =
-                NodeFactory.createOptionalTypeDescriptorNode(NodeFactory
-                                .createErrorTypeDescriptorNode(NodeFactory.createToken(SyntaxKind.ERROR_KEYWORD), null),
+                NodeFactory.createOptionalTypeDescriptorNode(
+                        NodeFactory.createParameterizedTypeDescriptorNode(SyntaxKind.ERROR_TYPE_DESC,
+                                NodeFactory.createToken(SyntaxKind.ERROR_KEYWORD), null),
                         NodeFactory.createToken(SyntaxKind.QUESTION_MARK_TOKEN, NodeFactory.createEmptyMinutiaeList(),
                                 generateMinutiaeListWithWhitespace()));
 
@@ -301,8 +302,9 @@ public class STUtil {
      */
     public static FunctionDefinitionNode createMainFunction() {
         OptionalTypeDescriptorNode optionalErrorTypeDescriptorNode =
-                NodeFactory.createOptionalTypeDescriptorNode(NodeFactory
-                                .createErrorTypeDescriptorNode(NodeFactory.createToken(SyntaxKind.ERROR_KEYWORD), null),
+                NodeFactory.createOptionalTypeDescriptorNode(
+                        NodeFactory.createParameterizedTypeDescriptorNode(SyntaxKind.ERROR_TYPE_DESC,
+                                NodeFactory.createToken(SyntaxKind.ERROR_KEYWORD), null),
                         NodeFactory.createToken(SyntaxKind.QUESTION_MARK_TOKEN, NodeFactory.createEmptyMinutiaeList(),
                                 generateMinutiaeListWithWhitespace()));
 
@@ -421,7 +423,7 @@ public class STUtil {
                         NodeFactory.createToken(SyntaxKind.CLOSE_BRACE_TOKEN));
 
         memberDeclarationNodeList.add(serviceDeclarationNode);
-        
+
         NodeList<ModuleMemberDeclarationNode> nodeList = NodeFactory.createNodeList(memberDeclarationNodeList);
         Token eofToken = NodeFactory.createToken(SyntaxKind.EOF_TOKEN, NodeFactory.createEmptyMinutiaeList(),
                 STUtil.generateMinutiaeListWithNewline());
