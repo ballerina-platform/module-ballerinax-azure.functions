@@ -1037,8 +1037,6 @@ public class ParserTestUtils {
                 return SyntaxKind.METADATA;
             case "ANNOTATION":
                 return SyntaxKind.ANNOTATION;
-            case "PARAMETERIZED_TYPE_DESC":
-                return SyntaxKind.PARAMETERIZED_TYPE_DESC;
             case "ANNOTATION_ATTACH_POINT":
                 return SyntaxKind.ANNOTATION_ATTACH_POINT;
             case "NAMED_WORKER_DECLARATION":
