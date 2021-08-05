@@ -559,6 +559,7 @@ public class Utils {
         listener.setBType(symbol.type);
         listener.name = new BLangIdentifier();
         listener.name.value = "$testListener";
+        listener.name.originalValue = "$testListener";
         listener.pos = packageNode.pos;
         listener.symbol = bVarSymbol;
 
