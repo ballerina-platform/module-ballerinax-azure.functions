@@ -318,7 +318,7 @@ public class Utils {
         bLangFunction.setBType(new BInvokableType(paramTypes, retType.getBType(), null));
         bLangFunction.body = createBlockStmt(ctx.pos);
         BInvokableSymbol functionSymbol = Symbols.createFunctionSymbol(Flags.asMask(bLangFunction.flagSet),
-                new Name(bLangFunction.name.value), packageNode.packageID,
+                new Name(bLangFunction.name.value), new Name(bLangFunction.name.originalValue), packageNode.packageID,
                 bLangFunction.getBType(), packageNode.symbol, true, bLangFunction.pos, SymbolOrigin.VIRTUAL);
         functionSymbol.type = bLangFunction.getBType();
         functionSymbol.retType = retType.getBType();
