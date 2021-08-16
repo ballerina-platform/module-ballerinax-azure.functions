@@ -60,12 +60,10 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -126,11 +124,6 @@ public class Utils {
         return addFunctionCall(ctx, createInvocationNode(funcSymbol, exprs), checked);
     }
 
-    public static BLangSimpleVariable addFunctionCall(FunctionDeploymentContext ctx, BPackageSymbol pkgSymbol,
-                                                      String name, boolean checked, BLangExpression... exprs) {
-        return addFunctionCall(ctx, createInvocationNode(pkgSymbol, name, exprs), checked);
-    }
-
     public static BLangSimpleVariable addFunctionCall(FunctionDeploymentContext ctx, BLangInvocation inv,
                                                       boolean checked) {
         BLangExpression expr;
@@ -145,12 +138,6 @@ public class Utils {
         varDef.var.expr = expr;
         ((BLangBlockFunctionBody) ctx.function.body).addStatement(varDef);
         return varDef.var;
-    }
-
-    public static BLangExpressionStmt createExpressionStmt(GlobalContext ctx, BLangExpression expr) {
-        BLangExpressionStmt stmt = new BLangExpressionStmt(expr);
-        stmt.pos = ctx.pos;
-        return stmt;
     }
 
     public static BLangLiteral createStringLiteral(GlobalContext ctx, String value) {
@@ -202,17 +189,6 @@ public class Utils {
         return var;
     }
 
-    public static BLangSimpleVariable addJSONVarDef(FunctionDeploymentContext ctx, String name, BSymbol owner,
-                                                    BLangBlockFunctionBody body) {
-        BLangSimpleVariableDef varDef = (BLangSimpleVariableDef) TreeBuilder.createSimpleVariableDefinitionNode();
-        varDef.setBType(ctx.globalCtx.symTable.jsonType);
-        varDef.var = createVariable(ctx.globalCtx, varDef.getBType(), name, owner);
-        varDef.var.expr = createEmptyRecordLiteral(ctx.globalCtx.symTable.mapJsonType);
-        varDef.pos = ctx.globalCtx.pos;
-        body.addStatement(varDef);
-        return varDef.var;
-    }
-
     public static boolean isAzurePkgType(FunctionDeploymentContext ctx, String azTypeName, BType targetType) {
         BType sourceType = lookupAzurePkgType(ctx, azTypeName);
         return sourceType.equals(targetType);
@@ -233,12 +209,6 @@ public class Utils {
         varDef.pos = globalCtx.pos;
         ((BLangBlockFunctionBody) func.getBody()).addStatement(varDef);
         return varDef.var.symbol;
-    }
-
-    public static BLangType createJsonTypeNode(GlobalContext ctx) {
-        BLangType nillType = new BLangValueType(TypeKind.JSON);
-        nillType.setBType(ctx.symTable.jsonType);
-        return nillType;
     }
 
     public static BLangType createNillTypeNode(GlobalContext ctx) {
@@ -293,15 +263,6 @@ public class Utils {
         BLangFunction handlerFunc = createFunction(ctx, generateHandlerFuncName(baseName), paramNames, paramTypes,
                 retType, packageNode);
         return handlerFunc;
-    }
-
-    public static void addReturnStatement(GlobalContext ctx, DiagnosticPos pos, BVarSymbol var,
-                                          BLangBlockFunctionBody body) {
-        BLangReturn ret = new BLangReturn();
-        ret.pos = pos;
-        ret.setBType(var.type);
-        ret.expr = createVariableRef(ctx, var);
-        body.addStatement(ret);
     }
 
     public static BLangFunction createFunction(GlobalContext ctx, String name, BLangPackage packageNode) {
@@ -396,30 +357,6 @@ public class Utils {
         expr.setBType(extractNonErrorType(ctx, subexpr.getBType()));
         expr.equivalentErrorTypeList = new ArrayList<>();
         return expr;
-    }
-
-    public static boolean isSingleOutputBinding(FunctionDeploymentContext ctx) {
-        return getOutputBindingCount(ctx) == 1;
-    }
-
-    public static int getOutputBindingCount(FunctionDeploymentContext ctx) {
-        int count = 0;
-        for (ParameterHandler ph : ctx.parameterHandlers) {
-            if (ph.getBindingType() == BindingType.OUTPUT) {
-                count++;
-            }
-        }
-        return count;
-    }
-
-    public static int getFunctionTriggerCount(FunctionDeploymentContext ctx) {
-        int count = 0;
-        for (ParameterHandler ph : ctx.parameterHandlers) {
-            if (ph.getBindingType() == BindingType.TRIGGER) {
-                count++;
-            }
-        }
-        return count;
     }
 
     public static boolean isContextType(BType type) {
