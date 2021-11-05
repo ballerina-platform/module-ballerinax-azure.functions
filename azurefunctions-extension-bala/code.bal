@@ -114,6 +114,7 @@ public class Context {
 
 # INTERNAL usage - Enters to function invocation logs.
 # 
+# + hparams - Parameters from the handler
 # + msg - The log message
 isolated function log(HandlerParams hparams, string msg) {
     json[] logs = <json[]> checkpanic hparams.result.Logs;
@@ -633,7 +634,6 @@ public isolated function setCosmosDBJsonReturn(HandlerParams params, json value,
 # + value - The value
 # + return - An error in failure
 public isolated function setBallerinaValueAsJsonReturn(HandlerParams params, anydata value) returns error? {
-    json content = params.result;
     check setJsonReturn(params, check value.cloneWithType(json));
 }
 
@@ -645,7 +645,6 @@ public isolated function setBallerinaValueAsJsonReturn(HandlerParams params, any
 # + return - An error in failure
 public isolated function setCosmosDBBallerinaValueAsJsonReturn(HandlerParams params, anydata value,
                                                       string partitionKey) returns error? {
-    json content = params.result;
     check setCosmosDBJsonReturn(params, check value.cloneWithType(json), partitionKey);
 }
 
