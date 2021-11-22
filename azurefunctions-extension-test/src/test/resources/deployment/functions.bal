@@ -51,6 +51,21 @@ public function httpTriggerBlobInput(@af:HTTPTrigger af:HTTPRequest req,
             length.toString() + " Content: " + blobIn.toString();
 }
 
+// HTTP request to read a blob value input string
+@af:Function
+public function httpTriggerBlobInputStr(@af:HTTPTrigger af:HTTPRequest req, 
+                    @af:BlobInput { path: "bpath1/{Query.name}" } string? strIn)
+                    returns @af:HTTPOutput string {
+    int length = 0;
+    string str = "";
+    if strIn is string {
+        length = strIn.length();
+        str = strIn;
+    }
+    return "Blob: " + req.query["name"].toString() + " Length: " + 
+            strIn.toString() + " Content: " + str;
+}
+
 // HTTP request to add a new blob
 @af:Function
 public function httpTriggerBlobOutput(@af:HTTPTrigger af:HTTPRequest req, 

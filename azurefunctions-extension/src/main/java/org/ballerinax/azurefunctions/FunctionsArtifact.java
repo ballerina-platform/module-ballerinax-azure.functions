@@ -109,7 +109,7 @@ public class FunctionsArtifact {
         JsonObject extensionBundle = new JsonObject();
         this.hostJson.add("extensionBundle", extensionBundle);
         extensionBundle.add("id", new JsonPrimitive("Microsoft.Azure.Functions.ExtensionBundle"));
-        extensionBundle.add("version", new JsonPrimitive("[1.*, 2.0.0)"));
+        extensionBundle.add("version", new JsonPrimitive("[2.*, 3.0.0)"));
     }
 
     private InputStream jtos(JsonElement element) {

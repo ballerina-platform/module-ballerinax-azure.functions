@@ -114,7 +114,7 @@ public class Context {
 
 # INTERNAL usage - Enters to function invocation logs.
 # 
-# + hparams - the handler parameters object
+# + hparams - The handler parameters
 # + msg - The log message
 public isolated function log(HandlerParams hparams, string msg) {
     json[] logs = <json[]> checkpanic hparams.result.Logs;
