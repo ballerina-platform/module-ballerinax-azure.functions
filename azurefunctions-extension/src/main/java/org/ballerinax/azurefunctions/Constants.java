@@ -47,4 +47,5 @@ public class Constants {
      public static final String AF_IMPORT_ALIAS = "af";
      public static final String HTTP_IMPORT = "http";
      public static final String AWS_FUNCTION_TYPE = "Function";
+     public static final String AZ_FUNCTION_PREFIX = "az-func";
  }

@@ -17,6 +17,9 @@
  */
 package org.ballerinax.azurefunctions;
 
+import io.ballerina.projects.CodeGeneratorResult;
+import io.ballerina.projects.Package;
+import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.plugins.CompilerLifecycleEventContext;
 import io.ballerina.projects.plugins.CompilerLifecycleTask;
 import org.ballerinalang.core.util.exceptions.BallerinaException;
@@ -38,6 +41,7 @@ public class AzureCodeGeneratedTask  implements CompilerLifecycleTask<CompilerLi
     
     @Override
     public void perform(CompilerLifecycleEventContext compilerLifecycleEventContext) {
+        OUT.println("Code Gen task executed");
         Map<String, FunctionDeploymentContext> generatedFunctions =
                 AzureFunctionHolder.getInstance().getGeneratedFunctions();
         if (generatedFunctions.isEmpty()) {
