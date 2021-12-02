@@ -46,6 +46,9 @@ public class HandlerFactory {
     
     public static ParameterHandler createParameterHandler(FunctionDeploymentContext ctx, BLangSimpleVariable param)
             throws AzureFunctionsException {
+        BType referenceType = Utils.getReferredType(param.getBType());
+        param.setBType(referenceType);
+        
         if (Utils.isContextType(param.getBType())) {
             return new ContextParameterHandler(param);
         }
@@ -89,6 +92,7 @@ public class HandlerFactory {
         if (symTable.nilType.equals(retType) || symTable.noType.equals(retType)) {
             return null;
         }
+        retType = Utils.getReferredType(retType);
         BLangAnnotationAttachment ann = Utils.extractAzureFunctionAnnotation(annons);
         if (ann == null) {
             throw createReturnError(ctx, "Invalid annotation");
