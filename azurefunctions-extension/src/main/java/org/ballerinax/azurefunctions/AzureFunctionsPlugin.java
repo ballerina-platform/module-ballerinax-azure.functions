@@ -95,7 +95,8 @@ public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
             ctx.parameterHandlers.add(HandlerFactory.createParameterHandler(ctx, param));
         }
         ctx.returnHandler = HandlerFactory.createReturnHandler(ctx,
-                Utils.extractNonErrorType(ctx.globalCtx, sourceFunc.getReturnTypeNode().getBType()),
+                Utils.extractNonErrorType(ctx.globalCtx,
+                        Utils.getReferredType(sourceFunc.getReturnTypeNode().getBType())),
                 sourceFunc.getReturnTypeAnnotationAttachments());
         for (ParameterHandler ph : ctx.parameterHandlers) {
             ph.init(ctx);

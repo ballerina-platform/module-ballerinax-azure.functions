@@ -42,6 +42,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
@@ -338,8 +339,9 @@ public class Utils {
             BUnionType uType = (BUnionType) type;
             LinkedHashSet<BType> newTypes = new LinkedHashSet<>();
             for (BType mt : uType.getMemberTypes()) {
-                if (!isErrorType(ctx, mt)) {
-                    newTypes.add(mt);
+                BType bType = getReferredType(mt);
+                if (!isErrorType(ctx, bType)) {
+                    newTypes.add(bType);
                 }
             }
             if (newTypes.size() == 1) {
@@ -354,26 +356,30 @@ public class Utils {
     public static BLangExpression createCheckedExpr(GlobalContext ctx, BLangExpression subexpr) {
         BLangCheckedExpr expr = new BLangCheckedExpr();
         expr.expr = subexpr;
-        expr.setBType(extractNonErrorType(ctx, subexpr.getBType()));
+        expr.setBType(extractNonErrorType(ctx, getReferredType(subexpr.getBType())));
         expr.equivalentErrorTypeList = new ArrayList<>();
         return expr;
     }
 
     public static boolean isContextType(BType type) {
+        type = getReferredType(type);
         String name = type.tsymbol.name.value;
         PackageID pkgId = type.tsymbol.pkgID;
         return Constants.AZURE_FUNCTIONS_CONTEXT_NAME.equals(name) && Utils.isAzureFuncsModule(pkgId);
     }
 
     public static boolean isStringType(GlobalContext ctx, BType type) {
+        type = getReferredType(type);
         return ctx.symTable.stringType.equals(type);
     }
 
     public static boolean isJsonType(GlobalContext ctx, BType type) {
+        type = getReferredType(type);
         return ctx.symTable.jsonType.tsymbol.equals(type.tsymbol);
     }
 
     public static boolean isRecordType(GlobalContext ctx, BType type) {
+        type = getReferredType(type);
         return type.tag == ctx.symTable.recordType.tag;
     }
 
@@ -383,6 +389,7 @@ public class Utils {
         }
         BUnionType unionType = (BUnionType) type;
         List<BType> memberTypes = new ArrayList<>(unionType.getMemberTypes());
+        memberTypes = getNonReferenceTypes(memberTypes);
         if (memberTypes.size() != 2) {
             return false;
         }
@@ -395,13 +402,13 @@ public class Utils {
             return false;
         }
         BArrayType arrayType = (BArrayType) type;
-        return isRecordType(ctx, arrayType.eType);
+        return isRecordType(ctx, getReferredType(arrayType.eType));
     }
 
     public static boolean isByteArray(GlobalContext ctx, BType type) {
         if (type instanceof BArrayType) {
             BArrayType baType = (BArrayType) type;
-            return ctx.symTable.byteType.equals(baType.eType);
+            return ctx.symTable.byteType.equals(getReferredType(baType.eType));
         }
         return false;
     }
@@ -412,6 +419,7 @@ public class Utils {
         }
         BUnionType unionType = (BUnionType) type;
         List<BType> memberTypes = new ArrayList<>(unionType.getMemberTypes());
+        memberTypes = getNonReferenceTypes(memberTypes);
         if (memberTypes.size() != 2) {
             return false;
         }
@@ -425,6 +433,7 @@ public class Utils {
         }
         BUnionType unionType = (BUnionType) type;
         List<BType> memberTypes = new ArrayList<>(unionType.getMemberTypes());
+        memberTypes = getNonReferenceTypes(memberTypes);
         if (memberTypes.size() != 2) {
             return false;
         }
@@ -510,4 +519,19 @@ public class Utils {
         packageNode.addGlobalVariable(listener);
     }
 
+    public static BType getReferredType(BType type) {
+        BType constraint = type;
+        if (type instanceof BTypeReferenceType) {
+            constraint = getReferredType(((BTypeReferenceType) type).referredType);
+        }
+        return constraint;
+    }
+    
+    public static List<BType> getNonReferenceTypes(List<BType> memberTypes) {
+        List<BType> bTypes = new ArrayList<>(); 
+        for (BType bType: memberTypes) {
+            bTypes.add(getReferredType(bType));
+        }
+        return bTypes;
+    }
 }
