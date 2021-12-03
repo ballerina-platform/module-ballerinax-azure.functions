@@ -17,10 +17,6 @@
  */
 package org.ballerinax.azurefunctions;
 
-import io.ballerina.projects.CodeGeneratorResult;
-import io.ballerina.projects.Package;
-import io.ballerina.projects.plugins.CodeAnalysisContext;
-import io.ballerina.projects.plugins.CodeAnalyzer;
 import io.ballerina.projects.plugins.CompilerPlugin;
 import io.ballerina.projects.plugins.CompilerPluginContext;
 
@@ -32,17 +28,8 @@ import io.ballerina.projects.plugins.CompilerPluginContext;
 public class AzureCompilerPlugin extends CompilerPlugin {
     @Override
     public void init(CompilerPluginContext pluginContext) {
-        pluginContext.addCodeAnalyzer(new CodeAnalyzer() {
-            @Override
-            public void init(CodeAnalysisContext codeAnalysisContext) {
-                codeAnalysisContext.addCompilationAnalysisTask(compilationAnalysisContext -> {
-                    CodeGeneratorResult res = compilationAnalysisContext.currentPackage().runCodeGeneratorPlugins();
-                    Package updatedPackage = res.updatedPackage().orElseThrow();
-                    updatedPackage.getCompilation();
-                });
-            }
-        });
-        pluginContext.addCodeGenerator(new AzureCodeGenerator1());
+        pluginContext.addCodeAnalyzer(new AzureFunctionsCodeAnalyzer());
+        pluginContext.addCodeGenerator(new AzureCodeGenerator());
         pluginContext.addCompilerLifecycleListener(new AzureLifecycleListener());
     }
 }

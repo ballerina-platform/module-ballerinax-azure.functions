@@ -20,6 +20,7 @@ package org.ballerinax.azurefunctions.test;
 import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -42,8 +43,8 @@ public class ProjectValidationTests {
         BuildProject project = BuildProject.load(RESOURCE_DIRECTORY.resolve("main"));
         PackageCompilation compilation = project.currentPackage().getCompilation();
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-        Assert.assertEquals(diagnosticResult.diagnosticCount(), 1);
-        Diagnostic diagnostic = diagnosticResult.diagnostics().iterator().next();
+        Assert.assertEquals(diagnosticResult.errorCount(), 1);
+        Diagnostic diagnostic = diagnosticResult.errors().iterator().next();
         Assert.assertEquals(diagnostic.message(), "main function is not allowed in azure functions");
     }
 
@@ -52,11 +53,24 @@ public class ProjectValidationTests {
         BuildProject project = BuildProject.load(RESOURCE_DIRECTORY.resolve("submodule"));
         PackageCompilation compilation = project.currentPackage().getCompilation();
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-        Assert.assertEquals(diagnosticResult.diagnosticCount(), 2);
-        Iterator<Diagnostic> iterator = diagnosticResult.diagnostics().iterator();
+        Assert.assertEquals(diagnosticResult.errorCount(), 2);
+        Iterator<Diagnostic> iterator = diagnosticResult.errors().iterator();
         Diagnostic unusedModuleDiag = iterator.next();
         Assert.assertEquals(unusedModuleDiag.message(), "unused import module 'submodule.mod1 as mod1'");
         Diagnostic submoduleDiag = iterator.next();
         Assert.assertEquals(submoduleDiag.message(), "azure functions is not allowed inside sub modules");
+    }
+
+    @Test
+    public void singleFileTest() {
+        SingleFileProject project = SingleFileProject.load(RESOURCE_DIRECTORY.resolve("single-file").resolve(
+                "functions.bal"));
+        PackageCompilation compilation = project.currentPackage().getCompilation();
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        Assert.assertEquals(diagnosticResult.errorCount(), 1);
+        Iterator<Diagnostic> iterator = diagnosticResult.errors().iterator();
+        Diagnostic unusedModuleDiag = iterator.next();
+        Assert.assertEquals(unusedModuleDiag.message(), "azure functions are only allowed in ballerina" +
+                " projects");
     }
 }

@@ -17,18 +17,19 @@
  */
 package org.ballerinax.azurefunctions;
 
-import io.ballerina.projects.plugins.CodeGenerator;
-import io.ballerina.projects.plugins.CodeGeneratorContext;
+import io.ballerina.projects.plugins.CodeAnalysisContext;
+import io.ballerina.projects.plugins.CodeAnalyzer;
+import org.ballerinax.azurefunctions.validators.AzureFunctionsCodeAnalyzerTask;
 
 /**
- * Registers Code generators for azure functions.
+ * Contains the code analyzers for azure functions.
  *
  * @since 2.0.0
  */
-public class AzureCodeGenerator1 extends CodeGenerator {
+public class AzureFunctionsCodeAnalyzer extends CodeAnalyzer {
 
     @Override
-    public void init(CodeGeneratorContext codeGeneratorContext) {
-        codeGeneratorContext.addSourceGeneratorTask(new AzureCodegenTask1());
+    public void init(CodeAnalysisContext codeAnalysisContext) {
+        codeAnalysisContext.addCompilationAnalysisTask(new AzureFunctionsCodeAnalyzerTask());
     }
 }

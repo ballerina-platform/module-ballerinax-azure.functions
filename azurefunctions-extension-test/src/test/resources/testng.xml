@@ -21,9 +21,9 @@
     <test name="ballerinax-azure-functions-tests" parallel="false">
         <classes>
 <!--            https://github.com/ballerina-platform/ballerina-lang/issues/28824-->
-            <class name="org.ballerinax.azurefunctions.test.DeploymentTest"/>
+<!--            <class name="org.ballerinax.azurefunctions.test.DeploymentTest"/>-->
             <class name="org.ballerinax.azurefunctions.test.HandlerTest"/>
-            <class name="org.ballerinax.azurefunctions.test.RuntimeTest"/>
+<!--            <class name="org.ballerinax.azurefunctions.test.RuntimeTest"/>-->
             <class name="org.ballerinax.azurefunctions.test.ProjectValidationTests"/>
         </classes>
     </test>
