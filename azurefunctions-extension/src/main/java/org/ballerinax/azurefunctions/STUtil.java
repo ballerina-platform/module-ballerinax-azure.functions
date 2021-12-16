@@ -32,6 +32,7 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.ArrayTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
@@ -73,6 +74,7 @@ import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.UnionTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
+import io.ballerina.compiler.syntax.tree.WildcardBindingPatternNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
@@ -769,6 +771,22 @@ public class STUtil {
         } else {
             expr = inv;
         }
+        
+        if (typeDescriptorNode.kind() == SyntaxKind.NIL_TYPE_DESC) {
+            createWildcardAssignmentNode(ctx, expr);
+            return "_";
+        }
+        if (typeDescriptorNode.kind() == SyntaxKind.OPTIONAL_TYPE_DESC) {
+            Node typeDescriptor = ((OptionalTypeDescriptorNode) typeDescriptorNode).typeDescriptor();
+            if (typeDescriptor.kind() == SyntaxKind.ERROR_TYPE_DESC) {
+                createWildcardAssignmentNode(ctx, expr);
+                return "_";
+            }
+        }
+        if (typeDescriptorNode.kind() == SyntaxKind.OPTIONAL_TYPE_DESC) {
+            createWildcardAssignmentNode(ctx, expr);
+            return "_";
+        }
         String varName = ctx.getNextVarName();
         CaptureBindingPatternNode captureBindingPatternNode =
                 NodeFactory.createCaptureBindingPatternNode(NodeFactory.createIdentifierToken(varName,
@@ -780,9 +798,19 @@ public class STUtil {
                         NodeFactory.createToken(SyntaxKind.EQUAL_TOKEN), expr,
                         NodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN, NodeFactory.createEmptyMinutiaeList(),
                                 STUtil.generateMinutiaeListWithNewline()));
-
         ctx.setFunction(addStatementToFunctionBody(variableDeclarationNode, ctx.getFunction()));
         return varName;
+    }
+
+    private static void createWildcardAssignmentNode(FunctionDeploymentContext ctx, ExpressionNode expr) {
+        WildcardBindingPatternNode wildcardBindingPatternNode = NodeFactory
+                .createWildcardBindingPatternNode(NodeFactory.createToken(SyntaxKind.UNDERSCORE_KEYWORD));
+        AssignmentStatementNode assignmentStatementNode = NodeFactory
+                .createAssignmentStatementNode(wildcardBindingPatternNode,
+                        NodeFactory.createToken(SyntaxKind.EQUAL_TOKEN), expr,
+                        NodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN, NodeFactory.createEmptyMinutiaeList(),
+                                STUtil.generateMinutiaeListWithNewline()));
+        ctx.setFunction(addStatementToFunctionBody(assignmentStatementNode, ctx.getFunction()));
     }
 
     /**
@@ -836,6 +864,13 @@ public class STUtil {
             }
             TypeDescriptorNode rightTypeDesc = unionTypeDescriptorNode.rightTypeDesc();
             return rightTypeDesc.kind() == SyntaxKind.ERROR_TYPE_DESC;
+        }
+        if (typeDescriptorNode.kind() == SyntaxKind.OPTIONAL_TYPE_DESC) {
+            OptionalTypeDescriptorNode optionalTypeDescriptorNode = (OptionalTypeDescriptorNode) typeDescriptorNode;
+            Node node = optionalTypeDescriptorNode.typeDescriptor();
+            if (node.kind() == SyntaxKind.ERROR_TYPE_DESC) {
+                return true;
+            }
         }
         return typeDescriptorNode.kind() == SyntaxKind.ERROR_TYPE_DESC;
     }
