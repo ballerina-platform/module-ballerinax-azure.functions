@@ -62,7 +62,7 @@ public class AzureFunctionsCodeAnalyzerTask implements AnalysisTask<CompilationA
             for (DocumentId documentId : module.documentIds()) {
                 Document document = module.document(documentId);
                 Node rootNode = document.syntaxTree().rootNode();
-                if (document.name().endsWith(Constants.GENERATED_FILE_NAME)) {
+                if (document.name().startsWith(Constants.AZ_FUNCTION_PREFIX)) {
                     continue;
                 }
                 diagnostics.addAll(validateMainFunction(rootNode));

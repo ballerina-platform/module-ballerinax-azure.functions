@@ -98,10 +98,11 @@ public class STUtil {
     /**
      * Generates boilerplate Handler function for a specific azure function.
      *
-     * @param baseName function name
+     * @param ctx function context
      * @return boilerplate handler function
      */
-    public static FunctionDefinitionNode createHandlerFunction(String baseName) {
+    public static FunctionDefinitionNode createHandlerFunction(FunctionDeploymentContext ctx) {
+        String baseName = ctx.getSourceFunction().functionName().text();
         QualifiedNameReferenceNode azHandlerParamsType =
                 NodeFactory
                         .createQualifiedNameReferenceNode(NodeFactory.createIdentifierToken(Constants.AF_IMPORT_ALIAS),
@@ -133,18 +134,29 @@ public class STUtil {
                         NodeFactory.createToken(SyntaxKind.OPEN_BRACE_TOKEN, NodeFactory.createEmptyMinutiaeList(),
                                 STUtil.generateMinutiaeListWithNewline()), null,
                         NodeFactory.createEmptyNodeList(), NodeFactory.createToken(SyntaxKind.CLOSE_BRACE_TOKEN));
+        
+        List<Token> qualifierList = new ArrayList<>();
+        Token publicToken = NodeFactory.createToken(SyntaxKind.PUBLIC_KEYWORD,
+                NodeFactory.createEmptyMinutiaeList(), generateMinutiaeListWithWhitespace());
+        qualifierList.add(publicToken);
+        
+        if (ctx.isIsolatedFunction()) {
+            Token isolatedToken = NodeFactory.createToken(SyntaxKind.ISOLATED_KEYWORD,
+                    NodeFactory.createEmptyMinutiaeList(), generateMinutiaeListWithWhitespace());
+            qualifierList.add(isolatedToken);
+        }
 
         return NodeFactory.createFunctionDefinitionNode(
-                SyntaxKind.FUNCTION_DEFINITION, null,
-                NodeFactory.createNodeList(NodeFactory.createToken(SyntaxKind.PUBLIC_KEYWORD,
-                        NodeFactory.createEmptyMinutiaeList(), generateMinutiaeListWithWhitespace())),
+                SyntaxKind.FUNCTION_DEFINITION, null, NodeFactory.createNodeList(qualifierList),
                 NodeFactory.createToken(SyntaxKind.FUNCTION_KEYWORD, NodeFactory.createEmptyMinutiaeList(),
                         generateMinutiaeListWithWhitespace()), NodeFactory.createIdentifierToken(baseName +
                         "Handler", NodeFactory.createEmptyMinutiaeList(), generateMinutiaeListWithWhitespace()),
                 NodeFactory.createEmptyNodeList(), functionSignatureNode, emptyFunctionBodyNode);
     }
 
-    public static FunctionDefinitionNode createResourceFunction(String baseName) {
+    public static FunctionDefinitionNode createResourceFunction(FunctionDeploymentContext ctx) {
+        //TODO change isolated
+        String baseName = ctx.getSourceFunction().functionName().text();
         QualifiedNameReferenceNode httpCallerType =
                 NodeFactory.createQualifiedNameReferenceNode(NodeFactory.createIdentifierToken(Constants.HTTP_IMPORT),
                         NodeFactory.createToken(SyntaxKind.COLON_TOKEN),
@@ -281,11 +293,20 @@ public class STUtil {
         NodeList<Node> relativeResPath = NodeFactory
                 .createNodeList(NodeFactory.createIdentifierToken(baseName, NodeFactory.createEmptyMinutiaeList(),
                         generateMinutiaeListWithWhitespace()));
+        
+        List<Token> qualifierList = new ArrayList<>();
+        if (ctx.isIsolatedFunction()) {
+            Token isolatedToken = NodeFactory.createToken(SyntaxKind.ISOLATED_KEYWORD,
+                    NodeFactory.createEmptyMinutiaeList(), generateMinutiaeListWithWhitespace());
+            qualifierList.add(isolatedToken);
+        }
+        
+        Token resToken = NodeFactory.createToken(SyntaxKind.RESOURCE_KEYWORD,
+                NodeFactory.createEmptyMinutiaeList(), generateMinutiaeListWithWhitespace());
+        qualifierList.add(resToken);
 
         return NodeFactory.createFunctionDefinitionNode(
-                SyntaxKind.FUNCTION_DEFINITION, null,
-                NodeFactory.createNodeList(NodeFactory.createToken(SyntaxKind.RESOURCE_KEYWORD,
-                        NodeFactory.createEmptyMinutiaeList(), generateMinutiaeListWithWhitespace())),
+                SyntaxKind.FUNCTION_DEFINITION, null, NodeFactory.createNodeList(qualifierList),
                 NodeFactory.createToken(SyntaxKind.FUNCTION_KEYWORD, NodeFactory.createEmptyMinutiaeList(),
                         generateMinutiaeListWithWhitespace()), NodeFactory
                         .createIdentifierToken("'default", NodeFactory.createEmptyMinutiaeList(),
@@ -366,7 +387,7 @@ public class STUtil {
 
         List<Node> resourceFunctions = new ArrayList<>();
         for (FunctionDeploymentContext context : functionDeploymentContexts) {
-            resourceFunctions.add(createResourceFunction(context.getSourceFunction().functionName().text()));
+            resourceFunctions.add(createResourceFunction(context));
             resourceFunctions.add(context.getFunction());
         }
 
@@ -895,5 +916,15 @@ public class STUtil {
                             STUtil.generateMinutiaeListWithWhitespace()));
         }
         return typeDescriptorNode;
+    }
+    
+    public static boolean isIsolatedFunction(FunctionDefinitionNode functionDefinitionNode) {
+        NodeList<Token> tokens = functionDefinitionNode.qualifierList();
+        for (Token token: tokens) {
+            if (token.kind() == SyntaxKind.ISOLATED_KEYWORD) {
+                return true;
+            }
+        }
+        return false;
     }
 }

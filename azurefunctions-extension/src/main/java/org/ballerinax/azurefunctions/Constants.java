@@ -22,7 +22,6 @@ package org.ballerinax.azurefunctions;
  */
 public class Constants {
     
-    public static final String AZURE_FUNCS_REG_FUNCTION_NAME = "__register";
     public static final String MAIN_FUNC_NAME = "main";
     public static final String AZURE_FUNCTIONS_MODULE_NAME = "azure_functions";
     public static final String BALLERINA_ORG = "ballerina";
@@ -40,9 +39,6 @@ public class Constants {
     public static final String DEFAULT_TWILIO_AUTH_TOKEN_SETTING = "AzureWebJobsTwilioAuthToken";
     public static final boolean DEFAULT_TIMER_TRIGGER_RUNONSTARTUP = true;
     public static final boolean DEFAULT_COSMOS_DB_CREATELEASECOLLECTIONIFNOTEXISTS = true;
-    public static final String AZURE_FUNCTIONS_TYPE_PREFIX =
-            AZURE_FUNCTIONS_PACKAGE_ORG + "/" + AZURE_FUNCTIONS_MODULE_NAME + ":1.0.0";
-     public static final String GENERATED_FILE_NAME = "az-func-generated-handler.bal";
      public static final String PARAMS = "params";
      public static final String AF_IMPORT_ALIAS = "af";
      public static final String HTTP_IMPORT = "http";

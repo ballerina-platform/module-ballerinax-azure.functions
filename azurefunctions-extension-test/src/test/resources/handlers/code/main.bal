@@ -18,14 +18,14 @@ import ballerinax/azure_functions as af;
 
 // HTTP request/response with no authentication
 @af:Function
-public function hello(@af:HTTPTrigger { authLevel: "anonymous" } string payload) 
+public isolated function hello(@af:HTTPTrigger { authLevel: "anonymous" } string payload) 
                       returns @af:HTTPOutput string|error {
     return "Hello, " + payload + "!";
 }
 
 // HTTP request to add data to a queue
 @af:Function
-public function fromHttpToQueue(af:Context ctx, 
+public isolated function fromHttpToQueue(af:Context ctx, 
             @af:HTTPTrigger {} af:HTTPRequest req, 
             @af:QueueOutput { queueName: "queue1" } af:StringOutputBinding msg) 
             returns @af:HTTPOutput af:HTTPBinding {
@@ -35,7 +35,7 @@ public function fromHttpToQueue(af:Context ctx,
 
 // A message put to a queue is copied to another queue
 @af:Function
-public function fromQueueToQueue(af:Context ctx, 
+public isolated function fromQueueToQueue(af:Context ctx, 
         @af:QueueTrigger { queueName: "queue2" } string inMsg,
         @af:QueueOutput { queueName: "queue3" } af:StringOutputBinding outMsg) {
     ctx.log("In Message: " + inMsg);
@@ -45,7 +45,7 @@ public function fromQueueToQueue(af:Context ctx,
 
 // // A blob added to a container is copied to a queue
 @af:Function
-public function fromBlobToQueue(af:Context ctx, 
+public isolated function fromBlobToQueue(af:Context ctx, 
         @af:BlobTrigger { path: "bpath1/{name}" } byte[] blobIn,
         @af:BindingName { } string name,
         @af:QueueOutput { queueName: "queue3" } af:StringOutputBinding outMsg) 
@@ -55,7 +55,7 @@ public function fromBlobToQueue(af:Context ctx,
 
 // // HTTP request to read a blob value
 @af:Function
-public function httpTriggerBlobInput(@af:HTTPTrigger { } af:HTTPRequest req, 
+public isolated function httpTriggerBlobInput(@af:HTTPTrigger { } af:HTTPRequest req, 
                     @af:BlobInput { path: "bpath1/{Query.name}" } byte[]? blobIn)
                     returns @af:HTTPOutput string {
     int length = 0;
@@ -68,7 +68,7 @@ public function httpTriggerBlobInput(@af:HTTPTrigger { } af:HTTPRequest req,
 
 // // HTTP request to add a new blob
 @af:Function
-public function httpTriggerBlobOutput(@af:HTTPTrigger { } af:HTTPRequest req, 
+public isolated function httpTriggerBlobOutput(@af:HTTPTrigger { } af:HTTPRequest req, 
         @af:BlobOutput { path: "bpath1/{Query.name}" } af:StringOutputBinding bb)
         returns @af:HTTPOutput string|error {
     bb.value = req.body;
@@ -78,7 +78,7 @@ public function httpTriggerBlobOutput(@af:HTTPTrigger { } af:HTTPRequest req,
 
 // // Sending an SMS
 @af:Function
-public function sendSMS(@af:HTTPTrigger { } af:HTTPRequest req, 
+public isolated function sendSMS(@af:HTTPTrigger { } af:HTTPRequest req, 
                         @af:TwilioSmsOutput { fromNumber: "+12069845840" } 
                                               af:TwilioSmsOutputBinding tb)
                         returns @af:HTTPOutput string {
@@ -95,7 +95,7 @@ public type Person record {
 
 // // CosmosDB record trigger
 @af:Function
-public function cosmosDBToQueue1(@af:CosmosDBTrigger { 
+public isolated function cosmosDBToQueue1(@af:CosmosDBTrigger { 
         connectionStringSetting: "CosmosDBConnection", databaseName: "db1",
         collectionName: "c1" } Person[] req, 
         @af:QueueOutput { queueName: "queue3" } af:StringOutputBinding outMsg) {
@@ -103,7 +103,7 @@ public function cosmosDBToQueue1(@af:CosmosDBTrigger {
 }
 
 @af:Function
-public function cosmosDBToQueue2(@af:CosmosDBTrigger { 
+public isolated function cosmosDBToQueue2(@af:CosmosDBTrigger { 
         connectionStringSetting: "CosmosDBConnection", databaseName: "db1", 
         collectionName: "c2" } json req,
         @af:QueueOutput { queueName: "queue3" } af:StringOutputBinding outMsg) {
@@ -112,7 +112,7 @@ public function cosmosDBToQueue2(@af:CosmosDBTrigger {
 
 // // HTTP request to read CosmosDB records
 @af:Function
-public function httpTriggerCosmosDBInput1(
+public isolated function httpTriggerCosmosDBInput1(
             @af:HTTPTrigger { } af:HTTPRequest httpReq, 
             @af:CosmosDBInput { connectionStringSetting: "CosmosDBConnection", 
                 databaseName: "db1", collectionName: "c1", 
@@ -122,7 +122,7 @@ public function httpTriggerCosmosDBInput1(
 }
 
 @af:Function
-public function httpTriggerCosmosDBInput2(
+public isolated function httpTriggerCosmosDBInput2(
             @af:HTTPTrigger { } af:HTTPRequest httpReq, 
             @af:CosmosDBInput { connectionStringSetting: "CosmosDBConnection", 
                 databaseName: "db1", collectionName: "c1", 
@@ -132,7 +132,7 @@ public function httpTriggerCosmosDBInput2(
 }
 
 @af:Function
-public function httpTriggerCosmosDBInput3(
+public isolated function httpTriggerCosmosDBInput3(
         @af:HTTPTrigger { route: "c1/{country}" } af:HTTPRequest httpReq, 
         @af:CosmosDBInput { connectionStringSetting: "CosmosDBConnection", 
         databaseName: "db1", collectionName: "c1", 
@@ -144,7 +144,7 @@ public function httpTriggerCosmosDBInput3(
 
 // // HTTP request to write records to CosmosDB
 @af:Function
-public function httpTriggerCosmosDBOutput1(
+public isolated function httpTriggerCosmosDBOutput1(
     @af:HTTPTrigger { } af:HTTPRequest httpReq, @af:HTTPOutput af:HTTPBinding hb) 
     returns @af:CosmosDBOutput { connectionStringSetting: "CosmosDBConnection", 
                                  databaseName: "db1", collectionName: "c1" } json {
@@ -154,7 +154,7 @@ public function httpTriggerCosmosDBOutput1(
 }
 
 @af:Function
-public function httpTriggerCosmosDBOutput2(
+public isolated function httpTriggerCosmosDBOutput2(
         @af:HTTPTrigger { } af:HTTPRequest httpReq, 
         @af:HTTPOutput af:HTTPBinding hb) 
         returns @af:CosmosDBOutput { 
@@ -167,7 +167,7 @@ public function httpTriggerCosmosDBOutput2(
 }
 
 @af:Function
-public function httpTriggerCosmosDBOutput3(
+public isolated function httpTriggerCosmosDBOutput3(
                     @af:HTTPTrigger { } af:HTTPRequest httpReq) 
                     returns @af:CosmosDBOutput { 
                         connectionStringSetting: "CosmosDBConnection", 
@@ -180,7 +180,7 @@ public function httpTriggerCosmosDBOutput3(
 
 // // A timer function which is executed every 10 seconds.
 @af:Function
-public function queuePopulationTimer(
+public isolated function queuePopulationTimer(
             @af:TimerTrigger { schedule: "*/10 * * * * *" } json triggerInfo, 
             @af:QueueOutput { queueName: "queue4" } af:StringOutputBinding msg) {
     msg.value = triggerInfo.toString();

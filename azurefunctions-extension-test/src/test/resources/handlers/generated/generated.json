@@ -395,6 +395,15 @@
                                             "kind": "LIST",
                                             "children": [
                                                 {
+                                                    "kind": "ISOLATED_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
+                                                },
+                                                {
                                                     "kind": "RESOURCE_KEYWORD",
                                                     "trailingMinutiae": [
                                                         {
@@ -965,6 +974,15 @@
                                                             "value": " "
                                                         }
                                                     ]
+                                                },
+                                                {
+                                                    "kind": "ISOLATED_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
                                                 }
                                             ]
                                         },
@@ -1384,6 +1402,15 @@
                                         {
                                             "kind": "LIST",
                                             "children": [
+                                                {
+                                                    "kind": "ISOLATED_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
+                                                },
                                                 {
                                                     "kind": "RESOURCE_KEYWORD",
                                                     "trailingMinutiae": [
@@ -1949,6 +1976,15 @@
                                             "children": [
                                                 {
                                                     "kind": "PUBLIC_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "kind": "ISOLATED_KEYWORD",
                                                     "trailingMinutiae": [
                                                         {
                                                             "kind": "WHITESPACE_MINUTIAE",
@@ -2661,6 +2697,15 @@
                                             "kind": "LIST",
                                             "children": [
                                                 {
+                                                    "kind": "ISOLATED_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
+                                                },
+                                                {
                                                     "kind": "RESOURCE_KEYWORD",
                                                     "trailingMinutiae": [
                                                         {
@@ -3225,6 +3270,15 @@
                                             "children": [
                                                 {
                                                     "kind": "PUBLIC_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "kind": "ISOLATED_KEYWORD",
                                                     "trailingMinutiae": [
                                                         {
                                                             "kind": "WHITESPACE_MINUTIAE",
@@ -3803,6 +3857,15 @@
                                             "kind": "LIST",
                                             "children": [
                                                 {
+                                                    "kind": "ISOLATED_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
+                                                },
+                                                {
                                                     "kind": "RESOURCE_KEYWORD",
                                                     "trailingMinutiae": [
                                                         {
@@ -4367,6 +4430,15 @@
                                             "children": [
                                                 {
                                                     "kind": "PUBLIC_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "kind": "ISOLATED_KEYWORD",
                                                     "trailingMinutiae": [
                                                         {
                                                             "kind": "WHITESPACE_MINUTIAE",
@@ -5044,6 +5116,15 @@
                                             "kind": "LIST",
                                             "children": [
                                                 {
+                                                    "kind": "ISOLATED_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
+                                                },
+                                                {
                                                     "kind": "RESOURCE_KEYWORD",
                                                     "trailingMinutiae": [
                                                         {
@@ -5614,6 +5695,15 @@
                                                             "value": " "
                                                         }
                                                     ]
+                                                },
+                                                {
+                                                    "kind": "ISOLATED_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
                                                 }
                                             ]
                                         },
@@ -6104,6 +6194,15 @@
                                         {
                                             "kind": "LIST",
                                             "children": [
+                                                {
+                                                    "kind": "ISOLATED_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
+                                                },
                                                 {
                                                     "kind": "RESOURCE_KEYWORD",
                                                     "trailingMinutiae": [
@@ -6669,6 +6768,15 @@
                                             "children": [
                                                 {
                                                     "kind": "PUBLIC_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "kind": "ISOLATED_KEYWORD",
                                                     "trailingMinutiae": [
                                                         {
                                                             "kind": "WHITESPACE_MINUTIAE",
@@ -7303,6 +7411,15 @@
                                             "kind": "LIST",
                                             "children": [
                                                 {
+                                                    "kind": "ISOLATED_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
+                                                },
+                                                {
                                                     "kind": "RESOURCE_KEYWORD",
                                                     "trailingMinutiae": [
                                                         {
@@ -7867,6 +7984,15 @@
                                             "children": [
                                                 {
                                                     "kind": "PUBLIC_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "kind": "ISOLATED_KEYWORD",
                                                     "trailingMinutiae": [
                                                         {
                                                             "kind": "WHITESPACE_MINUTIAE",
@@ -8487,6 +8613,15 @@
                                             "kind": "LIST",
                                             "children": [
                                                 {
+                                                    "kind": "ISOLATED_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
+                                                },
+                                                {
                                                     "kind": "RESOURCE_KEYWORD",
                                                     "trailingMinutiae": [
                                                         {
@@ -9057,6 +9192,15 @@
                                                             "value": " "
                                                         }
                                                     ]
+                                                },
+                                                {
+                                                    "kind": "ISOLATED_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
                                                 }
                                             ]
                                         },
@@ -9607,6 +9751,15 @@
                                         {
                                             "kind": "LIST",
                                             "children": [
+                                                {
+                                                    "kind": "ISOLATED_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
+                                                },
                                                 {
                                                     "kind": "RESOURCE_KEYWORD",
                                                     "trailingMinutiae": [
@@ -10178,6 +10331,15 @@
                                                             "value": " "
                                                         }
                                                     ]
+                                                },
+                                                {
+                                                    "kind": "ISOLATED_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
                                                 }
                                             ]
                                         },
@@ -10665,6 +10827,15 @@
                                         {
                                             "kind": "LIST",
                                             "children": [
+                                                {
+                                                    "kind": "ISOLATED_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
+                                                },
                                                 {
                                                     "kind": "RESOURCE_KEYWORD",
                                                     "trailingMinutiae": [
@@ -11236,6 +11407,15 @@
                                                             "value": " "
                                                         }
                                                     ]
+                                                },
+                                                {
+                                                    "kind": "ISOLATED_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
                                                 }
                                             ]
                                         },
@@ -11740,6 +11920,15 @@
                                         {
                                             "kind": "LIST",
                                             "children": [
+                                                {
+                                                    "kind": "ISOLATED_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
+                                                },
                                                 {
                                                     "kind": "RESOURCE_KEYWORD",
                                                     "trailingMinutiae": [
@@ -12311,6 +12500,15 @@
                                                             "value": " "
                                                         }
                                                     ]
+                                                },
+                                                {
+                                                    "kind": "ISOLATED_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
                                                 }
                                             ]
                                         },
@@ -12876,6 +13074,15 @@
                                             "kind": "LIST",
                                             "children": [
                                                 {
+                                                    "kind": "ISOLATED_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
+                                                },
+                                                {
                                                     "kind": "RESOURCE_KEYWORD",
                                                     "trailingMinutiae": [
                                                         {
@@ -13440,6 +13647,15 @@
                                             "children": [
                                                 {
                                                     "kind": "PUBLIC_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "kind": "ISOLATED_KEYWORD",
                                                     "trailingMinutiae": [
                                                         {
                                                             "kind": "WHITESPACE_MINUTIAE",
@@ -14020,6 +14236,15 @@
                                             "kind": "LIST",
                                             "children": [
                                                 {
+                                                    "kind": "ISOLATED_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
+                                                },
+                                                {
                                                     "kind": "RESOURCE_KEYWORD",
                                                     "trailingMinutiae": [
                                                         {
@@ -14584,6 +14809,15 @@
                                             "children": [
                                                 {
                                                     "kind": "PUBLIC_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "kind": "ISOLATED_KEYWORD",
                                                     "trailingMinutiae": [
                                                         {
                                                             "kind": "WHITESPACE_MINUTIAE",
@@ -15204,6 +15438,15 @@
                                             "kind": "LIST",
                                             "children": [
                                                 {
+                                                    "kind": "ISOLATED_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
+                                                },
+                                                {
                                                     "kind": "RESOURCE_KEYWORD",
                                                     "trailingMinutiae": [
                                                         {
@@ -15768,6 +16011,15 @@
                                             "children": [
                                                 {
                                                     "kind": "PUBLIC_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "kind": "ISOLATED_KEYWORD",
                                                     "trailingMinutiae": [
                                                         {
                                                             "kind": "WHITESPACE_MINUTIAE",
@@ -16388,6 +16640,15 @@
                                             "kind": "LIST",
                                             "children": [
                                                 {
+                                                    "kind": "ISOLATED_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
+                                                },
+                                                {
                                                     "kind": "RESOURCE_KEYWORD",
                                                     "trailingMinutiae": [
                                                         {
@@ -16958,6 +17219,15 @@
                                                             "value": " "
                                                         }
                                                     ]
+                                                },
+                                                {
+                                                    "kind": "ISOLATED_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
                                                 }
                                             ]
                                         },
@@ -17375,6 +17645,15 @@
                                         {
                                             "kind": "LIST",
                                             "children": [
+                                                {
+                                                    "kind": "ISOLATED_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
+                                                },
                                                 {
                                                     "kind": "RESOURCE_KEYWORD",
                                                     "trailingMinutiae": [
@@ -17940,6 +18219,15 @@
                                             "children": [
                                                 {
                                                     "kind": "PUBLIC_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "kind": "ISOLATED_KEYWORD",
                                                     "trailingMinutiae": [
                                                         {
                                                             "kind": "WHITESPACE_MINUTIAE",
