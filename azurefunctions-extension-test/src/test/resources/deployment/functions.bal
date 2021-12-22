@@ -56,10 +56,8 @@ public isolated function httpTriggerBlobInput(@af:HTTPTrigger af:HTTPRequest req
 public isolated function httpTriggerBlobInputStr(@af:HTTPTrigger af:HTTPRequest req, 
                     @af:BlobInput { path: "bpath1/{Query.name}" } string? strIn)
                     returns @af:HTTPOutput string {
-    int length = 0;
     string str = "";
     if strIn is string {
-        length = strIn.length();
         str = strIn;
     }
     return "Blob: " + req.query["name"].toString() + " Length: " + 

@@ -56,7 +56,7 @@ public class ProjectValidationTests {
         Assert.assertEquals(diagnosticResult.errorCount(), 2);
         Iterator<Diagnostic> iterator = diagnosticResult.errors().iterator();
         Diagnostic unusedModuleDiag = iterator.next();
-        Assert.assertEquals(unusedModuleDiag.message(), "unused import module 'submodule.mod1 as mod1'");
+        Assert.assertEquals(unusedModuleDiag.message(), "unused module prefix 'mod1'");
         Diagnostic submoduleDiag = iterator.next();
         Assert.assertEquals(submoduleDiag.message(), "azure functions is not allowed inside sub modules");
     }

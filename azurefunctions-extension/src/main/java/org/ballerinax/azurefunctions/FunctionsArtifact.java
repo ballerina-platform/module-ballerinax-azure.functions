@@ -52,7 +52,7 @@ public class FunctionsArtifact {
 
     private static final String FUNCTION_JSON_NAME = "function.json";
 
-    private Map<String, FunctionDeploymentContext> functions;
+    private Map<String, JsonObject> functions;
 
     private Path binaryPath;
 
@@ -60,13 +60,13 @@ public class FunctionsArtifact {
 
     private Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-    public FunctionsArtifact(Map<String, FunctionDeploymentContext> functions, Path binaryPath) throws IOException {
+    public FunctionsArtifact(Map<String, JsonObject> functions, Path binaryPath) throws IOException {
         this.functions = functions;
         this.binaryPath = binaryPath;
         this.generateHostJson();
     }
 
-    public Map<String, FunctionDeploymentContext> getFunctions() {
+    public Map<String, JsonObject> getFunctions() {
         return functions;
     }
 
@@ -135,11 +135,10 @@ public class FunctionsArtifact {
                             StandardCopyOption.REPLACE_EXISTING);
                     Files.copy(this.jtos(this.hostJson), zipfs.getPath("/" + HOST_JSON_NAME),
                             StandardCopyOption.REPLACE_EXISTING);
-                    for (Map.Entry<String, FunctionDeploymentContext> entry : this.functions.entrySet()) {
+                    for (Map.Entry<String, JsonObject> entry : this.functions.entrySet()) {
                         Path functionDir = zipfs.getPath("/" + entry.getKey());
                         Files.createDirectory(functionDir);
-                        Files.copy(this.jtos(entry.getValue().getFunctionDefinition()),
-                                functionDir.resolve(FUNCTION_JSON_NAME),
+                        Files.copy(this.jtos(entry.getValue()), functionDir.resolve(FUNCTION_JSON_NAME),
                                 StandardCopyOption.REPLACE_EXISTING);
                     }
                 }
