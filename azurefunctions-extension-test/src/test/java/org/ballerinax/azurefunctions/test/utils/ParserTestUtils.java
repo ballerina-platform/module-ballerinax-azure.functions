@@ -1227,6 +1227,8 @@ public class ParserTestUtils {
                 return SyntaxKind.INVALID_TOKEN;
             case "INVALID_TOKEN_MINUTIAE_NODE":
                 return SyntaxKind.INVALID_TOKEN_MINUTIAE_NODE;
+            case "UNDERSCORE_KEYWORD":
+                return SyntaxKind.UNDERSCORE_KEYWORD;
 
             // Unsupported
             default:

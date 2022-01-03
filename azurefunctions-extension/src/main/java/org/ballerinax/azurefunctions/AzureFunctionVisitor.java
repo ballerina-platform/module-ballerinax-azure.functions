@@ -24,7 +24,6 @@ import io.ballerina.compiler.syntax.tree.MetadataNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
-import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 
 import java.util.ArrayList;
@@ -69,11 +68,6 @@ public class AzureFunctionVisitor extends NodeVisitor {
             return;
         }
         this.moduleName = importDeclarationNode.prefix().get().prefix().text();
-    }
-
-    @Override
-    public void visit(ServiceDeclarationNode serviceDeclarationNode) {
-        super.visit(serviceDeclarationNode);
     }
 
     @Override

@@ -28,7 +28,8 @@ import io.ballerina.projects.plugins.CompilerPluginContext;
 public class AzureCompilerPlugin extends CompilerPlugin {
     @Override
     public void init(CompilerPluginContext pluginContext) {
-        pluginContext.addCodeAnalyzer(new AzureCodeGenerator());
+        pluginContext.addCodeAnalyzer(new AzureFunctionsCodeAnalyzer());
+        pluginContext.addCodeGenerator(new AzureCodeGenerator());
         pluginContext.addCompilerLifecycleListener(new AzureLifecycleListener());
     }
 }

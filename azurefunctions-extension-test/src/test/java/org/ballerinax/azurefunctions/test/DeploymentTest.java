@@ -55,8 +55,5 @@ public class DeploymentTest {
             Assert.assertTrue(Files.exists(hostJson));
         }
     }
-    
-    //TODO add single file test when its supported
-    //https://github.com/ballerina-platform/ballerina-lang/issues/28824
 }
 

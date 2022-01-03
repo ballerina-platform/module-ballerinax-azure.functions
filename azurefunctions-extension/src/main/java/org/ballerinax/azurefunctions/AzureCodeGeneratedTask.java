@@ -17,54 +17,73 @@
  */
 package org.ballerinax.azurefunctions;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 import io.ballerina.projects.plugins.CompilerLifecycleEventContext;
 import io.ballerina.projects.plugins.CompilerLifecycleTask;
 import org.ballerinalang.core.util.exceptions.BallerinaException;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.Optional;
 
 /**
  * Contains the code generation part of the azure functions.
- * 
+ *
  * @since 2.0.0
  */
-public class AzureCodeGeneratedTask  implements CompilerLifecycleTask<CompilerLifecycleEventContext> {
+public class AzureCodeGeneratedTask implements CompilerLifecycleTask<CompilerLifecycleEventContext> {
+
     private static final PrintStream OUT = System.out;
-    
+
     @Override
     public void perform(CompilerLifecycleEventContext compilerLifecycleEventContext) {
-        Map<String, FunctionDeploymentContext> generatedFunctions =
-                AzureFunctionHolder.getInstance().getGeneratedFunctions();
-        if (generatedFunctions.isEmpty()) {
-            // no azure functions, nothing else to do
-            return;
+        Path azfJson = compilerLifecycleEventContext.currentPackage().project().targetDir().resolve("azf.json");
+        Gson gson = new Gson();
+        try (FileReader file = new FileReader(azfJson.toAbsolutePath().toString(),
+                StandardCharsets.UTF_8)) {
+            Type map = new TypeToken<Map<String, JsonObject>>() {
+            }.getType();
+            Map<String, JsonObject> generatedFunctions = gson.fromJson(file, map);
+            file.close();
+            Files.deleteIfExists(azfJson);
+            if (generatedFunctions.isEmpty()) {
+                // no azure functions, nothing else to do
+                return;
+            }
+            OUT.println("\t@azure_functions:Function: " + String.join(", ", generatedFunctions.keySet()));
+            Optional<Path> generatedArtifactPath = compilerLifecycleEventContext.getGeneratedArtifactPath();
+            generatedArtifactPath.ifPresent(path -> {
+                try {
+                    this.generateFunctionsArtifact(generatedFunctions, path);
+                } catch (IOException e) {
+                    String msg = "Error generating Azure Functions: " + e.getMessage();
+                    OUT.println(msg);
+                    throw new BallerinaException(msg, e);
+                }
+                OUT.println("\n\tExecute the below command to deploy Ballerina Azure Functions:");
+                Path parent = path.getParent();
+                if (parent != null) {
+                    OUT.println(
+                            "\taz functionapp deployment source config-zip -g <resource_group> -n <function_app_name>" +
+                                    " --src " + parent.toString() + File.separator +
+                                    Constants.AZURE_FUNCS_OUTPUT_ZIP_FILENAME + "\n\n");
+                }
+            });
+        } catch (IOException e) {
+            OUT.println("Internal error occurred. Unable to read target/azf.json " + e.getMessage());
         }
-        OUT.println("\t@azure_functions:Function: " + String.join(", ", generatedFunctions.keySet()));
-        Optional<Path> generatedArtifactPath = compilerLifecycleEventContext.getGeneratedArtifactPath();
-        generatedArtifactPath.ifPresent(path -> {
-            try {
-                this.generateFunctionsArtifact(generatedFunctions, path);
-            } catch (IOException e) {
-                String msg = "Error generating Azure Functions: " + e.getMessage();
-                OUT.println(msg);
-                throw new BallerinaException(msg, e);
-            }
-            OUT.println("\n\tExecute the below command to deploy Ballerina Azure Functions:");
-            Path parent = path.getParent();
-            if (parent != null) {
-                OUT.println(
-                        "\taz functionapp deployment source config-zip -g <resource_group> -n <function_app_name> " +
-                                "--src " + parent.toString() + File.separator +
-                                Constants.AZURE_FUNCS_OUTPUT_ZIP_FILENAME + "\n\n");
-            }
-        });
     }
-    private void generateFunctionsArtifact(Map<String, FunctionDeploymentContext> functions, Path binaryPath)
+
+    private void generateFunctionsArtifact(Map<String, JsonObject> functions, Path binaryPath)
             throws IOException {
         new FunctionsArtifact(functions, binaryPath).generate(Constants.AZURE_FUNCS_OUTPUT_ZIP_FILENAME);
     }

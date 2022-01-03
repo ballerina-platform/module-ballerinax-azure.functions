@@ -30,18 +30,13 @@ import java.util.List;
 public class FunctionDeploymentContext {
 
     private static final String VAR_PREFIX = "v";
-
     private List<ParameterHandler> parameterHandlers = new ArrayList<>();
-
     private ReturnHandler returnHandler;
-
     private JsonObject functionDefinition;
-
     private FunctionDefinitionNode sourceFunction;
-
     private FunctionDefinitionNode function;
-
     private int varCounter = 0;
+    private boolean isolatedFunction = false;
 
     public FunctionDeploymentContext() {
         this.setFunctionDefinition(new JsonObject());
@@ -90,5 +85,13 @@ public class FunctionDeploymentContext {
 
     public void setFunction(FunctionDefinitionNode function) {
         this.function = function;
+    }
+
+    public boolean isIsolatedFunction() {
+        return isolatedFunction;
+    }
+
+    public void setIsolatedFunction(boolean isolatedFunction) {
+        this.isolatedFunction = isolatedFunction;
     }
 }

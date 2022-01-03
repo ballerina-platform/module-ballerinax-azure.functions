@@ -17,22 +17,34 @@
  */
 package org.ballerinax.azurefunctions;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
-import io.ballerina.projects.DocumentConfig;
-import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
-import io.ballerina.projects.Project;
-import io.ballerina.projects.plugins.AnalysisTask;
-import io.ballerina.projects.plugins.CompilationAnalysisContext;
-import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.projects.plugins.GeneratorTask;
+import io.ballerina.projects.plugins.SourceGeneratorContext;
+import io.ballerina.tools.diagnostics.DiagnosticFactory;
+import io.ballerina.tools.diagnostics.DiagnosticInfo;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.LineRange;
+import io.ballerina.tools.text.TextDocument;
+import io.ballerina.tools.text.TextDocuments;
+import io.ballerina.tools.text.TextRange;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -41,54 +53,77 @@ import java.util.Map;
  *
  * @since 1.0.0
  */
-public class AzureCodegenTask implements AnalysisTask<CompilationAnalysisContext> {
+public class AzureCodegenTask implements GeneratorTask<SourceGeneratorContext> {
 
     @Override
-    public void perform(CompilationAnalysisContext compilationAnalysisContext) {
-        Package currentPackage = compilationAnalysisContext.currentPackage();
+    public void generate(SourceGeneratorContext sourceGeneratorContext) {
+        Package currentPackage = sourceGeneratorContext.currentPackage();
         AzureFunctionExtractor azureFunctionExtractor = new AzureFunctionExtractor(currentPackage);
-        List<Diagnostic> diagnostics = new ArrayList<>(azureFunctionExtractor.validateModules());
         List<FunctionDefinitionNode> extractedFunctions = azureFunctionExtractor.extractFunctions();
         Module module = currentPackage.getDefaultModule();
-        SemanticModel semanticModel = compilationAnalysisContext.compilation().getSemanticModel(module.moduleId());
+        SemanticModel semanticModel = sourceGeneratorContext.compilation().getSemanticModel(module.moduleId());
         Map<String, TypeDefinitionNode> typeDefinitions = new HashMap<>();
         FunctionHandlerGenerator functionGenerator = new FunctionHandlerGenerator(semanticModel, typeDefinitions);
-        AzureFunctionHolder functionHolder = AzureFunctionHolder.getInstance();
-        Map<String, FunctionDeploymentContext> generatedFunctions = functionHolder.getGeneratedFunctions();
+        Map<String, JsonObject> generatedFunctions = new LinkedHashMap<>();
+        List<FunctionDeploymentContext> contextList = new ArrayList<>();
         for (FunctionDefinitionNode function : extractedFunctions) {
             try {
                 FunctionDeploymentContext context = functionGenerator.generateHandlerFunction(function);
-                generatedFunctions.put(function.functionName().text(), context);
+                contextList.add(context);
+                generatedFunctions.put(function.functionName().text(), context.getFunctionDefinition());
             } catch (AzureFunctionsException e) {
-                compilationAnalysisContext.reportDiagnostic(e.getDiagnostic());
+                sourceGeneratorContext.reportDiagnostic(e.getDiagnostic());
             }
         }
-
+        try {
+            writeObjectToJson(sourceGeneratorContext.currentPackage().project().targetDir(), generatedFunctions);
+        } catch (IOException e) {
+            DiagnosticInfo
+                    diagnosticInfo = new DiagnosticInfo("azf-001", e.getMessage(), DiagnosticSeverity.ERROR);
+            sourceGeneratorContext.reportDiagnostic(DiagnosticFactory.createDiagnostic(diagnosticInfo,
+                    new NullLocation()));
+        }
         if (generatedFunctions.isEmpty()) {
             // no azure functions, nothing else to do
             return;
         }
-        DocumentConfig documentConfig =
-                generateHandlerDocument(currentPackage.project(), typeDefinitions, functionHolder);
-        //Used to avoid duplicate documents as codeAnalyze is getting called multiple times
-        if (!STUtil.isDocumentExistInModule(module, documentConfig)) {
-            module.modify().addDocument(documentConfig).apply();
-            currentPackage.getCompilation();
-        }
-        for (Diagnostic diagnostic : diagnostics) {
-            compilationAnalysisContext.reportDiagnostic(diagnostic);
-        }
+        TextDocument textDocument = generateHandlerDocument(typeDefinitions, contextList);
+        sourceGeneratorContext.addSourceFile(textDocument, Constants.AZ_FUNCTION_PREFIX, module.moduleId());
     }
 
-    private DocumentConfig generateHandlerDocument(Project project, Map<String, TypeDefinitionNode> typeDefinitions,
-                                                   AzureFunctionHolder holder) {
-        Module module = project.currentPackage().getDefaultModule();
+    private TextDocument generateHandlerDocument(Map<String, TypeDefinitionNode> typeDefinitions,
+                                                 List<FunctionDeploymentContext> ctx) {
         ModulePartNode modulePartNode =
-                STUtil.createModulePartNode(holder.getGeneratedFunctions().values(), typeDefinitions);
-        String newFileContent = modulePartNode.toSourceCode();
-        String fileName = module.moduleName().toString() + "-" + Constants.GENERATED_FILE_NAME;
-        Path filePath = project.sourceRoot().resolve(fileName);
-        DocumentId newDocumentId = DocumentId.create(filePath.toString(), module.moduleId());
-        return DocumentConfig.from(newDocumentId, newFileContent, fileName);
+                STUtil.createModulePartNode(ctx, typeDefinitions);
+        return TextDocuments.from(modulePartNode.toSourceCode());
+    }
+    private void writeObjectToJson(Path targetPath, Map<String, JsonObject> ctxMap)
+            throws IOException {
+        Gson gson = new Gson();
+        Path jsonPath = targetPath.resolve("azf.json");
+        Files.deleteIfExists(jsonPath);
+        Files.createFile(jsonPath);
+        try (FileWriter r = new FileWriter(jsonPath.toAbsolutePath().toString(), StandardCharsets.UTF_8)) {
+            gson.toJson(ctxMap, r);
+        }
+    }
+}
+
+/**
+ * Represents Null Location in a ballerina document.
+ *
+ * @since 2.0.0
+ */
+class NullLocation implements Location {
+
+    @Override
+    public LineRange lineRange() {
+        LinePosition from = LinePosition.from(0, 0);
+        return LineRange.from("", from, from);
+    }
+
+    @Override
+    public TextRange textRange() {
+        return TextRange.from(0, 0);
     }
 }

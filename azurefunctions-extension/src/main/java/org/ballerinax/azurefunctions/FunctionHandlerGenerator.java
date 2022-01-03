@@ -79,7 +79,8 @@ public class FunctionHandlerGenerator {
             throws AzureFunctionsException {
         FunctionDeploymentContext ctx = new FunctionDeploymentContext();
         ctx.setSourceFunction(sourceFunc);
-        ctx.setFunction(STUtil.createHandlerFunction(sourceFunc.functionName().text()));
+        ctx.setIsolatedFunction(STUtil.isIsolatedFunction(sourceFunc));
+        ctx.setFunction(STUtil.createHandlerFunction(ctx));
         
         for (ParameterNode parameter : sourceFunc.functionSignature().parameters()) {
             ctx.getParameterHandlers()

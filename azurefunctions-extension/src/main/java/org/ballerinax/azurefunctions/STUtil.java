@@ -32,6 +32,7 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.ArrayTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
@@ -73,10 +74,7 @@ import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.UnionTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
-import io.ballerina.projects.Document;
-import io.ballerina.projects.DocumentConfig;
-import io.ballerina.projects.DocumentId;
-import io.ballerina.projects.Module;
+import io.ballerina.compiler.syntax.tree.WildcardBindingPatternNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
@@ -100,10 +98,11 @@ public class STUtil {
     /**
      * Generates boilerplate Handler function for a specific azure function.
      *
-     * @param baseName function name
+     * @param ctx function context
      * @return boilerplate handler function
      */
-    public static FunctionDefinitionNode createHandlerFunction(String baseName) {
+    public static FunctionDefinitionNode createHandlerFunction(FunctionDeploymentContext ctx) {
+        String baseName = ctx.getSourceFunction().functionName().text();
         QualifiedNameReferenceNode azHandlerParamsType =
                 NodeFactory
                         .createQualifiedNameReferenceNode(NodeFactory.createIdentifierToken(Constants.AF_IMPORT_ALIAS),
@@ -135,18 +134,29 @@ public class STUtil {
                         NodeFactory.createToken(SyntaxKind.OPEN_BRACE_TOKEN, NodeFactory.createEmptyMinutiaeList(),
                                 STUtil.generateMinutiaeListWithNewline()), null,
                         NodeFactory.createEmptyNodeList(), NodeFactory.createToken(SyntaxKind.CLOSE_BRACE_TOKEN));
+        
+        List<Token> qualifierList = new ArrayList<>();
+        Token publicToken = NodeFactory.createToken(SyntaxKind.PUBLIC_KEYWORD,
+                NodeFactory.createEmptyMinutiaeList(), generateMinutiaeListWithWhitespace());
+        qualifierList.add(publicToken);
+        
+        if (ctx.isIsolatedFunction()) {
+            Token isolatedToken = NodeFactory.createToken(SyntaxKind.ISOLATED_KEYWORD,
+                    NodeFactory.createEmptyMinutiaeList(), generateMinutiaeListWithWhitespace());
+            qualifierList.add(isolatedToken);
+        }
 
         return NodeFactory.createFunctionDefinitionNode(
-                SyntaxKind.FUNCTION_DEFINITION, null,
-                NodeFactory.createNodeList(NodeFactory.createToken(SyntaxKind.PUBLIC_KEYWORD,
-                        NodeFactory.createEmptyMinutiaeList(), generateMinutiaeListWithWhitespace())),
+                SyntaxKind.FUNCTION_DEFINITION, null, NodeFactory.createNodeList(qualifierList),
                 NodeFactory.createToken(SyntaxKind.FUNCTION_KEYWORD, NodeFactory.createEmptyMinutiaeList(),
                         generateMinutiaeListWithWhitespace()), NodeFactory.createIdentifierToken(baseName +
                         "Handler", NodeFactory.createEmptyMinutiaeList(), generateMinutiaeListWithWhitespace()),
                 NodeFactory.createEmptyNodeList(), functionSignatureNode, emptyFunctionBodyNode);
     }
 
-    public static FunctionDefinitionNode createResourceFunction(String baseName) {
+    public static FunctionDefinitionNode createResourceFunction(FunctionDeploymentContext ctx) {
+        //TODO change isolated
+        String baseName = ctx.getSourceFunction().functionName().text();
         QualifiedNameReferenceNode httpCallerType =
                 NodeFactory.createQualifiedNameReferenceNode(NodeFactory.createIdentifierToken(Constants.HTTP_IMPORT),
                         NodeFactory.createToken(SyntaxKind.COLON_TOKEN),
@@ -283,56 +293,25 @@ public class STUtil {
         NodeList<Node> relativeResPath = NodeFactory
                 .createNodeList(NodeFactory.createIdentifierToken(baseName, NodeFactory.createEmptyMinutiaeList(),
                         generateMinutiaeListWithWhitespace()));
+        
+        List<Token> qualifierList = new ArrayList<>();
+        if (ctx.isIsolatedFunction()) {
+            Token isolatedToken = NodeFactory.createToken(SyntaxKind.ISOLATED_KEYWORD,
+                    NodeFactory.createEmptyMinutiaeList(), generateMinutiaeListWithWhitespace());
+            qualifierList.add(isolatedToken);
+        }
+        
+        Token resToken = NodeFactory.createToken(SyntaxKind.RESOURCE_KEYWORD,
+                NodeFactory.createEmptyMinutiaeList(), generateMinutiaeListWithWhitespace());
+        qualifierList.add(resToken);
 
         return NodeFactory.createFunctionDefinitionNode(
-                SyntaxKind.FUNCTION_DEFINITION, null,
-                NodeFactory.createNodeList(NodeFactory.createToken(SyntaxKind.RESOURCE_KEYWORD,
-                        NodeFactory.createEmptyMinutiaeList(), generateMinutiaeListWithWhitespace())),
+                SyntaxKind.FUNCTION_DEFINITION, null, NodeFactory.createNodeList(qualifierList),
                 NodeFactory.createToken(SyntaxKind.FUNCTION_KEYWORD, NodeFactory.createEmptyMinutiaeList(),
                         generateMinutiaeListWithWhitespace()), NodeFactory
                         .createIdentifierToken("'default", NodeFactory.createEmptyMinutiaeList(),
                                 generateMinutiaeListWithWhitespace()), relativeResPath, functionSignatureNode,
                 functionBodyNode);
-    }
-
-    /**
-     * Generates boilerplate main function definition.
-     *
-     * @return boilerplate main function definition
-     */
-    public static FunctionDefinitionNode createMainFunction() {
-        OptionalTypeDescriptorNode optionalErrorTypeDescriptorNode =
-                NodeFactory.createOptionalTypeDescriptorNode(
-                        NodeFactory.createParameterizedTypeDescriptorNode(SyntaxKind.ERROR_TYPE_DESC,
-                                NodeFactory.createToken(SyntaxKind.ERROR_KEYWORD), null),
-                        NodeFactory.createToken(SyntaxKind.QUESTION_MARK_TOKEN, NodeFactory.createEmptyMinutiaeList(),
-                                generateMinutiaeListWithWhitespace()));
-
-        ReturnTypeDescriptorNode returnTypeDescriptorNode =
-                NodeFactory.createReturnTypeDescriptorNode(NodeFactory
-                                .createToken(SyntaxKind.RETURNS_KEYWORD, NodeFactory.createEmptyMinutiaeList(),
-                                        generateMinutiaeListWithWhitespace()),
-                        NodeFactory.createEmptyNodeList(), optionalErrorTypeDescriptorNode);
-        FunctionSignatureNode functionSignatureNode =
-                NodeFactory.createFunctionSignatureNode(NodeFactory.createToken(SyntaxKind.OPEN_PAREN_TOKEN),
-                        NodeFactory.createSeparatedNodeList(),
-                        NodeFactory.createToken(SyntaxKind.CLOSE_PAREN_TOKEN), returnTypeDescriptorNode);
-
-        FunctionBodyBlockNode emptyFunctionBodyNode =
-                NodeFactory.createFunctionBodyBlockNode(
-                        NodeFactory.createToken(SyntaxKind.OPEN_BRACE_TOKEN, NodeFactory.createEmptyMinutiaeList(),
-                                STUtil.generateMinutiaeListWithNewline()), null,
-                        NodeFactory.createEmptyNodeList(), NodeFactory.createToken(SyntaxKind.CLOSE_BRACE_TOKEN));
-
-        return NodeFactory.createFunctionDefinitionNode(
-                SyntaxKind.FUNCTION_DEFINITION, null,
-                NodeFactory.createNodeList(NodeFactory.createToken(SyntaxKind.PUBLIC_KEYWORD,
-                        NodeFactory.createEmptyMinutiaeList(), generateMinutiaeListWithWhitespace())),
-                NodeFactory.createToken(SyntaxKind.FUNCTION_KEYWORD, NodeFactory.createEmptyMinutiaeList(),
-                        generateMinutiaeListWithWhitespace()),
-                NodeFactory.createIdentifierToken(Constants.MAIN_FUNC_NAME,
-                        NodeFactory.createEmptyMinutiaeList(), generateMinutiaeListWithWhitespace()),
-                NodeFactory.createEmptyNodeList(), functionSignatureNode, emptyFunctionBodyNode);
     }
 
     /**
@@ -408,7 +387,7 @@ public class STUtil {
 
         List<Node> resourceFunctions = new ArrayList<>();
         for (FunctionDeploymentContext context : functionDeploymentContexts) {
-            resourceFunctions.add(createResourceFunction(context.getSourceFunction().functionName().text()));
+            resourceFunctions.add(createResourceFunction(context));
             resourceFunctions.add(context.getFunction());
         }
 
@@ -428,33 +407,6 @@ public class STUtil {
         Token eofToken = NodeFactory.createToken(SyntaxKind.EOF_TOKEN, NodeFactory.createEmptyMinutiaeList(),
                 STUtil.generateMinutiaeListWithNewline());
         return NodeFactory.createModulePartNode(NodeFactory.createNodeList(afImport, httpImport), nodeList, eofToken);
-    }
-
-    /**
-     * Generates main function to register handler functions.
-     *
-     * @param functionDeploymentContexts list of Function deployment contexts
-     * @return generated main function
-     */
-    public static FunctionDefinitionNode createMainFunction(
-            Collection<FunctionDeploymentContext> functionDeploymentContexts) {
-        FunctionDefinitionNode mainFunction = STUtil.createMainFunction();
-        for (FunctionDeploymentContext functionDeploymentContext : functionDeploymentContexts) {
-            String functionHandlerName = functionDeploymentContext.getFunction().functionName().text();
-            PositionalArgumentNode handler = NodeFactory.createPositionalArgumentNode(
-                    NodeFactory.createSimpleNameReferenceNode(NodeFactory.createIdentifierToken(functionHandlerName)));
-            PositionalArgumentNode functionName =
-                    NodeFactory.createPositionalArgumentNode(
-                            STUtil.createStringLiteral(
-                                    functionDeploymentContext.getSourceFunction().functionName().text()));
-            ExpressionNode register = createAfFunctionInvocationNode(Constants.AZURE_FUNCS_REG_FUNCTION_NAME, false,
-                    functionName, handler);
-            ExpressionStatementNode expressionStatementNode =
-                    NodeFactory.createExpressionStatementNode(SyntaxKind.CALL_STATEMENT, register,
-                            NodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN));
-            mainFunction = addStatementToFunctionBody(expressionStatementNode, mainFunction);
-        }
-        return mainFunction;
     }
 
     public static MinutiaeList generateMinutiaeListWithWhitespace() {
@@ -840,6 +792,22 @@ public class STUtil {
         } else {
             expr = inv;
         }
+        
+        if (typeDescriptorNode.kind() == SyntaxKind.NIL_TYPE_DESC) {
+            createWildcardAssignmentNode(ctx, expr);
+            return "_";
+        }
+        if (typeDescriptorNode.kind() == SyntaxKind.OPTIONAL_TYPE_DESC) {
+            Node typeDescriptor = ((OptionalTypeDescriptorNode) typeDescriptorNode).typeDescriptor();
+            if (typeDescriptor.kind() == SyntaxKind.ERROR_TYPE_DESC) {
+                createWildcardAssignmentNode(ctx, expr);
+                return "_";
+            }
+        }
+        if (typeDescriptorNode.kind() == SyntaxKind.OPTIONAL_TYPE_DESC) {
+            createWildcardAssignmentNode(ctx, expr);
+            return "_";
+        }
         String varName = ctx.getNextVarName();
         CaptureBindingPatternNode captureBindingPatternNode =
                 NodeFactory.createCaptureBindingPatternNode(NodeFactory.createIdentifierToken(varName,
@@ -851,26 +819,19 @@ public class STUtil {
                         NodeFactory.createToken(SyntaxKind.EQUAL_TOKEN), expr,
                         NodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN, NodeFactory.createEmptyMinutiaeList(),
                                 STUtil.generateMinutiaeListWithNewline()));
-
         ctx.setFunction(addStatementToFunctionBody(variableDeclarationNode, ctx.getFunction()));
         return varName;
     }
 
-    /**
-     * Checks if a specific document exists in a module.
-     *
-     * @param module   module in the project
-     * @param document newly added document
-     * @return status of the document existence of the module
-     */
-    public static boolean isDocumentExistInModule(Module module, DocumentConfig document) {
-        for (DocumentId documentId : module.documentIds()) {
-            Document doc = module.document(documentId);
-            if (document.name().equals(doc.name())) {
-                return true;
-            }
-        }
-        return false;
+    private static void createWildcardAssignmentNode(FunctionDeploymentContext ctx, ExpressionNode expr) {
+        WildcardBindingPatternNode wildcardBindingPatternNode = NodeFactory
+                .createWildcardBindingPatternNode(NodeFactory.createToken(SyntaxKind.UNDERSCORE_KEYWORD));
+        AssignmentStatementNode assignmentStatementNode = NodeFactory
+                .createAssignmentStatementNode(wildcardBindingPatternNode,
+                        NodeFactory.createToken(SyntaxKind.EQUAL_TOKEN), expr,
+                        NodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN, NodeFactory.createEmptyMinutiaeList(),
+                                STUtil.generateMinutiaeListWithNewline()));
+        ctx.setFunction(addStatementToFunctionBody(assignmentStatementNode, ctx.getFunction()));
     }
 
     /**
@@ -925,6 +886,13 @@ public class STUtil {
             TypeDescriptorNode rightTypeDesc = unionTypeDescriptorNode.rightTypeDesc();
             return rightTypeDesc.kind() == SyntaxKind.ERROR_TYPE_DESC;
         }
+        if (typeDescriptorNode.kind() == SyntaxKind.OPTIONAL_TYPE_DESC) {
+            OptionalTypeDescriptorNode optionalTypeDescriptorNode = (OptionalTypeDescriptorNode) typeDescriptorNode;
+            Node node = optionalTypeDescriptorNode.typeDescriptor();
+            if (node.kind() == SyntaxKind.ERROR_TYPE_DESC) {
+                return true;
+            }
+        }
         return typeDescriptorNode.kind() == SyntaxKind.ERROR_TYPE_DESC;
     }
 
@@ -948,5 +916,15 @@ public class STUtil {
                             STUtil.generateMinutiaeListWithWhitespace()));
         }
         return typeDescriptorNode;
+    }
+    
+    public static boolean isIsolatedFunction(FunctionDefinitionNode functionDefinitionNode) {
+        NodeList<Token> tokens = functionDefinitionNode.qualifierList();
+        for (Token token: tokens) {
+            if (token.kind() == SyntaxKind.ISOLATED_KEYWORD) {
+                return true;
+            }
+        }
+        return false;
     }
 }

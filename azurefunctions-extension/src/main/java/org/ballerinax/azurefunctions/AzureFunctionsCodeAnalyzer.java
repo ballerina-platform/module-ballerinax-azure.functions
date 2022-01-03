@@ -17,32 +17,19 @@
  */
 package org.ballerinax.azurefunctions;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import io.ballerina.projects.plugins.CodeAnalysisContext;
+import io.ballerina.projects.plugins.CodeAnalyzer;
+import org.ballerinax.azurefunctions.validators.AzureFunctionsCodeAnalyzerTask;
 
 /**
- * Singleton for holding generated azure functions.
- * 
+ * Contains the code analyzers for azure functions.
+ *
  * @since 2.0.0
  */
-public class AzureFunctionHolder {
-    private static AzureFunctionHolder instance;
-    private final Map<String, FunctionDeploymentContext> generatedFunctions;
+public class AzureFunctionsCodeAnalyzer extends CodeAnalyzer {
 
-    public AzureFunctionHolder() {
-        this.generatedFunctions = new LinkedHashMap<>();
-    }
-
-    public static AzureFunctionHolder getInstance() {
-        synchronized (AzureFunctionHolder.class) {
-            if (instance == null) {
-                instance = new AzureFunctionHolder();
-            }
-        }
-        return instance;
-    }
-
-    public Map<String, FunctionDeploymentContext> getGeneratedFunctions() {
-        return this.generatedFunctions;
+    @Override
+    public void init(CodeAnalysisContext codeAnalysisContext) {
+        codeAnalysisContext.addCompilationAnalysisTask(new AzureFunctionsCodeAnalyzerTask());
     }
 }

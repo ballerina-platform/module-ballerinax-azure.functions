@@ -395,6 +395,15 @@
                                             "kind": "LIST",
                                             "children": [
                                                 {
+                                                    "kind": "ISOLATED_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
+                                                },
+                                                {
                                                     "kind": "RESOURCE_KEYWORD",
                                                     "trailingMinutiae": [
                                                         {
@@ -965,6 +974,15 @@
                                                             "value": " "
                                                         }
                                                     ]
+                                                },
+                                                {
+                                                    "kind": "ISOLATED_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
                                                 }
                                             ]
                                         },
@@ -1268,40 +1286,13 @@
                                                             ]
                                                         },
                                                         {
-                                                            "kind": "LOCAL_VAR_DECL",
+                                                            "kind": "ASSIGNMENT_STATEMENT",
                                                             "children": [
                                                                 {
-                                                                    "kind": "LIST",
-                                                                    "children": []
-                                                                },
-                                                                {
-                                                                    "kind": "TYPED_BINDING_PATTERN",
+                                                                    "kind": "WILDCARD_BINDING_PATTERN",
                                                                     "children": [
                                                                         {
-                                                                            "kind": "NIL_TYPE_DESC",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "OPEN_PAREN_TOKEN"
-                                                                                },
-                                                                                {
-                                                                                    "kind": "CLOSE_PAREN_TOKEN",
-                                                                                    "trailingMinutiae": [
-                                                                                        {
-                                                                                            "kind": "WHITESPACE_MINUTIAE",
-                                                                                            "value": "  "
-                                                                                        }
-                                                                                    ]
-                                                                                }
-                                                                            ]
-                                                                        },
-                                                                        {
-                                                                            "kind": "CAPTURE_BINDING_PATTERN",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                    "value": "v2"
-                                                                                }
-                                                                            ]
+                                                                            "kind": "UNDERSCORE_KEYWORD"
                                                                         }
                                                                     ]
                                                                 },
@@ -1411,6 +1402,15 @@
                                         {
                                             "kind": "LIST",
                                             "children": [
+                                                {
+                                                    "kind": "ISOLATED_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
+                                                },
                                                 {
                                                     "kind": "RESOURCE_KEYWORD",
                                                     "trailingMinutiae": [
@@ -1982,6 +1982,15 @@
                                                             "value": " "
                                                         }
                                                     ]
+                                                },
+                                                {
+                                                    "kind": "ISOLATED_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
                                                 }
                                             ]
                                         },
@@ -2452,40 +2461,13 @@
                                                             ]
                                                         },
                                                         {
-                                                            "kind": "LOCAL_VAR_DECL",
+                                                            "kind": "ASSIGNMENT_STATEMENT",
                                                             "children": [
                                                                 {
-                                                                    "kind": "LIST",
-                                                                    "children": []
-                                                                },
-                                                                {
-                                                                    "kind": "TYPED_BINDING_PATTERN",
+                                                                    "kind": "WILDCARD_BINDING_PATTERN",
                                                                     "children": [
                                                                         {
-                                                                            "kind": "NIL_TYPE_DESC",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "OPEN_PAREN_TOKEN"
-                                                                                },
-                                                                                {
-                                                                                    "kind": "CLOSE_PAREN_TOKEN",
-                                                                                    "trailingMinutiae": [
-                                                                                        {
-                                                                                            "kind": "WHITESPACE_MINUTIAE",
-                                                                                            "value": "  "
-                                                                                        }
-                                                                                    ]
-                                                                                }
-                                                                            ]
-                                                                        },
-                                                                        {
-                                                                            "kind": "CAPTURE_BINDING_PATTERN",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                    "value": "v3"
-                                                                                }
-                                                                            ]
+                                                                            "kind": "UNDERSCORE_KEYWORD"
                                                                         }
                                                                     ]
                                                                 },
@@ -2598,40 +2580,13 @@
                                                             ]
                                                         },
                                                         {
-                                                            "kind": "LOCAL_VAR_DECL",
+                                                            "kind": "ASSIGNMENT_STATEMENT",
                                                             "children": [
                                                                 {
-                                                                    "kind": "LIST",
-                                                                    "children": []
-                                                                },
-                                                                {
-                                                                    "kind": "TYPED_BINDING_PATTERN",
+                                                                    "kind": "WILDCARD_BINDING_PATTERN",
                                                                     "children": [
                                                                         {
-                                                                            "kind": "NIL_TYPE_DESC",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "OPEN_PAREN_TOKEN"
-                                                                                },
-                                                                                {
-                                                                                    "kind": "CLOSE_PAREN_TOKEN",
-                                                                                    "trailingMinutiae": [
-                                                                                        {
-                                                                                            "kind": "WHITESPACE_MINUTIAE",
-                                                                                            "value": "  "
-                                                                                        }
-                                                                                    ]
-                                                                                }
-                                                                            ]
-                                                                        },
-                                                                        {
-                                                                            "kind": "CAPTURE_BINDING_PATTERN",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                    "value": "v4"
-                                                                                }
-                                                                            ]
+                                                                            "kind": "UNDERSCORE_KEYWORD"
                                                                         }
                                                                     ]
                                                                 },
@@ -2741,6 +2696,15 @@
                                         {
                                             "kind": "LIST",
                                             "children": [
+                                                {
+                                                    "kind": "ISOLATED_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
+                                                },
                                                 {
                                                     "kind": "RESOURCE_KEYWORD",
                                                     "trailingMinutiae": [
@@ -3312,6 +3276,15 @@
                                                             "value": " "
                                                         }
                                                     ]
+                                                },
+                                                {
+                                                    "kind": "ISOLATED_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
                                                 }
                                             ]
                                         },
@@ -3517,40 +3490,13 @@
                                                             ]
                                                         },
                                                         {
-                                                            "kind": "LOCAL_VAR_DECL",
+                                                            "kind": "ASSIGNMENT_STATEMENT",
                                                             "children": [
                                                                 {
-                                                                    "kind": "LIST",
-                                                                    "children": []
-                                                                },
-                                                                {
-                                                                    "kind": "TYPED_BINDING_PATTERN",
+                                                                    "kind": "WILDCARD_BINDING_PATTERN",
                                                                     "children": [
                                                                         {
-                                                                            "kind": "NIL_TYPE_DESC",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "OPEN_PAREN_TOKEN"
-                                                                                },
-                                                                                {
-                                                                                    "kind": "CLOSE_PAREN_TOKEN",
-                                                                                    "trailingMinutiae": [
-                                                                                        {
-                                                                                            "kind": "WHITESPACE_MINUTIAE",
-                                                                                            "value": "  "
-                                                                                        }
-                                                                                    ]
-                                                                                }
-                                                                            ]
-                                                                        },
-                                                                        {
-                                                                            "kind": "CAPTURE_BINDING_PATTERN",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                    "value": "v2"
-                                                                                }
-                                                                            ]
+                                                                            "kind": "UNDERSCORE_KEYWORD"
                                                                         }
                                                                     ]
                                                                 },
@@ -3777,40 +3723,13 @@
                                                             ]
                                                         },
                                                         {
-                                                            "kind": "LOCAL_VAR_DECL",
+                                                            "kind": "ASSIGNMENT_STATEMENT",
                                                             "children": [
                                                                 {
-                                                                    "kind": "LIST",
-                                                                    "children": []
-                                                                },
-                                                                {
-                                                                    "kind": "TYPED_BINDING_PATTERN",
+                                                                    "kind": "WILDCARD_BINDING_PATTERN",
                                                                     "children": [
                                                                         {
-                                                                            "kind": "NIL_TYPE_DESC",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "OPEN_PAREN_TOKEN"
-                                                                                },
-                                                                                {
-                                                                                    "kind": "CLOSE_PAREN_TOKEN",
-                                                                                    "trailingMinutiae": [
-                                                                                        {
-                                                                                            "kind": "WHITESPACE_MINUTIAE",
-                                                                                            "value": "  "
-                                                                                        }
-                                                                                    ]
-                                                                                }
-                                                                            ]
-                                                                        },
-                                                                        {
-                                                                            "kind": "CAPTURE_BINDING_PATTERN",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                    "value": "v3"
-                                                                                }
-                                                                            ]
+                                                                            "kind": "UNDERSCORE_KEYWORD"
                                                                         }
                                                                     ]
                                                                 },
@@ -3937,6 +3856,15 @@
                                         {
                                             "kind": "LIST",
                                             "children": [
+                                                {
+                                                    "kind": "ISOLATED_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
+                                                },
                                                 {
                                                     "kind": "RESOURCE_KEYWORD",
                                                     "trailingMinutiae": [
@@ -4508,6 +4436,15 @@
                                                             "value": " "
                                                         }
                                                     ]
+                                                },
+                                                {
+                                                    "kind": "ISOLATED_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
                                                 }
                                             ]
                                         },
@@ -4713,45 +4650,13 @@
                                                             ]
                                                         },
                                                         {
-                                                            "kind": "LOCAL_VAR_DECL",
+                                                            "kind": "ASSIGNMENT_STATEMENT",
                                                             "children": [
                                                                 {
-                                                                    "kind": "LIST",
-                                                                    "children": []
-                                                                },
-                                                                {
-                                                                    "kind": "TYPED_BINDING_PATTERN",
+                                                                    "kind": "WILDCARD_BINDING_PATTERN",
                                                                     "children": [
                                                                         {
-                                                                            "kind": "OPTIONAL_TYPE_DESC",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "ERROR_TYPE_DESC",
-                                                                                    "children": [
-                                                                                        {
-                                                                                            "kind": "ERROR_KEYWORD"
-                                                                                        }
-                                                                                    ]
-                                                                                },
-                                                                                {
-                                                                                    "kind": "QUESTION_MARK_TOKEN",
-                                                                                    "trailingMinutiae": [
-                                                                                        {
-                                                                                            "kind": "WHITESPACE_MINUTIAE",
-                                                                                            "value": "  "
-                                                                                        }
-                                                                                    ]
-                                                                                }
-                                                                            ]
-                                                                        },
-                                                                        {
-                                                                            "kind": "CAPTURE_BINDING_PATTERN",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                    "value": "v2"
-                                                                                }
-                                                                            ]
+                                                                            "kind": "UNDERSCORE_KEYWORD"
                                                                         }
                                                                     ]
                                                                 },
@@ -4759,267 +4664,298 @@
                                                                     "kind": "EQUAL_TOKEN"
                                                                 },
                                                                 {
-                                                                    "kind": "FUNCTION_CALL",
+                                                                    "kind": "CHECK_EXPRESSION",
                                                                     "children": [
                                                                         {
-                                                                            "kind": "SIMPLE_NAME_REFERENCE",
-                                                                            "children": [
+                                                                            "kind": "CHECK_KEYWORD",
+                                                                            "trailingMinutiae": [
                                                                                 {
-                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                    "value": "fromBlobToQueue"
+                                                                                    "kind": "WHITESPACE_MINUTIAE",
+                                                                                    "value": " "
                                                                                 }
                                                                             ]
                                                                         },
                                                                         {
-                                                                            "kind": "OPEN_PAREN_TOKEN"
-                                                                        },
-                                                                        {
-                                                                            "kind": "LIST",
+                                                                            "kind": "FUNCTION_CALL",
                                                                             "children": [
                                                                                 {
-                                                                                    "kind": "POSITIONAL_ARG",
+                                                                                    "kind": "SIMPLE_NAME_REFERENCE",
                                                                                     "children": [
                                                                                         {
-                                                                                            "kind": "CHECK_EXPRESSION",
+                                                                                            "kind": "IDENTIFIER_TOKEN",
+                                                                                            "value": "fromBlobToQueue"
+                                                                                        }
+                                                                                    ]
+                                                                                },
+                                                                                {
+                                                                                    "kind": "OPEN_PAREN_TOKEN"
+                                                                                },
+                                                                                {
+                                                                                    "kind": "LIST",
+                                                                                    "children": [
+                                                                                        {
+                                                                                            "kind": "POSITIONAL_ARG",
                                                                                             "children": [
                                                                                                 {
-                                                                                                    "kind": "CHECK_KEYWORD",
-                                                                                                    "trailingMinutiae": [
-                                                                                                        {
-                                                                                                            "kind": "WHITESPACE_MINUTIAE",
-                                                                                                            "value": " "
-                                                                                                        }
-                                                                                                    ]
-                                                                                                },
-                                                                                                {
-                                                                                                    "kind": "FUNCTION_CALL",
+                                                                                                    "kind": "CHECK_EXPRESSION",
                                                                                                     "children": [
                                                                                                         {
-                                                                                                            "kind": "QUALIFIED_NAME_REFERENCE",
-                                                                                                            "children": [
+                                                                                                            "kind": "CHECK_KEYWORD",
+                                                                                                            "trailingMinutiae": [
                                                                                                                 {
-                                                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                                                    "value": "af"
-                                                                                                                },
-                                                                                                                {
-                                                                                                                    "kind": "COLON_TOKEN"
-                                                                                                                },
-                                                                                                                {
-                                                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                                                    "value": "createContext"
+                                                                                                                    "kind": "WHITESPACE_MINUTIAE",
+                                                                                                                    "value": " "
                                                                                                                 }
                                                                                                             ]
                                                                                                         },
                                                                                                         {
-                                                                                                            "kind": "OPEN_PAREN_TOKEN"
-                                                                                                        },
-                                                                                                        {
-                                                                                                            "kind": "LIST",
+                                                                                                            "kind": "FUNCTION_CALL",
                                                                                                             "children": [
                                                                                                                 {
-                                                                                                                    "kind": "POSITIONAL_ARG",
+                                                                                                                    "kind": "QUALIFIED_NAME_REFERENCE",
                                                                                                                     "children": [
                                                                                                                         {
-                                                                                                                            "kind": "SIMPLE_NAME_REFERENCE",
+                                                                                                                            "kind": "IDENTIFIER_TOKEN",
+                                                                                                                            "value": "af"
+                                                                                                                        },
+                                                                                                                        {
+                                                                                                                            "kind": "COLON_TOKEN"
+                                                                                                                        },
+                                                                                                                        {
+                                                                                                                            "kind": "IDENTIFIER_TOKEN",
+                                                                                                                            "value": "createContext"
+                                                                                                                        }
+                                                                                                                    ]
+                                                                                                                },
+                                                                                                                {
+                                                                                                                    "kind": "OPEN_PAREN_TOKEN"
+                                                                                                                },
+                                                                                                                {
+                                                                                                                    "kind": "LIST",
+                                                                                                                    "children": [
+                                                                                                                        {
+                                                                                                                            "kind": "POSITIONAL_ARG",
                                                                                                                             "children": [
                                                                                                                                 {
-                                                                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                                                                    "value": "params"
+                                                                                                                                    "kind": "SIMPLE_NAME_REFERENCE",
+                                                                                                                                    "children": [
+                                                                                                                                        {
+                                                                                                                                            "kind": "IDENTIFIER_TOKEN",
+                                                                                                                                            "value": "params"
+                                                                                                                                        }
+                                                                                                                                    ]
+                                                                                                                                }
+                                                                                                                            ]
+                                                                                                                        },
+                                                                                                                        {
+                                                                                                                            "kind": "COMMA_TOKEN"
+                                                                                                                        },
+                                                                                                                        {
+                                                                                                                            "kind": "POSITIONAL_ARG",
+                                                                                                                            "children": [
+                                                                                                                                {
+                                                                                                                                    "kind": "BOOLEAN_LITERAL",
+                                                                                                                                    "children": [
+                                                                                                                                        {
+                                                                                                                                            "kind": "TRUE_KEYWORD"
+                                                                                                                                        }
+                                                                                                                                    ]
                                                                                                                                 }
                                                                                                                             ]
                                                                                                                         }
                                                                                                                     ]
                                                                                                                 },
                                                                                                                 {
-                                                                                                                    "kind": "COMMA_TOKEN"
-                                                                                                                },
-                                                                                                                {
-                                                                                                                    "kind": "POSITIONAL_ARG",
-                                                                                                                    "children": [
-                                                                                                                        {
-                                                                                                                            "kind": "BOOLEAN_LITERAL",
-                                                                                                                            "children": [
-                                                                                                                                {
-                                                                                                                                    "kind": "TRUE_KEYWORD"
-                                                                                                                                }
-                                                                                                                            ]
-                                                                                                                        }
-                                                                                                                    ]
+                                                                                                                    "kind": "CLOSE_PAREN_TOKEN"
                                                                                                                 }
                                                                                                             ]
-                                                                                                        },
-                                                                                                        {
-                                                                                                            "kind": "CLOSE_PAREN_TOKEN"
                                                                                                         }
                                                                                                     ]
                                                                                                 }
                                                                                             ]
-                                                                                        }
-                                                                                    ]
-                                                                                },
-                                                                                {
-                                                                                    "kind": "COMMA_TOKEN"
-                                                                                },
-                                                                                {
-                                                                                    "kind": "POSITIONAL_ARG",
-                                                                                    "children": [
+                                                                                        },
                                                                                         {
-                                                                                            "kind": "CHECK_EXPRESSION",
+                                                                                            "kind": "COMMA_TOKEN"
+                                                                                        },
+                                                                                        {
+                                                                                            "kind": "POSITIONAL_ARG",
                                                                                             "children": [
                                                                                                 {
-                                                                                                    "kind": "CHECK_KEYWORD",
-                                                                                                    "trailingMinutiae": [
-                                                                                                        {
-                                                                                                            "kind": "WHITESPACE_MINUTIAE",
-                                                                                                            "value": " "
-                                                                                                        }
-                                                                                                    ]
-                                                                                                },
-                                                                                                {
-                                                                                                    "kind": "FUNCTION_CALL",
+                                                                                                    "kind": "CHECK_EXPRESSION",
                                                                                                     "children": [
                                                                                                         {
-                                                                                                            "kind": "QUALIFIED_NAME_REFERENCE",
-                                                                                                            "children": [
+                                                                                                            "kind": "CHECK_KEYWORD",
+                                                                                                            "trailingMinutiae": [
                                                                                                                 {
-                                                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                                                    "value": "af"
-                                                                                                                },
-                                                                                                                {
-                                                                                                                    "kind": "COLON_TOKEN"
-                                                                                                                },
-                                                                                                                {
-                                                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                                                    "value": "getBytesFromInputData"
+                                                                                                                    "kind": "WHITESPACE_MINUTIAE",
+                                                                                                                    "value": " "
                                                                                                                 }
                                                                                                             ]
                                                                                                         },
                                                                                                         {
-                                                                                                            "kind": "OPEN_PAREN_TOKEN"
-                                                                                                        },
-                                                                                                        {
-                                                                                                            "kind": "LIST",
+                                                                                                            "kind": "FUNCTION_CALL",
                                                                                                             "children": [
                                                                                                                 {
-                                                                                                                    "kind": "POSITIONAL_ARG",
+                                                                                                                    "kind": "QUALIFIED_NAME_REFERENCE",
                                                                                                                     "children": [
                                                                                                                         {
-                                                                                                                            "kind": "SIMPLE_NAME_REFERENCE",
+                                                                                                                            "kind": "IDENTIFIER_TOKEN",
+                                                                                                                            "value": "af"
+                                                                                                                        },
+                                                                                                                        {
+                                                                                                                            "kind": "COLON_TOKEN"
+                                                                                                                        },
+                                                                                                                        {
+                                                                                                                            "kind": "IDENTIFIER_TOKEN",
+                                                                                                                            "value": "getBytesFromInputData"
+                                                                                                                        }
+                                                                                                                    ]
+                                                                                                                },
+                                                                                                                {
+                                                                                                                    "kind": "OPEN_PAREN_TOKEN"
+                                                                                                                },
+                                                                                                                {
+                                                                                                                    "kind": "LIST",
+                                                                                                                    "children": [
+                                                                                                                        {
+                                                                                                                            "kind": "POSITIONAL_ARG",
                                                                                                                             "children": [
                                                                                                                                 {
-                                                                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                                                                    "value": "params"
+                                                                                                                                    "kind": "SIMPLE_NAME_REFERENCE",
+                                                                                                                                    "children": [
+                                                                                                                                        {
+                                                                                                                                            "kind": "IDENTIFIER_TOKEN",
+                                                                                                                                            "value": "params"
+                                                                                                                                        }
+                                                                                                                                    ]
+                                                                                                                                }
+                                                                                                                            ]
+                                                                                                                        },
+                                                                                                                        {
+                                                                                                                            "kind": "COMMA_TOKEN"
+                                                                                                                        },
+                                                                                                                        {
+                                                                                                                            "kind": "POSITIONAL_ARG",
+                                                                                                                            "children": [
+                                                                                                                                {
+                                                                                                                                    "kind": "STRING_LITERAL",
+                                                                                                                                    "children": [
+                                                                                                                                        {
+                                                                                                                                            "kind": "STRING_LITERAL_TOKEN",
+                                                                                                                                            "value": "blobIn"
+                                                                                                                                        }
+                                                                                                                                    ]
                                                                                                                                 }
                                                                                                                             ]
                                                                                                                         }
                                                                                                                     ]
                                                                                                                 },
                                                                                                                 {
-                                                                                                                    "kind": "COMMA_TOKEN"
-                                                                                                                },
-                                                                                                                {
-                                                                                                                    "kind": "POSITIONAL_ARG",
-                                                                                                                    "children": [
-                                                                                                                        {
-                                                                                                                            "kind": "STRING_LITERAL",
-                                                                                                                            "children": [
-                                                                                                                                {
-                                                                                                                                    "kind": "STRING_LITERAL_TOKEN",
-                                                                                                                                    "value": "blobIn"
-                                                                                                                                }
-                                                                                                                            ]
-                                                                                                                        }
-                                                                                                                    ]
+                                                                                                                    "kind": "CLOSE_PAREN_TOKEN"
                                                                                                                 }
                                                                                                             ]
-                                                                                                        },
-                                                                                                        {
-                                                                                                            "kind": "CLOSE_PAREN_TOKEN"
                                                                                                         }
                                                                                                     ]
                                                                                                 }
                                                                                             ]
-                                                                                        }
-                                                                                    ]
-                                                                                },
-                                                                                {
-                                                                                    "kind": "COMMA_TOKEN"
-                                                                                },
-                                                                                {
-                                                                                    "kind": "POSITIONAL_ARG",
-                                                                                    "children": [
+                                                                                        },
                                                                                         {
-                                                                                            "kind": "CHECK_EXPRESSION",
+                                                                                            "kind": "COMMA_TOKEN"
+                                                                                        },
+                                                                                        {
+                                                                                            "kind": "POSITIONAL_ARG",
                                                                                             "children": [
                                                                                                 {
-                                                                                                    "kind": "CHECK_KEYWORD",
-                                                                                                    "trailingMinutiae": [
-                                                                                                        {
-                                                                                                            "kind": "WHITESPACE_MINUTIAE",
-                                                                                                            "value": " "
-                                                                                                        }
-                                                                                                    ]
-                                                                                                },
-                                                                                                {
-                                                                                                    "kind": "FUNCTION_CALL",
+                                                                                                    "kind": "CHECK_EXPRESSION",
                                                                                                     "children": [
                                                                                                         {
-                                                                                                            "kind": "QUALIFIED_NAME_REFERENCE",
-                                                                                                            "children": [
+                                                                                                            "kind": "CHECK_KEYWORD",
+                                                                                                            "trailingMinutiae": [
                                                                                                                 {
-                                                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                                                    "value": "af"
-                                                                                                                },
-                                                                                                                {
-                                                                                                                    "kind": "COLON_TOKEN"
-                                                                                                                },
-                                                                                                                {
-                                                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                                                    "value": "getStringFromMetadata"
+                                                                                                                    "kind": "WHITESPACE_MINUTIAE",
+                                                                                                                    "value": " "
                                                                                                                 }
                                                                                                             ]
                                                                                                         },
                                                                                                         {
-                                                                                                            "kind": "OPEN_PAREN_TOKEN"
-                                                                                                        },
-                                                                                                        {
-                                                                                                            "kind": "LIST",
+                                                                                                            "kind": "FUNCTION_CALL",
                                                                                                             "children": [
                                                                                                                 {
-                                                                                                                    "kind": "POSITIONAL_ARG",
+                                                                                                                    "kind": "QUALIFIED_NAME_REFERENCE",
                                                                                                                     "children": [
                                                                                                                         {
-                                                                                                                            "kind": "SIMPLE_NAME_REFERENCE",
+                                                                                                                            "kind": "IDENTIFIER_TOKEN",
+                                                                                                                            "value": "af"
+                                                                                                                        },
+                                                                                                                        {
+                                                                                                                            "kind": "COLON_TOKEN"
+                                                                                                                        },
+                                                                                                                        {
+                                                                                                                            "kind": "IDENTIFIER_TOKEN",
+                                                                                                                            "value": "getStringFromMetadata"
+                                                                                                                        }
+                                                                                                                    ]
+                                                                                                                },
+                                                                                                                {
+                                                                                                                    "kind": "OPEN_PAREN_TOKEN"
+                                                                                                                },
+                                                                                                                {
+                                                                                                                    "kind": "LIST",
+                                                                                                                    "children": [
+                                                                                                                        {
+                                                                                                                            "kind": "POSITIONAL_ARG",
                                                                                                                             "children": [
                                                                                                                                 {
-                                                                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                                                                    "value": "params"
+                                                                                                                                    "kind": "SIMPLE_NAME_REFERENCE",
+                                                                                                                                    "children": [
+                                                                                                                                        {
+                                                                                                                                            "kind": "IDENTIFIER_TOKEN",
+                                                                                                                                            "value": "params"
+                                                                                                                                        }
+                                                                                                                                    ]
+                                                                                                                                }
+                                                                                                                            ]
+                                                                                                                        },
+                                                                                                                        {
+                                                                                                                            "kind": "COMMA_TOKEN"
+                                                                                                                        },
+                                                                                                                        {
+                                                                                                                            "kind": "POSITIONAL_ARG",
+                                                                                                                            "children": [
+                                                                                                                                {
+                                                                                                                                    "kind": "STRING_LITERAL",
+                                                                                                                                    "children": [
+                                                                                                                                        {
+                                                                                                                                            "kind": "STRING_LITERAL_TOKEN",
+                                                                                                                                            "value": "name"
+                                                                                                                                        }
+                                                                                                                                    ]
                                                                                                                                 }
                                                                                                                             ]
                                                                                                                         }
                                                                                                                     ]
                                                                                                                 },
                                                                                                                 {
-                                                                                                                    "kind": "COMMA_TOKEN"
-                                                                                                                },
-                                                                                                                {
-                                                                                                                    "kind": "POSITIONAL_ARG",
-                                                                                                                    "children": [
-                                                                                                                        {
-                                                                                                                            "kind": "STRING_LITERAL",
-                                                                                                                            "children": [
-                                                                                                                                {
-                                                                                                                                    "kind": "STRING_LITERAL_TOKEN",
-                                                                                                                                    "value": "name"
-                                                                                                                                }
-                                                                                                                            ]
-                                                                                                                        }
-                                                                                                                    ]
+                                                                                                                    "kind": "CLOSE_PAREN_TOKEN"
                                                                                                                 }
                                                                                                             ]
-                                                                                                        },
+                                                                                                        }
+                                                                                                    ]
+                                                                                                }
+                                                                                            ]
+                                                                                        },
+                                                                                        {
+                                                                                            "kind": "COMMA_TOKEN"
+                                                                                        },
+                                                                                        {
+                                                                                            "kind": "POSITIONAL_ARG",
+                                                                                            "children": [
+                                                                                                {
+                                                                                                    "kind": "SIMPLE_NAME_REFERENCE",
+                                                                                                    "children": [
                                                                                                         {
-                                                                                                            "kind": "CLOSE_PAREN_TOKEN"
+                                                                                                            "kind": "IDENTIFIER_TOKEN",
+                                                                                                            "value": "v1"
                                                                                                         }
                                                                                                     ]
                                                                                                 }
@@ -5028,26 +4964,9 @@
                                                                                     ]
                                                                                 },
                                                                                 {
-                                                                                    "kind": "COMMA_TOKEN"
-                                                                                },
-                                                                                {
-                                                                                    "kind": "POSITIONAL_ARG",
-                                                                                    "children": [
-                                                                                        {
-                                                                                            "kind": "SIMPLE_NAME_REFERENCE",
-                                                                                            "children": [
-                                                                                                {
-                                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                                    "value": "v1"
-                                                                                                }
-                                                                                            ]
-                                                                                        }
-                                                                                    ]
+                                                                                    "kind": "CLOSE_PAREN_TOKEN"
                                                                                 }
                                                                             ]
-                                                                        },
-                                                                        {
-                                                                            "kind": "CLOSE_PAREN_TOKEN"
                                                                         }
                                                                     ]
                                                                 },
@@ -5063,40 +4982,13 @@
                                                             ]
                                                         },
                                                         {
-                                                            "kind": "LOCAL_VAR_DECL",
+                                                            "kind": "ASSIGNMENT_STATEMENT",
                                                             "children": [
                                                                 {
-                                                                    "kind": "LIST",
-                                                                    "children": []
-                                                                },
-                                                                {
-                                                                    "kind": "TYPED_BINDING_PATTERN",
+                                                                    "kind": "WILDCARD_BINDING_PATTERN",
                                                                     "children": [
                                                                         {
-                                                                            "kind": "NIL_TYPE_DESC",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "OPEN_PAREN_TOKEN"
-                                                                                },
-                                                                                {
-                                                                                    "kind": "CLOSE_PAREN_TOKEN",
-                                                                                    "trailingMinutiae": [
-                                                                                        {
-                                                                                            "kind": "WHITESPACE_MINUTIAE",
-                                                                                            "value": "  "
-                                                                                        }
-                                                                                    ]
-                                                                                }
-                                                                            ]
-                                                                        },
-                                                                        {
-                                                                            "kind": "CAPTURE_BINDING_PATTERN",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                    "value": "v3"
-                                                                                }
-                                                                            ]
+                                                                            "kind": "UNDERSCORE_KEYWORD"
                                                                         }
                                                                     ]
                                                                 },
@@ -5223,6 +5115,15 @@
                                         {
                                             "kind": "LIST",
                                             "children": [
+                                                {
+                                                    "kind": "ISOLATED_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
+                                                },
                                                 {
                                                     "kind": "RESOURCE_KEYWORD",
                                                     "trailingMinutiae": [
@@ -5794,6 +5695,15 @@
                                                             "value": " "
                                                         }
                                                     ]
+                                                },
+                                                {
+                                                    "kind": "ISOLATED_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
                                                 }
                                             ]
                                         },
@@ -6168,40 +6078,13 @@
                                                             ]
                                                         },
                                                         {
-                                                            "kind": "LOCAL_VAR_DECL",
+                                                            "kind": "ASSIGNMENT_STATEMENT",
                                                             "children": [
                                                                 {
-                                                                    "kind": "LIST",
-                                                                    "children": []
-                                                                },
-                                                                {
-                                                                    "kind": "TYPED_BINDING_PATTERN",
+                                                                    "kind": "WILDCARD_BINDING_PATTERN",
                                                                     "children": [
                                                                         {
-                                                                            "kind": "NIL_TYPE_DESC",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "OPEN_PAREN_TOKEN"
-                                                                                },
-                                                                                {
-                                                                                    "kind": "CLOSE_PAREN_TOKEN",
-                                                                                    "trailingMinutiae": [
-                                                                                        {
-                                                                                            "kind": "WHITESPACE_MINUTIAE",
-                                                                                            "value": "  "
-                                                                                        }
-                                                                                    ]
-                                                                                }
-                                                                            ]
-                                                                        },
-                                                                        {
-                                                                            "kind": "CAPTURE_BINDING_PATTERN",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                    "value": "v2"
-                                                                                }
-                                                                            ]
+                                                                            "kind": "UNDERSCORE_KEYWORD"
                                                                         }
                                                                     ]
                                                                 },
@@ -6311,6 +6194,15 @@
                                         {
                                             "kind": "LIST",
                                             "children": [
+                                                {
+                                                    "kind": "ISOLATED_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
+                                                },
                                                 {
                                                     "kind": "RESOURCE_KEYWORD",
                                                     "trailingMinutiae": [
@@ -6882,6 +6774,15 @@
                                                             "value": " "
                                                         }
                                                     ]
+                                                },
+                                                {
+                                                    "kind": "ISOLATED_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
                                                 }
                                             ]
                                         },
@@ -7274,40 +7175,13 @@
                                                             ]
                                                         },
                                                         {
-                                                            "kind": "LOCAL_VAR_DECL",
+                                                            "kind": "ASSIGNMENT_STATEMENT",
                                                             "children": [
                                                                 {
-                                                                    "kind": "LIST",
-                                                                    "children": []
-                                                                },
-                                                                {
-                                                                    "kind": "TYPED_BINDING_PATTERN",
+                                                                    "kind": "WILDCARD_BINDING_PATTERN",
                                                                     "children": [
                                                                         {
-                                                                            "kind": "NIL_TYPE_DESC",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "OPEN_PAREN_TOKEN"
-                                                                                },
-                                                                                {
-                                                                                    "kind": "CLOSE_PAREN_TOKEN",
-                                                                                    "trailingMinutiae": [
-                                                                                        {
-                                                                                            "kind": "WHITESPACE_MINUTIAE",
-                                                                                            "value": "  "
-                                                                                        }
-                                                                                    ]
-                                                                                }
-                                                                            ]
-                                                                        },
-                                                                        {
-                                                                            "kind": "CAPTURE_BINDING_PATTERN",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                    "value": "v3"
-                                                                                }
-                                                                            ]
+                                                                            "kind": "UNDERSCORE_KEYWORD"
                                                                         }
                                                                     ]
                                                                 },
@@ -7420,40 +7294,13 @@
                                                             ]
                                                         },
                                                         {
-                                                            "kind": "LOCAL_VAR_DECL",
+                                                            "kind": "ASSIGNMENT_STATEMENT",
                                                             "children": [
                                                                 {
-                                                                    "kind": "LIST",
-                                                                    "children": []
-                                                                },
-                                                                {
-                                                                    "kind": "TYPED_BINDING_PATTERN",
+                                                                    "kind": "WILDCARD_BINDING_PATTERN",
                                                                     "children": [
                                                                         {
-                                                                            "kind": "NIL_TYPE_DESC",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "OPEN_PAREN_TOKEN"
-                                                                                },
-                                                                                {
-                                                                                    "kind": "CLOSE_PAREN_TOKEN",
-                                                                                    "trailingMinutiae": [
-                                                                                        {
-                                                                                            "kind": "WHITESPACE_MINUTIAE",
-                                                                                            "value": "  "
-                                                                                        }
-                                                                                    ]
-                                                                                }
-                                                                            ]
-                                                                        },
-                                                                        {
-                                                                            "kind": "CAPTURE_BINDING_PATTERN",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                    "value": "v4"
-                                                                                }
-                                                                            ]
+                                                                            "kind": "UNDERSCORE_KEYWORD"
                                                                         }
                                                                     ]
                                                                 },
@@ -7563,6 +7410,15 @@
                                         {
                                             "kind": "LIST",
                                             "children": [
+                                                {
+                                                    "kind": "ISOLATED_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
+                                                },
                                                 {
                                                     "kind": "RESOURCE_KEYWORD",
                                                     "trailingMinutiae": [
@@ -8134,6 +7990,15 @@
                                                             "value": " "
                                                         }
                                                     ]
+                                                },
+                                                {
+                                                    "kind": "ISOLATED_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
                                                 }
                                             ]
                                         },
@@ -8512,40 +8377,13 @@
                                                             ]
                                                         },
                                                         {
-                                                            "kind": "LOCAL_VAR_DECL",
+                                                            "kind": "ASSIGNMENT_STATEMENT",
                                                             "children": [
                                                                 {
-                                                                    "kind": "LIST",
-                                                                    "children": []
-                                                                },
-                                                                {
-                                                                    "kind": "TYPED_BINDING_PATTERN",
+                                                                    "kind": "WILDCARD_BINDING_PATTERN",
                                                                     "children": [
                                                                         {
-                                                                            "kind": "NIL_TYPE_DESC",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "OPEN_PAREN_TOKEN"
-                                                                                },
-                                                                                {
-                                                                                    "kind": "CLOSE_PAREN_TOKEN",
-                                                                                    "trailingMinutiae": [
-                                                                                        {
-                                                                                            "kind": "WHITESPACE_MINUTIAE",
-                                                                                            "value": "  "
-                                                                                        }
-                                                                                    ]
-                                                                                }
-                                                                            ]
-                                                                        },
-                                                                        {
-                                                                            "kind": "CAPTURE_BINDING_PATTERN",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                    "value": "v3"
-                                                                                }
-                                                                            ]
+                                                                            "kind": "UNDERSCORE_KEYWORD"
                                                                         }
                                                                     ]
                                                                 },
@@ -8658,40 +8496,13 @@
                                                             ]
                                                         },
                                                         {
-                                                            "kind": "LOCAL_VAR_DECL",
+                                                            "kind": "ASSIGNMENT_STATEMENT",
                                                             "children": [
                                                                 {
-                                                                    "kind": "LIST",
-                                                                    "children": []
-                                                                },
-                                                                {
-                                                                    "kind": "TYPED_BINDING_PATTERN",
+                                                                    "kind": "WILDCARD_BINDING_PATTERN",
                                                                     "children": [
                                                                         {
-                                                                            "kind": "NIL_TYPE_DESC",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "OPEN_PAREN_TOKEN"
-                                                                                },
-                                                                                {
-                                                                                    "kind": "CLOSE_PAREN_TOKEN",
-                                                                                    "trailingMinutiae": [
-                                                                                        {
-                                                                                            "kind": "WHITESPACE_MINUTIAE",
-                                                                                            "value": "  "
-                                                                                        }
-                                                                                    ]
-                                                                                }
-                                                                            ]
-                                                                        },
-                                                                        {
-                                                                            "kind": "CAPTURE_BINDING_PATTERN",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                    "value": "v4"
-                                                                                }
-                                                                            ]
+                                                                            "kind": "UNDERSCORE_KEYWORD"
                                                                         }
                                                                     ]
                                                                 },
@@ -8801,6 +8612,15 @@
                                         {
                                             "kind": "LIST",
                                             "children": [
+                                                {
+                                                    "kind": "ISOLATED_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
+                                                },
                                                 {
                                                     "kind": "RESOURCE_KEYWORD",
                                                     "trailingMinutiae": [
@@ -9372,6 +9192,15 @@
                                                             "value": " "
                                                         }
                                                     ]
+                                                },
+                                                {
+                                                    "kind": "ISOLATED_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
                                                 }
                                             ]
                                         },
@@ -9577,40 +9406,13 @@
                                                             ]
                                                         },
                                                         {
-                                                            "kind": "LOCAL_VAR_DECL",
+                                                            "kind": "ASSIGNMENT_STATEMENT",
                                                             "children": [
                                                                 {
-                                                                    "kind": "LIST",
-                                                                    "children": []
-                                                                },
-                                                                {
-                                                                    "kind": "TYPED_BINDING_PATTERN",
+                                                                    "kind": "WILDCARD_BINDING_PATTERN",
                                                                     "children": [
                                                                         {
-                                                                            "kind": "NIL_TYPE_DESC",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "OPEN_PAREN_TOKEN"
-                                                                                },
-                                                                                {
-                                                                                    "kind": "CLOSE_PAREN_TOKEN",
-                                                                                    "trailingMinutiae": [
-                                                                                        {
-                                                                                            "kind": "WHITESPACE_MINUTIAE",
-                                                                                            "value": "  "
-                                                                                        }
-                                                                                    ]
-                                                                                }
-                                                                            ]
-                                                                        },
-                                                                        {
-                                                                            "kind": "CAPTURE_BINDING_PATTERN",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                    "value": "v2"
-                                                                                }
-                                                                            ]
+                                                                            "kind": "UNDERSCORE_KEYWORD"
                                                                         }
                                                                     ]
                                                                 },
@@ -9816,40 +9618,13 @@
                                                             ]
                                                         },
                                                         {
-                                                            "kind": "LOCAL_VAR_DECL",
+                                                            "kind": "ASSIGNMENT_STATEMENT",
                                                             "children": [
                                                                 {
-                                                                    "kind": "LIST",
-                                                                    "children": []
-                                                                },
-                                                                {
-                                                                    "kind": "TYPED_BINDING_PATTERN",
+                                                                    "kind": "WILDCARD_BINDING_PATTERN",
                                                                     "children": [
                                                                         {
-                                                                            "kind": "NIL_TYPE_DESC",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "OPEN_PAREN_TOKEN"
-                                                                                },
-                                                                                {
-                                                                                    "kind": "CLOSE_PAREN_TOKEN",
-                                                                                    "trailingMinutiae": [
-                                                                                        {
-                                                                                            "kind": "WHITESPACE_MINUTIAE",
-                                                                                            "value": "  "
-                                                                                        }
-                                                                                    ]
-                                                                                }
-                                                                            ]
-                                                                        },
-                                                                        {
-                                                                            "kind": "CAPTURE_BINDING_PATTERN",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                    "value": "v3"
-                                                                                }
-                                                                            ]
+                                                                            "kind": "UNDERSCORE_KEYWORD"
                                                                         }
                                                                     ]
                                                                 },
@@ -9976,6 +9751,15 @@
                                         {
                                             "kind": "LIST",
                                             "children": [
+                                                {
+                                                    "kind": "ISOLATED_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
+                                                },
                                                 {
                                                     "kind": "RESOURCE_KEYWORD",
                                                     "trailingMinutiae": [
@@ -10547,6 +10331,15 @@
                                                             "value": " "
                                                         }
                                                     ]
+                                                },
+                                                {
+                                                    "kind": "ISOLATED_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
                                                 }
                                             ]
                                         },
@@ -10752,40 +10545,13 @@
                                                             ]
                                                         },
                                                         {
-                                                            "kind": "LOCAL_VAR_DECL",
+                                                            "kind": "ASSIGNMENT_STATEMENT",
                                                             "children": [
                                                                 {
-                                                                    "kind": "LIST",
-                                                                    "children": []
-                                                                },
-                                                                {
-                                                                    "kind": "TYPED_BINDING_PATTERN",
+                                                                    "kind": "WILDCARD_BINDING_PATTERN",
                                                                     "children": [
                                                                         {
-                                                                            "kind": "NIL_TYPE_DESC",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "OPEN_PAREN_TOKEN"
-                                                                                },
-                                                                                {
-                                                                                    "kind": "CLOSE_PAREN_TOKEN",
-                                                                                    "trailingMinutiae": [
-                                                                                        {
-                                                                                            "kind": "WHITESPACE_MINUTIAE",
-                                                                                            "value": "  "
-                                                                                        }
-                                                                                    ]
-                                                                                }
-                                                                            ]
-                                                                        },
-                                                                        {
-                                                                            "kind": "CAPTURE_BINDING_PATTERN",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                    "value": "v2"
-                                                                                }
-                                                                            ]
+                                                                            "kind": "UNDERSCORE_KEYWORD"
                                                                         }
                                                                     ]
                                                                 },
@@ -10928,40 +10694,13 @@
                                                             ]
                                                         },
                                                         {
-                                                            "kind": "LOCAL_VAR_DECL",
+                                                            "kind": "ASSIGNMENT_STATEMENT",
                                                             "children": [
                                                                 {
-                                                                    "kind": "LIST",
-                                                                    "children": []
-                                                                },
-                                                                {
-                                                                    "kind": "TYPED_BINDING_PATTERN",
+                                                                    "kind": "WILDCARD_BINDING_PATTERN",
                                                                     "children": [
                                                                         {
-                                                                            "kind": "NIL_TYPE_DESC",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "OPEN_PAREN_TOKEN"
-                                                                                },
-                                                                                {
-                                                                                    "kind": "CLOSE_PAREN_TOKEN",
-                                                                                    "trailingMinutiae": [
-                                                                                        {
-                                                                                            "kind": "WHITESPACE_MINUTIAE",
-                                                                                            "value": "  "
-                                                                                        }
-                                                                                    ]
-                                                                                }
-                                                                            ]
-                                                                        },
-                                                                        {
-                                                                            "kind": "CAPTURE_BINDING_PATTERN",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                    "value": "v3"
-                                                                                }
-                                                                            ]
+                                                                            "kind": "UNDERSCORE_KEYWORD"
                                                                         }
                                                                     ]
                                                                 },
@@ -11088,6 +10827,15 @@
                                         {
                                             "kind": "LIST",
                                             "children": [
+                                                {
+                                                    "kind": "ISOLATED_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
+                                                },
                                                 {
                                                     "kind": "RESOURCE_KEYWORD",
                                                     "trailingMinutiae": [
@@ -11659,6 +11407,15 @@
                                                             "value": " "
                                                         }
                                                     ]
+                                                },
+                                                {
+                                                    "kind": "ISOLATED_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
                                                 }
                                             ]
                                         },
@@ -12047,40 +11804,13 @@
                                                             ]
                                                         },
                                                         {
-                                                            "kind": "LOCAL_VAR_DECL",
+                                                            "kind": "ASSIGNMENT_STATEMENT",
                                                             "children": [
                                                                 {
-                                                                    "kind": "LIST",
-                                                                    "children": []
-                                                                },
-                                                                {
-                                                                    "kind": "TYPED_BINDING_PATTERN",
+                                                                    "kind": "WILDCARD_BINDING_PATTERN",
                                                                     "children": [
                                                                         {
-                                                                            "kind": "NIL_TYPE_DESC",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "OPEN_PAREN_TOKEN"
-                                                                                },
-                                                                                {
-                                                                                    "kind": "CLOSE_PAREN_TOKEN",
-                                                                                    "trailingMinutiae": [
-                                                                                        {
-                                                                                            "kind": "WHITESPACE_MINUTIAE",
-                                                                                            "value": "  "
-                                                                                        }
-                                                                                    ]
-                                                                                }
-                                                                            ]
-                                                                        },
-                                                                        {
-                                                                            "kind": "CAPTURE_BINDING_PATTERN",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                    "value": "v2"
-                                                                                }
-                                                                            ]
+                                                                            "kind": "UNDERSCORE_KEYWORD"
                                                                         }
                                                                     ]
                                                                 },
@@ -12190,6 +11920,15 @@
                                         {
                                             "kind": "LIST",
                                             "children": [
+                                                {
+                                                    "kind": "ISOLATED_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
+                                                },
                                                 {
                                                     "kind": "RESOURCE_KEYWORD",
                                                     "trailingMinutiae": [
@@ -12761,6 +12500,15 @@
                                                             "value": " "
                                                         }
                                                     ]
+                                                },
+                                                {
+                                                    "kind": "ISOLATED_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
                                                 }
                                             ]
                                         },
@@ -13209,40 +12957,13 @@
                                                             ]
                                                         },
                                                         {
-                                                            "kind": "LOCAL_VAR_DECL",
+                                                            "kind": "ASSIGNMENT_STATEMENT",
                                                             "children": [
                                                                 {
-                                                                    "kind": "LIST",
-                                                                    "children": []
-                                                                },
-                                                                {
-                                                                    "kind": "TYPED_BINDING_PATTERN",
+                                                                    "kind": "WILDCARD_BINDING_PATTERN",
                                                                     "children": [
                                                                         {
-                                                                            "kind": "NIL_TYPE_DESC",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "OPEN_PAREN_TOKEN"
-                                                                                },
-                                                                                {
-                                                                                    "kind": "CLOSE_PAREN_TOKEN",
-                                                                                    "trailingMinutiae": [
-                                                                                        {
-                                                                                            "kind": "WHITESPACE_MINUTIAE",
-                                                                                            "value": "  "
-                                                                                        }
-                                                                                    ]
-                                                                                }
-                                                                            ]
-                                                                        },
-                                                                        {
-                                                                            "kind": "CAPTURE_BINDING_PATTERN",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                    "value": "v2"
-                                                                                }
-                                                                            ]
+                                                                            "kind": "UNDERSCORE_KEYWORD"
                                                                         }
                                                                     ]
                                                                 },
@@ -13352,6 +13073,15 @@
                                         {
                                             "kind": "LIST",
                                             "children": [
+                                                {
+                                                    "kind": "ISOLATED_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
+                                                },
                                                 {
                                                     "kind": "RESOURCE_KEYWORD",
                                                     "trailingMinutiae": [
@@ -13923,6 +13653,15 @@
                                                             "value": " "
                                                         }
                                                     ]
+                                                },
+                                                {
+                                                    "kind": "ISOLATED_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
                                                 }
                                             ]
                                         },
@@ -14380,40 +14119,13 @@
                                                             ]
                                                         },
                                                         {
-                                                            "kind": "LOCAL_VAR_DECL",
+                                                            "kind": "ASSIGNMENT_STATEMENT",
                                                             "children": [
                                                                 {
-                                                                    "kind": "LIST",
-                                                                    "children": []
-                                                                },
-                                                                {
-                                                                    "kind": "TYPED_BINDING_PATTERN",
+                                                                    "kind": "WILDCARD_BINDING_PATTERN",
                                                                     "children": [
                                                                         {
-                                                                            "kind": "NIL_TYPE_DESC",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "OPEN_PAREN_TOKEN"
-                                                                                },
-                                                                                {
-                                                                                    "kind": "CLOSE_PAREN_TOKEN",
-                                                                                    "trailingMinutiae": [
-                                                                                        {
-                                                                                            "kind": "WHITESPACE_MINUTIAE",
-                                                                                            "value": "  "
-                                                                                        }
-                                                                                    ]
-                                                                                }
-                                                                            ]
-                                                                        },
-                                                                        {
-                                                                            "kind": "CAPTURE_BINDING_PATTERN",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                    "value": "v2"
-                                                                                }
-                                                                            ]
+                                                                            "kind": "UNDERSCORE_KEYWORD"
                                                                         }
                                                                     ]
                                                                 },
@@ -14523,6 +14235,15 @@
                                         {
                                             "kind": "LIST",
                                             "children": [
+                                                {
+                                                    "kind": "ISOLATED_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
+                                                },
                                                 {
                                                     "kind": "RESOURCE_KEYWORD",
                                                     "trailingMinutiae": [
@@ -15094,6 +14815,15 @@
                                                             "value": " "
                                                         }
                                                     ]
+                                                },
+                                                {
+                                                    "kind": "ISOLATED_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
                                                 }
                                             ]
                                         },
@@ -15472,40 +15202,13 @@
                                                             ]
                                                         },
                                                         {
-                                                            "kind": "LOCAL_VAR_DECL",
+                                                            "kind": "ASSIGNMENT_STATEMENT",
                                                             "children": [
                                                                 {
-                                                                    "kind": "LIST",
-                                                                    "children": []
-                                                                },
-                                                                {
-                                                                    "kind": "TYPED_BINDING_PATTERN",
+                                                                    "kind": "WILDCARD_BINDING_PATTERN",
                                                                     "children": [
                                                                         {
-                                                                            "kind": "NIL_TYPE_DESC",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "OPEN_PAREN_TOKEN"
-                                                                                },
-                                                                                {
-                                                                                    "kind": "CLOSE_PAREN_TOKEN",
-                                                                                    "trailingMinutiae": [
-                                                                                        {
-                                                                                            "kind": "WHITESPACE_MINUTIAE",
-                                                                                            "value": "  "
-                                                                                        }
-                                                                                    ]
-                                                                                }
-                                                                            ]
-                                                                        },
-                                                                        {
-                                                                            "kind": "CAPTURE_BINDING_PATTERN",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                    "value": "v3"
-                                                                                }
-                                                                            ]
+                                                                            "kind": "UNDERSCORE_KEYWORD"
                                                                         }
                                                                     ]
                                                                 },
@@ -15618,40 +15321,13 @@
                                                             ]
                                                         },
                                                         {
-                                                            "kind": "LOCAL_VAR_DECL",
+                                                            "kind": "ASSIGNMENT_STATEMENT",
                                                             "children": [
                                                                 {
-                                                                    "kind": "LIST",
-                                                                    "children": []
-                                                                },
-                                                                {
-                                                                    "kind": "TYPED_BINDING_PATTERN",
+                                                                    "kind": "WILDCARD_BINDING_PATTERN",
                                                                     "children": [
                                                                         {
-                                                                            "kind": "NIL_TYPE_DESC",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "OPEN_PAREN_TOKEN"
-                                                                                },
-                                                                                {
-                                                                                    "kind": "CLOSE_PAREN_TOKEN",
-                                                                                    "trailingMinutiae": [
-                                                                                        {
-                                                                                            "kind": "WHITESPACE_MINUTIAE",
-                                                                                            "value": "  "
-                                                                                        }
-                                                                                    ]
-                                                                                }
-                                                                            ]
-                                                                        },
-                                                                        {
-                                                                            "kind": "CAPTURE_BINDING_PATTERN",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                    "value": "v4"
-                                                                                }
-                                                                            ]
+                                                                            "kind": "UNDERSCORE_KEYWORD"
                                                                         }
                                                                     ]
                                                                 },
@@ -15761,6 +15437,15 @@
                                         {
                                             "kind": "LIST",
                                             "children": [
+                                                {
+                                                    "kind": "ISOLATED_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
+                                                },
                                                 {
                                                     "kind": "RESOURCE_KEYWORD",
                                                     "trailingMinutiae": [
@@ -16332,6 +16017,15 @@
                                                             "value": " "
                                                         }
                                                     ]
+                                                },
+                                                {
+                                                    "kind": "ISOLATED_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
                                                 }
                                             ]
                                         },
@@ -16710,40 +16404,13 @@
                                                             ]
                                                         },
                                                         {
-                                                            "kind": "LOCAL_VAR_DECL",
+                                                            "kind": "ASSIGNMENT_STATEMENT",
                                                             "children": [
                                                                 {
-                                                                    "kind": "LIST",
-                                                                    "children": []
-                                                                },
-                                                                {
-                                                                    "kind": "TYPED_BINDING_PATTERN",
+                                                                    "kind": "WILDCARD_BINDING_PATTERN",
                                                                     "children": [
                                                                         {
-                                                                            "kind": "NIL_TYPE_DESC",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "OPEN_PAREN_TOKEN"
-                                                                                },
-                                                                                {
-                                                                                    "kind": "CLOSE_PAREN_TOKEN",
-                                                                                    "trailingMinutiae": [
-                                                                                        {
-                                                                                            "kind": "WHITESPACE_MINUTIAE",
-                                                                                            "value": "  "
-                                                                                        }
-                                                                                    ]
-                                                                                }
-                                                                            ]
-                                                                        },
-                                                                        {
-                                                                            "kind": "CAPTURE_BINDING_PATTERN",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                    "value": "v3"
-                                                                                }
-                                                                            ]
+                                                                            "kind": "UNDERSCORE_KEYWORD"
                                                                         }
                                                                     ]
                                                                 },
@@ -16856,40 +16523,13 @@
                                                             ]
                                                         },
                                                         {
-                                                            "kind": "LOCAL_VAR_DECL",
+                                                            "kind": "ASSIGNMENT_STATEMENT",
                                                             "children": [
                                                                 {
-                                                                    "kind": "LIST",
-                                                                    "children": []
-                                                                },
-                                                                {
-                                                                    "kind": "TYPED_BINDING_PATTERN",
+                                                                    "kind": "WILDCARD_BINDING_PATTERN",
                                                                     "children": [
                                                                         {
-                                                                            "kind": "NIL_TYPE_DESC",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "OPEN_PAREN_TOKEN"
-                                                                                },
-                                                                                {
-                                                                                    "kind": "CLOSE_PAREN_TOKEN",
-                                                                                    "trailingMinutiae": [
-                                                                                        {
-                                                                                            "kind": "WHITESPACE_MINUTIAE",
-                                                                                            "value": "  "
-                                                                                        }
-                                                                                    ]
-                                                                                }
-                                                                            ]
-                                                                        },
-                                                                        {
-                                                                            "kind": "CAPTURE_BINDING_PATTERN",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                    "value": "v4"
-                                                                                }
-                                                                            ]
+                                                                            "kind": "UNDERSCORE_KEYWORD"
                                                                         }
                                                                     ]
                                                                 },
@@ -16999,6 +16639,15 @@
                                         {
                                             "kind": "LIST",
                                             "children": [
+                                                {
+                                                    "kind": "ISOLATED_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
+                                                },
                                                 {
                                                     "kind": "RESOURCE_KEYWORD",
                                                     "trailingMinutiae": [
@@ -17570,6 +17219,15 @@
                                                             "value": " "
                                                         }
                                                     ]
+                                                },
+                                                {
+                                                    "kind": "ISOLATED_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
                                                 }
                                             ]
                                         },
@@ -17871,40 +17529,13 @@
                                                             ]
                                                         },
                                                         {
-                                                            "kind": "LOCAL_VAR_DECL",
+                                                            "kind": "ASSIGNMENT_STATEMENT",
                                                             "children": [
                                                                 {
-                                                                    "kind": "LIST",
-                                                                    "children": []
-                                                                },
-                                                                {
-                                                                    "kind": "TYPED_BINDING_PATTERN",
+                                                                    "kind": "WILDCARD_BINDING_PATTERN",
                                                                     "children": [
                                                                         {
-                                                                            "kind": "NIL_TYPE_DESC",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "OPEN_PAREN_TOKEN"
-                                                                                },
-                                                                                {
-                                                                                    "kind": "CLOSE_PAREN_TOKEN",
-                                                                                    "trailingMinutiae": [
-                                                                                        {
-                                                                                            "kind": "WHITESPACE_MINUTIAE",
-                                                                                            "value": "  "
-                                                                                        }
-                                                                                    ]
-                                                                                }
-                                                                            ]
-                                                                        },
-                                                                        {
-                                                                            "kind": "CAPTURE_BINDING_PATTERN",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                    "value": "v2"
-                                                                                }
-                                                                            ]
+                                                                            "kind": "UNDERSCORE_KEYWORD"
                                                                         }
                                                                     ]
                                                                 },
@@ -18014,6 +17645,15 @@
                                         {
                                             "kind": "LIST",
                                             "children": [
+                                                {
+                                                    "kind": "ISOLATED_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
+                                                },
                                                 {
                                                     "kind": "RESOURCE_KEYWORD",
                                                     "trailingMinutiae": [
@@ -18585,6 +18225,15 @@
                                                             "value": " "
                                                         }
                                                     ]
+                                                },
+                                                {
+                                                    "kind": "ISOLATED_KEYWORD",
+                                                    "trailingMinutiae": [
+                                                        {
+                                                            "kind": "WHITESPACE_MINUTIAE",
+                                                            "value": " "
+                                                        }
+                                                    ]
                                                 }
                                             ]
                                         },
@@ -18790,40 +18439,13 @@
                                                             ]
                                                         },
                                                         {
-                                                            "kind": "LOCAL_VAR_DECL",
+                                                            "kind": "ASSIGNMENT_STATEMENT",
                                                             "children": [
                                                                 {
-                                                                    "kind": "LIST",
-                                                                    "children": []
-                                                                },
-                                                                {
-                                                                    "kind": "TYPED_BINDING_PATTERN",
+                                                                    "kind": "WILDCARD_BINDING_PATTERN",
                                                                     "children": [
                                                                         {
-                                                                            "kind": "NIL_TYPE_DESC",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "OPEN_PAREN_TOKEN"
-                                                                                },
-                                                                                {
-                                                                                    "kind": "CLOSE_PAREN_TOKEN",
-                                                                                    "trailingMinutiae": [
-                                                                                        {
-                                                                                            "kind": "WHITESPACE_MINUTIAE",
-                                                                                            "value": "  "
-                                                                                        }
-                                                                                    ]
-                                                                                }
-                                                                            ]
-                                                                        },
-                                                                        {
-                                                                            "kind": "CAPTURE_BINDING_PATTERN",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                    "value": "v2"
-                                                                                }
-                                                                            ]
+                                                                            "kind": "UNDERSCORE_KEYWORD"
                                                                         }
                                                                     ]
                                                                 },
@@ -18966,40 +18588,13 @@
                                                             ]
                                                         },
                                                         {
-                                                            "kind": "LOCAL_VAR_DECL",
+                                                            "kind": "ASSIGNMENT_STATEMENT",
                                                             "children": [
                                                                 {
-                                                                    "kind": "LIST",
-                                                                    "children": []
-                                                                },
-                                                                {
-                                                                    "kind": "TYPED_BINDING_PATTERN",
+                                                                    "kind": "WILDCARD_BINDING_PATTERN",
                                                                     "children": [
                                                                         {
-                                                                            "kind": "NIL_TYPE_DESC",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "OPEN_PAREN_TOKEN"
-                                                                                },
-                                                                                {
-                                                                                    "kind": "CLOSE_PAREN_TOKEN",
-                                                                                    "trailingMinutiae": [
-                                                                                        {
-                                                                                            "kind": "WHITESPACE_MINUTIAE",
-                                                                                            "value": "  "
-                                                                                        }
-                                                                                    ]
-                                                                                }
-                                                                            ]
-                                                                        },
-                                                                        {
-                                                                            "kind": "CAPTURE_BINDING_PATTERN",
-                                                                            "children": [
-                                                                                {
-                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                    "value": "v3"
-                                                                                }
-                                                                            ]
+                                                                            "kind": "UNDERSCORE_KEYWORD"
                                                                         }
                                                                     ]
                                                                 },

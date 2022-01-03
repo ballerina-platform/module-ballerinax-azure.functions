@@ -16,7 +16,7 @@
 import ballerinax/azure_functions as af;
 
 @af:Function
-public function hello(@af:HTTPTrigger { authLevel: "anonymous" } string payload) 
+public isolated function hello(@af:HTTPTrigger { authLevel: "anonymous" } string payload) 
                       returns @af:HTTPOutput string|error {
     return "Hello, " + payload + "!";
 }
