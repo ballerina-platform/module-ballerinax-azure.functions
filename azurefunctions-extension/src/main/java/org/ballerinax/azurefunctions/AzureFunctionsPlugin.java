@@ -17,7 +17,9 @@
  */
 package org.ballerinax.azurefunctions;
 
+import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
@@ -178,9 +180,15 @@ public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
             // no azure functions, nothing else to do
             return;
         }
+        Package currentPackage = project.currentPackage();
+        if (project.kind() != ProjectKind.BUILD_PROJECT) {
+            OUT.println("Azure functions are only allowed in ballerina packages. Execute `bal init` in the " +
+                    "code directory to initialize a ballerina package");
+            return;
+        }
         OUT.println("\t@azure_functions:Function: " + String.join(", ", generatedFunctions.keySet()));
         try {
-            this.generateFunctionsArtifact(generatedFunctions, target.getExecutablePath(project.currentPackage()));
+            this.generateFunctionsArtifact(generatedFunctions, target.getExecutablePath(currentPackage));
         } catch (AzureFunctionsException | IOException e) {
             String msg = "Error generating Azure Functions: " + e.getMessage();
             OUT.println(msg);
@@ -189,7 +197,7 @@ public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
         OUT.println("\n\tExecute the below command to deploy Ballerina Azure Functions:");
         try {
             OUT.println("\taz functionapp deployment source config-zip -g <resource_group> -n <function_app_name> " +
-                    "--src " + target.getExecutablePath(project.currentPackage()).getParent().toString() +
+                    "--src " + target.getExecutablePath(currentPackage).getParent().toString() +
                     File.separator + Constants.AZURE_FUNCS_OUTPUT_ZIP_FILENAME + "\n\n");
         } catch (IOException e) {
             //ignored;
