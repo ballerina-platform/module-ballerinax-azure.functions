@@ -36,23 +36,31 @@ import java.util.HashMap;
 public class DeploymentTest {
 
     private static final Path SOURCE_DIR = Paths.get("src").resolve("test").resolve("resources");
-    
+
     @Test
     public void testAzureFunctionsDeployment() throws Exception {
-        ProcessOutput processOutput = TestUtils.compileBallerinaFile(SOURCE_DIR.resolve("deployment"), "functions.bal");
+        ProcessOutput processOutput = TestUtils.compileBallerinaProject(SOURCE_DIR.resolve("deployment"));
         Assert.assertEquals(processOutput.getExitCode(), 0);
         Assert.assertTrue(processOutput.getStdOutput().contains("@azure_functions"));
-        
+
         // check if the executable jar and the host.json files are in the generated zip file
-        Path zipFilePath = SOURCE_DIR.resolve("deployment").resolve("azure-functions.zip");
+        Path zipFilePath = SOURCE_DIR.resolve("deployment").resolve("target").resolve("bin").resolve("azure-functions" +
+                ".zip");
         Assert.assertTrue(Files.exists(zipFilePath));
         URI uri = URI.create("jar:file:" + zipFilePath.toUri().getPath());
         try (FileSystem zipfs = FileSystems.newFileSystem(uri, new HashMap<>())) {
-            Path jarFile = zipfs.getPath("/functions.jar");
+            Path jarFile = zipfs.getPath("/deployment.jar");
             Path hostJson = zipfs.getPath("/host.json");
             Assert.assertTrue(Files.exists(jarFile));
             Assert.assertTrue(Files.exists(hostJson));
         }
+    }
+
+    @Test
+    public void testSingleFileDeployment() throws Exception {
+        ProcessOutput processOutput =
+                TestUtils.compileBallerinaFile(SOURCE_DIR.resolve("single_file"), "functions.bal");
+        Assert.assertTrue(processOutput.getStdOutput().contains("bal init"));
     }
 
 }
