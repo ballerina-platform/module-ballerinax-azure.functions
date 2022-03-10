@@ -17,7 +17,6 @@
  */
 package org.ballerinax.azurefunctions;
 
-import org.ballerinalang.core.model.expressions.Expression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 /**
@@ -38,7 +37,7 @@ public interface ParameterHandler {
      * Called when generating the azure function invocation statement. This will be used for scenarios
      * such as generating the parameter values for the function invocation by consuming the incoming HTTP
      * data, which can be accessed using the context. After any required statement are generated, this must
-     * return an {@link Expression} which is used for the parameter value of the azure function call.
+     * return an expression which is used for the parameter value of the azure function call.
      *
      * @return The expression which represents the parameter value
      * @throws AzureFunctionsException thrown if an error occurs

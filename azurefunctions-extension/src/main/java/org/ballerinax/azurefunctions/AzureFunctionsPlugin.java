@@ -21,10 +21,10 @@ import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.internal.model.Target;
+import io.ballerina.projects.plugins.CompilerPluginException;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
-import org.ballerinalang.core.util.exceptions.BallerinaException;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
@@ -155,7 +155,7 @@ public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
         BPackageSymbol azureFuncsPkgSymbol = this.globalCtx.azureFuncsPkgSymbol;
         if (azureFuncsPkgSymbol == null) {
             // this symbol will always be there, since the import is needed to add the annotation
-            throw new BallerinaException("Azure Functions package symbol cannot be found");
+            throw new CompilerPluginException("Azure Functions package symbol cannot be found");
         }
         BLangFunction epFunc = Utils.extractMainFunction(myPkg);
         if (epFunc == null) {
@@ -192,7 +192,7 @@ public class AzureFunctionsPlugin extends AbstractCompilerPlugin {
         } catch (AzureFunctionsException | IOException e) {
             String msg = "Error generating Azure Functions: " + e.getMessage();
             OUT.println(msg);
-            throw new BallerinaException(msg, e);
+            throw new CompilerPluginException(msg, e);
         }
         OUT.println("\n\tExecute the below command to deploy Ballerina Azure Functions:");
         try {
