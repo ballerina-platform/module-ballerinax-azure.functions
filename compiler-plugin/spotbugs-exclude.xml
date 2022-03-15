@@ -29,7 +29,7 @@
     </Match>
     
     <Match>
-        <Class name="org.ballerinax.azurefunctions.AzureCodeGeneratedTask"/>
+        <Class name="org.ballerinax.azurefunctions.generator.AzureCodeGeneratedTask"/>
         <Bug pattern="SIC_INNER_SHOULD_BE_STATIC_ANON"/>
     </Match>
 
@@ -37,5 +37,5 @@
     <Match>
         <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE"/>
     </Match>
-
+    
 </FindBugsFilter>

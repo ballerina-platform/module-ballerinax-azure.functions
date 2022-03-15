@@ -1,7 +1,4 @@
 [package]
-org = "ballerina"
-name = "http_tests"
+org = "ballerinax"
+name = "azure_functions_tests"
 version = "@toml.version@"
-
-[[platform.java11.dependency]]
-path = "../native/build/libs/http-native-@project.version@.jar"

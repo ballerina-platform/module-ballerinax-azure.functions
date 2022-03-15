@@ -20,10 +20,9 @@
 <suite name="Ballerinax-Azure-Functions-Test-Suite">
     <test name="ballerinax-azure-functions-tests" parallel="false">
         <classes>
-            <class name="org.ballerinax.azurefunctions.test.DeploymentTest"/>
-            <class name="org.ballerinax.azurefunctions.test.HandlerTest"/>
-            <class name="org.ballerinax.azurefunctions.test.RuntimeTest"/>
-            <class name="org.ballerinax.azurefunctions.test.ProjectValidationTests"/>
+            <class name="org.ballerinax.azurefunctions.generator.test.DeploymentTest"/>
+            <class name="org.ballerinax.azurefunctions.generator.test.HandlerTest"/>
+            <class name="org.ballerinax.azurefunctions.generator.test.ProjectValidationTests"/>
         </classes>
     </test>
 </suite>

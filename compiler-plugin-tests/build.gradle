@@ -15,16 +15,9 @@
  *
  */
 
-plugins {
-    id 'java'
-    id 'checkstyle'
-    id 'com.github.spotbugs'
-}
+apply from: "$rootDir/gradle/javaProject.gradle"
 
 dependencies {
-    checkstyle project(':checkstyle')
-    checkstyle "com.puppycrawl.tools:checkstyle:${puppycrawlCheckstyleVersion}"
-    
     implementation project(':azure_functions-compiler-plugin')
 
     testImplementation "org.ballerinalang:ballerina-lang:${ballerinaLangVersion}"
@@ -38,32 +31,6 @@ dependencies {
 }
 
 description = 'Ballerinax - Azure Functions Extension Tests'
-
-tasks.withType(Checkstyle) {
-    exclude '**/module-info.java'
-}
-
-checkstyle {
-    toolVersion "${project.puppycrawlCheckstyleVersion}"
-    configFile rootProject.file("build-config/checkstyle/build/checkstyle.xml")
-    configProperties = ["suppressionFile" : file("${rootDir}/build-config/checkstyle/build/suppressions.xml")]
-}
-
-checkstyleTest.dependsOn(":checkstyle:downloadCheckstyleRuleFiles")
-
-spotbugsTest {
-    effort "max"
-    reportLevel "low"
-    reportsDir = file("$project.buildDir/reports/spotbugs")
-    reports {
-        html.enabled true
-        text.enabled = true
-    }
-    def excludeFile = file('spotbugs-exclude.xml')
-    if(excludeFile.exists()) {
-        excludeFilter = excludeFile
-    }
-}
 
 spotbugsMain {
     enabled false
@@ -83,14 +50,29 @@ compileJava {
 }
 
 test {
-    systemProperty "ballerina.offline.flag", "true"
+    systemProperties =  [ jacocoAgentLine: "-javaagent:${configurations.jacocoRuntime.asPath}=destfile=${test.jacoco.destinationFile.absolutePath},append=true,inclnolocationclasses=true,exclclassloader=jdk.internal.reflect.DelegatingClassLoader" ,
+                          "ballerina.home": System.getProperty('sampleDir', project.projectDir.absolutePath +
+                                  "/../target/ballerina-runtime"),
+                          sampleDir: System.getProperty('sampleDir', project.projectDir.absolutePath + "/../samples"),
+                          "ballerina.offline.flag": "true"
+    ]
     useTestNG() {
-        suites 'src/test/resources/testng.xml'
-        systemProperties = [
-                "ballerina.home": System.getProperty('sampleDir', project.projectDir.absolutePath +
-                        "/../target/ballerina-runtime"),
-                sampleDir: System.getProperty('sampleDir', project.projectDir.absolutePath + "/../samples"),
-        ]
+        suites "src/test/resources/testng.xml"
+    }
+    finalizedBy jacocoTestReport
+}
+
+jacocoTestReport {
+    dependsOn test
+    def classFiles = new File("${rootDir}/compiler-plugin/build/classes/java/main/org/ballerinax/azurefunctions")
+    additionalClassDirs(classFiles)
+    reports {
+        xml.enabled = true
+        html.enabled = true
+        csv.enabled = true
+        xml.destination = new File("${buildDir}/reports/jacoco/report.xml")
+        html.destination = new File("${buildDir}/reports/jacoco/report.html")
+        csv.destination = new File("${buildDir}/reports/jacoco/report.csv")
     }
 }
 
