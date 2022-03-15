@@ -28,7 +28,6 @@ dependencies {
     implementation project(':azure_functions-compiler-plugin')
 
     testImplementation "org.ballerinalang:ballerina-lang:${ballerinaLangVersion}"
-    testImplementation "org.ballerinalang:ballerina-core:${ballerinaLangVersion}"
     testImplementation "org.ballerinalang:ballerina-parser:${ballerinaLangVersion}"
     testImplementation "org.ballerinalang:ballerina-tools-api:${ballerinaLangVersion}"
     testImplementation "org.testng:testng:${testngVersion}"
