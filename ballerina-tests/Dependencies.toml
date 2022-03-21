@@ -7,37 +7,6 @@
 dependencies-toml-version = "2"
 
 [[package]]
-org = "anjanasupun"
-name = "azure_functions"
-version = "2.0.3"
-dependencies = [
-	{org = "ballerina", name = "http"},
-	{org = "ballerina", name = "lang.array"},
-	{org = "ballerina", name = "lang.boolean"},
-	{org = "ballerina", name = "lang.int"},
-	{org = "ballerina", name = "lang.string"},
-	{org = "ballerina", name = "os"}
-]
-modules = [
-	{org = "anjanasupun", packageName = "azure_functions", moduleName = "azure_functions"}
-]
-
-[[package]]
-org = "anjanasupun"
-name = "azure_functions_tests"
-version = "2.0.3"
-dependencies = [
-	{org = "anjanasupun", name = "azure_functions"},
-	{org = "ballerina", name = "http"},
-	{org = "ballerina", name = "io"},
-	{org = "ballerina", name = "test"},
-	{org = "ballerina", name = "uuid"}
-]
-modules = [
-	{org = "anjanasupun", packageName = "azure_functions_tests", moduleName = "azure_functions_tests"}
-]
-
-[[package]]
 org = "ballerina"
 name = "auth"
 version = "2.2.1"
@@ -320,6 +289,37 @@ dependencies = [
 ]
 modules = [
 	{org = "ballerina", packageName = "uuid", moduleName = "uuid"}
+]
+
+[[package]]
+org = "ballerinax"
+name = "azure_functions"
+version = "2.0.3"
+dependencies = [
+	{org = "ballerina", name = "http"},
+	{org = "ballerina", name = "lang.array"},
+	{org = "ballerina", name = "lang.boolean"},
+	{org = "ballerina", name = "lang.int"},
+	{org = "ballerina", name = "lang.string"},
+	{org = "ballerina", name = "os"}
+]
+modules = [
+	{org = "ballerinax", packageName = "azure_functions", moduleName = "azure_functions"}
+]
+
+[[package]]
+org = "ballerinax"
+name = "azure_functions_tests"
+version = "2.0.3"
+dependencies = [
+	{org = "ballerina", name = "http"},
+	{org = "ballerina", name = "io"},
+	{org = "ballerina", name = "test"},
+	{org = "ballerina", name = "uuid"},
+	{org = "ballerinax", name = "azure_functions"}
+]
+modules = [
+	{org = "ballerinax", packageName = "azure_functions_tests", moduleName = "azure_functions_tests"}
 ]
 
 

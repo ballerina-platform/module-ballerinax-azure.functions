@@ -33,8 +33,6 @@ project(':azure_functions-compiler-plugin').projectDir = file('compiler-plugin')
 project(':azure_functions-ballerina-tests').projectDir = file('ballerina-tests')
 project(':azure_functions-compiler-plugin-tests').projectDir = file('compiler-plugin-tests')
 
-
-
 gradleEnterprise {
     buildScan {
         termsOfServiceUrl = 'https://gradle.com/terms-of-service'
