@@ -294,7 +294,7 @@ modules = [
 [[package]]
 org = "ballerinax"
 name = "azure_functions"
-version = "2.0.3"
+version = "2.1.0"
 dependencies = [
 	{org = "ballerina", name = "http"},
 	{org = "ballerina", name = "lang.array"},
@@ -310,7 +310,7 @@ modules = [
 [[package]]
 org = "ballerinax"
 name = "azure_functions_tests"
-version = "2.0.3"
+version = "2.1.0"
 dependencies = [
 	{org = "ballerina", name = "http"},
 	{org = "ballerina", name = "io"},
