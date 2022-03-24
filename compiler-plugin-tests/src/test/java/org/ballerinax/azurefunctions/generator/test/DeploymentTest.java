@@ -57,6 +57,8 @@ public class DeploymentTest {
         } finally {
             zipfs.close();
         }
+        Path depedenciesToml = SOURCE_DIR.resolve("deployment").resolve("Dependencies.toml");
+        Files.delete(depedenciesToml);
     }
 }
 

@@ -31,6 +31,7 @@ hs_err_pid*
 
 *Ballerina.lock
 compiler-plugin-tests/**/Dependencies.toml
+ballerina-tests/Dependencies.toml
 
 # generated files
 build

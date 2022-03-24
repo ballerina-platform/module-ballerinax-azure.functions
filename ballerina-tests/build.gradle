@@ -133,11 +133,11 @@ task ballerinaTest {
             environment "JAVA_OPTS", "-DBALLERINA_DEV_COMPILE_BALLERINA_ORG=true"
             environment "FUNCTIONS_CUSTOMHANDLER_PORT", "3000"
             if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-                commandLine 'cmd', '/c', "${balJavaDebugParam} ${distributionBinPath}/bal.bat test " +
+                commandLine 'cmd', '/c', "${balJavaDebugParam} ${distributionBinPath}/bal.bat test --offline " +
                         "${testParams} ${groupParams} ${disableGroups} ${windowsDisableGroups} ${debugParams} && " +
                         "exit %%ERRORLEVEL%%"
             } else {
-                commandLine 'sh', '-c', "${balJavaDebugParam} ${distributionBinPath}/bal test " +
+                commandLine 'sh', '-c', "${balJavaDebugParam} ${distributionBinPath}/bal test --offline " +
                         "${testParams} ${groupParams} ${disableGroups} ${debugParams}"
             }
         }
