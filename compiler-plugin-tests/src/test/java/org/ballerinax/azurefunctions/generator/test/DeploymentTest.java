@@ -39,6 +39,8 @@ public class DeploymentTest {
     
     @Test
     public void testAzureFunctionsDeploymentProject() throws Exception {
+        Path depedenciesToml = SOURCE_DIR.resolve("deployment").resolve("Dependencies.toml");
+        Files.deleteIfExists(depedenciesToml);
         ProcessOutput processOutput = TestUtils.compileBallerinaProject(SOURCE_DIR.resolve("deployment"));
         Assert.assertEquals(processOutput.getExitCode(), 0);
         Assert.assertTrue(processOutput.getStdOutput().contains("@azure_functions"));
@@ -57,8 +59,6 @@ public class DeploymentTest {
         } finally {
             zipfs.close();
         }
-        Path depedenciesToml = SOURCE_DIR.resolve("deployment").resolve("Dependencies.toml");
-        Files.delete(depedenciesToml);
     }
 }
 
