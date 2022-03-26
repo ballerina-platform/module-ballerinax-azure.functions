@@ -6,8 +6,8 @@ on:
 
 jobs:
   build:
+    if: github.repository_owner == 'ballerina-platform'
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
     - name: Set up JDK 11
@@ -22,6 +22,6 @@ jobs:
         packageUser: ${{ secrets.BALLERINA_BOT_USERNAME }}
         packagePAT: ${{ secrets.BALLERINA_BOT_TOKEN }}
       run: |
-        ./gradlew clean build codeCoverageReport --stacktrace --scan --console=plain --no-daemon
+        ./gradlew clean build --scan --no-daemon
     - name: Generate Codecov Report
       uses: codecov/codecov-action@v1

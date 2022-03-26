@@ -26,9 +26,14 @@ configurations {
 
 dependencies {
     jacocoRuntime "org.jacoco:org.jacoco.agent:${jacoco.toolVersion}:runtime"
-
-    checkstyle project(":build-config:checkstyle")
+    
+    checkstyle project(":checkstyle")
     checkstyle "com.puppycrawl.tools:checkstyle:${puppycrawlCheckstyleVersion}"
+}
+
+def excludePattern = '**/module-info.java'
+tasks.withType(Checkstyle) {
+    exclude excludePattern
 }
 
 tasks.withType(JavaCompile) {
@@ -77,8 +82,8 @@ spotbugsTest {
 task validateSpotbugs() {
     doLast {
         if (spotbugsMain.reports.size() > 0 &&
-            spotbugsMain.reports[0].destination.exists() &&
-            spotbugsMain.reports[0].destination.text.readLines().size() > 0) {
+                spotbugsMain.reports[0].destination.exists() &&
+                spotbugsMain.reports[0].destination.text.readLines().size() > 0) {
             spotbugsMain.reports[0].destination?.eachLine {
                 println 'Failure: ' + it
             }
@@ -94,4 +99,4 @@ checkstyle {
 }
 
 spotbugsMain.finalizedBy validateSpotbugs
-checkstyleMain.dependsOn(":build-config:checkstyle:downloadMultipleFiles")
+checkstyleMain.dependsOn(":checkstyle:downloadCheckstyleRuleFiles")
