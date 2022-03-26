@@ -1,0 +1,4 @@
+[package]
+org = "ballerinax"
+name = "azure_functions"
+version = "@toml.version@"
