@@ -89,11 +89,17 @@ dependencies = [
 	{org = "ballerina", name = "jballerina.java"},
 	{org = "ballerina", name = "lang.value"}
 ]
+modules = [
+	{org = "ballerina", packageName = "io", moduleName = "io"}
+]
 
 [[package]]
 org = "ballerina"
 name = "jballerina.java"
 version = "0.0.0"
+modules = [
+	{org = "ballerina", packageName = "jballerina.java", moduleName = "jballerina.java"}
+]
 
 [[package]]
 org = "ballerina"
@@ -282,9 +288,11 @@ dependencies = [
 [[package]]
 org = "ballerinax"
 name = "azure_functions"
-version = "2.1.0"
+version = "3.0.0"
 dependencies = [
 	{org = "ballerina", name = "http"},
+	{org = "ballerina", name = "io"},
+	{org = "ballerina", name = "jballerina.java"},
 	{org = "ballerina", name = "lang.array"},
 	{org = "ballerina", name = "lang.boolean"},
 	{org = "ballerina", name = "lang.int"},

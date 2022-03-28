@@ -64,23 +64,37 @@ ballerina {
     packageOrganization = packageOrg
     module = packageName
     langVersion = ballerinaLangVersion
-    platform = "any"
 }
 
 configurations {
     externalJars
 }
 
+dependencies {
+    externalJars(group: 'io.ballerina.stdlib', name: 'http-native', version: "${stdlibHttpVersion}") {
+        transitive = false
+    }
+    externalJars(group: 'io.ballerina.stdlib', name: 'mime-native', version: "${stdlibMimeVersion}") {
+        transitive = false
+    }
+}
 
 task updateTomlFiles {
     doLast {
 
         def newBallerinaToml = ballerinaTomlFilePlaceHolder.text.replace("@project.version@", project.version)
         newBallerinaToml = newBallerinaToml.replace("@toml.version@", tomlVersion)
-        ballerinaTomlFile.text = newBallerinaToml
 
         def newCompilerPluginToml = compilerPluginTomlFilePlaceHolder.text.replace("@project.version@", project.version)
         compilerPluginTomlFile.text = newCompilerPluginToml
+
+//        def stdlibDependentHttpNativeVersion = project.stdlibHttpVersion
+//        newBallerinaToml = newBallerinaToml.replace("@stdlib.httpnative.version@", stdlibDependentHttpNativeVersion)
+
+        def stdlibDependentMimeNativeVersion = project.stdlibMimeVersion
+        newBallerinaToml = newBallerinaToml.replace("@stdlib.mimenative.version@", stdlibDependentMimeNativeVersion)
+
+        ballerinaTomlFile.text = newBallerinaToml
     }
 }
 
@@ -120,9 +134,11 @@ publishing {
 updateTomlFiles.dependsOn copyStdlibs
 
 build.dependsOn "generatePomFileForMavenPublication"
+build.dependsOn ":${packageName}-native:build"
 build.dependsOn ":${packageName}-compiler-plugin:build"
 build.finalizedBy ":${packageName}-compiler-plugin-tests:build"
 build.finalizedBy ":${packageName}-ballerina-tests:build"
+test.dependsOn ":${packageName}-native:build"
 test.dependsOn ":${packageName}-compiler-plugin:build"
 test.finalizedBy ":${packageName}-compiler-plugin-tests:build"
 test.finalizedBy ":${packageName}-ballerina-tests:build"

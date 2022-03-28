@@ -29,7 +29,7 @@
     </Match>
     
     <Match>
-        <Class name="org.ballerinax.azurefunctions.generator.AzureCodeGeneratedTask"/>
+        <Class name="AzureCodeGeneratedTask"/>
         <Bug pattern="SIC_INNER_SHOULD_BE_STATIC_ANON"/>
     </Match>
 

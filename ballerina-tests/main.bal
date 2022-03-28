@@ -1,187 +1,107 @@
-// Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-//
-// WSO2 Inc. licenses this file to you under the Apache License,
-// Version 2.0 (the "License"); you may not use this file except
-// in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-import ballerina/uuid;
 import ballerinax/azure_functions as af;
 
-// HTTP request/response with no authentication
-@af:Function
-public isolated function hello(@af:HTTPTrigger { authLevel: "anonymous" } string payload) 
-                      returns @af:HTTPOutput string|error {
-    return "Hello, " + payload + "!";
-}
+listener af:HTTPListener ep = new ();
 
-// HTTP request to add data to a queue
-@af:Function
-public isolated function fromHttpToQueue(af:Context ctx, 
-            @af:HTTPTrigger {} af:HTTPRequest req, 
-            @af:QueueOutput { queueName: "queue1" } af:StringOutputBinding msg) 
-            returns @af:HTTPOutput af:HTTPBinding {
-    msg.value = req.body;
-    return { statusCode: 200, payload: "Request: " + req.toString() };
-}
-
-// A message put to a queue is copied to another queue
-@af:Function
-public isolated function fromQueueToQueue(af:Context ctx, 
-        @af:QueueTrigger { queueName: "queue2" } string inMsg,
-        @af:QueueOutput { queueName: "queue3" } af:StringOutputBinding outMsg) {
-    ctx.log("In Message: " + inMsg);
-    ctx.log("Metadata: " + ctx.metadata.toString());
-    outMsg.value = inMsg;
-}
-
-// // A blob added to a container is copied to a queue
-@af:Function
-public isolated function fromBlobToQueue(af:Context ctx, 
-        @af:BlobTrigger { path: "bpath1/{name}" } byte[] blobIn,
-        @af:BindingName { } string name,
-        @af:QueueOutput { queueName: "queue3" } af:StringOutputBinding outMsg) 
-        returns error? {
-    outMsg.value = "Name: " + name + " Content: " + blobIn.toString();
-}
-
-// // HTTP request to read a blob value
-@af:Function
-public isolated function httpTriggerBlobInput(@af:HTTPTrigger { } af:HTTPRequest req, 
-                    @af:BlobInput { path: "bpath1/{Query.name}" } byte[]? blobIn)
-                    returns @af:HTTPOutput string {
-    int length = 0;
-    if blobIn is byte[] {
-        length = blobIn.length();
-    }
-    return "Blob: " + req.query["name"].toString() + " Length: " + 
-            length.toString() + " Content: " + blobIn.toString();
-}
-
-// // HTTP request to add a new blob
-@af:Function
-public isolated function httpTriggerBlobOutput(@af:HTTPTrigger { } af:HTTPRequest req, 
-        @af:BlobOutput { path: "bpath1/{Query.name}" } af:StringOutputBinding bb)
-        returns @af:HTTPOutput string|error {
-    bb.value = req.body;
-    return "Blob: " + req.query["name"].toString() + " Content: " + 
-            bb?.value.toString();
-}
-
-// // Sending an SMS
-@af:Function
-public isolated function sendSMS(@af:HTTPTrigger { } af:HTTPRequest req, 
-                        @af:TwilioSmsOutput { fromNumber: "+12069845840" } 
-                                              af:TwilioSmsOutputBinding tb)
-                        returns @af:HTTPOutput string {
-    tb.to = req.query["to"].toString();
-    tb.body = req.body.toString();
-    return "Message - to: " + tb?.to.toString() + " body: " + tb?.body.toString();
-}
-
-public type Person record {
+public type DBEntry record {
     string id;
-    string name;
-    string country;
 };
 
-// // CosmosDB record trigger
-@af:Function
-public isolated function cosmosDBToQueue1(@af:CosmosDBTrigger { 
-        connectionStringSetting: "CosmosDBConnection", databaseName: "db1",
-        collectionName: "c1" } Person[] req, 
-        @af:QueueOutput { queueName: "queue3" } af:StringOutputBinding outMsg) {
-    outMsg.value = req.toString();
+type Person record {
+    string name;
+    int age;
+};
+
+// @af:HTTPTest
+service "hello" on ep {
+    resource function post .(@af:Payload string greeting) returns @af:HTTPOutput string {
+        return "Hello from . path ";
+    }
+
+    resource function post foo(@af:Payload string greeting) returns @af:HTTPOutput string {
+        return "Hello from foo path " + greeting;
+    }
+
+    resource function post foo/[string bar](@af:Payload string greeting) returns @af:HTTPOutput string  {
+        return "Hello from foo param " + bar;
+    }
+
+    resource function post foo/bar(@af:Payload string greeting) returns @af:HTTPOutput string  {
+        return "Hello from foo bar res";
+    }
+
+    resource function post query(string name, @af:Payload string greeting) returns @af:HTTPOutput string|error {
+                return "Hello from the query " + greeting + " " + name;
+    }
+
+    resource function post db(@af:Payload string greeting, @af:CosmosDBInput {
+        connectionStringSetting: "CosmosDBConnection",databaseName: "db1",
+        collectionName: "c2", sqlQuery: "SELECT * FROM Items"} DBEntry[] input1) returns @af:HTTPOutput string|error {
+            return "Hello " + greeting + input1[0].id;
+    }
+
+    resource function post payload/jsonToRecord (@af:Payload Person greeting) returns @af:HTTPOutput string|error {
+        return "Hello from json to record " + greeting.name;
+    }
+
+    resource function post payload/jsonToJson (@af:Payload json greeting) returns @af:HTTPOutput string|error {
+        string name = check greeting.name;
+        return "Hello from json to json "+ name;
+    }
+
+    resource function post payload/xmlToXml (@af:Payload xml greeting) returns @af:HTTPOutput string|error {
+        return greeting.toJsonString();
+    }
+
+    resource function post payload/textToString (@af:Payload string greeting) returns @af:HTTPOutput string|error {
+        return greeting;
+    }
+
+    resource function post payload/textToByte (@af:Payload byte[] greeting) returns @af:HTTPOutput string|error {
+        return string:fromBytes(greeting);
+    }
+
+    resource function post payload/octaToByte (@af:Payload byte[] greeting) returns @af:HTTPOutput string|error {
+        return string:fromBytes(greeting);
+    }
 }
 
-@af:Function
-public isolated function cosmosDBToQueue2(@af:CosmosDBTrigger { 
-        connectionStringSetting: "CosmosDBConnection", databaseName: "db1", 
-        collectionName: "c2" } json req,
-        @af:QueueOutput { queueName: "queue3" } af:StringOutputBinding outMsg) {
-    outMsg.value = req.toString();
+@af:QueueTrigger {
+    queueName: "queue2"
+}
+service "queue" on new af:QueueListener() {
+    remote function onMessage (@af:Payload string inMsg) returns @af:QueueOutput {queueName: "queue3"} string|error {
+                return "helloo "+ inMsg;
+    }
 }
 
-// // HTTP request to read CosmosDB records
-@af:Function
-public isolated function httpTriggerCosmosDBInput1(
-            @af:HTTPTrigger { } af:HTTPRequest httpReq, 
-            @af:CosmosDBInput { connectionStringSetting: "CosmosDBConnection", 
-                databaseName: "db1", collectionName: "c1", 
-                id: "{Query.id}", partitionKey: "{Query.country}" } json dbReq)
-                returns @af:HTTPOutput string|error {
-    return dbReq.toString();
+@af:CosmosDBTrigger {connectionStringSetting: "CosmosDBConnection", databaseName: "db1", collectionName: "c2"}
+listener af:CosmosDBListener cosmosEp = new ();
+
+service "cosmos" on cosmosEp {
+    remote function onUpdated (@af:Payload DBEntry[] inMsg) returns @af:QueueOutput {queueName: "queue3"} string|error {
+        string id = inMsg[0].id;
+        return "helloo "+ id;
+    }
 }
 
-@af:Function
-public isolated function httpTriggerCosmosDBInput2(
-            @af:HTTPTrigger { } af:HTTPRequest httpReq, 
-            @af:CosmosDBInput { connectionStringSetting: "CosmosDBConnection", 
-                databaseName: "db1", collectionName: "c1", 
-                id: "{Query.id}", partitionKey: "{Query.country}" } Person? dbReq)
-                returns @af:HTTPOutput string|error {
-    return dbReq.toString();
+@af:TimerTrigger { schedule: "*/10 * * * * *" } 
+listener af:TimerListener timerListener = new af:TimerListener();
+service "timer" on timerListener {
+    remote function onTrigger (@af:Payload af:TimerMetadata inMsg) returns @af:QueueOutput {queueName: "queue3"} string|error {
+            return "helloo "+ inMsg.IsPastDue.toString();
+    }
 }
 
-@af:Function
-public isolated function httpTriggerCosmosDBInput3(
-        @af:HTTPTrigger { route: "c1/{country}" } af:HTTPRequest httpReq, 
-        @af:CosmosDBInput { connectionStringSetting: "CosmosDBConnection", 
-        databaseName: "db1", collectionName: "c1", 
-        sqlQuery: "select * from c1 where c1.country = {country}" } 
-        Person[] dbReq)
-        returns @af:HTTPOutput string|error {
-    return dbReq.toString();
+@af:QueueTrigger {
+    queueName: "queue4"
 }
 
-// // HTTP request to write records to CosmosDB
-@af:Function
-public isolated function httpTriggerCosmosDBOutput1(
-    @af:HTTPTrigger { } af:HTTPRequest httpReq, @af:HTTPOutput af:HTTPBinding hb) 
-    returns @af:CosmosDBOutput { connectionStringSetting: "CosmosDBConnection", 
-                                 databaseName: "db1", collectionName: "c1" } json {
-    json entry = { id: uuid:createType1AsString(), name: "Saman", country: "Sri Lanka" };
-    hb.payload = "Adding entry: " + entry.toString();
-    return entry;
+listener af:QueueListener queueListener1 = new af:QueueListener();
+service "queue-input" on queueListener1 {
+    remote function onMessage (@af:Payload string inMsg, @af:CosmosDBInput {
+        connectionStringSetting: "CosmosDBConnection",databaseName: "db1",
+        collectionName: "c2", sqlQuery: "SELECT * FROM Items"} DBEntry[] input1) returns @af:QueueOutput {queueName: "queue3"} string|error {
+                return "helloo "+ inMsg + " " +input1[0].id;
+    }
 }
 
-@af:Function
-public isolated function httpTriggerCosmosDBOutput2(
-        @af:HTTPTrigger { } af:HTTPRequest httpReq, 
-        @af:HTTPOutput af:HTTPBinding hb) 
-        returns @af:CosmosDBOutput { 
-            connectionStringSetting: "CosmosDBConnection", 
-            databaseName: "db1", collectionName: "c1" } json {
-    json entry = [{ id: uuid:createType1AsString(), name: "John Doe A", country: "USA" },
-                  { id: uuid:createType1AsString(), name: "John Doe B", country: "USA" }];
-    hb.payload = "Adding entries: " + entry.toString();
-    return entry;
-}
-
-@af:Function
-public isolated function httpTriggerCosmosDBOutput3(
-                    @af:HTTPTrigger { } af:HTTPRequest httpReq) 
-                    returns @af:CosmosDBOutput { 
-                        connectionStringSetting: "CosmosDBConnection", 
-                        databaseName: "db1", collectionName: "c1" } Person[] {
-    Person[] persons = [];
-    persons.push({id: uuid:createType1AsString(), name: "Jack", country: "UK"});
-    persons.push({id: uuid:createType1AsString(), name: "Will", country: "UK"});
-    return persons;
-}
-
-// // A timer function which is executed every 10 seconds.
-@af:Function
-public isolated function queuePopulationTimer(
-            @af:TimerTrigger { schedule: "*/10 * * * * *" } json triggerInfo, 
-            @af:QueueOutput { queueName: "queue4" } af:StringOutputBinding msg) {
-    msg.value = triggerInfo.toString();
-}

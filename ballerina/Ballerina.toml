@@ -1,4 +1,13 @@
 [package]
 org = "ballerinax"
 name = "azure_functions"
-version = "2.1.0"
+version = "3.0.0"
+
+[[platform.java11.dependency]]
+path = "../native/build/libs/azure_functions-native-3.0.0-SNAPSHOT.jar"
+
+#[[platform.java11.dependency]]
+#path = "./lib/http-native-@stdlib.httpnative.version@.jar"
+
+[[platform.java11.dependency]]
+path = "./lib/mime-native-2.3.0.jar"

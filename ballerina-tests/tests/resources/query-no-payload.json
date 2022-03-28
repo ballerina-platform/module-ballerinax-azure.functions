@@ -1,0 +1,113 @@
+{
+    "Data": {
+        "httpPayload": {
+            "Url": "https://bal-svc-impl.azurewebsites.net/api/hello",
+            "Method": "GET",
+            "Query": {
+                "name" : "Jack"
+            },
+            "Headers": {
+                "Accept": [
+                    "*/*"
+                ],
+                "Content-Length": [
+                    "4"
+                ],
+                "Content-Type": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "Host": [
+                    "bal-svc-impl.azurewebsites.net"
+                ],
+                "Max-Forwards": [
+                    "9"
+                ],
+                "User-Agent": [
+                    "curl/7.78.0"
+                ],
+                "X-ARR-LOG-ID": [
+                    "df5cfa56-ac43-4671-8836-07537852bdf6"
+                ],
+                "CLIENT-IP": [
+                    "10.0.32.6:45851"
+                ],
+                "X-SITE-DEPLOYMENT-ID": [
+                    "bal-svc-impl"
+                ],
+                "WAS-DEFAULT-HOSTNAME": [
+                    "bal-svc-impl.azurewebsites.net"
+                ],
+                "X-Forwarded-Proto": [
+                    "https"
+                ],
+                "X-AppService-Proto": [
+                    "https"
+                ],
+                "X-ARR-SSL": [
+                    "2048|256|CN=Microsoft Azure TLS Issuing CA 01, O=Microsoft Corporation, C=US|CN=*.azurewebsites.net, O=Microsoft Corporation, L=Redmond, S=WA, C=US"
+                ],
+                "X-Forwarded-TlsVersion": [
+                    "1.2"
+                ],
+                "X-Forwarded-For": [
+                    "112.134.134.89:51660"
+                ],
+                "X-Original-URL": [
+                    "/api/hello/foo/bar?test=hello"
+                ],
+                "X-WAWS-Unencoded-URL": [
+                    "/api/hello/foo/bar?test=hello"
+                ],
+                "DISGUISED-HOST": [
+                    "bal-svc-impl.azurewebsites.net"
+                ]
+            },
+            "Params": {
+                "RemainingPath": null
+            },
+            "Identities": [
+                {
+                    "AuthenticationType": null,
+                    "IsAuthenticated": false,
+                    "Actor": null,
+                    "BootstrapContext": null,
+                    "Claims": [],
+                    "Label": null,
+                    "Name": null,
+                    "NameClaimType": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name",
+                    "RoleClaimType": "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+                }
+            ],
+            "Body": "Jack"
+        }
+    },
+    "Metadata": {
+        "Query": {
+        },
+        "Headers": {
+            "Accept": "*/*",
+            "Content-Length": "4",
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Host": "bal-svc-impl.azurewebsites.net",
+            "Max-Forwards": "9",
+            "User-Agent": "curl/7.78.0",
+            "X-ARR-LOG-ID": "df5cfa56-ac43-4671-8836-07537852bdf6",
+            "CLIENT-IP": "10.0.32.6:45851",
+            "X-SITE-DEPLOYMENT-ID": "bal-svc-impl",
+            "WAS-DEFAULT-HOSTNAME": "bal-svc-impl.azurewebsites.net",
+            "X-Forwarded-Proto": "https",
+            "X-AppService-Proto": "https",
+            "X-ARR-SSL": "2048|256|CN=Microsoft Azure TLS Issuing CA 01, O=Microsoft Corporation, C=US|CN=*.azurewebsites.net, O=Microsoft Corporation, L=Redmond, S=WA, C=US",
+            "X-Forwarded-TlsVersion": "1.2",
+            "X-Forwarded-For": "112.134.134.89:51660",
+            "X-Original-URL": "/api/hello/foo/bar?test=hello",
+            "X-WAWS-Unencoded-URL": "/api/hello/foo/bar?test=hello",
+            "DISGUISED-HOST": "bal-svc-impl.azurewebsites.net"
+        },
+        "sys": {
+            "MethodName": "hello",
+            "UtcNow": "2022-04-29T10:51:55.458828Z",
+            "RandGuid": "c4747555-c815-4569-95ed-5d76f3691a98"
+        }
+    }
+}

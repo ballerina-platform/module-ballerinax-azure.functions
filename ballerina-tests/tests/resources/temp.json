@@ -1,0 +1,110 @@
+{
+    "Data": {
+        "httpPayload": {
+            "Url": "https://bal-svc-impl.azurewebsites.net/api/hello",
+            "Method": "POST",
+            "Query": {},
+            "Headers": {
+                "Accept": [
+                    "*/*"
+                ],
+                "Content-Length": [
+                    "4"
+                ],
+                "Content-Type": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "Host": [
+                    "bal-svc-impl.azurewebsites.net"
+                ],
+                "Max-Forwards": [
+                    "9"
+                ],
+                "User-Agent": [
+                    "curl/7.78.0"
+                ],
+                "X-ARR-LOG-ID": [
+                    "8a17b6d7-b17e-4edd-9fd4-025fe03e1859"
+                ],
+                "CLIENT-IP": [
+                    "10.0.32.13:54062"
+                ],
+                "X-SITE-DEPLOYMENT-ID": [
+                    "bal-svc-impl"
+                ],
+                "WAS-DEFAULT-HOSTNAME": [
+                    "bal-svc-impl.azurewebsites.net"
+                ],
+                "X-Forwarded-Proto": [
+                    "https"
+                ],
+                "X-AppService-Proto": [
+                    "https"
+                ],
+                "X-ARR-SSL": [
+                    "2048|256|CN=Microsoft Azure TLS Issuing CA 01, O=Microsoft Corporation, C=US|CN=*.azurewebsites.net, O=Microsoft Corporation, L=Redmond, S=WA, C=US"
+                ],
+                "X-Forwarded-TlsVersion": [
+                    "1.2"
+                ],
+                "X-Forwarded-For": [
+                    "112.134.134.3:36070"
+                ],
+                "X-Original-URL": [
+                    "/api/hello"
+                ],
+                "X-WAWS-Unencoded-URL": [
+                    "/api/hello"
+                ],
+                "DISGUISED-HOST": [
+                    "bal-svc-impl.azurewebsites.net"
+                ]
+            },
+            "Params": {
+                "RemainingPath": null
+            },
+            "Identities": [
+                {
+                    "AuthenticationType": null,
+                    "IsAuthenticated": false,
+                    "Actor": null,
+                    "BootstrapContext": null,
+                    "Claims": [],
+                    "Label": null,
+                    "Name": null,
+                    "NameClaimType": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name",
+                    "RoleClaimType": "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+                }
+            ],
+            "Body": "Jack"
+        }
+    },
+    "Metadata": {
+        "Query": {},
+        "Headers": {
+            "Accept": "*/*",
+            "Content-Length": "4",
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Host": "bal-svc-impl.azurewebsites.net",
+            "Max-Forwards": "9",
+            "User-Agent": "curl/7.78.0",
+            "X-ARR-LOG-ID": "8a17b6d7-b17e-4edd-9fd4-025fe03e1859",
+            "CLIENT-IP": "10.0.32.13:54062",
+            "X-SITE-DEPLOYMENT-ID": "bal-svc-impl",
+            "WAS-DEFAULT-HOSTNAME": "bal-svc-impl.azurewebsites.net",
+            "X-Forwarded-Proto": "https",
+            "X-AppService-Proto": "https",
+            "X-ARR-SSL": "2048|256|CN=Microsoft Azure TLS Issuing CA 01, O=Microsoft Corporation, C=US|CN=*.azurewebsites.net, O=Microsoft Corporation, L=Redmond, S=WA, C=US",
+            "X-Forwarded-TlsVersion": "1.2",
+            "X-Forwarded-For": "112.134.134.3:36070",
+            "X-Original-URL": "/api/hello",
+            "X-WAWS-Unencoded-URL": "/api/hello",
+            "DISGUISED-HOST": "bal-svc-impl.azurewebsites.net"
+        },
+        "sys": {
+            "MethodName": "hello",
+            "UtcNow": "2022-04-30T04:22:18.5062555Z",
+            "RandGuid": "ad4274d6-fbe3-435e-a07c-57266317c018"
+        }
+    }
+}
