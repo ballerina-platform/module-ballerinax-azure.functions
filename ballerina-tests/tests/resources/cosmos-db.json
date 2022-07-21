@@ -1,0 +1,117 @@
+{
+    "Data": {
+        "httpPayload": {
+            "Url": "https://sl-update-1-rc.azurewebsites.net/api/hello/hi?id=11",
+            "Method": "POST",
+            "Query": {
+                "id": "11"
+            },
+            "Headers": {
+                "Accept": [
+                    "*/*"
+                ],
+                "Content-Length": [
+                    "4"
+                ],
+                "Content-Type": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "Host": [
+                    "sl-update-1-rc.azurewebsites.net"
+                ],
+                "Max-Forwards": [
+                    "9"
+                ],
+                "User-Agent": [
+                    "curl/7.78.0"
+                ],
+                "X-ARR-LOG-ID": [
+                    "51c48e88-d5fb-447a-adf4-1c144dfe3c66"
+                ],
+                "CLIENT-IP": [
+                    "10.0.32.14:45249"
+                ],
+                "X-SITE-DEPLOYMENT-ID": [
+                    "sl-update-1-rc"
+                ],
+                "WAS-DEFAULT-HOSTNAME": [
+                    "sl-update-1-rc.azurewebsites.net"
+                ],
+                "X-Forwarded-Proto": [
+                    "https"
+                ],
+                "X-AppService-Proto": [
+                    "https"
+                ],
+                "X-ARR-SSL": [
+                    "2048|256|CN=Microsoft Azure TLS Issuing CA 01, O=Microsoft Corporation, C=US|CN=*.azurewebsites.net, O=Microsoft Corporation, L=Redmond, S=WA, C=US"
+                ],
+                "X-Forwarded-TlsVersion": [
+                    "1.2"
+                ],
+                "X-Forwarded-For": [
+                    "112.134.131.153:31932"
+                ],
+                "X-Original-URL": [
+                    "/api/hello/hi?id=11"
+                ],
+                "X-WAWS-Unencoded-URL": [
+                    "/api/hello/hi?id=11"
+                ],
+                "DISGUISED-HOST": [
+                    "sl-update-1-rc.azurewebsites.net"
+                ]
+            },
+            "Params": {
+                "RemainingPath": "hi"
+            },
+            "Identities": [
+                {
+                    "AuthenticationType": null,
+                    "IsAuthenticated": false,
+                    "Actor": null,
+                    "BootstrapContext": null,
+                    "Claims": [],
+                    "Label": null,
+                    "Name": null,
+                    "NameClaimType": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name",
+                    "RoleClaimType": "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+                }
+            ],
+            "Body": "Jack"
+        },
+        "input": "\"{\\\"id\\\":\\\"11\\\",\\\"_rid\\\":\\\"P89cAMobTCgBAAAAAAAAAA==\\\",\\\"_self\\\":\\\"dbs\/P89cAA==\/colls\/P89cAMobTCg=\/docs\/P89cAMobTCgBAAAAAAAAAA==\/\\\",\\\"_ts\\\":1652717163,\\\"_etag\\\":\\\"\\\\\\\"0501238d-0000-0700-0000-6282766b0000\\\\\\\"\\\"}\""
+    },
+    "Metadata": {
+        "id": "\"11\"",
+        "RemainingPath": "\"hi\"",
+        "Query": {
+            "id": "11"
+        },
+        "Headers": {
+            "Accept": "*/*",
+            "Content-Length": "4",
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Host": "sl-update-1-rc.azurewebsites.net",
+            "Max-Forwards": "9",
+            "User-Agent": "curl/7.78.0",
+            "X-ARR-LOG-ID": "51c48e88-d5fb-447a-adf4-1c144dfe3c66",
+            "CLIENT-IP": "10.0.32.14:45249",
+            "X-SITE-DEPLOYMENT-ID": "sl-update-1-rc",
+            "WAS-DEFAULT-HOSTNAME": "sl-update-1-rc.azurewebsites.net",
+            "X-Forwarded-Proto": "https",
+            "X-AppService-Proto": "https",
+            "X-ARR-SSL": "2048|256|CN=Microsoft Azure TLS Issuing CA 01, O=Microsoft Corporation, C=US|CN=*.azurewebsites.net, O=Microsoft Corporation, L=Redmond, S=WA, C=US",
+            "X-Forwarded-TlsVersion": "1.2",
+            "X-Forwarded-For": "112.134.131.153:31932",
+            "X-Original-URL": "/api/hello/hi?id=11",
+            "X-WAWS-Unencoded-URL": "/api/hello/hi?id=11",
+            "DISGUISED-HOST": "sl-update-1-rc.azurewebsites.net"
+        },
+        "sys": {
+            "MethodName": "hello",
+            "UtcNow": "2022-05-17T08:30:37.1181668Z",
+            "RandGuid": "e134c648-4722-4ef5-a889-6a60830cb2d8"
+        }
+    }
+}
