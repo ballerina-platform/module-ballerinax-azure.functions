@@ -31,6 +31,7 @@ public interface Constants {
      String COSMOS_DBOUTPUT = "CosmosDBOutput";
      String OUT_MSG = "outMsg";
      String HTTP_OUTPUT = "HTTPOutput";
+     String BLOB_OUTPUT = "BlobOutput";
      String STATUS = "status";
      String CODE = "code";
      String STATUS_CODE = "statusCode";

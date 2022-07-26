@@ -28,10 +28,12 @@ import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
+import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
+import org.ballerinalang.langlib.array.ToBase64;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -73,12 +75,19 @@ public class FunctionCallback implements Callback {
         }
         BMap<BString, Object> mapValue =
                 ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_ANYDATA));
-        if (Constants.QUEUE_OUTPUT.equals(this.annotations.get(0)) ||
-                Constants.COSMOS_DBOUTPUT.equals(this.annotations.get(0))) {
+        String outputBinding = this.annotations.get(0);
+        if (Constants.QUEUE_OUTPUT.equals(outputBinding) ||
+                Constants.COSMOS_DBOUTPUT.equals(outputBinding)) {
 
             mapValue.put(StringUtils.fromString(Constants.OUT_MSG), result);
             // Check HTTPOutput with annotations
-        } else if (Constants.HTTP_OUTPUT.equals(this.annotations.get(0))) {
+        } else if (Constants.BLOB_OUTPUT.equals(outputBinding)) {
+            if (result instanceof BArray) {
+                BArray arrayValue = (BArray) result;
+                BString encodedString = ToBase64.toBase64(arrayValue);
+                mapValue.put(StringUtils.fromString("outMsg"), encodedString);
+            }
+        }else if (Constants.HTTP_OUTPUT.equals(outputBinding)) {
             //Check HTTPResponse
             if (isHTTPResponse(result)) {
                 BMap resultMap = (BMap) result;
@@ -166,8 +175,8 @@ public class FunctionCallback implements Callback {
         return (result instanceof  BMap) && (((BMap) result).containsKey(fromString(Constants.STATUS))) &&
                 Constants.PACKAGE_ORG.equals(resultPkg.getOrg()) &&
                 Constants.PACKAGE_NAME.equals(resultPkg.getName());
-               //TODO : Check inheritance
-              //(https://github.com/ballerina-platform/module-ballerinax-azure.functions/issues/490)
+        //TODO : Check inheritance
+        //(https://github.com/ballerina-platform/module-ballerinax-azure.functions/issues/490)
     }
 
     private boolean isContentTypeExist(BMap<BString , ?> headersMap) {

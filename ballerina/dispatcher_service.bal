@@ -32,9 +32,9 @@ isolated service class DispatcherService {
         http:Response response = new;
         json message = check request.getJsonPayload();
         io:println(message.toJsonString());
-        map<json> body = <map<json>>check message.Data;
+        //map<json> body = <map<json>>check message.Data;
 
-        map<anydata> callRegisterMethod = check self.adaptor.callRemoteFunction(body, self.remoteMethodName);
+        map<anydata> callRegisterMethod = check self.adaptor.callRemoteFunction(<map<json>>message, self.remoteMethodName);
         json result = {Outputs: callRegisterMethod.toJson(), Logs: []};
         result = check result.mergeJson({ReturnValue: null});
         io:println(result);

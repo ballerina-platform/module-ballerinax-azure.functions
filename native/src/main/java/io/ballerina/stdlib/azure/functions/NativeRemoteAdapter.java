@@ -32,6 +32,7 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.stdlib.azure.functions.builder.BinaryPayloadBuilder;
 import io.ballerina.stdlib.azure.functions.builder.JsonPayloadBuilder;
 
 import java.util.ArrayList;
@@ -56,6 +57,7 @@ public class NativeRemoteAdapter {
 
     private static Object invokeRemoteFunction(Environment env, BObject bHubService, String parentFunctionName,
                                                BMap<?, ?> body, BString remoteFuncName) {
+        BMap<?, ?> data = body.getMapValue(StringUtils.fromString("Data"));
         Future balFuture = env.markAsync();
         Module module = ModuleUtils.getModule();
         StrandMetadata metadata = new StrandMetadata(module.getOrg(), module.getName(), module.getVersion(),
@@ -69,19 +71,34 @@ public class NativeRemoteAdapter {
             Object annotation = methodType.getAnnotation(StringUtils.fromString("$param$." + name));
             //TODO check and process Payload variable
             if (ParamHandler.isPayloadAnnotationParam(annotation)) {
-                Object bValue = getDataboundValue(body, parameter, serviceType);
+                Object bValue = getDataboundValue(data, parameter, serviceType);
                 argList.add(bValue);
                 argList.add(true);
+                continue;
             }
+            
+            if (ParamHandler.isBindingNameParam(annotation)) {
+                BString nameParam =
+                        body.getMapValue(StringUtils.fromString("Metadata")).getStringValue(StringUtils.fromString(
+                                "name"));
+                Type type = parameter.type;
+                JsonPayloadBuilder jsonPayloadBuilder = new JsonPayloadBuilder(type);
+                Object bValue = jsonPayloadBuilder.getValue(nameParam, false);
+                argList.add(bValue);
+                argList.add(true);
+                continue;
+            }
+            
 
             //TODO check and process input binding variable
             if (ParamHandler.isInputAnnotationParam(annotation)) {
-                BString bodyValue = body.getStringValue(StringUtils.fromString(name));
+                BString bodyValue = data.getStringValue(StringUtils.fromString(name));
                 Type type = parameter.type;
                 JsonPayloadBuilder jsonPayloadBuilder = new JsonPayloadBuilder(type);
                 Object bValue = jsonPayloadBuilder.getValue(bodyValue, false);
                 argList.add(bValue);
                 argList.add(true);
+                continue;
             }
         }
         Object[] args = argList.toArray();
@@ -108,6 +125,10 @@ public class NativeRemoteAdapter {
             String name = typeId.getName();
             if (name.equals("TimerService")) {
                 return body.getMapValue(paramBString);
+            } else if (name.equals("BlobService")) {
+                BString bStr = body.getStringValue(paramBString);
+                BinaryPayloadBuilder binaryPayloadBuilder = new BinaryPayloadBuilder(parameter.type);
+                return binaryPayloadBuilder.getValue(bStr, false);
             }
         }
         BString bStr = body.getStringValue(paramBString);

@@ -1,0 +1,43 @@
+{
+    "Data": {
+        "blobIn": "aGVsbG8gZnJvbSBieXRlCg=="
+    },
+    "Metadata": {
+        "Uri": "\"https:\/\/baldevgroup84df.blob.core.windows.net\/bpath1\/hello.txt\"",
+        "Properties": {
+            "CacheControl": null,
+            "ContentDisposition": null,
+            "ContentEncoding": null,
+            "ContentLanguage": null,
+            "Length": 16,
+            "ContentMD5": "vNUQNie6YzklPqNxnmy97g==",
+            "ContentType": "text/plain",
+            "ETag": "\"0x8DA6E28262505DD\"",
+            "Created": "2022-07-25T10:26:34+00:00",
+            "LastModified": "2022-07-25T10:26:34+00:00",
+            "BlobType": 2,
+            "LeaseStatus": 2,
+            "LeaseState": 1,
+            "LeaseDuration": 0,
+            "PageBlobSequenceNumber": null,
+            "AppendBlobCommittedBlockCount": null,
+            "IsServerEncrypted": true,
+            "EncryptionScope": null,
+            "IsIncrementalCopy": false,
+            "StandardBlobTier": 0,
+            "RehydrationStatus": null,
+            "PremiumPageBlobTier": null,
+            "BlobTierInferred": false,
+            "BlobTierLastModifiedTime": null,
+            "DeletedTime": null,
+            "RemainingDaysBeforePermanentDelete": null
+        },
+        "Metadata": {},
+        "name": "\"hello.txt\"",
+        "sys": {
+            "MethodName": "blob",
+            "UtcNow": "2022-07-25T10:26:43.0352723Z",
+            "RandGuid": "30d01e72-94e7-4d4f-906a-2ce51939bfcc"
+        }
+    }
+}

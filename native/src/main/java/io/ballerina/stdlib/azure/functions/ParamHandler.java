@@ -56,4 +56,16 @@ public class ParamHandler {
         return false;
     }
 
+    public static boolean isBindingNameParam(Object annotation) {
+        if (annotation == null) {
+            return false;
+        }
+        if (!(annotation instanceof BMap)) {
+            return false;
+        }
+
+        Object value = ((BMap<?, ?>) annotation).get(StringUtils.fromString("ballerinax/azure_functions:3:BindingName"));
+        return value != null;
+    }
+
 }

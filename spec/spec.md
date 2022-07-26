@@ -39,7 +39,7 @@ service "hello" on ep {
 }
 ```
 
-Inline listener declaration //TODO impl compiler ext
+Inline listener declaration
 ```ballerina
 import ballerinax/azure_functions as af;
 
@@ -78,7 +78,7 @@ defaulted to `/` when not defined. If the base path contains any special charact
 as string literals
 
 ```ballerina
-service hello\-world on new af:HTTPListener() {  //TODO compiler ext
+service hello\-world on new af:HTTPListener() {
    resource function get foo() {
 
    }
