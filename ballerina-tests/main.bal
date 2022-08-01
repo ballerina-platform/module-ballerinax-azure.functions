@@ -16,6 +16,31 @@ service "hello" on ep {
     resource function post .(@af:Payload string greeting) returns @af:HTTPOutput string {
         return "Hello from . path ";
     }
+    resource function post httpResTest1(@af:Payload string greeting) returns @af:HTTPOutput af:Unauthorized {
+        af:Unauthorized unauth = {body: "Helloworld.....",
+            mediaType: "application/account+json",
+            headers: {
+                "Location": "/myServer/084230"
+            }};
+        return unauth;
+    }
+
+     resource function post httpResTest2(@af:Payload string greeting) returns @af:HTTPOutput af:Ok {
+         af:Ok ok = {body: "Helloworld....."};
+         return ok;
+     }
+     resource function post httpResTest3(@af:Payload string greeting) returns @af:HTTPOutput af:InternalServerError {
+         af:InternalServerError err = {body: "Helloworld.....",
+             headers: {
+                 "content-type": "application/json+id",
+                 "Location": "/myServer/084230"
+             }};
+         return err;
+     }
+     resource function post httpResTest4(@af:Payload string greeting) returns @af:HTTPOutput af:InternalServerError {
+              af:InternalServerError err = {};
+              return err;
+          }
 
     resource function post foo(@af:Payload string greeting) returns @af:HTTPOutput string {
         return "Hello from foo path " + greeting;

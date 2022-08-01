@@ -12,6 +12,52 @@ function testBaseDot() returns error? {
    test:assertEquals(resp, expectedResp);
 }
 
+@test:Config { }
+function httpResTest1() returns error? {
+   final http:Client clientEndpoint = check new ("http://localhost:3000");
+   string jsonFilePath = "./tests/resources/httpResTest1.json";
+   json readJson = check io:fileReadJson(jsonFilePath);
+   json resp = check clientEndpoint->post("/post-hello-httpResTest1", readJson);
+   json expectedResp = {"Outputs":{"resp":{"statusCode":"401", "body":"Helloworld.....",
+                "headers":{"Location":"/myServer/084230", "content-type":"application/account+json"}}},
+                "Logs":[], "ReturnValue":null};
+   test:assertEquals(resp, expectedResp);
+}
+
+@test:Config { }
+function httpResTest2() returns error? {
+   final http:Client clientEndpoint = check new ("http://localhost:3000");
+   string jsonFilePath = "./tests/resources/httpResTest2.json";
+   json readJson = check io:fileReadJson(jsonFilePath);
+   json resp = check clientEndpoint->post("/post-hello-httpResTest2", readJson);
+   json expectedResp = {"Outputs":{"resp":{"statusCode":"200", "body":"Helloworld.....",
+                  "headers":{"content-type":"text/plain"}}}, "Logs":[], "ReturnValue":null};
+   test:assertEquals(resp, expectedResp);
+}
+
+@test:Config { }
+function httpResTest3() returns error? {
+   final http:Client clientEndpoint = check new ("http://localhost:3000");
+   string jsonFilePath = "./tests/resources/httpResTest3.json";
+   json readJson = check io:fileReadJson(jsonFilePath);
+   json resp = check clientEndpoint->post("/post-hello-httpResTest3", readJson);
+   json expectedResp = {"Outputs":{"resp":{"statusCode":"500", "body":"Helloworld.....",
+                   "headers":{"content-type":"application/json+id", "Location":"/myServer/084230"}}},
+                   "Logs":[], "ReturnValue":null};
+   test:assertEquals(resp, expectedResp);
+}
+
+@test:Config { }
+function httpResTest4() returns error? {
+   final http:Client clientEndpoint = check new ("http://localhost:3000");
+   string jsonFilePath = "./tests/resources/httpResTest4.json";
+   json readJson = check io:fileReadJson(jsonFilePath);
+   json resp = check clientEndpoint->post("/post-hello-httpResTest4", readJson);
+   json expectedResp = {"Outputs":{"resp":{"statusCode":"500",
+                "headers":{"content-type":"text/plain"}}}, "Logs":[], "ReturnValue":null};
+   test:assertEquals(resp, expectedResp);
+}
+
 
 @test:Config { }
 function testSimpleResourcePath() returns error? {
