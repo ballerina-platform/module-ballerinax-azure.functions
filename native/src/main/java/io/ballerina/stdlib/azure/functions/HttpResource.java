@@ -150,6 +150,7 @@ public class HttpResource {
                     .getMapValue(StringUtils.fromString("Headers"));
             BString contentType = headers.getArrayValue(StringUtils.fromString("Content-Type")).getBString(0);
             BString bodyValue = httpPayload.getStringValue(StringUtils.fromString("Body"));
+            //TODO handle payload 400
             Type type = parameter.type;
             AbstractPayloadBuilder builder = AbstractPayloadBuilder.getBuilder(contentType.getValue(), type);
             Object bValue = builder.getValue(bodyValue, false);

@@ -53,4 +53,6 @@ public class Constants {
      
      public static final String DIRECTION_IN = "in";
      public static final String DIRECTION_OUT = "out";
+     
+     public static final String AF_LOCAL_DIR = "azf-local";
  }
