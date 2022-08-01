@@ -29,6 +29,7 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 
 import java.util.ArrayList;
@@ -81,6 +82,50 @@ public class FunctionCallback implements Callback {
 //        }
         if (this.annotations.get(0).equals("QueueOutput") || this.annotations.get(0).equals("CosmosDBOutput")) {
             mapValue.put(StringUtils.fromString("outMsg"), result);
+        } else if (this.annotations.get(0).equals("HTTPOutput")) {
+            if (isHTTPResponse(result)) {
+                BObject status = (BObject) (((BMap) result).get(StringUtils.fromString("status")));
+                Object statusCode = Long.toString(status.getIntValue(StringUtils.fromString("code")));
+                statusCode = StringUtils.fromString((String) statusCode);
+
+                BMap<BString, Object> bodyMap =
+                        ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_ANYDATA));
+                bodyMap.put(StringUtils.fromString("statusCode"), statusCode);
+
+                if (((BMap) result).containsKey(StringUtils.fromString("body"))) {
+                    Object body = ((BMap) result).get(StringUtils.fromString("body"));
+                    bodyMap.put(StringUtils.fromString("body"), body);
+                }
+
+                if (((BMap) result).containsKey(StringUtils.fromString("headers"))) {
+                    Object headers = ((BMap) result).get(StringUtils.fromString("headers"));
+                    if (!((BMap) headers).containsKey(StringUtils.fromString("content-type"))) {
+                        ((BMap) headers).put(StringUtils.fromString("content-type"),
+                                StringUtils.fromString("text/plain"));
+                    }
+                    bodyMap.put(StringUtils.fromString("headers"), headers);
+                } else {
+                    Object headers =
+                            ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_ANYDATA));
+                    ((BMap) headers).put(StringUtils.fromString("content-type"),
+                            StringUtils.fromString("text/plain"));
+                    bodyMap.put(StringUtils.fromString("headers"), headers);
+
+                }
+
+                if (((BMap) result).containsKey(StringUtils.fromString("mediaType"))) {
+                    Object headers = ((BMap) result).get(StringUtils.fromString("headers"));
+                    Object mediaType = ((BMap) result).get(StringUtils.fromString("mediaType"));
+                    ((BMap) headers).put(StringUtils.fromString("content-type"), mediaType);
+                }
+                mapValue.put(StringUtils.fromString("resp"), bodyMap);
+
+            } else {
+                BMap<BString, Object> respMap =
+                        ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_ANYDATA));
+                respMap.put(StringUtils.fromString("body"), result);
+                mapValue.put(StringUtils.fromString("resp"), respMap);
+            }
         } else {
             BMap<BString, Object> respMap =
                     ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_ANYDATA));
@@ -105,5 +150,10 @@ public class FunctionCallback implements Callback {
         String orgName = packageDetails.getOrg();
         String packageName = packageDetails.getName();
         return Constants.PACKAGE_ORG.equals(orgName) && Constants.PACKAGE_NAME.equals(packageName);
+    }
+
+    private boolean isHTTPResponse(Object result) {
+        return (result instanceof  BMap) && (((BMap) result).containsKey(fromString("status"))) &&
+                ((result.getClass()).getPackageName()).contains("ballerinax.azure_functions");
     }
 }
