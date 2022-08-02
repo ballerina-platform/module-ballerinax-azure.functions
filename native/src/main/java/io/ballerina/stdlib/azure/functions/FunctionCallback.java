@@ -27,6 +27,7 @@ import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
@@ -34,6 +35,7 @@ import io.ballerina.runtime.api.values.BString;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import static io.ballerina.runtime.api.utils.StringUtils.fromString;
 
@@ -42,9 +44,11 @@ import static io.ballerina.runtime.api.utils.StringUtils.fromString;
  */
 public class FunctionCallback implements Callback {
 
+
     private final Future future;
     private final Module module;
     private final List<String> annotations;
+
 
     public FunctionCallback(Future future, Module module, Object[] annotations) {
         this.future = future;
@@ -69,68 +73,73 @@ public class FunctionCallback implements Callback {
         }
         BMap<BString, Object> mapValue =
                 ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_ANYDATA));
-//        if (result instanceof BArray) {
-//            BArray result1 = (BArray) result;
-//            Object[] values = result1.getValues();
-//            for (int i = 0; i < values.length; i++) {
-//                Object obj = values[i];
-//                String identifier = generateUniqueIdentifier(i);
-//                mapValue.put(StringUtils.fromString(identifier), obj);
-//            }
-//            future.complete(mapValue);
-//            return;
-//        }
-        if (this.annotations.get(0).equals("QueueOutput") || this.annotations.get(0).equals("CosmosDBOutput")) {
-            mapValue.put(StringUtils.fromString("outMsg"), result);
-        } else if (this.annotations.get(0).equals("HTTPOutput")) {
+        if (Constants.QUEUE_OUTPUT.equals(this.annotations.get(0)) ||
+                Constants.COSMOS_DBOUTPUT.equals(this.annotations.get(0))) {
+
+            mapValue.put(StringUtils.fromString(Constants.OUT_MSG), result);
+            // Check HTTPOutput with annotations
+        } else if (Constants.HTTP_OUTPUT.equals(this.annotations.get(0))) {
+            //Check HTTPResponse
             if (isHTTPResponse(result)) {
-                BObject status = (BObject) (((BMap) result).get(StringUtils.fromString("status")));
-                Object statusCode = Long.toString(status.getIntValue(StringUtils.fromString("code")));
+                BMap resultMap = (BMap) result;
+
+                // Extract status code
+                BObject status = (BObject) (resultMap.get(StringUtils.fromString(Constants.STATUS)));
+                Object statusCode = Long.toString(status.getIntValue(StringUtils.fromString(Constants.CODE)));
                 statusCode = StringUtils.fromString((String) statusCode);
 
-                BMap<BString, Object> bodyMap =
-                        ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_ANYDATA));
-                bodyMap.put(StringUtils.fromString("statusCode"), statusCode);
-
-                if (((BMap) result).containsKey(StringUtils.fromString("body"))) {
-                    Object body = ((BMap) result).get(StringUtils.fromString("body"));
-                    bodyMap.put(StringUtils.fromString("body"), body);
-                }
-
-                if (((BMap) result).containsKey(StringUtils.fromString("headers"))) {
-                    Object headers = ((BMap) result).get(StringUtils.fromString("headers"));
-                    if (!((BMap) headers).containsKey(StringUtils.fromString("content-type"))) {
-                        ((BMap) headers).put(StringUtils.fromString("content-type"),
-                                StringUtils.fromString("text/plain"));
-                    }
-                    bodyMap.put(StringUtils.fromString("headers"), headers);
-                } else {
-                    Object headers =
-                            ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_ANYDATA));
-                    ((BMap) headers).put(StringUtils.fromString("content-type"),
-                            StringUtils.fromString("text/plain"));
-                    bodyMap.put(StringUtils.fromString("headers"), headers);
-
-                }
-
-                if (((BMap) result).containsKey(StringUtils.fromString("mediaType"))) {
-                    Object headers = ((BMap) result).get(StringUtils.fromString("headers"));
-                    Object mediaType = ((BMap) result).get(StringUtils.fromString("mediaType"));
-                    ((BMap) headers).put(StringUtils.fromString("content-type"), mediaType);
-                }
-                mapValue.put(StringUtils.fromString("resp"), bodyMap);
-
-            } else {
+                // Create a BMap for response field
                 BMap<BString, Object> respMap =
                         ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_ANYDATA));
-                respMap.put(StringUtils.fromString("body"), result);
-                mapValue.put(StringUtils.fromString("resp"), respMap);
+                respMap.put(StringUtils.fromString(Constants.STATUS_CODE), statusCode);
+
+                // Create body field in the response Map
+                if (resultMap.containsKey(StringUtils.fromString(Constants.BODY))) {
+                    Object body = resultMap.get(StringUtils.fromString(Constants.BODY));
+                    respMap.put(StringUtils.fromString(Constants.BODY), body);
+                }
+
+                // Create header field in the response Map
+                if (resultMap.containsKey(StringUtils.fromString(Constants.HEADERS))) {
+                    Object headers = resultMap.get(StringUtils.fromString(Constants.HEADERS));
+                    BMap headersMap = (BMap) headers;
+                    // Add Content-type field in headers if there is not
+                    if (!isContentTypeExist(headersMap)) {
+                        headersMap.put(StringUtils.fromString(Constants.CONTENT_TYPE),
+                                StringUtils.fromString("text/plain"));
+                    }
+                    respMap.put(StringUtils.fromString(Constants.HEADERS), headers);
+                } else {
+                    // If there is no headers add one with default content-type
+                    Object headers =
+                            ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_ANYDATA));
+                    ((BMap) headers).put(StringUtils.fromString(Constants.CONTENT_TYPE),
+                            StringUtils.fromString("text/plain"));
+                    respMap.put(StringUtils.fromString(Constants.HEADERS), headers);
+
+                }
+
+                // If there is mediaType replace content-type in headers
+                if (resultMap.containsKey(StringUtils.fromString(Constants.MEDIA_TYPE))) {
+                    Object headers = resultMap.get(StringUtils.fromString(Constants.HEADERS));
+                    Object mediaType = resultMap.get(StringUtils.fromString(Constants.MEDIA_TYPE));
+                    ((BMap) headers).put(StringUtils.fromString(Constants.CONTENT_TYPE), mediaType);
+                }
+                mapValue.put(StringUtils.fromString(Constants.RESP), respMap);
+
+            } else {
+                //Handle result except HTTPResponse cases
+                BMap<BString, Object> respMap =
+                        ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_ANYDATA));
+                respMap.put(StringUtils.fromString(Constants.BODY), result);
+                mapValue.put(StringUtils.fromString(Constants.RESP), respMap);
             }
         } else {
+            // Handle other output bindings
             BMap<BString, Object> respMap =
                     ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_ANYDATA));
-            respMap.put(StringUtils.fromString("body"), result);
-            mapValue.put(StringUtils.fromString("resp"), respMap);
+            respMap.put(StringUtils.fromString(Constants.BODY), result);
+            mapValue.put(StringUtils.fromString(Constants.RESP), respMap);
         }
         future.complete(mapValue);
     }
@@ -153,7 +162,20 @@ public class FunctionCallback implements Callback {
     }
 
     private boolean isHTTPResponse(Object result) {
-        return (result instanceof  BMap) && (((BMap) result).containsKey(fromString("status"))) &&
-                ((result.getClass()).getPackageName()).contains("ballerinax.azure_functions");
+        Module resultPkg = TypeUtils.getType(result).getPackage();
+        return (result instanceof  BMap) && (((BMap) result).containsKey(fromString(Constants.STATUS))) &&
+                Constants.PACKAGE_ORG.equals(resultPkg.getOrg()) &&
+                Constants.PACKAGE_NAME.equals(resultPkg.getName());
+               //TODO : Check inheritance
+              //(https://github.com/ballerina-platform/module-ballerinax-azure.functions/issues/490)
+    }
+
+    private boolean isContentTypeExist(BMap<BString , ?> headersMap) {
+        for (BString headerKey : headersMap.getKeys()) {
+            if (headerKey.getValue().toLowerCase(Locale.ROOT).equals(Constants.CONTENT_TYPE)) {
+                return  true;
+            }
+        }
+        return false;
     }
 }
