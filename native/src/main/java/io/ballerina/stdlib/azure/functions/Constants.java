@@ -26,4 +26,17 @@ public interface Constants {
     String PACKAGE_NAME = "azure_functions";
 
     String SERVICE_OBJECT = "AZURE_FUNCTION_SERVICE_OBJECT";
+
+     String QUEUE_OUTPUT = "QueueOutput";
+     String COSMOS_DBOUTPUT = "CosmosDBOutput";
+     String OUT_MSG = "outMsg";
+     String HTTP_OUTPUT = "HTTPOutput";
+     String STATUS = "status";
+     String CODE = "code";
+     String STATUS_CODE = "statusCode";
+     String BODY = "body";
+     String HEADERS = "headers";
+     String CONTENT_TYPE = "content-type";
+     String MEDIA_TYPE = "mediaType";
+     String RESP = "resp";
 }
