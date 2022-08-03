@@ -3,6 +3,7 @@ package org.ballerinax.azurefunctions;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
+import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
@@ -11,6 +12,7 @@ import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextRange;
@@ -67,11 +69,20 @@ public class Util {
         StringBuilder out = new StringBuilder();
         for (Node node : nodes) {
             if (node.kind() == SyntaxKind.STRING_LITERAL) {
-                BasicLiteralNode basicLiteralNode = (BasicLiteralNode) node;
-                out.append(basicLiteralNode.literalToken().text());
+                String value = ((BasicLiteralNode) node).literalToken().text();
+                out.append(value, 1, value.length() - 1);
+            } else if (node.kind() == SyntaxKind.SLASH_TOKEN) {
+                Token token = (Token) node;
+                out.append(token.text());
+            } else if (node.kind() == SyntaxKind.IDENTIFIER_TOKEN) {
+                out.append(((IdentifierToken) node).text());
             }
         }
-        return out.substring(1, out.toString().length() - 1);
+        String finalPath = out.toString();
+        if (finalPath.startsWith("/")) {
+            return finalPath.substring(1);
+        }
+        return finalPath;
     }
 
     public static void unzipFolder(Path source, Path target) throws IOException {

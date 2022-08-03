@@ -44,7 +44,7 @@ public class AzureFunctionModifier extends TreeModifier {
 
     @Override
     public ServiceDeclarationNode transform(ServiceDeclarationNode serviceDeclarationNode) {
-        String servicePath = resourcePathToString(serviceDeclarationNode.absoluteResourcePath());
+        String servicePath = Util.resourcePathToString(serviceDeclarationNode.absoluteResourcePath());
         ExpressionNode listenerExpressionNode = serviceDeclarationNode.expressions().get(0);
         Optional<TypeSymbol> typeSymbol = semanticModel.typeOf(listenerExpressionNode);
         if (typeSymbol.isEmpty()) {
@@ -143,16 +143,5 @@ public class AzureFunctionModifier extends TreeModifier {
                         NodeFactory.createToken(SyntaxKind.CLOSE_BRACE_TOKEN));
         return NodeFactory.createAnnotationNode(NodeFactory.createToken(SyntaxKind.AT_TOKEN), azureFunctionAnnotRef,
                 annotationValue);
-    }
-
-    public String resourcePathToString(NodeList<Node> nodes) {
-        StringBuilder out = new StringBuilder();
-        for (Node node : nodes) {
-            if (node.kind() == SyntaxKind.STRING_LITERAL) {
-                BasicLiteralNode basicLiteralNode = (BasicLiteralNode) node;
-                out.append(basicLiteralNode.literalToken().text());
-            }
-        }
-        return out.substring(1, out.toString().length() - 1);
     }
 }

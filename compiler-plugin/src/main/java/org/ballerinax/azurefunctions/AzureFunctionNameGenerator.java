@@ -12,8 +12,6 @@ import io.ballerina.compiler.syntax.tree.Token;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.ballerinax.azurefunctions.Util.resourcePathToString;
-
 /**
  * Responsible for generating Azure function name for each resource function.
  * 
@@ -26,46 +24,34 @@ public class AzureFunctionNameGenerator {
 
     public AzureFunctionNameGenerator(ServiceDeclarationNode serviceDeclarationNode) {
         NodeList<Node> members = serviceDeclarationNode.members();
-        String servicePath = resourcePathToString(serviceDeclarationNode.absoluteResourcePath());
+        String servicePath = Util.resourcePathToString(serviceDeclarationNode.absoluteResourcePath());
         for (Node node : members) {
             if (node.kind() != SyntaxKind.RESOURCE_ACCESSOR_DEFINITION) {
                 continue;
             }
             FunctionDefinitionNode functionDefinitionNode = (FunctionDefinitionNode) node;
-            String method = functionDefinitionNode.functionName().text();
-            StringBuilder resourcePath = new StringBuilder();
-            resourcePath.append(servicePath);
-            for (Node pathBlock : functionDefinitionNode.relativeResourcePath()) {
-                if (pathBlock.kind() == SyntaxKind.IDENTIFIER_TOKEN) {
-                    resourcePath.append("/").append(((IdentifierToken) pathBlock).text());
-                } else if (pathBlock.kind() == SyntaxKind.RESOURCE_PATH_SEGMENT_PARAM) {
-                    Token token = ((ResourcePathParameterNode) pathBlock).paramName();
-                    resourcePath.append("/").append(token.text());
-                }
-            }
-            String functionName = method + "-" + resourcePath.toString().replace("/", "-");
+            String functionName = getFunctionName(servicePath, functionDefinitionNode);
             this.functionNames.add(functionName);
         }
     }
 
-    public String getUniqueFunctionName(String servicePath, FunctionDefinitionNode functionDefinitionNode) {
+    private String getFunctionName(String servicePath, FunctionDefinitionNode functionDefinitionNode) {
         String method = functionDefinitionNode.functionName().text();
         StringBuilder resourcePath = new StringBuilder();
         resourcePath.append(servicePath);
         for (Node pathBlock : functionDefinitionNode.relativeResourcePath()) {
             if (pathBlock.kind() == SyntaxKind.IDENTIFIER_TOKEN) {
                 resourcePath.append("/").append(((IdentifierToken) pathBlock).text());
-                continue;
-            }
-            if (pathBlock.kind() == SyntaxKind.RESOURCE_PATH_SEGMENT_PARAM) {
+            } else if (pathBlock.kind() == SyntaxKind.RESOURCE_PATH_SEGMENT_PARAM) {
                 Token token = ((ResourcePathParameterNode) pathBlock).paramName();
                 resourcePath.append("/").append(token.text());
-
-//                    resourcePath.append("{").append(pathParamNode.paramName().text()).append("}");
-                continue;
             }
         }
-        String functionName = method + "-" + resourcePath.toString().replace("/", "-");
+        return method + "-" + resourcePath.toString().replace("/", "-");
+    }
+
+    public String getUniqueFunctionName(String servicePath, FunctionDefinitionNode functionDefinitionNode) {
+        String functionName = getFunctionName(servicePath, functionDefinitionNode);
         functionName = generateUniqueName(functionName, 0);
         generatedNames.add(functionName);
         return functionName;

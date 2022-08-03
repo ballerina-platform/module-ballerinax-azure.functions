@@ -12,7 +12,7 @@ type Person record {
 };
 
 // @af:HTTPTest
-service "hello" on ep {
+service /hello on ep {
     resource function post .(@af:Payload string greeting) returns @af:HTTPOutput string {
         return "Hello from . path ";
     }
