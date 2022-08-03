@@ -100,11 +100,22 @@ public class HandlerTest {
 
     @Test
     public void testHttpHelloFooParam() {
-        JsonObject actual = generatedFunctions.get("post-hello-foo-0");
+        JsonObject actual = generatedFunctions.get("post-hello-foo-bar-1");
         String str =
                 "{\"bindings\":[{\"type\":\"httpTrigger\",\"authLevel\":\"anonymous\",\"methods\":[\"post\"]," +
                         "\"direction\":\"in\",\"name\":\"httpPayload\",\"route\":\"hello/foo/{bar}\"}," +
                         "{\"type\":\"http\",\"direction\":\"out\",\"name\":\"resp\"}]}";
+        JsonElement parse = jsonParser.parse(str);
+        Assert.assertEquals(actual, parse);
+    }
+
+    @Test
+    public void testHttpHelloFooConflictPathParam() {
+        JsonObject actual = generatedFunctions.get("post-hello-foo-bar-2");
+        String str =
+                "{\"bindings\":[{\"type\":\"httpTrigger\",\"authLevel\":\"anonymous\",\"methods\":[\"post\"]," +
+                        "\"direction\":\"in\",\"name\":\"httpPayload\",\"route\":\"hello/foo/bar\"},{\"type\":" +
+                        "\"http\",\"direction\":\"out\",\"name\":\"resp\"}]}";
         JsonElement parse = jsonParser.parse(str);
         Assert.assertEquals(actual, parse);
     }
@@ -138,7 +149,8 @@ public class HandlerTest {
     public void testTimerTrigger() {
         JsonObject actual = generatedFunctions.get("timer");
         String str = "{\"bindings\":[{\"type\":\"timerTrigger\",\"schedule\":\"*/10 * * * * *\"," +
-                "\"runOnStartup\":true,\"direction\":\"in\",\"name\":\"inMsg\"},{\"type\":\"queue\",\"connection\":\"AzureWebJobsStorage\",\"queueName\":\"queue3\",\"direction\":\"out\",\"name\":\"outMsg\"}]}";
+                "\"runOnStartup\":true,\"direction\":\"in\",\"name\":\"inMsg\"},{\"type\":\"queue\",\"connection\":" +
+                "\"AzureWebJobsStorage\",\"queueName\":\"queue3\",\"direction\":\"out\",\"name\":\"outMsg\"}]}";
         JsonElement parse = jsonParser.parse(str);
         Assert.assertEquals(actual, parse);
     }
@@ -147,7 +159,10 @@ public class HandlerTest {
     public void testBlobTrigger() {
         JsonObject actual = generatedFunctions.get("blob");
         String str =
-                "{\"bindings\":[{\"type\":\"blobTrigger\",\"name\":\"blobIn\",\"direction\":\"in\",\"path\":\"bpath1/{name}\",\"dataType\":\"binary\",\"connection\":\"AzureWebJobsStorage\"},{\"type\":\"blob\",\"direction\":\"out\",\"name\":\"outMsg\",\"path\":\"bpath1/newBlob\",\"connection\":\"AzureWebJobsStorage\",\"dataType\":\"binary\"}]}";
+                "{\"bindings\":[{\"type\":\"blobTrigger\",\"name\":\"blobIn\",\"direction\":\"in\",\"path\":" +
+                        "\"bpath1/{name}\",\"dataType\":\"binary\",\"connection\":\"AzureWebJobsStorage\"}," +
+                        "{\"type\":\"blob\",\"direction\":\"out\",\"name\":\"outMsg\",\"path\":\"bpath1/newBlob\"," +
+                        "\"connection\":\"AzureWebJobsStorage\",\"dataType\":\"binary\"}]}";
         JsonElement parse = jsonParser.parse(str);
         Assert.assertEquals(actual, parse);
     }

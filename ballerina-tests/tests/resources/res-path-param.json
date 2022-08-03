@@ -100,7 +100,7 @@
             "DISGUISED-HOST": "bal-dev.azurewebsites.net"
         },
         "sys": {
-            "MethodName": "post-hello-foo-bar",
+            "MethodName": "post-hello-foo-bar-2",
             "UtcNow": "2022-06-10T07:57:46.8453883Z",
             "RandGuid": "0f4737ff-5b49-4e1d-9639-e51aaca81bc6"
         }
