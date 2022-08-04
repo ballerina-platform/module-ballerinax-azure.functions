@@ -24,8 +24,6 @@ import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.creators.ValueCreator;
-import io.ballerina.runtime.api.types.Parameter;
-import io.ballerina.runtime.api.types.RemoteMethodType;
 import io.ballerina.runtime.api.types.ResourceMethodType;
 import io.ballerina.runtime.api.types.ServiceType;
 import io.ballerina.runtime.api.utils.StringUtils;
@@ -33,7 +31,6 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.stdlib.azure.functions.builder.JsonPayloadBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -68,53 +65,7 @@ public class NativeHttpToAzureAdaptor {
         return invokeResourceFunction(env, bHubService,
                 "callNativeMethod", body, functionName);
     }
-
-    public static Object callRemoteFunction(Environment env, BObject adaptor, BMap body, BString remoteFuncName) {
-        BObject bHubService = (BObject) adaptor.getNativeData(SERVICE_OBJECT);
-        return invokeRemoteFunction(env, bHubService, "callOnMessage", body, remoteFuncName);
-    }
-
-    private static Object invokeRemoteFunction(Environment env, BObject bHubService, String parentFunctionName,
-                                               BMap body, BString remoteFuncName) {
-        Future balFuture = env.markAsync();
-        Module module = ModuleUtils.getModule();
-        StrandMetadata metadata = new StrandMetadata(module.getOrg(), module.getName(), module.getVersion(),
-                parentFunctionName);
-        ServiceType serviceType = (ServiceType) bHubService.getType();
-        Object[] args = new Object[2];
-        RemoteMethodType methodType = getOnMessageMethod(serviceType, remoteFuncName).orElseThrow(); //TODO handle error
-        Parameter parameter = methodType.getParameters()[0]; //TODO handle other params and payload type
-        String name = parameter.name;
-        BString bStr = body.getStringValue(StringUtils.fromString(name));
-        JsonPayloadBuilder jsonPayloadBuilder = new JsonPayloadBuilder(parameter.type);
-        Object bValue = jsonPayloadBuilder.getValue(bStr, false);
-//        Object bValue = Utilities.convertJsonToDataBoundParamValue(bStr, parameter.type);
-        args[0] = bValue;
-        args[1] = true;
-        BMap annotation = (BMap) methodType.getAnnotation(StringUtils.fromString("$returns$"));
-        if (serviceType.isIsolated()) {
-            env.getRuntime().invokeMethodAsyncConcurrently(
-                    bHubService, remoteFuncName.getValue(), null, metadata,
-                    new FunctionCallback(balFuture, module, annotation.getKeys()), null, PredefinedTypes.TYPE_NULL,
-                    args);
-        } else {
-            env.getRuntime().invokeMethodAsyncSequentially(
-                    bHubService, remoteFuncName.getValue(), null, metadata,
-                    new FunctionCallback(balFuture, module, annotation.getKeys()), null, PredefinedTypes.TYPE_NULL,
-                    args);
-        }
-        return null;
-    }
-
-    private static Optional<RemoteMethodType> getOnMessageMethod(ServiceType serviceType, BString remoteFuncName) {
-        RemoteMethodType[] remoteMethods = serviceType.getRemoteMethods();
-        for (RemoteMethodType methodType : remoteMethods) {
-            if (methodType.getName().equals(remoteFuncName.getValue())) {
-                return Optional.of(methodType);
-            }
-        }
-        return Optional.empty();
-    }
+    
 
     private static Object invokeResourceFunction(Environment env, BObject bHubService, String parentFunctionName,
                                                  BMap body, BString functionName) {

@@ -3,6 +3,7 @@ package org.ballerinax.azurefunctions;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
+import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
@@ -11,11 +12,20 @@ import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextRange;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.Optional;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 /**
  * Contains the utilities required for the compiler extension.
@@ -59,10 +69,63 @@ public class Util {
         StringBuilder out = new StringBuilder();
         for (Node node : nodes) {
             if (node.kind() == SyntaxKind.STRING_LITERAL) {
-                BasicLiteralNode basicLiteralNode = (BasicLiteralNode) node;
-                out.append(basicLiteralNode.literalToken().text());
+                String value = ((BasicLiteralNode) node).literalToken().text();
+                out.append(value, 1, value.length() - 1);
+            } else if (node.kind() == SyntaxKind.SLASH_TOKEN) {
+                Token token = (Token) node;
+                out.append(token.text());
+            } else if (node.kind() == SyntaxKind.IDENTIFIER_TOKEN) {
+                out.append(((IdentifierToken) node).text());
             }
         }
-        return out.substring(1, out.toString().length() - 1);
+        String finalPath = out.toString();
+        if (finalPath.startsWith("/")) {
+            return finalPath.substring(1);
+        }
+        return finalPath;
     }
+
+    public static void unzipFolder(Path source, Path target) throws IOException {
+
+        try (ZipInputStream zis = new ZipInputStream(new FileInputStream(source.toFile()))) {
+            ZipEntry zipEntry = zis.getNextEntry();
+
+            while (zipEntry != null) {
+                boolean isDirectory = false;
+                if (zipEntry.getName().endsWith(File.separator)) {
+                    isDirectory = true;
+                }
+
+                Path newPath = zipSlipProtect(zipEntry, target);
+
+                if (isDirectory) {
+                    Files.createDirectories(newPath);
+                } else {
+                    Path newPathParent = newPath.getParent();
+                    if (newPathParent != null) {
+                        if (Files.notExists(newPathParent)) {
+                            Files.createDirectories(newPathParent);
+                        }
+                    }
+                    Files.copy(zis, newPath, StandardCopyOption.REPLACE_EXISTING);
+                }
+                zipEntry = zis.getNextEntry();
+            }
+            zis.closeEntry();
+        }
+    }
+
+    // protect zip slip attack
+    public static Path zipSlipProtect(ZipEntry zipEntry, Path targetDir)
+            throws IOException {
+        Path targetDirResolved = targetDir.resolve(zipEntry.getName());
+        
+        Path normalizePath = targetDirResolved.normalize();
+        if (!normalizePath.startsWith(targetDir)) {
+            throw new IOException("Bad zip entry: " + zipEntry.getName());
+        }
+
+        return normalizePath;
+    }
+
 }

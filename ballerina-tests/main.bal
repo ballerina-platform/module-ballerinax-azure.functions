@@ -11,8 +11,11 @@ type Person record {
     int age;
 };
 
-// @af:HTTPTest
-service "hello" on ep {
+service /hello on ep {
+    resource function default all() returns @af:HTTPOutput string {
+        return "Hello from all";
+    }
+    
     resource function post .(@af:Payload string greeting) returns @af:HTTPOutput string {
         return "Hello from . path ";
     }
@@ -142,3 +145,14 @@ service "queue-input" on queueListener1 {
     }
 }
 
+@af:BlobTrigger {
+    path: "bpath1/{name}"
+}
+listener af:BlobListener blobListener = new af:BlobListener();
+
+service "blob" on blobListener {
+    remote function onUpdated (@af:Payload byte[] blobIn, @af:BindingName { } string name) returns @af:BlobOutput { 
+        path: "bpath1/newBlob" } byte[]|error {
+        return blobIn;
+    }
+}

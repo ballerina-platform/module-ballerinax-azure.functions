@@ -57,7 +57,7 @@ type HttpPayload record {
     map<anydata> Headers;
     map<anydata> Params;
     Identity[] Identities;
-    anydata? Body;
+    anydata? Body?;
 };
 
 type Identity record {

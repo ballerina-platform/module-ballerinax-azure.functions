@@ -12,7 +12,11 @@ type Person record {
 };
 
 // @af:HTTPTest
-service "hello" on ep {
+service /hello on ep {
+    resource function default all() returns @af:HTTPOutput string {
+        return "Hello from all ";
+    }
+    
     resource function post .(@af:Payload string greeting) returns @af:HTTPOutput string {
         return "Hello from . path ";
     }
@@ -83,5 +87,25 @@ service "cosmos" on cosmosEp {
     remote function onUpdated (@af:Payload DBEntry[] inMsg) returns @af:QueueOutput {queueName: "queue3"} string|error {
         string id = inMsg[0].id;
         return "helloo "+ id;
+    }
+}
+
+@af:TimerTrigger { schedule: "*/10 * * * * *" } 
+listener af:TimerListener timerListener = new af:TimerListener();
+service "timer" on timerListener {
+    remote function onTrigger (@af:Payload af:TimerMetadata inMsg) returns @af:QueueOutput {queueName: "queue3"} string|error {
+            return "helloo "+ inMsg.IsPastDue.toString();
+    }
+}
+
+@af:BlobTrigger {
+    path: "bpath1/{name}"
+}
+listener af:BlobListener blobListener = new af:BlobListener();
+
+service "blob" on blobListener {
+    remote function onUpdated (@af:Payload byte[] blobIn, @af:BindingName { } string name) returns @af:BlobOutput { 
+        path: "bpath1/newBlob" } byte[]|error {
+        return blobIn;
     }
 }

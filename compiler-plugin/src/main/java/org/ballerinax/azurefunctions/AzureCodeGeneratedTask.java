@@ -70,6 +70,9 @@ public class AzureCodeGeneratedTask implements CompilerLifecycleTask<CompilerLif
                 OUT.println(msg);
                 throw new RuntimeException(msg, e);
             }
+            OUT.println("\n\tExecute the below command to deploy the function locally:");
+            OUT.println(
+                    "\tfunc start --script-root target/bin/azf-local --java");
             OUT.println("\n\tExecute the below command to deploy Ballerina Azure Functions:");
             Path parent = path.getParent();
             if (parent != null) {

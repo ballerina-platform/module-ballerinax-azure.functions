@@ -1,7 +1,7 @@
 {
     "Data": {
         "httpPayload": {
-            "Url": "https://bal-dev.azurewebsites.net/api/hello/foo/bar",
+            "Url": "https://bal-dev.azurewebsites.net/api/hello/all",
             "Method": "POST",
             "Query": {},
             "Headers": {
@@ -18,16 +18,19 @@
                     "bal-dev.azurewebsites.net"
                 ],
                 "Max-Forwards": [
-                    "9"
+                    "10"
                 ],
                 "User-Agent": [
                     "curl/7.78.0"
                 ],
                 "X-ARR-LOG-ID": [
-                    "aedb1fdc-e89c-4740-aa5f-40ed87792703"
+                    "28d97039-ef3e-4e6f-948b-680f7ff166f7"
                 ],
                 "CLIENT-IP": [
-                    "10.0.32.6:54697"
+                    "112.134.128.105:41856"
+                ],
+                "DISGUISED-HOST": [
+                    "bal-dev.azurewebsites.net"
                 ],
                 "X-SITE-DEPLOYMENT-ID": [
                     "bal-dev"
@@ -48,16 +51,13 @@
                     "1.2"
                 ],
                 "X-Forwarded-For": [
-                    "112.134.128.105:42010"
+                    "112.134.128.105:41856"
                 ],
                 "X-Original-URL": [
-                    "/api/hello/foo/bar"
+                    "/api/hello/all"
                 ],
                 "X-WAWS-Unencoded-URL": [
-                    "/api/hello/foo/bar"
-                ],
-                "DISGUISED-HOST": [
-                    "bal-dev.azurewebsites.net"
+                    "/api/hello/all"
                 ]
             },
             "Params": {},
@@ -73,8 +73,7 @@
                     "NameClaimType": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name",
                     "RoleClaimType": "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
                 }
-            ],
-            "Body": "Jack"
+            ]
         }
     },
     "Metadata": {
@@ -84,25 +83,25 @@
             "Content-Length": "4",
             "Content-Type": "application/x-www-form-urlencoded",
             "Host": "bal-dev.azurewebsites.net",
-            "Max-Forwards": "9",
+            "Max-Forwards": "10",
             "User-Agent": "curl/7.78.0",
-            "X-ARR-LOG-ID": "aedb1fdc-e89c-4740-aa5f-40ed87792703",
-            "CLIENT-IP": "10.0.32.6:54697",
+            "X-ARR-LOG-ID": "28d97039-ef3e-4e6f-948b-680f7ff166f7",
+            "CLIENT-IP": "112.134.128.105:41856",
+            "DISGUISED-HOST": "bal-dev.azurewebsites.net",
             "X-SITE-DEPLOYMENT-ID": "bal-dev",
             "WAS-DEFAULT-HOSTNAME": "bal-dev.azurewebsites.net",
             "X-Forwarded-Proto": "https",
             "X-AppService-Proto": "https",
             "X-ARR-SSL": "2048|256|CN=Microsoft Azure TLS Issuing CA 01, O=Microsoft Corporation, C=US|CN=*.azurewebsites.net, O=Microsoft Corporation, L=Redmond, S=WA, C=US",
             "X-Forwarded-TlsVersion": "1.2",
-            "X-Forwarded-For": "112.134.128.105:42010",
-            "X-Original-URL": "/api/hello/foo/bar",
-            "X-WAWS-Unencoded-URL": "/api/hello/foo/bar",
-            "DISGUISED-HOST": "bal-dev.azurewebsites.net"
+            "X-Forwarded-For": "112.134.128.105:41856",
+            "X-Original-URL": "/api/hello/all",
+            "X-WAWS-Unencoded-URL": "/api/hello/all"
         },
         "sys": {
-            "MethodName": "post-hello-foo-bar-2",
-            "UtcNow": "2022-06-10T07:57:46.8453883Z",
-            "RandGuid": "0f4737ff-5b49-4e1d-9639-e51aaca81bc6"
+            "MethodName": "default-hello-all",
+            "UtcNow": "2022-06-10T07:10:30.1722785Z",
+            "RandGuid": "19f5a752-e046-4f7f-964f-e53207baed7b"
         }
     }
 }

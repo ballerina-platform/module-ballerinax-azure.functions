@@ -20,7 +20,7 @@ public class BlobOutputBinding extends OutputBinding {
 
     private String path;
     private String connection = "AzureWebJobsStorage";
-    private String dataType = "string";
+    private String dataType = "binary";
 
     public BlobOutputBinding(AnnotationNode annotationNode) {
         super("blob");

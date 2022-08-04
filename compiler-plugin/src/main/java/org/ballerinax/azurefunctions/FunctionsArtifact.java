@@ -146,6 +146,7 @@ public class FunctionsArtifact {
                         StandardCopyOption.REPLACE_EXISTING);
             }
         }
+        Util.unzipFolder(parent.resolve(outputFileName), parent.resolve(Constants.AF_LOCAL_DIR));
     }
 
 }

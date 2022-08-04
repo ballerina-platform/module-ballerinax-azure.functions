@@ -2,6 +2,16 @@ import ballerina/test;
 import ballerina/io;
 import ballerina/http;
 
+@test:Config { }
+function testDefault() returns error? {
+   final http:Client clientEndpoint = check new ("http://localhost:3000");
+   string jsonFilePath = "./tests/resources/default.json";
+   json readJson = check io:fileReadJson(jsonFilePath);
+   json resp = check clientEndpoint->post("/default-hello-all", readJson);
+   json expectedResp = {"Outputs":{"resp":{"body":"Hello from all"}},"Logs":[],"ReturnValue":null};
+   test:assertEquals(resp, expectedResp);
+}
+
 @test:Config {}
 function testBaseDot() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
@@ -101,15 +111,26 @@ function testSimpleResourcePath() returns error? {
     test:assertEquals(resp, expectedResp);
 }
 
-@test:Config {}
+@test:Config { }
 function testSimpleMultiResourcePath() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/res-path-param.json";
     json readJson = check io:fileReadJson(jsonFilePath);
-    json resp = check clientEndpoint->post("/post-hello-foo-bar", readJson);
-    json expectedResp = {"Outputs": {"resp": {"body": "Hello from foo bar res"}}, "Logs": [], "ReturnValue": null};
+    json resp = check clientEndpoint->post("/post-hello-foo-bar-2", readJson);
+    json expectedResp = {"Outputs":{"resp":{"body":"Hello from foo bar res"}},"Logs":[],"ReturnValue":null};
     test:assertEquals(resp, expectedResp);
 }
+
+@test:Config { }
+function testSimpleConflictingPathParam() returns error? {
+    final http:Client clientEndpoint = check new ("http://localhost:3000");
+    string jsonFilePath = "./tests/resources/res-path-conflict-param.json";
+    json readJson = check io:fileReadJson(jsonFilePath);
+    json resp = check clientEndpoint->post("/post-hello-foo-bar-1", readJson);
+    json expectedResp = {"Outputs":{"resp":{"body":"Hello from foo param meow"}},"Logs":[],"ReturnValue":null};
+    test:assertEquals(resp, expectedResp);
+}
+
 
 @test:Config {}
 function testSimpleMultiQueryPath() returns error? {

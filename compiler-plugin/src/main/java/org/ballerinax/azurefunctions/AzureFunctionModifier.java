@@ -10,7 +10,6 @@ import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
-import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.LiteralValueToken;
 import io.ballerina.compiler.syntax.tree.MappingConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.MappingFieldNode;
@@ -35,19 +34,17 @@ import java.util.Optional;
 public class AzureFunctionModifier extends TreeModifier {
 
     private SemanticModel semanticModel;
-    private UniqueIDHolder holder;
     private String modulePrefix;
 
     public AzureFunctionModifier(SemanticModel semanticModel) {
         super();
         this.semanticModel = semanticModel;
-        this.holder = new UniqueIDHolder();
         this.modulePrefix = "af"; //TODO fixme
     }
 
     @Override
     public ServiceDeclarationNode transform(ServiceDeclarationNode serviceDeclarationNode) {
-        String servicePath = resourcePathToString(serviceDeclarationNode.absoluteResourcePath());
+        String servicePath = Util.resourcePathToString(serviceDeclarationNode.absoluteResourcePath());
         ExpressionNode listenerExpressionNode = serviceDeclarationNode.expressions().get(0);
         Optional<TypeSymbol> typeSymbol = semanticModel.typeOf(listenerExpressionNode);
         if (typeSymbol.isEmpty()) {
@@ -69,9 +66,10 @@ public class AzureFunctionModifier extends TreeModifier {
         if (!name.get().equals("HTTPListener")) {
             return super.transform(serviceDeclarationNode);
         }
+        AzureFunctionNameGenerator nameGen = new AzureFunctionNameGenerator(serviceDeclarationNode);
         NodeList<Node> newMembersList = NodeFactory.createNodeList();
         for (Node node : members) {
-            Optional<Node> modifiedMember = getModifiedMember(node, servicePath);
+            Optional<Node> modifiedMember = getModifiedMember(node, servicePath, nameGen);
             if (modifiedMember.isEmpty()) {
                 newMembersList = newMembersList.add(node);
             } else {
@@ -82,26 +80,12 @@ public class AzureFunctionModifier extends TreeModifier {
                 .withMembers(newMembersList).apply();
     }
 
-    public Optional<Node> getModifiedMember(Node node, String servicePath) {
+    public Optional<Node> getModifiedMember(Node node, String servicePath, AzureFunctionNameGenerator nameGen) {
         if (node.kind() != SyntaxKind.RESOURCE_ACCESSOR_DEFINITION) {
             return Optional.empty();
         }
         FunctionDefinitionNode functionDefinitionNode = (FunctionDefinitionNode) node;
-        String method = functionDefinitionNode.functionName().text();
-        StringBuilder resourcePath = new StringBuilder();
-        resourcePath.append(servicePath);
-        for (Node pathBlock : functionDefinitionNode.relativeResourcePath()) {
-            if (pathBlock.kind() == SyntaxKind.IDENTIFIER_TOKEN) {
-                resourcePath.append("/" + ((IdentifierToken) pathBlock).text());
-                continue;
-            }
-            if (pathBlock.kind() == SyntaxKind.RESOURCE_PATH_SEGMENT_PARAM) {
-                resourcePath.append("/" + holder.getNextValue());
-//                    resourcePath.append("{").append(pathParamNode.paramName().text()).append("}");
-                continue;
-            }
-        }
-        String functionName = method + "-" + resourcePath.toString().replace("/", "-");
+        String uniqueFunctionName = nameGen.getUniqueFunctionName(servicePath, functionDefinitionNode);
         Optional<MetadataNode> metadata = functionDefinitionNode.metadata();
         NodeList<AnnotationNode> existingAnnotations = NodeFactory.createNodeList();
         MetadataNode metadataNode;
@@ -113,8 +97,8 @@ public class AzureFunctionModifier extends TreeModifier {
         }
 
         //Create and add annotation
-
-        NodeList<AnnotationNode> modifiedAnnotations = existingAnnotations.add(getFunctionNameAnnotation(functionName));
+        NodeList<AnnotationNode> modifiedAnnotations =
+                existingAnnotations.add(getFunctionNameAnnotation(uniqueFunctionName));
         MetadataNode modifiedMetadata =
                 new MetadataNode.MetadataNodeModifier(metadataNode).withAnnotations(modifiedAnnotations).apply();
         FunctionDefinitionNode updatedFunctionNode =
@@ -143,16 +127,5 @@ public class AzureFunctionModifier extends TreeModifier {
                         NodeFactory.createToken(SyntaxKind.CLOSE_BRACE_TOKEN));
         return NodeFactory.createAnnotationNode(NodeFactory.createToken(SyntaxKind.AT_TOKEN), azureFunctionAnnotRef,
                 annotationValue);
-    }
-
-    public String resourcePathToString(NodeList<Node> nodes) {
-        StringBuilder out = new StringBuilder();
-        for (Node node : nodes) {
-            if (node.kind() == SyntaxKind.STRING_LITERAL) {
-                BasicLiteralNode basicLiteralNode = (BasicLiteralNode) node;
-                out.append(basicLiteralNode.literalToken().text());
-            }
-        }
-        return out.substring(1, out.toString().length() - 1);
     }
 }
