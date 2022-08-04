@@ -86,21 +86,6 @@ public class AzureFunctionModifier extends TreeModifier {
         }
         FunctionDefinitionNode functionDefinitionNode = (FunctionDefinitionNode) node;
         String uniqueFunctionName = nameGen.getUniqueFunctionName(servicePath, functionDefinitionNode);
-//        String method = functionDefinitionNode.functionName().text();
-//        StringBuilder resourcePath = new StringBuilder();
-//        resourcePath.append(servicePath);
-//        for (Node pathBlock : functionDefinitionNode.relativeResourcePath()) {
-//            if (pathBlock.kind() == SyntaxKind.IDENTIFIER_TOKEN) {
-//                resourcePath.append("/" + ((IdentifierToken) pathBlock).text());
-//                continue;
-//            }
-//            if (pathBlock.kind() == SyntaxKind.RESOURCE_PATH_SEGMENT_PARAM) {
-//                resourcePath.append("/" + holder.getNextValue());
-////                    resourcePath.append("{").append(pathParamNode.paramName().text()).append("}");
-//                continue;
-//            }
-//        }
-//        String functionName = method + "-" + resourcePath.toString().replace("/", "-");
         Optional<MetadataNode> metadata = functionDefinitionNode.metadata();
         NodeList<AnnotationNode> existingAnnotations = NodeFactory.createNodeList();
         MetadataNode metadataNode;
@@ -112,7 +97,6 @@ public class AzureFunctionModifier extends TreeModifier {
         }
 
         //Create and add annotation
-
         NodeList<AnnotationNode> modifiedAnnotations =
                 existingAnnotations.add(getFunctionNameAnnotation(uniqueFunctionName));
         MetadataNode modifiedMetadata =

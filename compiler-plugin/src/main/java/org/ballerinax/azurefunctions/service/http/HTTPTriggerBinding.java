@@ -36,10 +36,11 @@ import java.util.Optional;
 
 /**
  * Represents a HTTP Trigger binding in functions.json.
- * 
+ *
  * @since 2.0.0
  */
 public class HTTPTriggerBinding extends TriggerBinding {
+
     private String path;
     private String authLevel = "anonymous";
     private String methods;
@@ -110,7 +111,7 @@ public class HTTPTriggerBinding extends TriggerBinding {
             ReturnTypeDescriptorNode returnTypeDescriptorNode =
                     functionDefinitionNode.functionSignature().returnTypeDesc().get(); //TODO recheck if return is must
             OutputBindingBuilder outputBuilder = new OutputBindingBuilder();
-            Optional<Binding> returnBinding  = outputBuilder.getOutputBinding(returnTypeDescriptorNode.annotations());
+            Optional<Binding> returnBinding = outputBuilder.getOutputBinding(returnTypeDescriptorNode.annotations());
             if (returnBinding.isEmpty()) {
                 bindings.add(new HTTPOutputBinding(null));
             } else {
@@ -221,12 +222,25 @@ public class HTTPTriggerBinding extends TriggerBinding {
         JsonObject inputTrigger = new JsonObject();
         inputTrigger.addProperty("type", this.getTriggerType());
         inputTrigger.addProperty("authLevel", this.authLevel);
-        JsonArray methods = new JsonArray();
-        methods.add(this.methods); //TODO add default
-        inputTrigger.add("methods", methods);
+        inputTrigger.add("methods", generateMethods());
         inputTrigger.addProperty("direction", this.getDirection());
         inputTrigger.addProperty("name", this.getVarName());
         inputTrigger.addProperty("route", this.getPath());
         return inputTrigger;
+    }
+
+    private JsonArray generateMethods() {
+        JsonArray methods = new JsonArray();
+        if (this.methods.equals("default")) {
+            methods.add("DELETE");
+            methods.add("GET");
+            methods.add("HEAD");
+            methods.add("OPTIONS");
+            methods.add("POST");
+            methods.add("PUT");
+        } else {
+            methods.add(this.methods); //TODO add default
+        }
+        return methods;
     }
 }

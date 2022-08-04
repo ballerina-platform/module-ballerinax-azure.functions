@@ -87,7 +87,7 @@ public class FunctionCallback implements Callback {
                 BString encodedString = ToBase64.toBase64(arrayValue);
                 mapValue.put(StringUtils.fromString("outMsg"), encodedString);
             }
-        }else if (Constants.HTTP_OUTPUT.equals(outputBinding)) {
+        } else if (Constants.HTTP_OUTPUT.equals(outputBinding)) {
             //Check HTTPResponse
             if (isHTTPResponse(result)) {
                 BMap resultMap = (BMap) result;

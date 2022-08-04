@@ -2,6 +2,16 @@ import ballerina/test;
 import ballerina/io;
 import ballerina/http;
 
+@test:Config { }
+function testDefault() returns error? {
+   final http:Client clientEndpoint = check new ("http://localhost:3000");
+   string jsonFilePath = "./tests/resources/default.json";
+   json readJson = check io:fileReadJson(jsonFilePath);
+   json resp = check clientEndpoint->post("/default-hello-all", readJson);
+   json expectedResp = {"Outputs":{"resp":{"body":"Hello from all"}},"Logs":[],"ReturnValue":null};
+   test:assertEquals(resp, expectedResp);
+}
+
 @test:Config {}
 function testBaseDot() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");

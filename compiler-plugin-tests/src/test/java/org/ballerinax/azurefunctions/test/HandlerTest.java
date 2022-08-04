@@ -73,7 +73,7 @@ public class HandlerTest {
 
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
         Assert.assertFalse(diagnosticResult.hasErrors());
-        Assert.assertEquals(generatedFunctions.size(), 16);
+        Assert.assertEquals(generatedFunctions.size(), 17);
     }
 
     @Test
@@ -83,6 +83,16 @@ public class HandlerTest {
                 "{\"bindings\":[{\"type\":\"httpTrigger\",\"authLevel\":\"anonymous\",\"methods\":[\"post\"]," +
                         "\"direction\":\"in\",\"name\":\"httpPayload\",\"route\":\"hello\"}," +
                         "{\"type\":\"http\",\"direction\":\"out\",\"name\":\"resp\"}]}";
+        JsonElement parse = jsonParser.parse(str);
+        Assert.assertEquals(httpHello, parse);
+    }
+
+    @Test
+    public void testHttpDefault() {
+        JsonObject httpHello = generatedFunctions.get("default-hello-all");
+        String str = "{\"bindings\":[{\"type\":\"httpTrigger\",\"authLevel\":\"anonymous\",\"methods\":[\"DELETE\"," +
+                "\"GET\",\"HEAD\",\"OPTIONS\",\"POST\",\"PUT\"],\"direction\":\"in\",\"name\":\"httpPayload\"," +
+                "\"route\":\"hello/all\"},{\"type\":\"http\",\"direction\":\"out\",\"name\":\"resp\"}]}";
         JsonElement parse = jsonParser.parse(str);
         Assert.assertEquals(httpHello, parse);
     }
