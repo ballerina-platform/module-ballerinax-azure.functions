@@ -20,7 +20,7 @@ import submodule.mod1;
 // HTTP request/response with no authentication
 @af:Function
 public isolated function hello(@af:HTTPTrigger { authLevel: "anonymous" } string payload) 
-                      returns @af:HTTPOutput string|error {
+                      returns @af:HttpOutput string|error {
     return "Hello, " + payload + "!";
 }
 

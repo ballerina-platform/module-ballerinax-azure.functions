@@ -57,21 +57,32 @@ public class FunctionCallback implements Callback {
     private final Future future;
     private final Module module;
     private final List<String> annotations;
-
     private final MethodType methodType;
 
-
-    public FunctionCallback(Future future, Module module, Object[] annotations, MethodType methodType) {
+    public FunctionCallback(Future future, Module module, MethodType methodType) {
         this.future = future;
         this.module = module;
-        this.annotations = new ArrayList<>();
         this.methodType = methodType;
-        for (Object o : annotations) {
-            BString annotation = (BString) o;
-            String[] split = annotation.getValue().split(":");
-            this.annotations.add(split[split.length - 1]);
+        this.annotations = new ArrayList<>();
+        BMap<BString, ?> annotations = (BMap<BString, ?>) methodType.getAnnotation(StringUtils.fromString("$returns$"));
+        if (annotations != null) {
+            for (BString annotation : annotations.getKeys()) {
+                String[] split = annotation.getValue().split(":");
+                this.annotations.add(split[split.length - 1]);
+            }
         }
     }
+
+    private String getOutputAnnotation() {
+        if (this.annotations.size() == 0) {
+            if (methodType instanceof ResourceMethodType) {
+                return Constants.HTTP_OUTPUT;
+            }
+            //TODO impl compiler ext validations to make sure output annotations exists
+        }
+        return this.annotations.get(0);
+    }
+
 
     @Override
     public void notifySuccess(Object result) {
@@ -96,10 +107,7 @@ public class FunctionCallback implements Callback {
             return;
         }
 
-        String outputBinding = "";
-        if (annotations.size() != 0) {
-            outputBinding = this.annotations.get(0);
-        }
+        String outputBinding = getOutputAnnotation();
 
         if (Constants.QUEUE_OUTPUT.equals(outputBinding) || Constants.COSMOS_DBOUTPUT.equals(outputBinding)) {
             mapValue.put(StringUtils.fromString(Constants.OUT_MSG), result);
@@ -111,11 +119,11 @@ public class FunctionCallback implements Callback {
                 mapValue.put(StringUtils.fromString("outMsg"), encodedString);
             }
 
-        } else if ("".equals(outputBinding) || Constants.HTTP_OUTPUT.equals(outputBinding)) {
-            if (isHTTPResponse(result)) {
-                handleHTTPResponse((BMap) result, mapValue);
+        } else if (outputBinding == null || Constants.HTTP_OUTPUT.equals(outputBinding)) {
+            if (isHTTPStatusCodeResponse(result)) {
+                handleStatusCodeResponse((BMap) result, mapValue);
             } else {
-                handleNonHTTPResponse(result, mapValue);
+                handleNonStatusCodeResponse(result, mapValue);
             }
         }
         future.complete(mapValue);
@@ -139,7 +147,7 @@ public class FunctionCallback implements Callback {
         return Constants.PACKAGE_ORG.equals(orgName) && Constants.PACKAGE_NAME.equals(packageName);
     }
 
-    private boolean isHTTPResponse(Object result) {
+    private boolean isHTTPStatusCodeResponse(Object result) {
         Module resultPkg = TypeUtils.getType(result).getPackage();
         return (result instanceof  BMap) && (((BMap) result).containsKey(fromString(Constants.STATUS))) &&
                 Constants.PACKAGE_ORG.equals(resultPkg.getOrg()) &&
@@ -150,7 +158,7 @@ public class FunctionCallback implements Callback {
 
     private boolean isContentTypeExist(BMap<BString , ?> headersMap) {
         for (BString headerKey : headersMap.getKeys()) {
-            if (headerKey.getValue().toLowerCase(Locale.ROOT).equals(Constants.CONTENT_TYPE)) {
+            if (headerKey.getValue().toLowerCase(Locale.ROOT).equals(Constants.CONTENT_TYPE.toLowerCase(Locale.ROOT))) {
                 return  true;
             }
         }
@@ -183,8 +191,8 @@ public class FunctionCallback implements Callback {
         } else if (result instanceof BArray) {
             BArray arrayResult = (BArray) result;
             if (Constants.BYTE_TYPE.equals(arrayResult.getElementType().getName())) {
-               headers.put(StringUtils.fromString(Constants.CONTENT_TYPE),
-                       StringUtils.fromString(Constants.APPLICATION_OCTET_STREAM));
+                headers.put(StringUtils.fromString(Constants.CONTENT_TYPE),
+                        StringUtils.fromString(Constants.APPLICATION_OCTET_STREAM));
 
             } else if (Constants.MAP_TYPE.equals(arrayResult.getElementType().getName())) {
                 MapType mapContent = (MapType) arrayResult.getElementType();
@@ -192,7 +200,7 @@ public class FunctionCallback implements Callback {
                     headers.put(StringUtils.fromString(Constants.CONTENT_TYPE),
                             StringUtils.fromString(Constants.APPLICATION_JSON));
                 }
-                
+
             } else if (Constants.TABLE_TYPE.equals(arrayResult.getElementType().getName())) {
                 TableType tableContent = (TableType) arrayResult.getElementType();
                 if (Constants.MAP_TYPE.equals(tableContent.getConstrainedType().getName())) {
@@ -227,7 +235,7 @@ public class FunctionCallback implements Callback {
     }
 
 
-    private void handleNonHTTPResponse(Object result, BMap<BString, Object> mapValue) {
+    private void handleNonStatusCodeResponse(Object result, BMap<BString, Object> mapValue) {
         BMap<BString, Object> respMap =
                 ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_ANYDATA));
         Object headers =
@@ -241,7 +249,7 @@ public class FunctionCallback implements Callback {
         mapValue.put(StringUtils.fromString(Constants.RESP), respMap);
     }
 
-    private void handleHTTPResponse(BMap result, BMap<BString, Object> mapValue) {
+    private void handleStatusCodeResponse(BMap result, BMap<BString, Object> mapValue) {
         BMap resultMap = result;
 
         // Extract status code

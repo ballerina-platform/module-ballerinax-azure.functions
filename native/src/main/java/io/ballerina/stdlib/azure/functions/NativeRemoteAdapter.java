@@ -102,17 +102,16 @@ public class NativeRemoteAdapter {
             }
         }
         Object[] args = argList.toArray();
-        BMap<?, ?> annotation = (BMap<?, ?>) methodType.getAnnotation(StringUtils.fromString("$returns$"));
         if (serviceType.isIsolated()) {
             env.getRuntime().invokeMethodAsyncConcurrently(
                     bHubService, remoteFuncName.getValue(), null, metadata,
-                    new FunctionCallback(balFuture, module, annotation.getKeys(), methodType), null,
-                    PredefinedTypes.TYPE_NULL, args);
+                    new FunctionCallback(balFuture, module, methodType), null, PredefinedTypes.TYPE_NULL,
+                    args);
         } else {
             env.getRuntime().invokeMethodAsyncSequentially(
                     bHubService, remoteFuncName.getValue(), null, metadata,
-                    new FunctionCallback(balFuture, module, annotation.getKeys(), methodType), null,
-                    PredefinedTypes.TYPE_NULL, args);
+                    new FunctionCallback(balFuture, module, methodType), null, PredefinedTypes.TYPE_NULL,
+                    args);
         }
         return null;
     }

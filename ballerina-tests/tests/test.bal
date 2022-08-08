@@ -11,7 +11,7 @@ function testDefault() returns error? {
     string jsonFilePath = "./tests/resources/default.json";
     json readJson = check io:fileReadJson(jsonFilePath);
     json resp = check clientEndpoint->post("/default-hello-all", readJson);
-    json expectedResp = {"Outputs": {"resp": {"statusCode": "200", "headers": {"content-type": "text/plain"}, "body": "Hello from all"}}, "Logs": [], "ReturnValue": null};
+    json expectedResp = {"Outputs": {"resp": {"statusCode": "200", "headers": {"Content-Type": "text/plain"}, "body": "Hello from all"}}, "Logs": [], "ReturnValue": null};
     test:assertEquals(resp, expectedResp);
 }
 
@@ -23,7 +23,7 @@ function getHttpAccessorTest() returns error? {
     string replacedString = regex:replaceAll(readString,"(ACCESSOR_NAME)","get");
     json readJson = check value:fromJsonString(replacedString);
     json resp = check clientEndpoint->post("/get-hello-httpAccessorTest", readJson);
-    json expectedResp = {"Outputs": {"resp": {"statusCode": "200", "headers": {"content-type": "text/plain"}, "body": "Hello from all"}}, "Logs": [], "ReturnValue": null};
+    json expectedResp = {"Outputs": {"resp": {"statusCode": "200", "headers": {"Content-Type": "text/plain"}, "body": "Hello from all"}}, "Logs": [], "ReturnValue": null};
     test:assertEquals(resp, expectedResp);
 }
 
@@ -35,7 +35,7 @@ function putHttpAccessorTest() returns error? {
     string replacedString = regex:replaceAll(readString,"(ACCESSOR_NAME)","put");
     json readJson = check value:fromJsonString(replacedString);
     json resp = check clientEndpoint->post("/put-hello-httpAccessorTest", readJson);
-    json expectedResp = {"Outputs": {"resp": {"statusCode": "200", "headers": {"content-type": "text/plain"}, "body": "Hello from all"}}, "Logs": [], "ReturnValue": null};
+    json expectedResp = {"Outputs": {"resp": {"statusCode": "200", "headers": {"Content-Type": "text/plain"}, "body": "Hello from all"}}, "Logs": [], "ReturnValue": null};
     test:assertEquals(resp, expectedResp);
 }
 
@@ -47,7 +47,7 @@ function patchHttpAccessorTest() returns error? {
     string replacedString = regex:replaceAll(readString,"(ACCESSOR_NAME)","patch");
     json readJson = check value:fromJsonString(replacedString);
     json resp = check clientEndpoint->post("/patch-hello-httpAccessorTest", readJson);
-    json expectedResp = {"Outputs": {"resp": {"statusCode": "200", "headers": {"content-type": "text/plain"}, "body": "Hello from all"}}, "Logs": [], "ReturnValue": null};
+    json expectedResp = {"Outputs": {"resp": {"statusCode": "200", "headers": {"Content-Type": "text/plain"}, "body": "Hello from all"}}, "Logs": [], "ReturnValue": null};
     test:assertEquals(resp, expectedResp);
 }
 
@@ -59,7 +59,7 @@ function deleteHttpAccessorTest() returns error? {
     string replacedString = regex:replaceAll(readString,"(ACCESSOR_NAME)","delete");
     json readJson = check value:fromJsonString(replacedString);
     json resp = check clientEndpoint->post("/delete-hello-httpAccessorTest", readJson);
-    json expectedResp = {"Outputs": {"resp": {"statusCode": "200", "headers": {"content-type": "text/plain"}, "body": "Hello from all"}}, "Logs": [], "ReturnValue": null};
+    json expectedResp = {"Outputs": {"resp": {"statusCode": "200", "headers": {"Content-Type": "text/plain"}, "body": "Hello from all"}}, "Logs": [], "ReturnValue": null};
     test:assertEquals(resp, expectedResp);
 }
 
@@ -71,7 +71,7 @@ function headHttpAccessorTest() returns error? {
     string replacedString = regex:replaceAll(readString,"(ACCESSOR_NAME)","head");
     json readJson = check value:fromJsonString(replacedString);
     json resp = check clientEndpoint->post("/head-hello-httpAccessorTest", readJson);
-    json expectedResp = {"Outputs": {"resp": {"statusCode": "200", "headers": {"content-type": "text/plain"}, "body": "Hello from all"}}, "Logs": [], "ReturnValue": null};
+    json expectedResp = {"Outputs": {"resp": {"statusCode": "200", "headers": {"Content-Type": "text/plain"}, "body": "Hello from all"}}, "Logs": [], "ReturnValue": null};
     test:assertEquals(resp, expectedResp);
 }
 
@@ -83,7 +83,7 @@ function optionsHttpAccessorTest() returns error? {
     string replacedString = regex:replaceAll(readString,"(ACCESSOR_NAME)","options");
     json readJson = check value:fromJsonString(replacedString);
     json resp = check clientEndpoint->post("/options-hello-httpAccessorTest", readJson);
-    json expectedResp = {"Outputs": {"resp": {"statusCode": "200", "headers": {"content-type": "text/plain"}, "body": "Hello from all"}}, "Logs": [], "ReturnValue": null};
+    json expectedResp = {"Outputs": {"resp": {"statusCode": "200", "headers": {"Content-Type": "text/plain"}, "body": "Hello from all"}}, "Logs": [], "ReturnValue": null};
     test:assertEquals(resp, expectedResp);
 }
 
@@ -93,7 +93,7 @@ function testBaseDot() returns error? {
     string jsonFilePath = "./tests/resources/base-dot.json";
     json readJson = check io:fileReadJson(jsonFilePath);
     json resp = check clientEndpoint->post("/post-hello", readJson);
-    json expectedResp = {"Outputs": {"resp": {"statusCode": "201", "headers": {"content-type": "text/plain"}, "body": "Hello from . path "}}, "Logs": [], "ReturnValue": null};
+    json expectedResp = {"Outputs": {"resp": {"statusCode": "201", "headers": {"Content-Type": "text/plain"}, "body": "Hello from . path "}}, "Logs": [], "ReturnValue": null};
     test:assertEquals(resp, expectedResp);
 }
 
@@ -108,7 +108,7 @@ function httpResTest1() returns error? {
             "resp": {
                 "statusCode": "401",
                 "body": "Helloworld.....",
-                "headers": {"Location": "/myServer/084230", "content-type": "application/account+json"}
+                "headers": {"Location": "/myServer/084230", "Content-Type": "application/account+json"}
             }
         },
         "Logs": [],
@@ -128,7 +128,7 @@ function httpResTest2() returns error? {
             "resp": {
                 "statusCode": "200",
                 "body": "Helloworld.....",
-                "headers": {"content-type": "application/json"}
+                "headers": {"Content-Type": "application/json"}
             }
         },
         "Logs": [],
@@ -148,7 +148,7 @@ function httpResTest3() returns error? {
             "resp": {
                 "statusCode": "500",
                 "body": "Helloworld.....",
-                "headers": {"content-type": "application/json+id", "Location": "/myServer/084230"}
+                "headers": {"Content-Type": "application/json+id", "Location": "/myServer/084230"}
             }
         },
         "Logs": [],
@@ -167,7 +167,7 @@ function httpResTest4() returns error? {
         "Outputs": {
             "resp": {
                 "statusCode": "500",
-                "headers": {"content-type": "application/json"}
+                "headers": {"Content-Type": "application/json"}
             }
         },
         "Logs": [],
@@ -189,7 +189,7 @@ function nonHttpResTest1() returns error? {
             "resp": {
                 "statusCode": "201",
                 "body": "alpha",
-                "headers": {"content-type": "text/plain"}
+                "headers": {"Content-Type": "text/plain"}
             }
         },
         "Logs": [],
@@ -206,7 +206,7 @@ function nonHttpResTest2() returns error? {
     string replacedString = regex:replaceAll(readString,"(FUNC_NAME)","nonHttpResTest2");
     json readJson = check value:fromJsonString(replacedString);
     json resp = check clientEndpoint->post("/post-hello-nonHttpResTest2", readJson);
-    json expectedResp = {"Outputs":{"resp":{"statusCode":"201", "headers":{"content-type":"application/xml"}, "body":"<book>The Lost World</book>"}}, "Logs":[], "ReturnValue":null};
+    json expectedResp = {"Outputs":{"resp":{"statusCode":"201", "headers":{"Content-Type":"application/xml"}, "body":"<book>The Lost World</book>"}}, "Logs":[], "ReturnValue":null};
     test:assertEquals(resp, expectedResp);
 }
 
@@ -218,7 +218,7 @@ function nonHttpResTest3() returns error? {
     string replacedString = regex:replaceAll(readString,"(FUNC_NAME)","nonHttpResTest3");
     json readJson = check value:fromJsonString(replacedString);
     json resp = check clientEndpoint->post("/post-hello-nonHttpResTest3", readJson);
-    json expectedResp = {"Outputs":{"resp":{"statusCode":"201", "headers":{"content-type":"application/octet-stream"}, "body":[200, 241, 218, 202, 212, 96, 36, 248, 62, 66, 56, 242, 149, 65, 218, 144, 76, 51, 213, 245, 143, 199, 252, 23, 9, 110, 53, 37, 41, 170, 97, 111]}}, "Logs":[], "ReturnValue":null};
+    json expectedResp = {"Outputs":{"resp":{"statusCode":"201", "headers":{"Content-Type":"application/octet-stream"}, "body":[200, 241, 218, 202, 212, 96, 36, 248, 62, 66, 56, 242, 149, 65, 218, 144, 76, 51, 213, 245, 143, 199, 252, 23, 9, 110, 53, 37, 41, 170, 97, 111]}}, "Logs":[], "ReturnValue":null};
     test:assertEquals(resp, expectedResp);
 }
 
@@ -230,7 +230,7 @@ function nonHttpResTest4() returns error? {
     string replacedString = regex:replaceAll(readString,"(FUNC_NAME)","nonHttpResTest4");
     json readJson = check value:fromJsonString(replacedString);
     json resp = check clientEndpoint->post("/post-hello-nonHttpResTest4", readJson);
-    json expectedResp = {"Outputs":{"resp":{"statusCode":"201", "headers":{"content-type":"application/json"}, "body":100}}, "Logs":[], "ReturnValue":null};
+    json expectedResp = {"Outputs":{"resp":{"statusCode":"201", "headers":{"Content-Type":"application/json"}, "body":100}}, "Logs":[], "ReturnValue":null};
     test:assertEquals(resp, expectedResp);
 }
 
@@ -242,7 +242,7 @@ function nonHttpResTest6() returns error? {
     string replacedString = regex:replaceAll(readString,"(FUNC_NAME)","nonHttpResTest6");
     json readJson = check value:fromJsonString(replacedString);
     json resp = check clientEndpoint->post("/post-hello-nonHttpResTest6", readJson);
-    json expectedResp = {"Outputs":{"resp":{"statusCode":"201", "headers":{"content-type":"application/json"}, "body":100}}, "Logs":[], "ReturnValue":null};
+    json expectedResp = {"Outputs":{"resp":{"statusCode":"201", "headers":{"Content-Type":"application/json"}, "body":100}}, "Logs":[], "ReturnValue":null};
     test:assertEquals(resp, expectedResp);
 }
 
@@ -254,7 +254,7 @@ function nonHttpResTest7() returns error? {
     string replacedString = regex:replaceAll(readString,"(FUNC_NAME)","nonHttpResTest7");
     json readJson = check value:fromJsonString(replacedString);
     json resp = check clientEndpoint->post("/post-hello-nonHttpResTest7", readJson);
-    json expectedResp = {"Outputs":{"resp":{"statusCode":"201", "headers":{"content-type":"application/json"}, "body":true}}, "Logs":[], "ReturnValue":null};
+    json expectedResp = {"Outputs":{"resp":{"statusCode":"201", "headers":{"Content-Type":"application/json"}, "body":true}}, "Logs":[], "ReturnValue":null};
     test:assertEquals(resp, expectedResp);
 }
 
@@ -271,7 +271,7 @@ function nonHttpResTest8() returns error? {
             "resp": {
                 "statusCode": "201",
                 "body":{"a":{"b":12, "c":"helloworld"}},
-                "headers": {"content-type":"application/json"}
+                "headers": {"Content-Type":"application/json"}
             }
         },
         "Logs": [],
@@ -293,7 +293,7 @@ function nonHttpResTest9() returns error? {
             "resp": {
                 "statusCode": "201",
                 "body":[{"a":{"b":12, "c":"helloworld"}}, {"b":1100}],
-                "headers": {"content-type":"application/json"}
+                "headers": {"Content-Type":"application/json"}
             }
         },
         "Logs": [],
@@ -315,7 +315,7 @@ function nonHttpResTest10() returns error? {
             "resp": {
                 "statusCode": "201",
                 "body":[{"a":{"b":12, "c":"helloworld"}}, {"b":12}],
-                "headers":{"content-type":"application/json"}
+                "headers":{"Content-Type":"application/json"}
             }
         },
         "Logs": [],
@@ -337,7 +337,7 @@ function nonHttpResTest11() returns error? {
             "resp": {
                 "statusCode": "201",
                 "body":[[{"a":{"b":12, "c":"helloworld"}}, {"b":12}], [{"a":{"b":14, "c":"helloworld"}}, {"b":100}]],
-                "headers": {"content-type":"application/json"}
+                "headers": {"Content-Type":"application/json"}
             }
         },
         "Logs": [],
@@ -370,7 +370,7 @@ function testSimpleResourcePath() returns error? {
     string jsonFilePath = "./tests/resources/res-path.json";
     json readJson = check io:fileReadJson(jsonFilePath);
     json resp = check clientEndpoint->post("/post-hello-foo", readJson);
-    json expectedResp = {"Outputs": {"resp": {"statusCode": "201", "headers": {"content-type": "text/plain"}, "body": "Hello from foo path Jack"}}, "Logs": [], "ReturnValue": null};
+    json expectedResp = {"Outputs": {"resp": {"statusCode": "201", "headers": {"Content-Type": "text/plain"}, "body": "Hello from foo path Jack"}}, "Logs": [], "ReturnValue": null};
     test:assertEquals(resp, expectedResp);
 }
 
@@ -380,7 +380,7 @@ function testSimpleMultiResourcePath() returns error? {
     string jsonFilePath = "./tests/resources/res-path-param.json";
     json readJson = check io:fileReadJson(jsonFilePath);
     json resp = check clientEndpoint->post("/post-hello-foo-bar-2", readJson);
-    json expectedResp = {"Outputs": {"resp": {"statusCode": "201", "headers": {"content-type": "text/plain"}, "body": "Hello from foo bar res"}}, "Logs": [], "ReturnValue": null};
+    json expectedResp = {"Outputs": {"resp": {"statusCode": "201", "headers": {"Content-Type": "text/plain"}, "body": "Hello from foo bar res"}}, "Logs": [], "ReturnValue": null};
     test:assertEquals(resp, expectedResp);
 }
 
@@ -390,7 +390,7 @@ function testSimpleConflictingPathParam() returns error? {
     string jsonFilePath = "./tests/resources/res-path-conflict-param.json";
     json readJson = check io:fileReadJson(jsonFilePath);
     json resp = check clientEndpoint->post("/post-hello-foo-bar-1", readJson);
-    json expectedResp = {"Outputs": {"resp": {"statusCode": "201", "headers": {"content-type": "text/plain"}, "body": "Hello from foo param meow"}}, "Logs": [], "ReturnValue": null};
+    json expectedResp = {"Outputs": {"resp": {"statusCode": "201", "headers": {"Content-Type": "text/plain"}, "body": "Hello from foo param meow"}}, "Logs": [], "ReturnValue": null};
     test:assertEquals(resp, expectedResp);
 }
 
@@ -400,7 +400,7 @@ function testSimpleMultiQueryPath() returns error? {
     string jsonFilePath = "./tests/resources/query-param.json";
     json readJson = check io:fileReadJson(jsonFilePath);
     json resp = check clientEndpoint->post("/post-hello-query", readJson);
-    json expectedResp = {"Outputs": {"resp": {"statusCode": "201", "headers": {"content-type": "text/plain"}, "body": "Hello from the query Jack test1"}}, "Logs": [], "ReturnValue": null};
+    json expectedResp = {"Outputs": {"resp": {"statusCode": "201", "headers": {"Content-Type": "text/plain"}, "body": "Hello from the query Jack test1"}}, "Logs": [], "ReturnValue": null};
     test:assertEquals(resp, expectedResp);
 }
 
@@ -420,7 +420,7 @@ function testCosmosInputArr() returns error? {
     string jsonFilePath = "./tests/resources/cosmos-db-arr.json";
     json readJson = check io:fileReadJson(jsonFilePath);
     json resp = check clientEndpoint->post("/post-hello-db", readJson);
-    json expectedResp = {"Outputs": {"resp": {"statusCode": "201", "headers": {"content-type": "text/plain"}, "body": "Hello Jackhello1"}}, "Logs": [], "ReturnValue": null};
+    json expectedResp = {"Outputs": {"resp": {"statusCode": "201", "headers": {"Content-Type": "text/plain"}, "body": "Hello Jackhello1"}}, "Logs": [], "ReturnValue": null};
     test:assertEquals(resp, expectedResp);
 }
 
@@ -430,7 +430,7 @@ function testJsonJsonPayload() returns error? {
     string jsonFilePath = "./tests/resources/payload-json-json.json";
     json readJson = check io:fileReadJson(jsonFilePath);
     json resp = check clientEndpoint->post("/post-hello-payload-jsonToJson", readJson);
-    json expectedResp = {"Outputs": {"resp": {"statusCode": "201", "headers": {"content-type": "text/plain"}, "body": "Hello from json to json Anjana"}}, "Logs": [], "ReturnValue": null};
+    json expectedResp = {"Outputs": {"resp": {"statusCode": "201", "headers": {"Content-Type": "text/plain"}, "body": "Hello from json to json Anjana"}}, "Logs": [], "ReturnValue": null};
     test:assertEquals(resp, expectedResp);
 }
 
@@ -440,7 +440,7 @@ function testJsonRecordPayload() returns error? {
     string jsonFilePath = "./tests/resources/payload-json-record.json";
     json readJson = check io:fileReadJson(jsonFilePath);
     json resp = check clientEndpoint->post("/post-hello-payload-jsonToRecord", readJson);
-    json expectedResp = {"Outputs": {"resp": {"statusCode": "201", "headers": {"content-type": "text/plain"}, "body": "Hello from json to record Anjana"}}, "Logs": [], "ReturnValue": null};
+    json expectedResp = {"Outputs": {"resp": {"statusCode": "201", "headers": {"Content-Type": "text/plain"}, "body": "Hello from json to record Anjana"}}, "Logs": [], "ReturnValue": null};
     test:assertEquals(resp, expectedResp);
 }
 
@@ -451,7 +451,7 @@ function testXmlPayload() returns error? {
     json readJson = check io:fileReadJson(jsonFilePath);
     json resp = check clientEndpoint->post("/post-hello-payload-xmlToXml", readJson);
     string xmlPayload = "\"<root>\\n  <name>Anjana<\\/name>\\n  <age>12<\\/age>\\n<\\/root>\"";
-    json expectedResp = {"Outputs": {"resp": {"statusCode": "201", "headers": {"content-type": "text/plain"}, "body": xmlPayload}}, "Logs": [], "ReturnValue": null};
+    json expectedResp = {"Outputs": {"resp": {"statusCode": "201", "headers": {"Content-Type": "text/plain"}, "body": xmlPayload}}, "Logs": [], "ReturnValue": null};
     test:assertEquals(resp, expectedResp);
 }
 
@@ -461,7 +461,7 @@ function testTextStringPayload() returns error? {
     string jsonFilePath = "./tests/resources/payload-text-string.json";
     json readJson = check io:fileReadJson(jsonFilePath);
     json resp = check clientEndpoint->post("/post-hello-payload-textToString", readJson);
-    json expectedResp = {"Outputs": {"resp": {"statusCode": "201", "headers": {"content-type": "text/plain"}, "body": "hello from byte\n"}}, "Logs": [], "ReturnValue": null};
+    json expectedResp = {"Outputs": {"resp": {"statusCode": "201", "headers": {"Content-Type": "text/plain"}, "body": "hello from byte\n"}}, "Logs": [], "ReturnValue": null};
     test:assertEquals(resp, expectedResp);
 }
 
@@ -471,7 +471,7 @@ function testTextBytePayload() returns error? {
     string jsonFilePath = "./tests/resources/payload-text-byte.json";
     json readJson = check io:fileReadJson(jsonFilePath);
     json resp = check clientEndpoint->post("/post-hello-payload-textToByte", readJson);
-    json expectedResp = {"Outputs": {"resp": {"statusCode": "201", "headers": {"content-type": "text/plain"}, "body": "hello from byte\n"}}, "Logs": [], "ReturnValue": null};
+    json expectedResp = {"Outputs": {"resp": {"statusCode": "201", "headers": {"Content-Type": "text/plain"}, "body": "hello from byte\n"}}, "Logs": [], "ReturnValue": null};
     test:assertEquals(resp, expectedResp);
 }
 
@@ -481,7 +481,7 @@ function testOctaBytePayload() returns error? {
     string jsonFilePath = "./tests/resources/payload-octa-byte.json";
     json readJson = check io:fileReadJson(jsonFilePath);
     json resp = check clientEndpoint->post("/post-hello-payload-octaToByte", readJson);
-    json expectedResp = {"Outputs": {"resp": {"statusCode": "201", "headers": {"content-type": "text/plain"}, "body": "hello from byte arr\n"}}, "Logs": [], "ReturnValue": null};
+    json expectedResp = {"Outputs": {"resp": {"statusCode": "201", "headers": {"Content-Type": "text/plain"}, "body": "hello from byte arr\n"}}, "Logs": [], "ReturnValue": null};
     test:assertEquals(resp, expectedResp);
 }
 
@@ -518,4 +518,58 @@ function testQueueInput() returns error? {
 
 function replaceFuncName(string actual) {
     
+}
+
+@test:Config {}
+function testOptionalOutputBinding() returns error? {
+    final http:Client clientEndpoint = check new ("http://localhost:3000");
+    string jsonFilePath = "./tests/resources/http-optional-out.json";
+    json readJson = check io:fileReadJson(jsonFilePath);
+    json resp = check clientEndpoint->post("/post-hello-optional-out", readJson);
+    json expectedResp = {"Outputs": {"resp": {"statusCode":"201","headers":{"Content-Type":"text/plain"},"body": "Hello from optional output binding"}}, "Logs": [], 
+    "ReturnValue": null};
+    test:assertEquals(resp, expectedResp);
+}
+
+
+@test:Config { }
+function testErrorPayloadNotFound() returns error? {
+   final http:Client clientEndpoint = check new ("http://localhost:3000");
+   string jsonFilePath = "./tests/resources/error-missing-payload.json";
+   json readJson = check io:fileReadJson(jsonFilePath);
+   json resp = check clientEndpoint->post("/get-hello-err-empty-payload", readJson);
+   json expectedResp = {"Outputs":{"resp":{"statusCode":400,"body":"payload not found for the variable 'greeting'",
+   "headers":{"Content-Type":"text/plain"}}},"Logs":[],"ReturnValue":null};
+   test:assertEquals(resp, expectedResp);
+}
+
+@test:Config { }
+function testErrorInvalidPayload() returns error? {
+   final http:Client clientEndpoint = check new ("http://localhost:3000");
+   string jsonFilePath = "./tests/resources/error-invalid-payload.json";
+   json readJson = check io:fileReadJson(jsonFilePath);
+   json resp = check clientEndpoint->post("/post-hello-err-invalid-payload", readJson);
+   json expectedResp = {"Outputs":{"resp":{"statusCode":400,"body":"incompatible type found: 'string",
+   "headers":{"Content-Type":"text/plain"}}},"Logs":[],"ReturnValue":null};
+   test:assertEquals(resp, expectedResp);
+}
+
+@test:Config { }
+function testOptionalPayloadWithPayload() returns error? {
+   final http:Client clientEndpoint = check new ("http://localhost:3000");
+   string jsonFilePath = "./tests/resources/http-optional-with-payload.json";
+   json readJson = check io:fileReadJson(jsonFilePath);
+   json resp = check clientEndpoint->post("/post-hello-optional-payload", readJson);
+   json expectedResp = {"Outputs":{"resp":{"statusCode":"201","headers":{"Content-Type":"text/plain"},"body":"Hello, the payload found Jack"}},"Logs":[],"ReturnValue":null};
+   test:assertEquals(resp, expectedResp);
+}
+
+@test:Config { }
+function testOptionalPayloadWithoutPayload() returns error? {
+   final http:Client clientEndpoint = check new ("http://localhost:3000");
+   string jsonFilePath = "./tests/resources/http-optional-without-payload.json";
+   json readJson = check io:fileReadJson(jsonFilePath);
+   json resp = check clientEndpoint->post("/post-hello-optional-payload", readJson);
+   json expectedResp = {"Outputs":{"resp":{"statusCode":"201","headers":{"Content-Type":"text/plain"},"body":"Hello, the payload wasn't set but all good ;)"}},"Logs":[],"ReturnValue":null};
+   test:assertEquals(resp, expectedResp);
 }

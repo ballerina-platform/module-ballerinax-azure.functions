@@ -68,7 +68,7 @@ public type HTTPTriggerConfiguration record {|
 |};
 ```
 
-If an output Binding annotation is specified, HTTPOutput will be taken implicitly.
+If an output Binding annotation is specified, HttpOutput will be taken implicitly.
 
 #### 2.2.2. Service base path
 
@@ -312,7 +312,7 @@ record| |❌|❌|✅|❌|❌
 | |map\<record\>| ❌ | ❌ | ✅|❌|❌
 | |table\<record\>| ❌ | ❌ | ✅|❌|❌
  ```bal
-   resource function post query(string name, @af:Payload string greeting) returns @af:HTTPOutput string|error {
+   resource function post query(string name, @af:Payload string greeting) returns @af:HttpOutput string|error {
                return "Hello from the query " + greeting + " " + name;
    }
 ```

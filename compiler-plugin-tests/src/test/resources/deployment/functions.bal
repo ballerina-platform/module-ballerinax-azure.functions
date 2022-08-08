@@ -4,7 +4,7 @@ import ballerinax/azure_functions as af;
 // HTTP request/response with no authentication
 @af:Function
 public isolated function hello(@af:HTTPTrigger { authLevel: "anonymous" } string payload) 
-                      returns @af:HTTPOutput string|error {
+                      returns @af:HttpOutput string|error {
     return "Hello, " + payload + "!";
 }
 
@@ -13,7 +13,7 @@ public isolated function hello(@af:HTTPTrigger { authLevel: "anonymous" } string
 public isolated function fromHttpToQueue(af:Context ctx, 
             @af:HTTPTrigger af:HTTPRequest req, 
             @af:QueueOutput { queueName: "queue1" } af:StringOutputBinding msg) 
-            returns @af:HTTPOutput af:HTTPBinding {
+            returns @af:HttpOutput af:HTTPBinding {
     msg.value = req.body;
     return { statusCode: 200, payload: "Request: " + req.toString() };
 }
@@ -42,7 +42,7 @@ public isolated function fromBlobToQueue(af:Context ctx,
 @af:Function
 public isolated function httpTriggerBlobInput(@af:HTTPTrigger af:HTTPRequest req, 
                     @af:BlobInput { path: "bpath1/{Query.name}" } byte[]? blobIn)
-                    returns @af:HTTPOutput string {
+                    returns @af:HttpOutput string {
     int length = 0;
     if blobIn is byte[] {
         length = blobIn.length();
@@ -55,7 +55,7 @@ public isolated function httpTriggerBlobInput(@af:HTTPTrigger af:HTTPRequest req
 @af:Function
 public isolated function httpTriggerBlobInputStr(@af:HTTPTrigger af:HTTPRequest req, 
                     @af:BlobInput { path: "bpath1/{Query.name}" } string? strIn)
-                    returns @af:HTTPOutput string {
+                    returns @af:HttpOutput string {
     string str = "";
     if strIn is string {
         str = strIn;
@@ -68,7 +68,7 @@ public isolated function httpTriggerBlobInputStr(@af:HTTPTrigger af:HTTPRequest 
 @af:Function
 public isolated function httpTriggerBlobOutput(@af:HTTPTrigger af:HTTPRequest req, 
         @af:BlobOutput { path: "bpath1/{Query.name}" } af:StringOutputBinding bb)
-        returns @af:HTTPOutput string|error {
+        returns @af:HttpOutput string|error {
     bb.value = req.body;
     return "Blob: " + req.query["name"].toString() + " Content: " + 
             bb?.value.toString();
@@ -78,7 +78,7 @@ public isolated function httpTriggerBlobOutput(@af:HTTPTrigger af:HTTPRequest re
 @af:Function
 public isolated function httpTriggerBlobOutput2(@af:HTTPTrigger af:HTTPRequest req,
         @af:BlobOutput { path: "bpath1/{Query.name}" } af:BytesOutputBinding bb)
-        returns @af:HTTPOutput string|error {
+        returns @af:HttpOutput string|error {
     bb.value = [65, 66, 67, 97, 98];
     return "Blob: " + req.query["name"].toString() + " Content: " +
             bb?.value.toString();
@@ -89,7 +89,7 @@ public isolated function httpTriggerBlobOutput2(@af:HTTPTrigger af:HTTPRequest r
 public isolated function sendSMS(@af:HTTPTrigger af:HTTPRequest req, 
                         @af:TwilioSmsOutput { fromNumber: "+12069845840" } 
                                               af:TwilioSmsOutputBinding tb)
-                        returns @af:HTTPOutput string {
+                        returns @af:HttpOutput string {
     tb.to = req.query["to"].toString();
     tb.body = req.body.toString();
     return "Message - to: " + tb?.to.toString() + " body: " + tb?.body.toString();
@@ -125,7 +125,7 @@ public isolated function httpTriggerCosmosDBInput1(
             @af:CosmosDBInput { connectionStringSetting: "CosmosDBConnection", 
                 databaseName: "db1", collectionName: "c1", 
                 id: "{Query.id}", partitionKey: "{Query.country}" } json dbReq)
-                returns @af:HTTPOutput string|error {
+                returns @af:HttpOutput string|error {
     return dbReq.toString();
 }
 
@@ -135,7 +135,7 @@ public isolated function httpTriggerCosmosDBInput2(
             @af:CosmosDBInput { connectionStringSetting: "CosmosDBConnection", 
                 databaseName: "db1", collectionName: "c1", 
                 id: "{Query.id}", partitionKey: "{Query.country}" } Person? dbReq)
-                returns @af:HTTPOutput string|error {
+                returns @af:HttpOutput string|error {
     return dbReq.toString();
 }
 
@@ -146,14 +146,14 @@ public isolated function httpTriggerCosmosDBInput3(
         databaseName: "db1", collectionName: "c1", 
         sqlQuery: "select * from c1 where c1.country = {country}" } 
         Person[] dbReq)
-        returns @af:HTTPOutput string|error {
+        returns @af:HttpOutput string|error {
     return dbReq.toString();
 }
 
 // HTTP request to write records to CosmosDB
 @af:Function
 public isolated function httpTriggerCosmosDBOutput1(
-    @af:HTTPTrigger af:HTTPRequest httpReq, @af:HTTPOutput af:HTTPBinding hb) 
+    @af:HTTPTrigger af:HTTPRequest httpReq, @af:HttpOutput af:HTTPBinding hb) 
     returns @af:CosmosDBOutput { connectionStringSetting: "CosmosDBConnection", 
                                  databaseName: "db1", collectionName: "c1" } json {
     json entry = { id: uuid:createType1AsString(), name: "Saman", country: "Sri Lanka" };
@@ -164,7 +164,7 @@ public isolated function httpTriggerCosmosDBOutput1(
 @af:Function
 public isolated function httpTriggerCosmosDBOutput2(
         @af:HTTPTrigger af:HTTPRequest httpReq, 
-        @af:HTTPOutput af:HTTPBinding hb) 
+        @af:HttpOutput af:HTTPBinding hb) 
         returns @af:CosmosDBOutput { 
             connectionStringSetting: "CosmosDBConnection", 
             databaseName: "db1", collectionName: "c1" } json {

@@ -17,15 +17,20 @@
  */
 package io.ballerina.stdlib.azure.functions;
 
+import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.Parameter;
 import io.ballerina.runtime.api.types.ResourceMethodType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.stdlib.azure.functions.builder.AbstractPayloadBuilder;
 import io.ballerina.stdlib.azure.functions.builder.JsonPayloadBuilder;
+import io.ballerina.stdlib.azure.functions.exceptions.InvalidPayloadException;
+import io.ballerina.stdlib.azure.functions.exceptions.PayloadNotFoundException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -145,7 +150,8 @@ public class HttpResource {
         return pathParams.toArray(PathParameter[]::new);
     }
 
-    private Optional<PayloadParameter> processPayloadParam(ResourceMethodType resourceMethod, BMap<?, ?> body) {
+    private Optional<PayloadParameter> processPayloadParam(ResourceMethodType resourceMethod, BMap<?, ?> body)
+            throws PayloadNotFoundException {
         Parameter[] parameters = resourceMethod.getParameters();
         for (int i = this.pathParams.length, parametersLength = parameters.length; i < parametersLength; i++) {
             Parameter parameter = parameters[i];
@@ -163,22 +169,57 @@ public class HttpResource {
                 continue;
             }
             BMap<?, ?> httpPayload = body.getMapValue(StringUtils.fromString("httpPayload"));
-            BMap<?, ?> headers = body.getMapValue(StringUtils.fromString("httpPayload"))
-                    .getMapValue(StringUtils.fromString("Headers"));
-            BString contentType = headers.getArrayValue(StringUtils.fromString("Content-Type")).getBString(0);
-            BString bodyValue = httpPayload.getStringValue(StringUtils.fromString("Body"));
-            //TODO handle payload 400
+            BMap<?, ?> headers = httpPayload.getMapValue(StringUtils.fromString("Headers"));
             Type type = parameter.type;
-            AbstractPayloadBuilder builder = AbstractPayloadBuilder.getBuilder(contentType.getValue(), type);
-            Object bValue = builder.getValue(bodyValue, false);
-//            Object bValue = Utilities.convertJsonToDataBoundParamValue(bodyValue, type);
-//            str.createValue(type, false);
-//            Object bValue = Utilities.convertJsonToDataBoundParamValue(bodyValue, type);
-//            Object bValue = builder.getValue((BObject) body1, false);
-            //TODO handle other types records n stuff
-            return Optional.of(new PayloadParameter(i, parameter, bValue));
+            String contentType = getContentTypeHeader(headers);
+            BString bodyValue = getRequestBody(httpPayload, name, type);
+            if (isNilType(type) && bodyValue == null) {
+                return Optional.of(new PayloadParameter(i, parameter, null));
+            }
+            try {
+                AbstractPayloadBuilder builder = AbstractPayloadBuilder.getBuilder(contentType, type);
+                Object bValue = builder.getValue(bodyValue, false);
+                return Optional.of(new PayloadParameter(i, parameter, bValue));
+            } catch (BError error) {
+                throw new InvalidPayloadException(error.getMessage());
+            }
         }
         return Optional.empty();
+    }
+    
+    private boolean isNilType(Type type) {
+        if (type.getTag() == TypeTags.UNION_TAG) {
+            List<Type> memberTypes = ((UnionType) type).getMemberTypes();
+            for (Type memberType : memberTypes) {
+                if (isNilType(memberType)) {
+                    return true;
+                }
+            }
+        } else if (type.getTag() == TypeTags.NULL_TAG) {
+            return true;
+        }
+        return false;
+    }
+
+    private BString getRequestBody(BMap<?, ?> httpPayload, String name, Type type) throws PayloadNotFoundException {
+        BString bBody = StringUtils.fromString("Body");
+        if (httpPayload.containsKey(bBody)) {
+            return httpPayload.getStringValue(bBody);
+        }
+        if (!isNilType(type)) {
+            throw new PayloadNotFoundException("payload not found for the variable '" + name + "'");
+        }
+        return null;
+    }
+
+    private String getContentTypeHeader(BMap<?, ?> headers) {
+        //TODO fix lower case
+        if (headers.containsKey(StringUtils.fromString(Constants.CONTENT_TYPE))) {
+            BArray headersArrayValue = headers.getArrayValue(StringUtils.fromString(Constants.CONTENT_TYPE));
+            return headersArrayValue.getBString(0).getValue();
+        } else {
+            return null;
+        }
     }
 
     public Object[] getArgList() {

@@ -1,0 +1,99 @@
+{
+    "Data": {
+        "httpPayload": {
+            "Url": "http://localhost:7071/api/hello/err/empty/payload",
+            "Method": "GET",
+            "Query": {},
+            "Headers": {
+                "Cache-Control": [
+                    "max-age=0"
+                ],
+                "Connection": [
+                    "keep-alive"
+                ],
+                "Accept": [
+                    "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9"
+                ],
+                "Accept-Encoding": [
+                    "gzip, deflate, br"
+                ],
+                "Accept-Language": [
+                    "en-US,en;q=0.9"
+                ],
+                "Cookie": [
+                    "_ga=GA1.1.720190479.1641539348; _hjSessionUser_865786=eyJpZCI6IjhjNjRiYjkwLTA0NzYtNTc5MS1hZWNiLTRjN2VhZTM4OWM5NCIsImNyZWF0ZWQiOjE2NDE1MzkzNDg4NTAsImV4aXN0aW5nIjp0cnVlfQ==; Idea-2474b141=7a691445-10e4-435d-b306-2b36a77b1d2e; Webstorm-fe5cf5e6=379eafe5-e706-45c1-92e8-6e424ab655f0; cookie_accepted=1"
+                ],
+                "Host": [
+                    "localhost:7071"
+                ],
+                "User-Agent": [
+                    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36"
+                ],
+                "Upgrade-Insecure-Requests": [
+                    "1"
+                ],
+                "sec-ch-ua": [
+                    "\".Not\/A)Brand\";v=\"99\", \"Google Chrome\";v=\"103\", \"Chromium\";v=\"103\""
+                ],
+                "sec-ch-ua-mobile": [
+                    "?0"
+                ],
+                "sec-ch-ua-platform": [
+                    "\"Linux\""
+                ],
+                "Sec-Fetch-Site": [
+                    "none"
+                ],
+                "Sec-Fetch-Mode": [
+                    "navigate"
+                ],
+                "Sec-Fetch-User": [
+                    "?1"
+                ],
+                "Sec-Fetch-Dest": [
+                    "document"
+                ]
+            },
+            "Params": {},
+            "Identities": [
+                {
+                    "AuthenticationType": null,
+                    "IsAuthenticated": false,
+                    "Actor": null,
+                    "BootstrapContext": null,
+                    "Claims": [],
+                    "Label": null,
+                    "Name": null,
+                    "NameClaimType": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name",
+                    "RoleClaimType": "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+                }
+            ]
+        }
+    },
+    "Metadata": {
+        "Query": {},
+        "Headers": {
+            "Cache-Control": "max-age=0",
+            "Connection": "keep-alive",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+            "Accept-Encoding": "gzip, deflate, br",
+            "Accept-Language": "en-US,en;q=0.9",
+            "Cookie": "_ga=GA1.1.720190479.1641539348; _hjSessionUser_865786=eyJpZCI6IjhjNjRiYjkwLTA0NzYtNTc5MS1hZWNiLTRjN2VhZTM4OWM5NCIsImNyZWF0ZWQiOjE2NDE1MzkzNDg4NTAsImV4aXN0aW5nIjp0cnVlfQ==; Idea-2474b141=7a691445-10e4-435d-b306-2b36a77b1d2e; Webstorm-fe5cf5e6=379eafe5-e706-45c1-92e8-6e424ab655f0; cookie_accepted=1",
+            "Host": "localhost:7071",
+            "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36",
+            "Upgrade-Insecure-Requests": "1",
+            "sec-ch-ua": "\".Not\/A)Brand\";v=\"99\", \"Google Chrome\";v=\"103\", \"Chromium\";v=\"103\"",
+            "sec-ch-ua-mobile": "?0",
+            "sec-ch-ua-platform": "\"Linux\"",
+            "Sec-Fetch-Site": "none",
+            "Sec-Fetch-Mode": "navigate",
+            "Sec-Fetch-User": "?1",
+            "Sec-Fetch-Dest": "document"
+        },
+        "sys": {
+            "MethodName": "get-hello-err-empty-payload",
+            "UtcNow": "2022-08-04T16:06:50.5393863Z",
+            "RandGuid": "0243c7ea-084a-4413-bd70-3cee25cbbd3c"
+        }
+    }
+}

@@ -27,22 +27,24 @@ isolated service class ResourceService {
     }
 
     isolated resource function post .(http:Caller caller, http:Request request) returns error? {
-
         http:Response response = new;
         json message = check request.getJsonPayload();
-        // map<json> body = {};
         io:println(message.toJsonString());
-        //TODO conver to record instead of map
         Payload payload = check message.cloneWithType(Payload);  
-        // io:println(payload);
-        // body = <map<json>>check message.Data;
-        // string functionName = check message.Metadata.sys.MethodName;
         string functionName = payload.Metadata.sys.MethodName;
-        map<anydata> callRegisterMethod = check self.adaptor.callNativeMethod(payload.Data, functionName);
-        json result = {Outputs: callRegisterMethod.toJson(), Logs: []};
-        result = check result.mergeJson({ReturnValue: null});
-        io:println(result);
-        response.setJsonPayload(result);
+        map<anydata>|error callRegisterMethod = self.adaptor.callNativeMethod(payload.Data, functionName);
+        response.setJsonPayload(getResponsePayload(callRegisterMethod));
         check caller->respond(response);
+    }
+}
+
+
+isolated function getResponsePayload (map<anydata>|error nativeResponse) returns json {
+    if (nativeResponse is PayloadNotFoundError || nativeResponse is InvalidPayloadError ) {
+        return {"Outputs": {"resp": {"statusCode": 400, "body": nativeResponse.message(),"headers": {"Content-Type": "text/plain"}}}, "Logs": [], "ReturnValue": null};
+    } else if (nativeResponse is error) {
+        return {"Outputs": {"resp": {"statusCode": 500}}, "Logs": [], "ReturnValue": null};
+    } else {
+        return {Outputs: nativeResponse.toJson(), Logs: [], ReturnValue: null};
     }
 }

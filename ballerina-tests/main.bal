@@ -12,39 +12,25 @@ type Person record {
 };
 
 service /hello on ep {
-    resource function default all() returns @af:HTTPOutput string {
+    resource function default all() returns @af:HttpOutput string {
         return "Hello from all";
     }
-
-    resource function post .(@af:Payload string greeting) returns @af:HTTPOutput string {
+    
+    resource function post optional/out(@af:Payload string greeting) returns string {
+        return "Hello from optional output binding";
+    }
+    
+    resource function post optional/payload(@af:Payload string? greeting) returns string {
+        if (greeting is string) {
+            return "Hello, the payload found " + greeting;
+        }
+        return "Hello, the payload wasn't set but all good ;)";
+    }
+        
+    resource function post .(@af:Payload string greeting) returns @af:HttpOutput string {
         return "Hello from . path ";
     }
-
-    resource function get httpAccessorTest() returns @af:HTTPOutput string {
-        return "Hello from all";
-    }
-
-    resource function put httpAccessorTest() returns @af:HTTPOutput string {
-        return "Hello from all";
-    }
-
-    resource function patch httpAccessorTest() returns @af:HTTPOutput string {
-        return "Hello from all";
-    }
-
-    resource function delete httpAccessorTest() returns @af:HTTPOutput string {
-        return "Hello from all";
-    }
-
-    resource function head httpAccessorTest() returns @af:HTTPOutput string {
-        return "Hello from all";
-    }
-
-    resource function options httpAccessorTest() returns @af:HTTPOutput string {
-        return "Hello from all";
-    }
-
-    resource function post httpResTest1(@af:Payload string greeting) returns @af:HTTPOutput af:Unauthorized {
+    resource function post httpResTest1(@af:Payload string greeting) returns @af:HttpOutput af:Unauthorized {
         af:Unauthorized unauth = {
             body: "Helloworld.....",
             mediaType: "application/account+json",
@@ -55,27 +41,107 @@ service /hello on ep {
         return unauth;
     }
 
-    resource function post httpResTest2(@af:Payload string greeting) returns @af:HTTPOutput af:Ok {
+    resource function post httpResTest2(@af:Payload string greeting) returns @af:HttpOutput af:Ok {
         af:Ok ok = {body: "Helloworld....."};
         return ok;
     }
-
-    resource function post httpResTest3(@af:Payload string greeting) returns @af:HTTPOutput af:InternalServerError {
+    resource function post httpResTest3(@af:Payload string greeting) returns @af:HttpOutput af:InternalServerError {
         af:InternalServerError err = {
             body: "Helloworld.....",
             headers: {
-                "content-type": "application/json+id",
+                "Content-Type": "application/json+id",
                 "Location": "/myServer/084230"
             }
         };
         return err;
     }
-
-    resource function post httpResTest4(@af:Payload string greeting) returns @af:HTTPOutput af:InternalServerError {
+    resource function post httpResTest4(@af:Payload string greeting) returns @af:HttpOutput af:InternalServerError {
         af:InternalServerError err = {};
         return err;
     }
 
+    resource function post foo(@af:Payload string greeting) returns @af:HttpOutput string {
+        return "Hello from foo path " + greeting;
+    }
+
+    resource function post foo/[string bar](@af:Payload string greeting) returns @af:HttpOutput string {
+        return "Hello from foo param " + bar;
+    }
+
+    resource function post foo/bar(@af:Payload string greeting) returns @af:HttpOutput string {
+        return "Hello from foo bar res";
+    }
+
+    resource function post query(string name, @af:Payload string greeting) returns @af:HttpOutput string|error {
+        return "Hello from the query " + greeting + " " + name;
+    }
+
+    resource function post db(@af:Payload string greeting, @af:CosmosDBInput {
+                                  connectionStringSetting: "CosmosDBConnection",
+                                  databaseName: "db1",
+                                  collectionName: "c2",
+                                  sqlQuery: "SELECT * FROM Items"
+                              } DBEntry[] input1) returns @af:HttpOutput string|error {
+        return "Hello " + greeting + input1[0].id;
+    }
+
+    resource function post payload/jsonToRecord(@af:Payload Person greeting) returns @af:HttpOutput string|error {
+        return "Hello from json to record " + greeting.name;
+    }
+
+    resource function post payload/jsonToJson(@af:Payload json greeting) returns @af:HttpOutput string|error {
+        string name = check greeting.name;
+        return "Hello from json to json " + name;
+    }
+
+    resource function post payload/xmlToXml(@af:Payload xml greeting) returns @af:HttpOutput string|error {
+        return greeting.toJsonString();
+    }
+
+    resource function post payload/textToString(@af:Payload string greeting) returns @af:HttpOutput string|error {
+        return greeting;
+    }
+
+    resource function post payload/textToByte(@af:Payload byte[] greeting) returns @af:HttpOutput string|error {
+        return string:fromBytes(greeting);
+    }
+
+    resource function post payload/octaToByte(@af:Payload byte[] greeting) returns @af:HttpOutput string|error {
+        return string:fromBytes(greeting);
+    }
+
+    resource function get err/empty/payload(@af:Payload string greeting) returns @af:HttpOutput string  {
+        return "Hello from get empty payload";
+    }
+
+    resource function post err/invalid/payload(@af:Payload string greeting) returns @af:HttpOutput string  {
+        return "Hello from get invalid payload " + greeting;
+    }
+    
+    resource function get httpAccessorTest() returns @af:HttpOutput string {
+        return "Hello from all";
+    }
+
+    resource function put httpAccessorTest() returns @af:HttpOutput string {
+        return "Hello from all";
+    }
+
+    resource function patch httpAccessorTest() returns @af:HttpOutput string {
+        return "Hello from all";
+    }
+
+    resource function delete httpAccessorTest() returns @af:HttpOutput string {
+        return "Hello from all";
+    }
+
+    resource function head httpAccessorTest() returns @af:HttpOutput string {
+        return "Hello from all";
+    }
+
+    resource function options httpAccessorTest() returns @af:HttpOutput string {
+        return "Hello from all";
+    }
+        
     resource function post httpResTest5() returns af:StatusCodeResponse {
         af:InternalServerError err = {};
         return err;
@@ -152,56 +218,6 @@ service /hello on ep {
     resource function post nonReturnTest1() {
 
     }
-
-    resource function post foo(@af:Payload string greeting) returns @af:HTTPOutput string {
-        return "Hello from foo path " + greeting;
-    }
-
-    resource function post foo/[string bar](@af:Payload string greeting) returns @af:HTTPOutput string {
-        return "Hello from foo param " + bar;
-    }
-
-    resource function post foo/bar(@af:Payload string greeting) returns @af:HTTPOutput string {
-        return "Hello from foo bar res";
-    }
-
-    resource function post query(string name, @af:Payload string greeting) returns @af:HTTPOutput string|error {
-        return "Hello from the query " + greeting + " " + name;
-    }
-
-    resource function post db(@af:Payload string greeting, @af:CosmosDBInput {
-                                  connectionStringSetting: "CosmosDBConnection",
-                                  databaseName: "db1",
-                                  collectionName: "c2",
-                                  sqlQuery: "SELECT * FROM Items"
-                              } DBEntry[] input1) returns @af:HTTPOutput string|error {
-        return "Hello " + greeting + input1[0].id;
-    }
-
-    resource function post payload/jsonToRecord(@af:Payload Person greeting) returns @af:HTTPOutput string|error {
-        return "Hello from json to record " + greeting.name;
-    }
-
-    resource function post payload/jsonToJson(@af:Payload json greeting) returns @af:HTTPOutput string|error {
-        string name = check greeting.name;
-        return "Hello from json to json " + name;
-    }
-
-    resource function post payload/xmlToXml(@af:Payload xml greeting) returns @af:HTTPOutput string|error {
-        return greeting.toJsonString();
-    }
-
-    resource function post payload/textToString(@af:Payload string greeting) returns @af:HTTPOutput string|error {
-        return greeting;
-    }
-
-    resource function post payload/textToByte(@af:Payload byte[] greeting) returns @af:HTTPOutput string|error {
-        return string:fromBytes(greeting);
-    }
-
-    resource function post payload/octaToByte(@af:Payload byte[] greeting) returns @af:HTTPOutput string|error {
-        return string:fromBytes(greeting);
-    }
 }
 
 @af:QueueTrigger {
@@ -255,9 +271,8 @@ service "queue-input" on queueListener1 {
 listener af:BlobListener blobListener = new af:BlobListener();
 
 service "blob" on blobListener {
-    remote function onUpdated(@af:Payload byte[] blobIn, @af:BindingName {} string name) returns @af:BlobOutput {
-        path: "bpath1/newBlob"
-    } byte[]|error {
+    remote function onUpdated (@af:Payload byte[] blobIn, @af:BindingName { } string name) returns @af:BlobOutput { 
+        path: "bpath1/newBlob" } byte[]|error {
         return blobIn;
     }
 }

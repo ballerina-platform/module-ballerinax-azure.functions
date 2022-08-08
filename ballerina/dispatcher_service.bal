@@ -34,7 +34,12 @@ isolated service class DispatcherService {
         io:println(message.toJsonString());
         //map<json> body = <map<json>>check message.Data;
 
-        map<anydata> callRegisterMethod = check self.adaptor.callRemoteFunction(<map<json>>message, self.remoteMethodName);
+        map<anydata>|error callRegisterMethod = self.adaptor.callRemoteFunction(<map<json>>message, self
+        .remoteMethodName);
+        if (callRegisterMethod is error) {
+            io:println (callRegisterMethod);
+            return;
+        }
         json result = {Outputs: callRegisterMethod.toJson(), Logs: []};
         result = check result.mergeJson({ReturnValue: null});
         io:println(result);
