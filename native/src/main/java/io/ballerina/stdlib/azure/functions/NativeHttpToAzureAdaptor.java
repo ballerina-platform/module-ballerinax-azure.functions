@@ -82,16 +82,19 @@ public class NativeHttpToAzureAdaptor {
         Object[] args = httpResource.getArgList();
 //        Object[] args = new Object[1];
         BMap annotation = (BMap) resourceMethod.getAnnotation(StringUtils.fromString("$returns$"));
+        if (annotation == null) {
+            annotation = ValueCreator.createMapValue();
+        }
         if (serviceType.isIsolated() && resourceMethod.isIsolated()) {
             env.getRuntime().invokeMethodAsyncConcurrently(
                     bHubService, resourceMethod.getName(), null, metadata,
-                    new FunctionCallback(balFuture, module, annotation.getKeys()), null, PredefinedTypes.TYPE_NULL,
-                    args);
+                    new FunctionCallback(balFuture, module, annotation.getKeys(), resourceMethod), null,
+                    PredefinedTypes.TYPE_NULL, args);
         } else {
             env.getRuntime().invokeMethodAsyncSequentially(
                     bHubService, resourceMethod.getName(), null, metadata,
-                    new FunctionCallback(balFuture, module, annotation.getKeys()), null, PredefinedTypes.TYPE_NULL,
-                    args);
+                    new FunctionCallback(balFuture, module, annotation.getKeys(), resourceMethod), null,
+                    PredefinedTypes.TYPE_NULL, args);
         }
         return null;
     }

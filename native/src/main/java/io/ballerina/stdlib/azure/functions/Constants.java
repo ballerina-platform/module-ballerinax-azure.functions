@@ -32,6 +32,7 @@ public interface Constants {
      String OUT_MSG = "outMsg";
      String HTTP_OUTPUT = "HTTPOutput";
      String BLOB_OUTPUT = "BlobOutput";
+     String PAYLOAD_ANNOTATAION = "Payload";
      String STATUS = "status";
      String CODE = "code";
      String STATUS_CODE = "statusCode";

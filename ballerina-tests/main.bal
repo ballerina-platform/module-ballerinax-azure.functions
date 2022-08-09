@@ -15,7 +15,7 @@ service /hello on ep {
     resource function default all() returns @af:HTTPOutput string {
         return "Hello from all";
     }
-    
+
     resource function post .(@af:Payload string greeting) returns @af:HTTPOutput string {
         return "Hello from . path ";
     }
@@ -47,6 +47,14 @@ service /hello on ep {
     resource function post httpResTest4(@af:Payload string greeting) returns @af:HTTPOutput af:InternalServerError {
         af:InternalServerError err = {};
         return err;
+    }
+
+    resource function post nonHttpResTest1(@af:Payload string greeting) returns string {
+        string s1 = "alpha";
+        return s1;
+    }
+    resource function post nonReturnTest1(@af:Payload string greeting) {
+
     }
 
     resource function post foo(@af:Payload string greeting) returns @af:HTTPOutput string {
@@ -151,8 +159,9 @@ service "queue-input" on queueListener1 {
 listener af:BlobListener blobListener = new af:BlobListener();
 
 service "blob" on blobListener {
-    remote function onUpdated (@af:Payload byte[] blobIn, @af:BindingName { } string name) returns @af:BlobOutput { 
-        path: "bpath1/newBlob" } byte[]|error {
+    remote function onUpdated(@af:Payload byte[] blobIn, @af:BindingName {} string name) returns @af:BlobOutput {
+        path: "bpath1/newBlob"
+    } byte[]|error {
         return blobIn;
     }
 }

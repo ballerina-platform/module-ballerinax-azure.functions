@@ -106,13 +106,13 @@ public class NativeRemoteAdapter {
         if (serviceType.isIsolated()) {
             env.getRuntime().invokeMethodAsyncConcurrently(
                     bHubService, remoteFuncName.getValue(), null, metadata,
-                    new FunctionCallback(balFuture, module, annotation.getKeys()), null, PredefinedTypes.TYPE_NULL,
-                    args);
+                    new FunctionCallback(balFuture, module, annotation.getKeys(), methodType), null,
+                    PredefinedTypes.TYPE_NULL, args);
         } else {
             env.getRuntime().invokeMethodAsyncSequentially(
                     bHubService, remoteFuncName.getValue(), null, metadata,
-                    new FunctionCallback(balFuture, module, annotation.getKeys()), null, PredefinedTypes.TYPE_NULL,
-                    args);
+                    new FunctionCallback(balFuture, module, annotation.getKeys(), methodType), null,
+                    PredefinedTypes.TYPE_NULL, args);
         }
         return null;
     }
