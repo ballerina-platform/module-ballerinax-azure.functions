@@ -94,7 +94,6 @@ public class FunctionCallback implements Callback {
             mapValue.put(StringUtils.fromString(Constants.RESP), respMap);
             future.complete(mapValue);
             return;
-
         }
 
         String outputBinding = "";
@@ -161,12 +160,13 @@ public class FunctionCallback implements Callback {
     private void addStatusCodeImplicitly(BMap respMap) {
         String accessor = ((ResourceMethodType) this.methodType).getAccessor();
         Object statusCode = "";
-        if ("post".equals(accessor)) {
-            statusCode = "201";
-        } else if ("get".equals(accessor) || "put".equals(accessor)  || "patch".equals(accessor)  ||
-                "delete".equals(accessor)  || "head".equals(accessor)  || "options".equals(accessor) ||
-                "default".equals(accessor)) {
-            statusCode = "200";
+        if (Constants.POST.equals(accessor)) {
+            statusCode = Constants.CREATED_201;
+        } else if (Constants.GET.equals(accessor) || Constants.PUT.equals(accessor)  ||
+                Constants.PATCH.equals(accessor)  || Constants.DELETE.equals(accessor)  ||
+                Constants.HEAD.equals(accessor)  || Constants.OPTIONS.equals(accessor) ||
+                Constants.DEFAULT.equals(accessor)) {
+            statusCode = Constants.OK_200;
         }
         statusCode = StringUtils.fromString((String) statusCode);
         respMap.put(StringUtils.fromString(Constants.STATUS_CODE), statusCode);
@@ -174,31 +174,32 @@ public class FunctionCallback implements Callback {
 
     private void addContentTypeImplicitly(Object result, BMap headers) {
         if (result instanceof BString) {
-            headers.put(StringUtils.fromString(Constants.CONTENT_TYPE), StringUtils.fromString("text/plain"));
+            headers.put(StringUtils.fromString(Constants.CONTENT_TYPE), StringUtils.fromString(Constants.TEXT_PLAIN));
 
         } else if (result instanceof BXmlItem) {
-            headers.put(StringUtils.fromString(Constants.CONTENT_TYPE), StringUtils.fromString("application/xml"));
+            headers.put(StringUtils.fromString(Constants.CONTENT_TYPE),
+                    StringUtils.fromString(Constants.APPLICATION_XML));
 
         } else if (result instanceof BArray) {
             BArray arrayResult = (BArray) result;
-            if ("byte".equals(arrayResult.getElementType().getName())) {
+            if (Constants.BYTE_TYPE.equals(arrayResult.getElementType().getName())) {
                headers.put(StringUtils.fromString(Constants.CONTENT_TYPE),
-                       StringUtils.fromString("application/octet-stream"));
+                       StringUtils.fromString(Constants.APPLICATION_OCTET_STREAM));
 
-            } else if ("map".equals(arrayResult.getElementType().getName())) {
+            } else if (Constants.MAP_TYPE.equals(arrayResult.getElementType().getName())) {
                 MapType mapContent = (MapType) arrayResult.getElementType();
-                if ("json".equals(mapContent.getConstrainedType().getName())) {
+                if (Constants.JSON_TYPE.equals(mapContent.getConstrainedType().getName())) {
                     headers.put(StringUtils.fromString(Constants.CONTENT_TYPE),
-                            StringUtils.fromString("application/json"));
+                            StringUtils.fromString(Constants.APPLICATION_JSON));
                 }
                 
-            } else if ("table".equals(arrayResult.getElementType().getName())) {
+            } else if (Constants.TABLE_TYPE.equals(arrayResult.getElementType().getName())) {
                 TableType tableContent = (TableType) arrayResult.getElementType();
-                if ("map".equals(tableContent.getConstrainedType().getName())) {
+                if (Constants.MAP_TYPE.equals(tableContent.getConstrainedType().getName())) {
                     MapType mapContent = (MapType) tableContent.getConstrainedType();
-                    if ("json".equals(mapContent.getConstrainedType().getName())) {
+                    if (Constants.JSON_TYPE.equals(mapContent.getConstrainedType().getName())) {
                         headers.put(StringUtils.fromString(Constants.CONTENT_TYPE),
-                                StringUtils.fromString("application/json"));
+                                StringUtils.fromString(Constants.APPLICATION_JSON));
                     }
 
                 }
@@ -207,19 +208,21 @@ public class FunctionCallback implements Callback {
         } else if (result instanceof BTable) {
             BTable tableResult = (BTable) result;
             TableType tableContent = (TableType) tableResult.getType();
-            if ("map".equals(tableContent.getConstrainedType().getName())) {
+            if (Constants.MAP_TYPE.equals(tableContent.getConstrainedType().getName())) {
                 MapType mapContent = (MapType) tableContent.getConstrainedType();
-                if ("json".equals(mapContent.getConstrainedType().getName())) {
+                if (Constants.JSON_TYPE.equals(mapContent.getConstrainedType().getName())) {
                     headers.put(StringUtils.fromString(Constants.CONTENT_TYPE),
-                            StringUtils.fromString("application/json"));
+                            StringUtils.fromString(Constants.APPLICATION_JSON));
                 }
 
             }
         } else if (result instanceof BDecimal || result instanceof Long || result instanceof Double ||
                 result instanceof Boolean) {
-            headers.put(StringUtils.fromString(Constants.CONTENT_TYPE), StringUtils.fromString("application/json"));
-        } else if (isHTTPResponse(result)) {
-            headers.put(StringUtils.fromString(Constants.CONTENT_TYPE), StringUtils.fromString("application/json"));
+            headers.put(StringUtils.fromString(Constants.CONTENT_TYPE),
+                    StringUtils.fromString(Constants.APPLICATION_JSON));
+        } else if (result instanceof BMap) {
+            headers.put(StringUtils.fromString(Constants.CONTENT_TYPE),
+                    StringUtils.fromString(Constants.APPLICATION_JSON));
         }
     }
 
@@ -264,7 +267,7 @@ public class FunctionCallback implements Callback {
             // Add Content-type field in headers if there is not
             if (!isContentTypeExist(headersMap)) {
                 headersMap.put(StringUtils.fromString(Constants.CONTENT_TYPE),
-                        StringUtils.fromString("application/json"));
+                        StringUtils.fromString(Constants.APPLICATION_JSON));
             }
             respMap.put(StringUtils.fromString(Constants.HEADERS), headers);
         } else {
@@ -272,7 +275,7 @@ public class FunctionCallback implements Callback {
             Object headers =
                     ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_ANYDATA));
             ((BMap) headers).put(StringUtils.fromString(Constants.CONTENT_TYPE),
-                    StringUtils.fromString("application/json"));
+                    StringUtils.fromString(Constants.APPLICATION_JSON));
             respMap.put(StringUtils.fromString(Constants.HEADERS), headers);
 
         }

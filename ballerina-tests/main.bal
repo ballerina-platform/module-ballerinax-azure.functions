@@ -19,6 +19,31 @@ service /hello on ep {
     resource function post .(@af:Payload string greeting) returns @af:HTTPOutput string {
         return "Hello from . path ";
     }
+
+    resource function get httpAccessorTest() returns @af:HTTPOutput string {
+        return "Hello from all";
+    }
+
+    resource function put httpAccessorTest() returns @af:HTTPOutput string {
+        return "Hello from all";
+    }
+
+    resource function patch httpAccessorTest() returns @af:HTTPOutput string {
+        return "Hello from all";
+    }
+
+    resource function delete httpAccessorTest() returns @af:HTTPOutput string {
+        return "Hello from all";
+    }
+
+    resource function head httpAccessorTest() returns @af:HTTPOutput string {
+        return "Hello from all";
+    }
+
+    resource function options httpAccessorTest() returns @af:HTTPOutput string {
+        return "Hello from all";
+    }
+
     resource function post httpResTest1(@af:Payload string greeting) returns @af:HTTPOutput af:Unauthorized {
         af:Unauthorized unauth = {
             body: "Helloworld.....",
@@ -34,6 +59,7 @@ service /hello on ep {
         af:Ok ok = {body: "Helloworld....."};
         return ok;
     }
+
     resource function post httpResTest3(@af:Payload string greeting) returns @af:HTTPOutput af:InternalServerError {
         af:InternalServerError err = {
             body: "Helloworld.....",
@@ -44,16 +70,86 @@ service /hello on ep {
         };
         return err;
     }
+
     resource function post httpResTest4(@af:Payload string greeting) returns @af:HTTPOutput af:InternalServerError {
         af:InternalServerError err = {};
         return err;
     }
 
-    resource function post nonHttpResTest1(@af:Payload string greeting) returns string {
+    resource function post httpResTest5() returns af:StatusCodeResponse {
+        af:InternalServerError err = {};
+        return err;
+    }
+
+    resource function post nonHttpResTest1() returns string {
         string s1 = "alpha";
         return s1;
     }
-    resource function post nonReturnTest1(@af:Payload string greeting) {
+
+    resource function post nonHttpResTest2() returns xml {
+        xml x1 = xml `<book>The Lost World</book>`;
+        return x1;
+    }
+
+    resource function post nonHttpResTest3() returns byte[] {
+        byte[] b1 = base64 `yPHaytRgJPg+QjjylUHakEwz1fWPx/wXCW41JSmqYW8=`;
+        return b1;
+
+    }
+
+    resource function post nonHttpResTest4() returns int {
+        int i1 = 100;
+        return i1;
+    }
+
+    resource function post nonHttpResTest6() returns decimal {
+        decimal d1 = 100;
+        return d1;
+    }
+
+    resource function post nonHttpResTest7() returns boolean {
+        boolean bo1 = true;
+        return bo1;
+    }
+
+    resource function post nonHttpResTest8() returns map<json> {
+        map<json> mj1 = {"a": {"b": 12, "c": "helloworld"}};
+        return mj1;
+
+    }
+
+    resource function post nonHttpResTest9() returns table<map<json>> {
+
+        table<map<json>> t = table [
+                {"a": {"b": 12, "c": "helloworld"}},
+                {"b": 1100}
+            ];
+
+        return t;
+    }
+
+    resource function post nonHttpResTest10() returns map<json>[] {
+
+        map<json>[] mjarr1 = [{"a": {"b": 12, "c": "helloworld"}}, {"b": 12}];
+
+        return mjarr1;
+    }
+
+    resource function post nonHttpResTest11() returns table<map<json>>[] {
+        table<map<json>>[] tarr = [
+            table [
+                    {"a": {"b": 12, "c": "helloworld"}},
+                    {"b": 12}
+                ],
+            table [
+                    {"a": {"b": 14, "c": "helloworld"}},
+                    {"b": 100}
+                ]
+        ];
+        return tarr;
+    }
+
+    resource function post nonReturnTest1() {
 
     }
 

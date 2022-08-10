@@ -41,4 +41,22 @@ public interface Constants {
      String CONTENT_TYPE = "content-type";
      String MEDIA_TYPE = "mediaType";
      String RESP = "resp";
+    String POST = "post";
+    String CREATED_201 = "201";
+    String GET = "get";
+    String PUT = "put";
+    String PATCH = "patch";
+    String DELETE = "delete";
+    String HEAD = "head";
+    String OPTIONS = "options";
+    String DEFAULT = "default";
+    String OK_200 = "200";
+    String TEXT_PLAIN = "text/plain";
+    String APPLICATION_XML = "application/xml";
+    String APPLICATION_OCTET_STREAM = "application/octet-stream";
+    String APPLICATION_JSON = "application/json";
+    String BYTE_TYPE = "byte";
+    String MAP_TYPE = "map";
+    String JSON_TYPE = "json";
+    String TABLE_TYPE = "table";
 }

@@ -1,7 +1,7 @@
 {
     "Data": {
         "httpPayload": {
-            "Url": "https://bal-dev.azurewebsites.net/api/hello/nonHttpResTest1",
+            "Url": "https://bal-dev.azurewebsites.net/api/hello/httpAccessorTest",
             "Method": "POST",
             "Query": {},
             "Headers": {
@@ -54,10 +54,10 @@
                     "112.134.128.105:41856"
                 ],
                 "X-Original-URL": [
-                    "/api/hello/nonHttpResTest1"
+                    "/api/hello/httpAccessorTest"
                 ],
                 "X-WAWS-Unencoded-URL": [
-                    "/api/hello/nonHttpResTest1"
+                    "/api/hello/httpAccessorTest"
                 ]
             },
             "Params": {},
@@ -73,8 +73,7 @@
                     "NameClaimType": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name",
                     "RoleClaimType": "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
                 }
-            ],
-            "Body": "Jack"
+            ]
         }
     },
     "Metadata": {
@@ -96,11 +95,11 @@
             "X-ARR-SSL": "2048|256|CN=Microsoft Azure TLS Issuing CA 01, O=Microsoft Corporation, C=US|CN=*.azurewebsites.net, O=Microsoft Corporation, L=Redmond, S=WA, C=US",
             "X-Forwarded-TlsVersion": "1.2",
             "X-Forwarded-For": "112.134.128.105:41856",
-            "X-Original-URL": "/api/hello/nonHttpResTest1",
-            "X-WAWS-Unencoded-URL": "/api/hello/nonHttpResTest1"
+            "X-Original-URL": "/api/hello/httpAccessorTest",
+            "X-WAWS-Unencoded-URL": "/api/hello/httpAccessorTest"
         },
         "sys": {
-            "MethodName": "post-hello-nonHttpResTest1",
+            "MethodName": "ACCESSOR_NAME-hello-httpAccessorTest",
             "UtcNow": "2022-06-10T07:10:30.1722785Z",
             "RandGuid": "19f5a752-e046-4f7f-964f-e53207baed7b"
         }
