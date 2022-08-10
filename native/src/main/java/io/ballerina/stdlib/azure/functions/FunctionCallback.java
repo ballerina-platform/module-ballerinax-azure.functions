@@ -25,14 +25,21 @@ import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.MapType;
+import io.ballerina.runtime.api.types.MethodType;
+import io.ballerina.runtime.api.types.ResourceMethodType;
+import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BTable;
+import io.ballerina.runtime.api.values.BXmlItem;
 import org.ballerinalang.langlib.array.ToBase64;
 
 import java.util.ArrayList;
@@ -51,11 +58,14 @@ public class FunctionCallback implements Callback {
     private final Module module;
     private final List<String> annotations;
 
+    private final MethodType methodType;
 
-    public FunctionCallback(Future future, Module module, Object[] annotations) {
+
+    public FunctionCallback(Future future, Module module, Object[] annotations, MethodType methodType) {
         this.future = future;
         this.module = module;
         this.annotations = new ArrayList<>();
+        this.methodType = methodType;
         for (Object o : annotations) {
             BString annotation = (BString) o;
             String[] split = annotation.getValue().split(":");
@@ -73,85 +83,44 @@ public class FunctionCallback implements Callback {
             future.complete(result);
             return;
         }
+
         BMap<BString, Object> mapValue =
                 ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_ANYDATA));
-        String outputBinding = this.annotations.get(0);
-        if (Constants.QUEUE_OUTPUT.equals(outputBinding) ||
-                Constants.COSMOS_DBOUTPUT.equals(outputBinding)) {
+        if (result == null) {
+            BString statusCode = StringUtils.fromString("202");
+            BMap<BString, Object> respMap =
+                    ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_ANYDATA));
+            respMap.put(StringUtils.fromString(Constants.STATUS_CODE), statusCode);
+            mapValue.put(StringUtils.fromString(Constants.RESP), respMap);
+            future.complete(mapValue);
+            return;
+        }
 
+        String outputBinding = "";
+        if (annotations.size() != 0) {
+            outputBinding = this.annotations.get(0);
+        }
+
+        if (Constants.QUEUE_OUTPUT.equals(outputBinding) || Constants.COSMOS_DBOUTPUT.equals(outputBinding)) {
             mapValue.put(StringUtils.fromString(Constants.OUT_MSG), result);
-            // Check HTTPOutput with annotations
+
         } else if (Constants.BLOB_OUTPUT.equals(outputBinding)) {
             if (result instanceof BArray) {
                 BArray arrayValue = (BArray) result;
                 BString encodedString = ToBase64.toBase64(arrayValue);
                 mapValue.put(StringUtils.fromString("outMsg"), encodedString);
             }
-        } else if (Constants.HTTP_OUTPUT.equals(outputBinding)) {
-            //Check HTTPResponse
+
+        } else if ("".equals(outputBinding) || Constants.HTTP_OUTPUT.equals(outputBinding)) {
             if (isHTTPResponse(result)) {
-                BMap resultMap = (BMap) result;
-
-                // Extract status code
-                BObject status = (BObject) (resultMap.get(StringUtils.fromString(Constants.STATUS)));
-                Object statusCode = Long.toString(status.getIntValue(StringUtils.fromString(Constants.CODE)));
-                statusCode = StringUtils.fromString((String) statusCode);
-
-                // Create a BMap for response field
-                BMap<BString, Object> respMap =
-                        ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_ANYDATA));
-                respMap.put(StringUtils.fromString(Constants.STATUS_CODE), statusCode);
-
-                // Create body field in the response Map
-                if (resultMap.containsKey(StringUtils.fromString(Constants.BODY))) {
-                    Object body = resultMap.get(StringUtils.fromString(Constants.BODY));
-                    respMap.put(StringUtils.fromString(Constants.BODY), body);
-                }
-
-                // Create header field in the response Map
-                if (resultMap.containsKey(StringUtils.fromString(Constants.HEADERS))) {
-                    Object headers = resultMap.get(StringUtils.fromString(Constants.HEADERS));
-                    BMap headersMap = (BMap) headers;
-                    // Add Content-type field in headers if there is not
-                    if (!isContentTypeExist(headersMap)) {
-                        headersMap.put(StringUtils.fromString(Constants.CONTENT_TYPE),
-                                StringUtils.fromString("text/plain"));
-                    }
-                    respMap.put(StringUtils.fromString(Constants.HEADERS), headers);
-                } else {
-                    // If there is no headers add one with default content-type
-                    Object headers =
-                            ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_ANYDATA));
-                    ((BMap) headers).put(StringUtils.fromString(Constants.CONTENT_TYPE),
-                            StringUtils.fromString("text/plain"));
-                    respMap.put(StringUtils.fromString(Constants.HEADERS), headers);
-
-                }
-
-                // If there is mediaType replace content-type in headers
-                if (resultMap.containsKey(StringUtils.fromString(Constants.MEDIA_TYPE))) {
-                    Object headers = resultMap.get(StringUtils.fromString(Constants.HEADERS));
-                    Object mediaType = resultMap.get(StringUtils.fromString(Constants.MEDIA_TYPE));
-                    ((BMap) headers).put(StringUtils.fromString(Constants.CONTENT_TYPE), mediaType);
-                }
-                mapValue.put(StringUtils.fromString(Constants.RESP), respMap);
-
+                handleHTTPResponse((BMap) result, mapValue);
             } else {
-                //Handle result except HTTPResponse cases
-                BMap<BString, Object> respMap =
-                        ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_ANYDATA));
-                respMap.put(StringUtils.fromString(Constants.BODY), result);
-                mapValue.put(StringUtils.fromString(Constants.RESP), respMap);
+                handleNonHTTPResponse(result, mapValue);
             }
-        } else {
-            // Handle other output bindings
-            BMap<BString, Object> respMap =
-                    ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_ANYDATA));
-            respMap.put(StringUtils.fromString(Constants.BODY), result);
-            mapValue.put(StringUtils.fromString(Constants.RESP), respMap);
         }
         future.complete(mapValue);
     }
+
 
     @Override
     public void notifyFailure(BError bError) {
@@ -187,4 +156,138 @@ public class FunctionCallback implements Callback {
         }
         return false;
     }
+
+    private void addStatusCodeImplicitly(BMap respMap) {
+        String accessor = ((ResourceMethodType) this.methodType).getAccessor();
+        Object statusCode = "";
+        if (Constants.POST.equals(accessor)) {
+            statusCode = Constants.CREATED_201;
+        } else if (Constants.GET.equals(accessor) || Constants.PUT.equals(accessor)  ||
+                Constants.PATCH.equals(accessor)  || Constants.DELETE.equals(accessor)  ||
+                Constants.HEAD.equals(accessor)  || Constants.OPTIONS.equals(accessor) ||
+                Constants.DEFAULT.equals(accessor)) {
+            statusCode = Constants.OK_200;
+        }
+        statusCode = StringUtils.fromString((String) statusCode);
+        respMap.put(StringUtils.fromString(Constants.STATUS_CODE), statusCode);
+    }
+
+    private void addContentTypeImplicitly(Object result, BMap headers) {
+        if (result instanceof BString) {
+            headers.put(StringUtils.fromString(Constants.CONTENT_TYPE), StringUtils.fromString(Constants.TEXT_PLAIN));
+
+        } else if (result instanceof BXmlItem) {
+            headers.put(StringUtils.fromString(Constants.CONTENT_TYPE),
+                    StringUtils.fromString(Constants.APPLICATION_XML));
+
+        } else if (result instanceof BArray) {
+            BArray arrayResult = (BArray) result;
+            if (Constants.BYTE_TYPE.equals(arrayResult.getElementType().getName())) {
+               headers.put(StringUtils.fromString(Constants.CONTENT_TYPE),
+                       StringUtils.fromString(Constants.APPLICATION_OCTET_STREAM));
+
+            } else if (Constants.MAP_TYPE.equals(arrayResult.getElementType().getName())) {
+                MapType mapContent = (MapType) arrayResult.getElementType();
+                if (Constants.JSON_TYPE.equals(mapContent.getConstrainedType().getName())) {
+                    headers.put(StringUtils.fromString(Constants.CONTENT_TYPE),
+                            StringUtils.fromString(Constants.APPLICATION_JSON));
+                }
+                
+            } else if (Constants.TABLE_TYPE.equals(arrayResult.getElementType().getName())) {
+                TableType tableContent = (TableType) arrayResult.getElementType();
+                if (Constants.MAP_TYPE.equals(tableContent.getConstrainedType().getName())) {
+                    MapType mapContent = (MapType) tableContent.getConstrainedType();
+                    if (Constants.JSON_TYPE.equals(mapContent.getConstrainedType().getName())) {
+                        headers.put(StringUtils.fromString(Constants.CONTENT_TYPE),
+                                StringUtils.fromString(Constants.APPLICATION_JSON));
+                    }
+
+                }
+            }
+
+        } else if (result instanceof BTable) {
+            BTable tableResult = (BTable) result;
+            TableType tableContent = (TableType) tableResult.getType();
+            if (Constants.MAP_TYPE.equals(tableContent.getConstrainedType().getName())) {
+                MapType mapContent = (MapType) tableContent.getConstrainedType();
+                if (Constants.JSON_TYPE.equals(mapContent.getConstrainedType().getName())) {
+                    headers.put(StringUtils.fromString(Constants.CONTENT_TYPE),
+                            StringUtils.fromString(Constants.APPLICATION_JSON));
+                }
+
+            }
+        } else if (result instanceof BDecimal || result instanceof Long || result instanceof Double ||
+                result instanceof Boolean) {
+            headers.put(StringUtils.fromString(Constants.CONTENT_TYPE),
+                    StringUtils.fromString(Constants.APPLICATION_JSON));
+        } else if (result instanceof BMap) {
+            headers.put(StringUtils.fromString(Constants.CONTENT_TYPE),
+                    StringUtils.fromString(Constants.APPLICATION_JSON));
+        }
+    }
+
+
+    private void handleNonHTTPResponse(Object result, BMap<BString, Object> mapValue) {
+        BMap<BString, Object> respMap =
+                ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_ANYDATA));
+        Object headers =
+                ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_ANYDATA));
+
+        addStatusCodeImplicitly(respMap);
+        addContentTypeImplicitly(result, (BMap) headers);
+
+        respMap.put(StringUtils.fromString(Constants.HEADERS), headers);
+        respMap.put(StringUtils.fromString(Constants.BODY), result);
+        mapValue.put(StringUtils.fromString(Constants.RESP), respMap);
+    }
+
+    private void handleHTTPResponse(BMap result, BMap<BString, Object> mapValue) {
+        BMap resultMap = result;
+
+        // Extract status code
+        BObject status = (BObject) (resultMap.get(StringUtils.fromString(Constants.STATUS)));
+        Object statusCode = Long.toString(status.getIntValue(StringUtils.fromString(Constants.CODE)));
+        statusCode = StringUtils.fromString((String) statusCode);
+
+        // Create a BMap for response field
+        BMap<BString, Object> respMap =
+                ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_ANYDATA));
+        respMap.put(StringUtils.fromString(Constants.STATUS_CODE), statusCode);
+
+        // Create body field in the response Map
+        if (resultMap.containsKey(StringUtils.fromString(Constants.BODY))) {
+            Object body = resultMap.get(StringUtils.fromString(Constants.BODY));
+            respMap.put(StringUtils.fromString(Constants.BODY), body);
+        }
+
+        // Create header field in the response Map
+        if (resultMap.containsKey(StringUtils.fromString(Constants.HEADERS))) {
+            Object headers = resultMap.get(StringUtils.fromString(Constants.HEADERS));
+            BMap headersMap = (BMap) headers;
+            // Add Content-type field in headers if there is not
+            if (!isContentTypeExist(headersMap)) {
+                headersMap.put(StringUtils.fromString(Constants.CONTENT_TYPE),
+                        StringUtils.fromString(Constants.APPLICATION_JSON));
+            }
+            respMap.put(StringUtils.fromString(Constants.HEADERS), headers);
+        } else {
+            // If there is no headers add one with default content-type
+            Object headers =
+                    ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_ANYDATA));
+            ((BMap) headers).put(StringUtils.fromString(Constants.CONTENT_TYPE),
+                    StringUtils.fromString(Constants.APPLICATION_JSON));
+            respMap.put(StringUtils.fromString(Constants.HEADERS), headers);
+
+        }
+
+        // If there is mediaType replace content-type in headers
+        if (resultMap.containsKey(StringUtils.fromString(Constants.MEDIA_TYPE))) {
+            Object headers = resultMap.get(StringUtils.fromString(Constants.HEADERS));
+            Object mediaType = resultMap.get(StringUtils.fromString(Constants.MEDIA_TYPE));
+            ((BMap) headers).put(StringUtils.fromString(Constants.CONTENT_TYPE), mediaType);
+        }
+        mapValue.put(StringUtils.fromString(Constants.RESP), respMap);
+    }
 }
+
+
