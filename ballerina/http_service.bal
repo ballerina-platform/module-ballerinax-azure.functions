@@ -34,6 +34,7 @@ isolated service class ResourceService {
         string functionName = payload.Metadata.sys.MethodName;
         map<anydata>|error callRegisterMethod = self.adaptor.callNativeMethod(payload.Data, functionName);
         response.setJsonPayload(getResponsePayload(callRegisterMethod));
+        //io:println(getResponsePayload(callRegisterMethod));
         check caller->respond(response);
     }
 }

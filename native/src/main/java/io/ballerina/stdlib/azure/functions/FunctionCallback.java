@@ -25,6 +25,7 @@ import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.ByteType;
 import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ResourceMethodType;
@@ -245,7 +246,18 @@ public class FunctionCallback implements Callback {
         addContentTypeImplicitly(result, (BMap) headers);
 
         respMap.put(StringUtils.fromString(Constants.HEADERS), headers);
-        respMap.put(StringUtils.fromString(Constants.BODY), result);
+        if (result instanceof BArray) {
+            BArray arrayResult = (BArray) result;
+            if (Constants.BYTE_TYPE.equals(arrayResult.getElementType().getName())) {
+                respMap.put(StringUtils.fromString(Constants.BODY), ToBase64.toBase64(arrayResult));
+//                respMap.put(StringUtils.fromString(Constants.BODY), arrayResult);
+//                respMap.put(StringUtils.fromString("isRaw"), true);
+            } else {
+                respMap.put(StringUtils.fromString(Constants.BODY), result);
+            }
+        } else {
+            respMap.put(StringUtils.fromString(Constants.BODY), result);
+        }
         mapValue.put(StringUtils.fromString(Constants.RESP), respMap);
     }
 
