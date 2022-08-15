@@ -218,7 +218,8 @@ function nonHttpResTest3() returns error? {
     string replacedString = regex:replaceAll(readString,"(FUNC_NAME)","nonHttpResTest3");
     json readJson = check value:fromJsonString(replacedString);
     json resp = check clientEndpoint->post("/post-hello-nonHttpResTest3", readJson);
-    json expectedResp = {"Outputs":{"resp":{"statusCode":"201", "headers":{"Content-Type":"application/octet-stream"}, "body":[200, 241, 218, 202, 212, 96, 36, 248, 62, 66, 56, 242, 149, 65, 218, 144, 76, 51, 213, 245, 143, 199, 252, 23, 9, 110, 53, 37, 41, 170, 97, 111]}}, "Logs":[], "ReturnValue":null};
+    json expectedResp = {"Outputs":{"resp":{"statusCode":"201", 
+    "headers":{"Content-Type":"application/octet-stream"}, "body":"yPHaytRgJPg+QjjylUHakEwz1fWPx/wXCW41JSmqYW8="}}, "Logs":[], "ReturnValue":null};
     test:assertEquals(resp, expectedResp);
 }
 
