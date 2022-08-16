@@ -574,3 +574,25 @@ function testOptionalPayloadWithoutPayload() returns error? {
    json expectedResp = {"Outputs":{"resp":{"statusCode":"201","headers":{"Content-Type":"text/plain"},"body":"Hello, the payload wasn't set but all good ;)"}},"Logs":[],"ReturnValue":null};
    test:assertEquals(resp, expectedResp);
 }
+
+@test:Config { }
+function testHttpBlobInput() returns error? {
+   final http:Client clientEndpoint = check new ("http://localhost:3000");
+   string jsonFilePath = "./tests/resources/http-query-blob-input.json";
+   json readJson = check io:fileReadJson(jsonFilePath);
+   json resp = check clientEndpoint->post("/get-hello-blobInput", readJson);
+   json expectedResp = {"Outputs":{"resp":{"statusCode":"200","headers":{"Content-Type":"text/plain"},
+   "body":"Blob from hello.txt, content is hello from byte\n"}},"Logs":[],"ReturnValue":null};
+   test:assertEquals(resp, expectedResp);
+}
+
+@test:Config { }
+function testHttpBlobInputOptional() returns error? {
+   final http:Client clientEndpoint = check new ("http://localhost:3000");
+   string jsonFilePath = "./tests/resources/http-query-blob-optional-input.json";
+   json readJson = check io:fileReadJson(jsonFilePath);
+   json resp = check clientEndpoint->post("/get-hello-blobInput", readJson);
+   json expectedResp = {"Outputs":{"resp":{"statusCode":"200","headers":{"Content-Type":"text/plain"},
+   "body":"Blob from hello1.txt not found"}},"Logs":[],"ReturnValue":null};
+   test:assertEquals(resp, expectedResp);
+}

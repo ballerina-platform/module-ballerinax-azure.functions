@@ -32,6 +32,8 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.stdlib.azure.functions.bindings.input.InputBinding;
+import io.ballerina.stdlib.azure.functions.builder.AbstractPayloadBuilder;
 import io.ballerina.stdlib.azure.functions.builder.BinaryPayloadBuilder;
 import io.ballerina.stdlib.azure.functions.builder.JsonPayloadBuilder;
 
@@ -74,10 +76,7 @@ public class NativeRemoteAdapter {
                 Object bValue = getDataboundValue(data, parameter, serviceType);
                 argList.add(bValue);
                 argList.add(true);
-                continue;
-            }
-            
-            if (ParamHandler.isBindingNameParam(annotation)) {
+            } else if (ParamHandler.isBindingNameParam(annotation)) {
                 BString nameParam =
                         body.getMapValue(StringUtils.fromString("Metadata")).getStringValue(StringUtils.fromString(
                                 "name"));
@@ -86,19 +85,16 @@ public class NativeRemoteAdapter {
                 Object bValue = jsonPayloadBuilder.getValue(nameParam, false);
                 argList.add(bValue);
                 argList.add(true);
-                continue;
-            }
-            
-
-            //TODO check and process input binding variable
-            if (ParamHandler.isInputAnnotationParam(annotation)) {
-                BString bodyValue = data.getStringValue(StringUtils.fromString(name));
-                Type type = parameter.type;
-                JsonPayloadBuilder jsonPayloadBuilder = new JsonPayloadBuilder(type);
-                Object bValue = jsonPayloadBuilder.getValue(bodyValue, false);
-                argList.add(bValue);
-                argList.add(true);
-                continue;
+            } else {
+                Optional<InputBinding> inputBindingHandler = ParamHandler.getInputBindingHandler(annotation);
+                if (inputBindingHandler.isPresent()) {
+                    BString bodyValue = data.getStringValue(StringUtils.fromString(name));
+                    Type type = parameter.type;
+                    AbstractPayloadBuilder payloadBuilder = inputBindingHandler.get().getPayloadBuilder(type);
+                    Object bValue = payloadBuilder.getValue(bodyValue, false);
+                    argList.add(bValue);
+                    argList.add(true);
+                }
             }
         }
         Object[] args = argList.toArray();

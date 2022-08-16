@@ -27,8 +27,9 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.stdlib.azure.functions.bindings.input.InputBinding;
 import io.ballerina.stdlib.azure.functions.builder.AbstractPayloadBuilder;
-import io.ballerina.stdlib.azure.functions.builder.JsonPayloadBuilder;
+import io.ballerina.stdlib.azure.functions.builder.StringPayloadBuilder;
 import io.ballerina.stdlib.azure.functions.exceptions.InvalidPayloadException;
 import io.ballerina.stdlib.azure.functions.exceptions.PayloadNotFoundException;
 
@@ -60,23 +61,27 @@ public class HttpResource {
         this.inputBindingParameters = getInputBindingParams(resourceMethodType, body);
     }
 
-    private InputBindingParameter[] getInputBindingParams(ResourceMethodType resourceMethod, BMap<?, ?> body) {
+    private InputBindingParameter[] getInputBindingParams(ResourceMethodType resourceMethod, BMap<?, ?> body) throws InvalidPayloadException {
         Parameter[] parameters = resourceMethod.getParameters();
         List<InputBindingParameter> inputBindingParameters = new ArrayList<>();
         for (int i = this.pathParams.length, parametersLength = parameters.length; i < parametersLength; i++) {
             Parameter parameter = parameters[i];
             String name = parameter.name;
             Object annotation = resourceMethod.getAnnotation(StringUtils.fromString("$param$." + name));
-            if (!ParamHandler.isInputAnnotationParam(annotation)) {
+            Optional<InputBinding> inputBindingHandler = ParamHandler.getInputBindingHandler(annotation);
+            if (inputBindingHandler.isEmpty()) {
                 continue;
             }
             BString bodyValue = body.getStringValue(StringUtils.fromString(name));
+            InputBinding inputBinding = inputBindingHandler.get();
             Type type = parameter.type;
-            JsonPayloadBuilder jsonPayloadBuilder = new JsonPayloadBuilder(type);
-            Object bValue = jsonPayloadBuilder.getValue(bodyValue, false);
-//            Object bValue = Utilities.convertJsonToDataBoundParamValue(bodyValue, type);
-            //TODO handle other types records n stuff
-            inputBindingParameters.add(new InputBindingParameter(i, parameter, bValue));
+            try {
+                AbstractPayloadBuilder payloadBuilder = inputBinding.getPayloadBuilder(type);
+                Object bValue = payloadBuilder.getValue(bodyValue, false);
+                inputBindingParameters.add(new InputBindingParameter(i, parameter, bValue));
+            } catch (BError error) {
+                throw new InvalidPayloadException(error.getMessage());
+            }
         }
 
         return inputBindingParameters.toArray(InputBindingParameter[]::new);
@@ -91,44 +96,53 @@ public class HttpResource {
             Parameter parameter = parameters[i];
             String name = parameter.name;
             Object annotation = resourceMethod.getAnnotation(StringUtils.fromString("$param$." + name));
-            if (annotation != null) { //Add other annotations as well
+            //TODO Add other annotations as well
+            if (isAzAnnotationExist(annotation)) {
                 continue;
             }
-            Object arr = queryParams.get(StringUtils.fromString(name));
-            //TODO Handle optional null type
-//            if (arr == null) {
-//                
+            Object bValue = queryParams.get(StringUtils.fromString(name));
+            
+//            //TODO Handle optional null type
+////            if (queryParamValue == null) {
+////                
+////            }
+//            int tag = parameter.type.getTag();
+//            Object bValue = null;
+//            switch (tag) {
+//                case STRING_TAG:
+//                    //TODO error
+////                    if (!(queryParamValue instanceof BString)) {
+////                        
+////                    }
+//                    bValue = queryParamValue;
+//                    break;
+//                case ARRAY_TAG:
+//                    //TODO handle other cases
+//                    BArray values = (BArray) queryParamValue;
+////                    Type elementType = ((ArrayType) parameter.type).getElementType();
+//                    bValue = values; //TODO check all types
+////                    if (elementType.getTag() == STRING_TAG) {
+////                        BString[] bString = new BString[values.length];
+////                        for (int j = 0, valuesLength = values.length; j < valuesLength; j++) {
+////                            String value = values[j];
+////                            bString[j] =StringUtils.fromString(value);
+////                            bValue = ValueCreator.createArrayValue(bString);
+////                        }
+////                    }
+//                    break;
+//                default:
+//                    //TODO unsupported
 //            }
-            int tag = parameter.type.getTag();
-            Object bValue = null;
-            switch (tag) {
-                case STRING_TAG:
-                    //TODO error
-//                    if (!(arr instanceof BString)) {
-//                        
-//                    }
-                    bValue = arr;
-                    break;
-                case ARRAY_TAG:
-                    //TODO handle other cases
-                    BArray values = (BArray) arr;
-//                    Type elementType = ((ArrayType) parameter.type).getElementType();
-                    bValue = values; //TODO check all types
-//                    if (elementType.getTag() == STRING_TAG) {
-//                        BString[] bString = new BString[values.length];
-//                        for (int j = 0, valuesLength = values.length; j < valuesLength; j++) {
-//                            String value = values[j];
-//                            bString[j] =StringUtils.fromString(value);
-//                            bValue = ValueCreator.createArrayValue(bString);
-//                        }
-//                    }
-                    break;
-                default:
-                    //TODO unsupported
-            }
             queryParameters.add(new QueryParameter(i, parameter, bValue));
         }
         return queryParameters.toArray(QueryParameter[]::new);
+    }
+    
+    private boolean isAzAnnotationExist(Object annotation) {
+        if (annotation == null) {
+            return false;
+        }
+        return true;
     }
 
     private PathParameter[] getPathParams(ResourceMethodType resourceMethod, BMap<?, ?> body) {

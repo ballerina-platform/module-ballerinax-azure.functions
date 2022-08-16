@@ -20,4 +20,8 @@
         <Class name="io.ballerina.stdlib.azure.functions.AZFParameter"/>
         <Bug pattern="EQ_COMPARETO_USE_OBJECT_EQUALS"/>
     </Match>
+    <Match>
+        <Class name="io.ballerina.stdlib.azure.functions.builder.JsonPayloadBuilder"/>
+        <Bug pattern="BC_UNCONFIRMED_CAST"/>
+    </Match>
 </FindBugsFilter>

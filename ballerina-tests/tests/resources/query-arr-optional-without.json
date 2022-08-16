@@ -1,0 +1,59 @@
+{
+    "Data": {
+        "httpPayload": {
+            "Url": "http://localhost:7071/api/hello/query/arr",
+            "Method": "GET",
+            "Query": {},
+            "Headers": {
+                "Connection": [
+                    "keep-alive"
+                ],
+                "Accept": [
+                    "*/*"
+                ],
+                "Accept-Encoding": [
+                    "gzip, deflate, br"
+                ],
+                "Host": [
+                    "localhost:7071"
+                ],
+                "User-Agent": [
+                    "PostmanRuntime/7.26.8"
+                ],
+                "Postman-Token": [
+                    "49b7bbcb-bd4f-4f2c-a897-ce35236acdfe"
+                ]
+            },
+            "Params": {},
+            "Identities": [
+                {
+                    "AuthenticationType": null,
+                    "IsAuthenticated": false,
+                    "Actor": null,
+                    "BootstrapContext": null,
+                    "Claims": [],
+                    "Label": null,
+                    "Name": null,
+                    "NameClaimType": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name",
+                    "RoleClaimType": "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+                }
+            ]
+        }
+    },
+    "Metadata": {
+        "Query": {},
+        "Headers": {
+            "Connection": "keep-alive",
+            "Accept": "*/*",
+            "Accept-Encoding": "gzip, deflate, br",
+            "Host": "localhost:7071",
+            "User-Agent": "PostmanRuntime/7.26.8",
+            "Postman-Token": "49b7bbcb-bd4f-4f2c-a897-ce35236acdfe"
+        },
+        "sys": {
+            "MethodName": "get-hello-query-arr",
+            "UtcNow": "2022-08-16T10:38:59.2405064Z",
+            "RandGuid": "5de1fdb9-ed9e-43a1-80ca-57e596a2b146"
+        }
+    }
+}

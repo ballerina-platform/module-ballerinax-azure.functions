@@ -18,7 +18,7 @@ public class BlobInputBinding extends InputBinding {
 
     private String path;
     private String connection = "AzureWebJobsStorage";
-    private String dataType = "binary";
+    private String dataType = "string";
 
     public BlobInputBinding(AnnotationNode queueTrigger, String varName) {
         super("blob");

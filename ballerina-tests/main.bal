@@ -72,10 +72,6 @@ service /hello on ep {
         return "Hello from foo bar res";
     }
 
-    resource function post query(string name, @af:Payload string greeting) returns @af:HttpOutput string|error {
-        return "Hello from the query " + greeting + " " + name;
-    }
-
     resource function post db(@af:Payload string greeting, @af:CosmosDBInput {
                                   connectionStringSetting: "CosmosDBConnection",
                                   databaseName: "db1",
@@ -217,6 +213,51 @@ service /hello on ep {
 
     resource function post nonReturnTest1() {
 
+    }
+    
+    resource function get blobInput(@af:Payload string greeting, string name, @af:BlobInput { path: "bpath1/{Query.name}" } byte[]? blobIn) returns string|error {
+        if blobIn is byte[] {
+            string content  = check string:fromBytes(blobIn);
+            return "Blob from " + name + ", content is " + content;
+        } else {
+            return "Blob from "+ name + " not found";
+        }
+    }
+    
+    resource function post query(string name, @af:Payload string greeting) returns @af:HttpOutput string|error {
+        return "Hello from the query " + greeting + " " + name;
+    }
+
+    resource function get query/optional(string? name) returns string|error {
+        if (name is string) {
+            return "Hello from the query " + name;
+        } else {
+            return "Query not found but all good ;)";
+        }
+    }
+    
+    resource function get query/bool(boolean name) returns string|error {
+        if (name is string) {
+            return "Hello from the query " + name;
+        } else {
+            return "Query not found but all good ;)";
+        }
+    }
+    
+    resource function get query/arr(string[] name) returns string|error {
+        if (name is string) {
+            return "Hello from the query " + name;
+        } else {
+            return "Query not found but all good ;)";
+        }
+    }
+    
+    resource function get query/arrOrNil(string[]|() name) returns string|error {
+        if (name is string) {
+            return "Hello from the query " + name;
+        } else {
+            return "Query not found but all good ;)";
+        }
     }
 }
 
