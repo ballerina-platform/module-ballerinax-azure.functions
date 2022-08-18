@@ -15,18 +15,18 @@ service /hello on ep {
     resource function default all() returns @af:HttpOutput string {
         return "Hello from all";
     }
-    
+
     resource function post optional/out(@af:Payload string greeting) returns string {
         return "Hello from optional output binding";
     }
-    
+
     resource function post optional/payload(@af:Payload string? greeting) returns string {
         if (greeting is string) {
             return "Hello, the payload found " + greeting;
         }
         return "Hello, the payload wasn't set but all good ;)";
     }
-        
+
     resource function post .(@af:Payload string greeting) returns @af:HttpOutput string {
         return "Hello from . path ";
     }
@@ -106,14 +106,14 @@ service /hello on ep {
         return string:fromBytes(greeting);
     }
 
-    resource function get err/empty/payload(@af:Payload string greeting) returns @af:HttpOutput string  {
+    resource function get err/empty/payload(@af:Payload string greeting) returns @af:HttpOutput string {
         return "Hello from get empty payload";
     }
 
-    resource function post err/invalid/payload(@af:Payload string greeting) returns @af:HttpOutput string  {
+    resource function post err/invalid/payload(@af:Payload string greeting) returns @af:HttpOutput string {
         return "Hello from get invalid payload " + greeting;
     }
-    
+
     resource function get httpAccessorTest() returns @af:HttpOutput string {
         return "Hello from all";
     }
@@ -137,7 +137,7 @@ service /hello on ep {
     resource function options httpAccessorTest() returns @af:HttpOutput string {
         return "Hello from all";
     }
-        
+
     resource function post httpResTest5() returns af:StatusCodeResponse {
         af:InternalServerError err = {};
         return err;
@@ -214,49 +214,53 @@ service /hello on ep {
     resource function post nonReturnTest1() {
 
     }
-    
-    resource function get blobInput(@af:Payload string greeting, string name, @af:BlobInput { path: "bpath1/{Query.name}" } byte[]? blobIn) returns string|error {
+
+    resource function get blobInput(@af:Payload string greeting, string name, @af:BlobInput {path: "bpath1/{Query.name}"} byte[]? blobIn) returns string|error {
         if blobIn is byte[] {
-            string content  = check string:fromBytes(blobIn);
+            string content = check string:fromBytes(blobIn);
             return "Blob from " + name + ", content is " + content;
         } else {
-            return "Blob from "+ name + " not found";
+            return "Blob from " + name + " not found";
         }
     }
-    
+
     resource function post query(string name, @af:Payload string greeting) returns @af:HttpOutput string|error {
         return "Hello from the query " + greeting + " " + name;
     }
 
     resource function get query/optional(string? name) returns string|error {
         if (name is string) {
-            return "Hello from the query " + name;
+            return "Hello from the optional query " + name;
         } else {
             return "Query not found but all good ;)";
         }
     }
-    
+
     resource function get query/bool(boolean name) returns string|error {
-        if (name is string) {
-            return "Hello from the query " + name;
-        } else {
-            return "Query not found but all good ;)";
-        }
+        return "Hello from the bool query " + name.toString();
     }
-    
+
+    resource function get query/floatt(float name) returns string|error {
+        return "Hello from the float query " + name.toString();
+    }
+
     resource function get query/arr(string[] name) returns string|error {
-        if (name is string) {
-            return "Hello from the query " + name;
-        } else {
-            return "Query not found but all good ;)";
+        string out = "";
+        foreach string i in name {
+            out += i + " ";
         }
+        return "Hello from the arr query " + out;
     }
-    
+
     resource function get query/arrOrNil(string[]|() name) returns string|error {
-        if (name is string) {
-            return "Hello from the query " + name;
+        if (name is string[]) {
+            string out = "";
+            foreach string i in name {
+                out += i + " ";
+            }
+            return "Hello from the arr or nil query " + out;
         } else {
-            return "Query not found but all good ;)";
+            return "Query arr not found but all good ;)";
         }
     }
 }
@@ -312,8 +316,9 @@ service "queue-input" on queueListener1 {
 listener af:BlobListener blobListener = new af:BlobListener();
 
 service "blob" on blobListener {
-    remote function onUpdated (@af:Payload byte[] blobIn, @af:BindingName { } string name) returns @af:BlobOutput { 
-        path: "bpath1/newBlob" } byte[]|error {
+    remote function onUpdated(@af:Payload byte[] blobIn, @af:BindingName {} string name) returns @af:BlobOutput {
+        path: "bpath1/newBlob"
+    } byte[]|error {
         return blobIn;
     }
 }

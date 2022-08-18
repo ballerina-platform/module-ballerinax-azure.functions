@@ -21,4 +21,9 @@ module io.ballerina.stdlib.azure.functions {
     requires io.ballerina.runtime;
     requires io.ballerina.lang.value;
     requires io.ballerina.lang.array;
+    requires io.ballerina.lang.bool;
+    requires io.ballerina.lang.floatingpoint;
+    requires io.ballerina.lang.integer;
+    requires io.ballerina.lang.decimal;
+    requires io.ballerina.lang.string;
 }

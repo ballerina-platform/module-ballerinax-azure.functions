@@ -1,9 +1,11 @@
 {
     "Data": {
         "httpPayload": {
-            "Url": "http://localhost:7071/api/hello/query/arrOrNil",
+            "Url": "http://localhost:7071/api/hello/query/arrOrNil?name=red&name=green",
             "Method": "GET",
-            "Query": {},
+            "Query": {
+                "name": "red,green"
+            },
             "Headers": {
                 "Connection": [
                     "keep-alive"
@@ -21,7 +23,7 @@
                     "PostmanRuntime/7.26.8"
                 ],
                 "Postman-Token": [
-                    "49b7bbcb-bd4f-4f2c-a897-ce35236acdfe"
+                    "5de49357-5322-41f2-9550-8d85df57c66b"
                 ]
             },
             "Params": {},
@@ -41,19 +43,22 @@
         }
     },
     "Metadata": {
-        "Query": {},
+        "name": "\"green\"",
+        "Query": {
+            "name": "green"
+        },
         "Headers": {
             "Connection": "keep-alive",
             "Accept": "*/*",
             "Accept-Encoding": "gzip, deflate, br",
             "Host": "localhost:7071",
             "User-Agent": "PostmanRuntime/7.26.8",
-            "Postman-Token": "49b7bbcb-bd4f-4f2c-a897-ce35236acdfe"
+            "Postman-Token": "5de49357-5322-41f2-9550-8d85df57c66b"
         },
         "sys": {
             "MethodName": "get-hello-query-arrOrNil",
-            "UtcNow": "2022-08-16T10:38:59.2405064Z",
-            "RandGuid": "5de1fdb9-ed9e-43a1-80ca-57e596a2b146"
+            "UtcNow": "2022-08-16T10:37:07.6777821Z",
+            "RandGuid": "3ae73282-ec8d-4f0e-8e9e-4f3e0602b175"
         }
     }
 }

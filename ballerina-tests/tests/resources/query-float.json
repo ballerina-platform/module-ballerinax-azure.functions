@@ -1,7 +1,7 @@
 {
     "Data": {
         "httpPayload": {
-            "Url": "http://localhost:7071/api/hello/query/bool?name=10.5",
+            "Url": "http://localhost:7071/api/hello/floatt/bool?name=10.5",
             "Method": "GET",
             "Query": {
                 "name": "10.5"
@@ -56,7 +56,7 @@
             "Postman-Token": "0af627a1-73fe-4990-865d-6e438249ae98"
         },
         "sys": {
-            "MethodName": "get-hello-query-bool",
+            "MethodName": "get-hello-query-floatt",
             "UtcNow": "2022-08-16T10:28:47.6485592Z",
             "RandGuid": "e31b37f3-08fe-4268-aabb-ff055227f24d"
         }

@@ -1,7 +1,7 @@
 {
     "Data": {
         "httpPayload": {
-            "Url": "https://bal-dev.azurewebsites.net/api/hello/optional-query?name=test1",
+            "Url": "https://bal-dev.azurewebsites.net/api/hello/query/optional?name=test1",
             "Method": "GET",
             "Query": {
                 "name": "test1"
@@ -53,10 +53,10 @@
                     "112.134.130.212:18792"
                 ],
                 "X-Original-URL": [
-                    "/api/hello/optional-query?name=test1"
+                    "/api/hello/query/optional?name=test1"
                 ],
                 "X-WAWS-Unencoded-URL": [
-                    "/api/hello/optional-query?name=test1"
+                    "/api/hello/query/optional?name=test1"
                 ],
                 "DISGUISED-HOST": [
                     "bal-dev.azurewebsites.net"
@@ -100,12 +100,12 @@
             "X-ARR-SSL": "2048|256|CN=Microsoft Azure TLS Issuing CA 01, O=Microsoft Corporation, C=US|CN=*.azurewebsites.net, O=Microsoft Corporation, L=Redmond, S=WA, C=US",
             "X-Forwarded-TlsVersion": "1.2",
             "X-Forwarded-For": "112.134.130.212:18792",
-            "X-Original-URL": "/api/hello/optional-query?name=test1",
-            "X-WAWS-Unencoded-URL": "/api/hello/optional-query?name=test1",
+            "X-Original-URL": "/api/hello/query/optional?name=test1",
+            "X-WAWS-Unencoded-URL": "/api/hello/query/optional?name=test1",
             "DISGUISED-HOST": "bal-dev.azurewebsites.net"
         },
         "sys": {
-            "MethodName": "get-hello-optional-query",
+            "MethodName": "get-hello-query-optional",
             "UtcNow": "2022-06-13T10:12:25.6088199Z",
             "RandGuid": "80274c51-3807-49ae-bfbf-44c5b74fa4e9"
         }

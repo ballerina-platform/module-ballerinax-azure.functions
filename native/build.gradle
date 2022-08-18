@@ -29,7 +29,12 @@ dependencies {
     implementation group: 'org.ballerinalang', name: 'ballerina-lang', version: "${ballerinaLangVersion}"
     implementation group: 'org.ballerinalang', name: 'ballerina-tools-api', version: "${ballerinaLangVersion}"
     implementation group: 'org.ballerinalang', name: 'value', version: "${ballerinaLangVersion}"
+    implementation group: 'org.ballerinalang', name: 'bool', version: "${ballerinaLangVersion}"
+    implementation group: 'org.ballerinalang', name: 'floatingpoint', version: "${ballerinaLangVersion}"
+    implementation group: 'org.ballerinalang', name: 'integer', version: "${ballerinaLangVersion}"
+    implementation group: 'org.ballerinalang', name: 'decimal', version: "${ballerinaLangVersion}"
     implementation group: 'org.ballerinalang', name: 'array', version: "${ballerinaLangVersion}"
+    implementation group: 'org.ballerinalang', name: 'string', version: "${ballerinaLangVersion}"
     implementation group: 'org.ballerinalang', name: 'ballerina-core', version: "${ballerinaLangVersion}"
     implementation (group: 'org.ballerinalang', name: 'ballerina-runtime', version: "${ballerinaLangVersion}") {
         transitive = false
