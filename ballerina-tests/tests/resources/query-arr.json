@@ -1,0 +1,64 @@
+{
+    "Data": {
+        "httpPayload": {
+            "Url": "http://localhost:7071/api/hello/query/arr?name=red&name=green",
+            "Method": "GET",
+            "Query": {
+                "name": "red,green"
+            },
+            "Headers": {
+                "Connection": [
+                    "keep-alive"
+                ],
+                "Accept": [
+                    "*/*"
+                ],
+                "Accept-Encoding": [
+                    "gzip, deflate, br"
+                ],
+                "Host": [
+                    "localhost:7071"
+                ],
+                "User-Agent": [
+                    "PostmanRuntime/7.26.8"
+                ],
+                "Postman-Token": [
+                    "5de49357-5322-41f2-9550-8d85df57c66b"
+                ]
+            },
+            "Params": {},
+            "Identities": [
+                {
+                    "AuthenticationType": null,
+                    "IsAuthenticated": false,
+                    "Actor": null,
+                    "BootstrapContext": null,
+                    "Claims": [],
+                    "Label": null,
+                    "Name": null,
+                    "NameClaimType": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name",
+                    "RoleClaimType": "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+                }
+            ]
+        }
+    },
+    "Metadata": {
+        "name": "\"green\"",
+        "Query": {
+            "name": "green"
+        },
+        "Headers": {
+            "Connection": "keep-alive",
+            "Accept": "*/*",
+            "Accept-Encoding": "gzip, deflate, br",
+            "Host": "localhost:7071",
+            "User-Agent": "PostmanRuntime/7.26.8",
+            "Postman-Token": "5de49357-5322-41f2-9550-8d85df57c66b"
+        },
+        "sys": {
+            "MethodName": "get-hello-query-arr",
+            "UtcNow": "2022-08-16T10:37:07.6777821Z",
+            "RandGuid": "3ae73282-ec8d-4f0e-8e9e-4f3e0602b175"
+        }
+    }
+}

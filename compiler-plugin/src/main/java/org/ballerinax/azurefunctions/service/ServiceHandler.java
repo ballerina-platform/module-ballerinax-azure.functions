@@ -100,7 +100,7 @@ public abstract class ServiceHandler {
 //                        }
 //                    }
 //                    break;
-//                case "HTTPOutput":
+//                case "HttpOutput":
 //                    return Optional.of(new HTTPOutputBinding());
 //                case "CosmosDBOutput":
 //                    CosmosDBOutputBinding cosmosDBOutputBinding = new CosmosDBOutputBinding();

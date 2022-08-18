@@ -31,7 +31,7 @@ public class OutputBindingBuilder {
             switch (annotationName) {
                 case "QueueOutput":
                     return Optional.of(new QueueOutputBinding(annotationNode));
-                case "HTTPOutput":
+                case "HttpOutput":
                     return Optional.of(new HTTPOutputBinding(annotationNode));
                 case "CosmosDBOutput":
                     return Optional.of(new CosmosDBOutputBinding(annotationNode));

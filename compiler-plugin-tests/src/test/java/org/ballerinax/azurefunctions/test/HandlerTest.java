@@ -73,7 +73,18 @@ public class HandlerTest {
 
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
         Assert.assertFalse(diagnosticResult.hasErrors());
-        Assert.assertEquals(generatedFunctions.size(), 17);
+        Assert.assertEquals(generatedFunctions.size(), 18);
+    }
+
+    @Test
+    public void testOptionalHttp() {
+        JsonObject httpHello = generatedFunctions.get("post-hello-optional");
+        String str =
+                "{\"bindings\":[{\"type\":\"httpTrigger\",\"authLevel\":\"anonymous\",\"methods\":[\"post\"]," +
+                        "\"direction\":\"in\",\"name\":\"httpPayload\",\"route\":\"hello/optional\"}," +
+                        "{\"type\":\"http\",\"direction\":\"out\",\"name\":\"resp\"}]}";
+        JsonElement parse = jsonParser.parse(str);
+        Assert.assertEquals(httpHello, parse);
     }
 
     @Test
@@ -168,11 +179,10 @@ public class HandlerTest {
     @Test
     public void testBlobTrigger() {
         JsonObject actual = generatedFunctions.get("blob");
-        String str =
-                "{\"bindings\":[{\"type\":\"blobTrigger\",\"name\":\"blobIn\",\"direction\":\"in\",\"path\":" +
-                        "\"bpath1/{name}\",\"dataType\":\"binary\",\"connection\":\"AzureWebJobsStorage\"}," +
-                        "{\"type\":\"blob\",\"direction\":\"out\",\"name\":\"outMsg\",\"path\":\"bpath1/newBlob\"," +
-                        "\"connection\":\"AzureWebJobsStorage\",\"dataType\":\"binary\"}]}";
+        String str = "{\"bindings\":[{\"type\":\"blobTrigger\",\"name\":\"blobIn\",\"direction\":\"in\"," +
+                "\"path\":\"bpath1/{name}\",\"connection\":\"AzureWebJobsStorage\"},{\"type\":\"blob\"," +
+                "\"direction\":\"out\",\"name\":\"outMsg\",\"path\":\"bpath1/newBlob\"," +
+                "\"connection\":\"AzureWebJobsStorage\",\"dataType\":\"string\"}]}";
         JsonElement parse = jsonParser.parse(str);
         Assert.assertEquals(actual, parse);
     }

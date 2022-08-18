@@ -20,22 +20,13 @@ package io.ballerina.stdlib.azure.functions;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.stdlib.azure.functions.bindings.input.BlobInput;
+import io.ballerina.stdlib.azure.functions.bindings.input.CosmosInput;
+import io.ballerina.stdlib.azure.functions.bindings.input.InputBinding;
 
-import java.util.Arrays;
-
-enum InputBindings {
-    COSMOS("CosmosDBInput");
-
-    private String annotation;
-
-    InputBindings(String annotation) {
-        this.annotation = annotation;
-    }
-
-    public String getAnnotation() {
-        return annotation;
-    }
-}
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Represents the input binding handler.
@@ -55,23 +46,29 @@ public class ParamHandler {
         Object value = ((BMap<?, ?>) annotation).get(StringUtils.fromString("ballerinax/azure_functions:3:Payload"));
         return value instanceof Boolean;
     }
-
-    public static boolean isInputAnnotationParam(Object annotation) {
+    
+    public static Optional<InputBinding> getInputBindingHandler(Object annotation) {
         if (annotation == null) {
-            return false;
+            return Optional.empty();
         }
         if (!(annotation instanceof BMap)) {
-            return false;
+            return Optional.empty();
         }
-        for (Object key : ((BMap<?, ?>) annotation).getKeys()) {
-            if (key instanceof BString) {
-                String annotationKey = ((BString) key).getValue();
-                String annotationName = annotationKey.substring(annotationKey.lastIndexOf(':') + 1);
-                return Arrays.stream(InputBindings.values())
-                        .anyMatch(name -> name.getAnnotation().equals(annotationName));
+        for (BString key : ((BMap<BString, ?>) annotation).getKeys()) {
+            String annotationKey = key.getValue();
+            String annotationName = annotationKey.substring(annotationKey.lastIndexOf(':') + 1);
+            
+            List<InputBinding> inputBindings = new ArrayList<>();
+            inputBindings.add(new BlobInput());
+            inputBindings.add(new CosmosInput());
+            
+            for (InputBinding inputBinding : inputBindings) {
+                if (inputBinding.getName().equals(annotationName)) {
+                    return Optional.of(inputBinding);
+                }
             }
         }
-        return false;
+        return Optional.empty();
     }
 
     public static boolean isBindingNameParam(Object annotation) {

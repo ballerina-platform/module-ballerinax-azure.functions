@@ -1,0 +1,64 @@
+{
+    "Data": {
+        "httpPayload": {
+            "Url": "http://localhost:7071/api/hello/query/bool?name=false",
+            "Method": "GET",
+            "Query": {
+                "name": "false"
+            },
+            "Headers": {
+                "Connection": [
+                    "keep-alive"
+                ],
+                "Accept": [
+                    "*/*"
+                ],
+                "Accept-Encoding": [
+                    "gzip, deflate, br"
+                ],
+                "Host": [
+                    "localhost:7071"
+                ],
+                "User-Agent": [
+                    "PostmanRuntime/7.26.8"
+                ],
+                "Postman-Token": [
+                    "1854bfc5-0e04-4793-ac51-b9dba41d0272"
+                ]
+            },
+            "Params": {},
+            "Identities": [
+                {
+                    "AuthenticationType": null,
+                    "IsAuthenticated": false,
+                    "Actor": null,
+                    "BootstrapContext": null,
+                    "Claims": [],
+                    "Label": null,
+                    "Name": null,
+                    "NameClaimType": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name",
+                    "RoleClaimType": "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+                }
+            ]
+        }
+    },
+    "Metadata": {
+        "name": "\"false\"",
+        "Query": {
+            "name": "false"
+        },
+        "Headers": {
+            "Connection": "keep-alive",
+            "Accept": "*/*",
+            "Accept-Encoding": "gzip, deflate, br",
+            "Host": "localhost:7071",
+            "User-Agent": "PostmanRuntime/7.26.8",
+            "Postman-Token": "1854bfc5-0e04-4793-ac51-b9dba41d0272"
+        },
+        "sys": {
+            "MethodName": "get-hello-query-bool",
+            "UtcNow": "2022-08-16T10:26:19.8474115Z",
+            "RandGuid": "74449761-f557-450c-b969-a48b5647dcf1"
+        }
+    }
+}

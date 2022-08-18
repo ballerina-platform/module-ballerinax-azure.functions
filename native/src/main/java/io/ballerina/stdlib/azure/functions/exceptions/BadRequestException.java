@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -16,14 +16,22 @@
  * under the License.
  */
 
-module io.ballerina.stdlib.azure.functions {
-    requires io.ballerina.lang;
-    requires io.ballerina.runtime;
-    requires io.ballerina.lang.value;
-    requires io.ballerina.lang.array;
-    requires io.ballerina.lang.bool;
-    requires io.ballerina.lang.floatingpoint;
-    requires io.ballerina.lang.integer;
-    requires io.ballerina.lang.decimal;
-    requires io.ballerina.lang.string;
+package io.ballerina.stdlib.azure.functions.exceptions;
+
+/**
+ * Represents Bad Request related exceptions.
+ * 
+ * @since 2.0.0
+ */
+public abstract class BadRequestException extends RuntimeException {
+    private String type;
+
+    public BadRequestException(String message, String type) {
+        super(message);
+        this.type = type;
+    }
+
+    public String getType() {
+        return type;
+    }
 }

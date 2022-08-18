@@ -17,15 +17,25 @@
  */
 package io.ballerina.stdlib.azure.functions;
 
+import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.creators.TypeCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Parameter;
 import io.ballerina.runtime.api.types.ResourceMethodType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.stdlib.azure.functions.bindings.input.InputBinding;
 import io.ballerina.stdlib.azure.functions.builder.AbstractPayloadBuilder;
-import io.ballerina.stdlib.azure.functions.builder.JsonPayloadBuilder;
+import io.ballerina.stdlib.azure.functions.exceptions.InvalidPayloadException;
+import io.ballerina.stdlib.azure.functions.exceptions.PayloadNotFoundException;
+import org.ballerinalang.langlib.bool.FromString;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,8 +43,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static io.ballerina.runtime.api.TypeTags.ARRAY_TAG;
-import static io.ballerina.runtime.api.TypeTags.STRING_TAG;
+import static io.ballerina.runtime.api.TypeTags.BOOLEAN_TAG;
+import static io.ballerina.runtime.api.TypeTags.DECIMAL_TAG;
+import static io.ballerina.runtime.api.TypeTags.FLOAT_TAG;
+import static io.ballerina.runtime.api.TypeTags.INT_TAG;
 
 /**
  * Represents a Azure Resource function property.
@@ -42,6 +54,11 @@ import static io.ballerina.runtime.api.TypeTags.STRING_TAG;
  * @since 2.0.0
  */
 public class HttpResource {
+
+    private static final ArrayType INT_ARR = TypeCreator.createArrayType(PredefinedTypes.TYPE_INT);
+    private static final ArrayType FLOAT_ARR = TypeCreator.createArrayType(PredefinedTypes.TYPE_FLOAT);
+    private static final ArrayType BOOLEAN_ARR = TypeCreator.createArrayType(PredefinedTypes.TYPE_BOOLEAN);
+    private static final ArrayType DECIMAL_ARR = TypeCreator.createArrayType(PredefinedTypes.TYPE_DECIMAL);
 
     private PathParameter[] pathParams;
     private QueryParameter[] queryParameter;
@@ -55,23 +72,28 @@ public class HttpResource {
         this.inputBindingParameters = getInputBindingParams(resourceMethodType, body);
     }
 
-    private InputBindingParameter[] getInputBindingParams(ResourceMethodType resourceMethod, BMap<?, ?> body) {
+    private InputBindingParameter[] getInputBindingParams(ResourceMethodType resourceMethod, BMap<?, ?> body)
+            throws InvalidPayloadException {
         Parameter[] parameters = resourceMethod.getParameters();
         List<InputBindingParameter> inputBindingParameters = new ArrayList<>();
         for (int i = this.pathParams.length, parametersLength = parameters.length; i < parametersLength; i++) {
             Parameter parameter = parameters[i];
             String name = parameter.name;
             Object annotation = resourceMethod.getAnnotation(StringUtils.fromString("$param$." + name));
-            if (!ParamHandler.isInputAnnotationParam(annotation)) {
+            Optional<InputBinding> inputBindingHandler = ParamHandler.getInputBindingHandler(annotation);
+            if (inputBindingHandler.isEmpty()) {
                 continue;
             }
             BString bodyValue = body.getStringValue(StringUtils.fromString(name));
+            InputBinding inputBinding = inputBindingHandler.get();
             Type type = parameter.type;
-            JsonPayloadBuilder jsonPayloadBuilder = new JsonPayloadBuilder(type);
-            Object bValue = jsonPayloadBuilder.getValue(bodyValue, false);
-//            Object bValue = Utilities.convertJsonToDataBoundParamValue(bodyValue, type);
-            //TODO handle other types records n stuff
-            inputBindingParameters.add(new InputBindingParameter(i, parameter, bValue));
+            try {
+                AbstractPayloadBuilder payloadBuilder = inputBinding.getPayloadBuilder(type);
+                Object bValue = payloadBuilder.getValue(bodyValue, false);
+                inputBindingParameters.add(new InputBindingParameter(i, parameter, bValue));
+            } catch (BError error) {
+                throw new InvalidPayloadException(error.getMessage());
+            }
         }
 
         return inputBindingParameters.toArray(InputBindingParameter[]::new);
@@ -86,44 +108,100 @@ public class HttpResource {
             Parameter parameter = parameters[i];
             String name = parameter.name;
             Object annotation = resourceMethod.getAnnotation(StringUtils.fromString("$param$." + name));
-            if (annotation != null) { //Add other annotations as well
+            //TODO Add other annotations as well
+            if (isAzAnnotationExist(annotation)) {
                 continue;
             }
-            Object arr = queryParams.get(StringUtils.fromString(name));
-            //TODO Handle optional null type
-//            if (arr == null) {
-//                
-//            }
-            int tag = parameter.type.getTag();
-            Object bValue = null;
-            switch (tag) {
-                case STRING_TAG:
-                    //TODO error
-//                    if (!(arr instanceof BString)) {
-//                        
-//                    }
-                    bValue = arr;
-                    break;
-                case ARRAY_TAG:
-                    //TODO handle other cases
-                    BArray values = (BArray) arr;
-//                    Type elementType = ((ArrayType) parameter.type).getElementType();
-                    bValue = values; //TODO check all types
-//                    if (elementType.getTag() == STRING_TAG) {
-//                        BString[] bString = new BString[values.length];
-//                        for (int j = 0, valuesLength = values.length; j < valuesLength; j++) {
-//                            String value = values[j];
-//                            bString[j] =StringUtils.fromString(value);
-//                            bValue = ValueCreator.createArrayValue(bString);
-//                        }
-//                    }
-                    break;
-                default:
-                    //TODO unsupported
+            BString queryValue = queryParams.getStringValue(StringUtils.fromString(name));
+            try {
+                Object bValue = createValue(parameter.type, queryValue);
+                queryParameters.add(new QueryParameter(i, parameter, bValue));
+            } catch (BError bError) {
+                throw new InvalidPayloadException(bError.getMessage());
             }
-            queryParameters.add(new QueryParameter(i, parameter, bValue));
         }
         return queryParameters.toArray(QueryParameter[]::new);
+    }
+    
+    private Object createValue(Type type, BString queryValue) {
+        switch (type.getTag()) {
+            case TypeTags.STRING_TAG:
+                return queryValue;
+            case TypeTags.BOOLEAN_TAG:
+                return FromString.fromString(queryValue);
+            case TypeTags.INT_TAG:
+                return org.ballerinalang.langlib.integer.FromString.fromString(queryValue);
+            case TypeTags.FLOAT_TAG:
+                return org.ballerinalang.langlib.floatingpoint.FromString.fromString(queryValue);
+            case TypeTags.DECIMAL_TAG:
+                return org.ballerinalang.langlib.decimal.FromString.fromString(queryValue);
+            case TypeTags.UNION_TAG:
+                List<Type> memberTypes = ((UnionType) type).getMemberTypes();
+                for (Type memberType : memberTypes) {
+                    try {
+                        return createValue(memberType, queryValue);
+                    } catch (BError ignored) {
+                        // thrown errors are ignored until all the types are iterated
+                    }
+                }
+                return null;
+            case TypeTags.ARRAY_TAG:
+                ArrayType arrayType = (ArrayType) type;
+                Type elementType = arrayType.getElementType();
+                if (queryValue == null) {
+                    return null;
+                }
+                String[] values = queryValue.getValue().split(",");
+                return castParamArray(elementType.getTag(), values);
+            default:
+                throw new InvalidPayloadException("unsupported parameter type " + type.getName());
+        }
+    }
+
+    public static BArray castParamArray(int targetElementTypeTag, String[] argValueArr) {
+        switch (targetElementTypeTag) {
+            case INT_TAG:
+                return getBArray(argValueArr, INT_ARR, targetElementTypeTag);
+            case FLOAT_TAG:
+                return getBArray(argValueArr, FLOAT_ARR, targetElementTypeTag);
+            case BOOLEAN_TAG:
+                return getBArray(argValueArr, BOOLEAN_ARR, targetElementTypeTag);
+            case DECIMAL_TAG:
+                return getBArray(argValueArr, DECIMAL_ARR, targetElementTypeTag);
+            default:
+                return StringUtils.fromStringArray(argValueArr);
+        }
+    }
+
+    private static BArray getBArray(String[] valueArray, ArrayType arrayType, int elementTypeTag) {
+        BArray arrayValue = ValueCreator.createArrayValue(arrayType);
+        int index = 0;
+        for (String element : valueArray) {
+            switch (elementTypeTag) {
+                case INT_TAG:
+                    arrayValue.add(index++, Long.parseLong(element));
+                    break;
+                case FLOAT_TAG:
+                    arrayValue.add(index++, Double.parseDouble(element));
+                    break;
+                case BOOLEAN_TAG:
+                    arrayValue.add(index++, Boolean.parseBoolean(element));
+                    break;
+                case DECIMAL_TAG:
+                    arrayValue.add(index++, ValueCreator.createDecimalValue(element));
+                    break;
+                default:
+                    throw new InvalidPayloadException("Illegal state error: unexpected param type");
+            }
+        }
+        return arrayValue;
+    }
+
+    private boolean isAzAnnotationExist(Object annotation) {
+        if (annotation == null) {
+            return false;
+        }
+        return true;
     }
 
     private PathParameter[] getPathParams(ResourceMethodType resourceMethod, BMap<?, ?> body) {
@@ -145,7 +223,8 @@ public class HttpResource {
         return pathParams.toArray(PathParameter[]::new);
     }
 
-    private Optional<PayloadParameter> processPayloadParam(ResourceMethodType resourceMethod, BMap<?, ?> body) {
+    private Optional<PayloadParameter> processPayloadParam(ResourceMethodType resourceMethod, BMap<?, ?> body)
+            throws PayloadNotFoundException {
         Parameter[] parameters = resourceMethod.getParameters();
         for (int i = this.pathParams.length, parametersLength = parameters.length; i < parametersLength; i++) {
             Parameter parameter = parameters[i];
@@ -163,22 +242,57 @@ public class HttpResource {
                 continue;
             }
             BMap<?, ?> httpPayload = body.getMapValue(StringUtils.fromString("httpPayload"));
-            BMap<?, ?> headers = body.getMapValue(StringUtils.fromString("httpPayload"))
-                    .getMapValue(StringUtils.fromString("Headers"));
-            BString contentType = headers.getArrayValue(StringUtils.fromString("Content-Type")).getBString(0);
-            BString bodyValue = httpPayload.getStringValue(StringUtils.fromString("Body"));
-            //TODO handle payload 400
+            BMap<?, ?> headers = httpPayload.getMapValue(StringUtils.fromString("Headers"));
             Type type = parameter.type;
-            AbstractPayloadBuilder builder = AbstractPayloadBuilder.getBuilder(contentType.getValue(), type);
-            Object bValue = builder.getValue(bodyValue, false);
-//            Object bValue = Utilities.convertJsonToDataBoundParamValue(bodyValue, type);
-//            str.createValue(type, false);
-//            Object bValue = Utilities.convertJsonToDataBoundParamValue(bodyValue, type);
-//            Object bValue = builder.getValue((BObject) body1, false);
-            //TODO handle other types records n stuff
-            return Optional.of(new PayloadParameter(i, parameter, bValue));
+            String contentType = getContentTypeHeader(headers);
+            BString bodyValue = getRequestBody(httpPayload, name, type);
+            if (isNilType(type) && bodyValue == null) {
+                return Optional.of(new PayloadParameter(i, parameter, null));
+            }
+            try {
+                AbstractPayloadBuilder builder = AbstractPayloadBuilder.getBuilder(contentType, type);
+                Object bValue = builder.getValue(bodyValue, false);
+                return Optional.of(new PayloadParameter(i, parameter, bValue));
+            } catch (BError error) {
+                throw new InvalidPayloadException(error.getMessage());
+            }
         }
         return Optional.empty();
+    }
+
+    private boolean isNilType(Type type) {
+        if (type.getTag() == TypeTags.UNION_TAG) {
+            List<Type> memberTypes = ((UnionType) type).getMemberTypes();
+            for (Type memberType : memberTypes) {
+                if (isNilType(memberType)) {
+                    return true;
+                }
+            }
+        } else if (type.getTag() == TypeTags.NULL_TAG) {
+            return true;
+        }
+        return false;
+    }
+
+    private BString getRequestBody(BMap<?, ?> httpPayload, String name, Type type) throws PayloadNotFoundException {
+        BString bBody = StringUtils.fromString("Body");
+        if (httpPayload.containsKey(bBody)) {
+            return httpPayload.getStringValue(bBody);
+        }
+        if (!isNilType(type)) {
+            throw new PayloadNotFoundException("payload not found for the variable '" + name + "'");
+        }
+        return null;
+    }
+
+    private String getContentTypeHeader(BMap<?, ?> headers) {
+        //TODO fix lower case
+        if (headers.containsKey(StringUtils.fromString(Constants.CONTENT_TYPE))) {
+            BArray headersArrayValue = headers.getArrayValue(StringUtils.fromString(Constants.CONTENT_TYPE));
+            return headersArrayValue.getBString(0).getValue();
+        } else {
+            return null;
+        }
     }
 
     public Object[] getArgList() {

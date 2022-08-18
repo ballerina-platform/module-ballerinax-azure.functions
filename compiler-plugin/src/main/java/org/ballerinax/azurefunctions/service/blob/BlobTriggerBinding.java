@@ -20,7 +20,7 @@ public class BlobTriggerBinding extends RemoteTriggerBinding {
 
     private String path;
     private String connection = "AzureWebJobsStorage";
-    private String dataType = "binary";
+    private String dataType = "string";
 
     public BlobTriggerBinding(ServiceDeclarationNode serviceDeclarationNode, SemanticModel semanticModel) {
         super("blobTrigger", "onUpdated", Constants.ANNOTATION_BLOB_TRIGGER, serviceDeclarationNode,
@@ -77,7 +77,6 @@ public class BlobTriggerBinding extends RemoteTriggerBinding {
         inputTrigger.addProperty("name", this.getVarName());
         inputTrigger.addProperty("direction", this.getDirection());
         inputTrigger.addProperty("path", this.path);
-        inputTrigger.addProperty("dataType", this.dataType);
         inputTrigger.addProperty("connection", this.connection);
         return inputTrigger;
     }

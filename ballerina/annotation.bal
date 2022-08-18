@@ -34,8 +34,8 @@ public type HTTPTriggerConfiguration record {|
 
 public annotation Payload on parameter, return;
 
-# @azurefunctions:HTTPOutput annotation
-public const annotation HTTPOutput on parameter, return;
+# @azurefunctions:HttpOutput annotation
+public const annotation HttpOutput on parameter, return;
 
 # Queue annotation configuration.
 # 
