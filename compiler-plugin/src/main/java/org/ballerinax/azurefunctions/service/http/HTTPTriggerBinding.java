@@ -57,6 +57,7 @@ public class HTTPTriggerBinding extends TriggerBinding {
         Optional<AnnotationNode> httpTriggerAnnot =
                 getListenerAnnotation(this.serviceDeclarationNode, Constants.ANNOTATION_HTTP_TRIGGER);
         String servicePath = Util.resourcePathToString(serviceDeclarationNode.absoluteResourcePath());
+        servicePath = servicePath.replace("\\", "");
         List<FunctionContext> functionContexts = new ArrayList<>();
         NodeList<Node> members = this.serviceDeclarationNode.members();
         for (Node node : members) {
@@ -76,7 +77,8 @@ public class HTTPTriggerBinding extends TriggerBinding {
             resourcePath.append(servicePath);
             for (Node pathBlock : functionDefinitionNode.relativeResourcePath()) {
                 if (pathBlock.kind() == SyntaxKind.IDENTIFIER_TOKEN) {
-                    resourcePath.append("/" + ((IdentifierToken) pathBlock).text());
+                    String specialCharReplacedPathBlock = (((IdentifierToken) pathBlock).text()).replace("\\", "");
+                    resourcePath.append("/").append(specialCharReplacedPathBlock);
                     continue;
                 }
                 if (pathBlock.kind() == SyntaxKind.RESOURCE_PATH_SEGMENT_PARAM) {

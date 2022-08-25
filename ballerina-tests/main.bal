@@ -11,6 +11,15 @@ type Person record {
     int age;
 };
 
+listener af:HTTPListener ep1 = new ();
+
+service /hello\- on ep1 {
+
+    resource function post hello\-query() returns string|error {
+        return "Hello from the hello-query";
+    }
+}
+
 service /hello on ep {
     resource function default all() returns @af:HttpOutput string {
         return "Hello from all";
