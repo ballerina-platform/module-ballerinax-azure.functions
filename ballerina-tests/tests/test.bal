@@ -5,6 +5,16 @@ import ballerina/regex;
 import ballerina/test;
 
 @test:Config {}
+function testEscapeSequences() returns error? {
+    final http:Client clientEndpoint = check new ("http://localhost:3000");
+    string jsonFilePath = "./tests/resources/escape-seq.json";
+    json readJson = check io:fileReadJson(jsonFilePath);
+    json resp = check clientEndpoint->post("/post-hello--hello-query", readJson);
+    json expectedResp = {"Outputs": {"resp": {"statusCode": "201", "headers": {"Content-Type": "text/plain"}, "body": "Hello from the hello-query"}}, "Logs": [], "ReturnValue": null};
+    test:assertEquals(resp, expectedResp);
+}
+
+@test:Config {}
 function testDefault() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/default.json";

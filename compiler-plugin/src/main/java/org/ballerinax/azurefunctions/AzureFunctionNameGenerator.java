@@ -38,10 +38,12 @@ public class AzureFunctionNameGenerator {
     private String getFunctionName(String servicePath, FunctionDefinitionNode functionDefinitionNode) {
         String method = functionDefinitionNode.functionName().text();
         StringBuilder resourcePath = new StringBuilder();
+        servicePath = servicePath.replace("\\", "");
         resourcePath.append(servicePath);
         for (Node pathBlock : functionDefinitionNode.relativeResourcePath()) {
             if (pathBlock.kind() == SyntaxKind.IDENTIFIER_TOKEN) {
-                resourcePath.append("/").append(((IdentifierToken) pathBlock).text());
+                String specialCharReplacedPathBlock = (((IdentifierToken) pathBlock).text()).replace("\\", "");
+                resourcePath.append("/").append(specialCharReplacedPathBlock);
             } else if (pathBlock.kind() == SyntaxKind.RESOURCE_PATH_SEGMENT_PARAM) {
                 Token token = ((ResourcePathParameterNode) pathBlock).paramName();
                 resourcePath.append("/").append(token.text());

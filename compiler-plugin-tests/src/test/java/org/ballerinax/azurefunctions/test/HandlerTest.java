@@ -73,7 +73,7 @@ public class HandlerTest {
 
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
         Assert.assertFalse(diagnosticResult.hasErrors());
-        Assert.assertEquals(generatedFunctions.size(), 18);
+        Assert.assertEquals(generatedFunctions.size(), 19);
     }
 
     @Test
@@ -185,5 +185,16 @@ public class HandlerTest {
                 "\"connection\":\"AzureWebJobsStorage\",\"dataType\":\"string\"}]}";
         JsonElement parse = jsonParser.parse(str);
         Assert.assertEquals(actual, parse);
+    }
+
+    @Test
+    public void testEscapeSequence() {
+        JsonObject httpHello = generatedFunctions.get("post-hello--hello-query");
+        String str =
+                "{\"bindings\":[{\"type\":\"httpTrigger\",\"authLevel\":\"anonymous\",\"methods\":[\"post\"]," +
+                        "\"direction\":\"in\",\"name\":\"httpPayload\",\"route\":\"hello-/hello-query\"}," +
+                        "{\"type\":\"http\",\"direction\":\"out\",\"name\":\"resp\"}]}";
+        JsonElement parse = jsonParser.parse(str);
+        Assert.assertEquals(httpHello, parse);
     }
 }
