@@ -61,15 +61,15 @@ type HttpPayload record {
 };
 
 type Identity record {
-    anydata? AuthenticationType?;
-    boolean IsAuthenticated?;
-    anydata? Actor?;
-    anydata BootstrapContext?;
-    anydata[] Claims?;
-    anydata? Label?;
-    anydata? Name?;
-    string NameClaimType?;
-    string RoleClaimType?;
+    // anydata? AuthenticationType?;
+    // boolean IsAuthenticated?;
+    // anydata? Actor?;
+    // anydata BootstrapContext?;
+    // anydata[] Claims?;
+    // anydata? Label?;
+    // anydata? Name?;
+    // string NameClaimType?;
+    // string RoleClaimType?;
 };
 
 # HTTP binding data.

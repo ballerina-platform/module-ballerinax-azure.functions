@@ -230,17 +230,20 @@ public class HttpResource {
             Parameter parameter = parameters[i];
             String name = parameter.name;
             Object annotation = resourceMethod.getAnnotation(StringUtils.fromString("$param$." + name));
-            if (annotation == null) {
+            if (!ParamHandler.isPayloadAnnotationParam(annotation)) {
                 continue;
             }
-            if (!(annotation instanceof BMap)) {
-                continue;
-            }
-            Boolean booleanValue = ((BMap<BString, Boolean>) annotation).getBooleanValue(StringUtils.fromString(
-                    "ballerinax/azure_functions:3:Payload"));
-            if (!booleanValue) {
-                continue;
-            }
+//            if (annotation == null) {
+//                continue;
+//            }
+//            if (!(annotation instanceof BMap)) {
+//                continue;
+//            }
+//            Boolean booleanValue = ((BMap<BString, Boolean>) annotation).getBooleanValue(StringUtils.fromString(
+//                    "ballerinax/azure_functions:3:Payload"));
+//            if (booleanValue == null || !booleanValue) {
+//                continue;
+//            }
             BMap<?, ?> httpPayload = body.getMapValue(StringUtils.fromString("httpPayload"));
             BMap<?, ?> headers = httpPayload.getMapValue(StringUtils.fromString("Headers"));
             Type type = parameter.type;

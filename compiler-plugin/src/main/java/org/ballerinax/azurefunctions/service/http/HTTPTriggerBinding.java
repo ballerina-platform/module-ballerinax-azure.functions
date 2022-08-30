@@ -109,20 +109,22 @@ public class HTTPTriggerBinding extends TriggerBinding {
                     continue;
                 }
             }
-
-            ReturnTypeDescriptorNode returnTypeDescriptorNode =
-                    functionDefinitionNode.functionSignature().returnTypeDesc().get(); //TODO recheck if return is must
-            OutputBindingBuilder outputBuilder = new OutputBindingBuilder();
-            Optional<Binding> returnBinding = outputBuilder.getOutputBinding(returnTypeDescriptorNode.annotations());
-            if (returnBinding.isEmpty()) {
+            Optional<ReturnTypeDescriptorNode> returnTypeDescriptor =
+                    functionDefinitionNode.functionSignature().returnTypeDesc();
+            if (returnTypeDescriptor.isEmpty()) {
                 bindings.add(new HTTPOutputBinding(null));
             } else {
-                bindings.add(returnBinding.get()); //TODO handle in code analyzer
+                ReturnTypeDescriptorNode returnTypeNode =
+                        returnTypeDescriptor.get();
+                OutputBindingBuilder outputBuilder = new OutputBindingBuilder();
+                Optional<Binding> returnBinding = outputBuilder.getOutputBinding(returnTypeNode.annotations());
+                if (returnBinding.isEmpty()) {
+                    bindings.add(new HTTPOutputBinding(null));
+                } else {
+                    bindings.add(returnBinding.get()); //TODO handle in code analyzer
+                }
             }
             Optional<String> functionName = getFunctionNameFromAnnotation(functionDefinitionNode);
-            //TODO Handle
-//                if (functionName.isEmpty()) {
-//                }
             functionContexts.add(new FunctionContext(functionName.get(), bindings));
         }
         return functionContexts;

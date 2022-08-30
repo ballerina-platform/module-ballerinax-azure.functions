@@ -16,7 +16,7 @@
 
 import ballerina/io;
 
-public class HTTPListener {
+public class HttpListener {
     ResourceService[] httpServices;
 
     public isolated function init() returns error? {
