@@ -35,6 +35,23 @@ import java.util.Optional;
  */
 public class ParamHandler {
 
+    public static boolean isAzureAnnotationExist(Object annotation) {
+        if (annotation == null) {
+            return false;
+        }
+        if (!(annotation instanceof BMap)) {
+            return false;
+        }
+
+        for (BString bKey : ((BMap<BString, ?>) annotation).getKeys()) {
+            String key = bKey.getValue();
+            if (key.startsWith(Constants.PACKAGE_ORG + Constants.SLASH + Constants.PACKAGE_NAME)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static boolean isPayloadAnnotationParam(Object annotation) {
         if (annotation == null) {
             return false;

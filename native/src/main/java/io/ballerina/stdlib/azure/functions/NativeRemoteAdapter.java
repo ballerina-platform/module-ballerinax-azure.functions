@@ -71,8 +71,7 @@ public class NativeRemoteAdapter {
         for (Parameter parameter : parameters) {
             String name = parameter.name;
             Object annotation = methodType.getAnnotation(StringUtils.fromString("$param$." + name));
-            //TODO check and process Payload variable
-            if (ParamHandler.isPayloadAnnotationParam(annotation)) {
+            if (!ParamHandler.isAzureAnnotationExist(annotation)) {
                 Object bValue = getDataboundValue(data, parameter, serviceType);
                 argList.add(bValue);
                 argList.add(true);

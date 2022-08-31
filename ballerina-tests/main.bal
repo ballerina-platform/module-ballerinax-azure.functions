@@ -279,7 +279,7 @@ service /hello on ep {
     queueName: "queue2"
 }
 service "queue" on new af:QueueListener() {
-    remote function onMessage(@http:Payload string inMsg) returns @af:QueueOutput {queueName: "queue3"} string|error {
+    remote function onMessage(string inMsg) returns @af:QueueOutput {queueName: "queue3"} string|error {
         return "helloo " + inMsg;
     }
 }
@@ -288,7 +288,7 @@ service "queue" on new af:QueueListener() {
 listener af:CosmosDBListener cosmosEp = new ();
 
 service "cosmos" on cosmosEp {
-    remote function onUpdated(@http:Payload DBEntry[] inMsg) returns @af:QueueOutput {queueName: "queue3"} string|error {
+    remote function onUpdated(DBEntry[] inMsg) returns @af:QueueOutput {queueName: "queue3"} string|error {
         string id = inMsg[0].id;
         return "helloo " + id;
     }
@@ -298,7 +298,7 @@ service "cosmos" on cosmosEp {
 listener af:TimerListener timerListener = new af:TimerListener();
 
 service "timer" on timerListener {
-    remote function onTrigger(@http:Payload af:TimerMetadata inMsg) returns @af:QueueOutput {queueName: "queue3"} string|error {
+    remote function onTrigger(af:TimerMetadata inMsg) returns @af:QueueOutput {queueName: "queue3"} string|error {
         return "helloo " + inMsg.IsPastDue.toString();
     }
 }
@@ -310,7 +310,7 @@ service "timer" on timerListener {
 listener af:QueueListener queueListener1 = new af:QueueListener();
 
 service "queue-input" on queueListener1 {
-    remote function onMessage(@http:Payload string inMsg, @af:CosmosDBInput {
+    remote function onMessage(string inMsg, @af:CosmosDBInput {
                                   connectionStringSetting: "CosmosDBConnection",
                                   databaseName: "db1",
                                   collectionName: "c2",
@@ -326,7 +326,7 @@ service "queue-input" on queueListener1 {
 listener af:BlobListener blobListener = new af:BlobListener();
 
 service "blob" on blobListener {
-    remote function onUpdated(@http:Payload byte[] blobIn, @af:BindingName {} string name) returns @af:BlobOutput {
+    remote function onUpdated(byte[] blobIn, @af:BindingName {} string name) returns @af:BlobOutput {
         path: "bpath1/newBlob"
     } byte[]|error {
         return blobIn;
