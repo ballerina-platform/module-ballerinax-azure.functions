@@ -31,7 +31,6 @@ import io.ballerina.runtime.api.types.ResourceMethodType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BError;
@@ -148,10 +147,8 @@ public class FunctionCallback implements Callback {
     }
 
     private boolean isHTTPStatusCodeResponse(Object result) {
-        Module resultPkg = TypeUtils.getType(result).getPackage();
-        return (result instanceof  BMap) && (((BMap) result).containsKey(fromString(Constants.STATUS))) &&
-                Constants.PACKAGE_ORG.equals(resultPkg.getOrg()) &&
-                Constants.PACKAGE_NAME.equals(resultPkg.getName());
+//        Module resultPkg = TypeUtils.getType(result).getPackage();
+        return (result instanceof  BMap) && (((BMap) result).containsKey(fromString(Constants.STATUS)));
         //TODO : Check inheritance
         //(https://github.com/ballerina-platform/module-ballerinax-azure.functions/issues/490)
     }
@@ -302,8 +299,10 @@ public class FunctionCallback implements Callback {
         // If there is mediaType replace content-type in headers
         if (resultMap.containsKey(StringUtils.fromString(Constants.MEDIA_TYPE))) {
             Object headers = resultMap.get(StringUtils.fromString(Constants.HEADERS));
-            Object mediaType = resultMap.get(StringUtils.fromString(Constants.MEDIA_TYPE));
-            ((BMap) headers).put(StringUtils.fromString(Constants.CONTENT_TYPE), mediaType);
+            if (headers != null) {
+                Object mediaType = resultMap.get(StringUtils.fromString(Constants.MEDIA_TYPE));
+                ((BMap) headers).put(StringUtils.fromString(Constants.CONTENT_TYPE), mediaType);
+            }
         }
         mapValue.put(StringUtils.fromString(Constants.RESP), respMap);
     }

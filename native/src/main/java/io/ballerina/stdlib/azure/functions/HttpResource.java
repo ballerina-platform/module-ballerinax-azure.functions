@@ -230,15 +230,7 @@ public class HttpResource {
             Parameter parameter = parameters[i];
             String name = parameter.name;
             Object annotation = resourceMethod.getAnnotation(StringUtils.fromString("$param$." + name));
-            if (annotation == null) {
-                continue;
-            }
-            if (!(annotation instanceof BMap)) {
-                continue;
-            }
-            Boolean booleanValue = ((BMap<BString, Boolean>) annotation).getBooleanValue(StringUtils.fromString(
-                    "ballerinax/azure_functions:3:Payload"));
-            if (!booleanValue) {
+            if (!ParamHandler.isPayloadAnnotationParam(annotation)) {
                 continue;
             }
             BMap<?, ?> httpPayload = body.getMapValue(StringUtils.fromString("httpPayload"));

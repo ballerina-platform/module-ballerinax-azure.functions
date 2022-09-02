@@ -45,7 +45,7 @@ public abstract class ServiceHandler {
 
             String serviceTypeName = name.get();
             switch (serviceTypeName) {
-                case "HTTPListener":
+                case "HttpListener":
                     return new HTTPTriggerBinding(svcDeclarationNode, semanticModel);
                 case "QueueListener":
                     return new QueueTriggerBinding(svcDeclarationNode, semanticModel);

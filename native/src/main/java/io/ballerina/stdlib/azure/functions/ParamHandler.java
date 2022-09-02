@@ -35,6 +35,23 @@ import java.util.Optional;
  */
 public class ParamHandler {
 
+    public static boolean isAzureAnnotationExist(Object annotation) {
+        if (annotation == null) {
+            return false;
+        }
+        if (!(annotation instanceof BMap)) {
+            return false;
+        }
+
+        for (BString bKey : ((BMap<BString, ?>) annotation).getKeys()) {
+            String key = bKey.getValue();
+            if (key.startsWith(Constants.PACKAGE_ORG + Constants.SLASH + Constants.PACKAGE_NAME)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static boolean isPayloadAnnotationParam(Object annotation) {
         if (annotation == null) {
             return false;
@@ -43,10 +60,18 @@ public class ParamHandler {
             return false;
         }
 
-        Object value = ((BMap<?, ?>) annotation).get(StringUtils.fromString("ballerinax/azure_functions:3:Payload"));
-        return value instanceof Boolean;
+        for (BString bKey : ((BMap<BString, ?>) annotation).getKeys()) {
+            String key = bKey.getValue();
+            if (key.startsWith(Constants.HTTP_PACKAGE_ORG + Constants.SLASH + Constants.HTTP_PACKAGE_NAME) &&
+                    key.endsWith(Constants.PAYLOAD_ANNOTATAION)) {
+                return true;
+            }
+        }
+        return false;
+//        Object value = ((BMap<?, ?>) annotation).get(StringUtils.fromString("ballerinax/azure_functions:3:Payload"));
+//        return value instanceof Boolean;
     }
-    
+
     public static Optional<InputBinding> getInputBindingHandler(Object annotation) {
         if (annotation == null) {
             return Optional.empty();
@@ -57,11 +82,11 @@ public class ParamHandler {
         for (BString key : ((BMap<BString, ?>) annotation).getKeys()) {
             String annotationKey = key.getValue();
             String annotationName = annotationKey.substring(annotationKey.lastIndexOf(':') + 1);
-            
+
             List<InputBinding> inputBindings = new ArrayList<>();
             inputBindings.add(new BlobInput());
             inputBindings.add(new CosmosInput());
-            
+
             for (InputBinding inputBinding : inputBindings) {
                 if (inputBinding.getName().equals(annotationName)) {
                     return Optional.of(inputBinding);

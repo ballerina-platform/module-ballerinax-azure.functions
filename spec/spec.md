@@ -33,7 +33,7 @@ Separate listener declaration
 ```ballerina
 import ballerinax/azure_functions as af;
 
-listener af:HTTPListener ep = new ();
+listener af:HttpListener ep = new ();
 
 service "hello" on ep {
 }
@@ -43,7 +43,7 @@ Inline listener declaration
 ```ballerina
 import ballerinax/azure_functions as af;
 
-service "hello" on new af:HTTPListener() {
+service "hello" on new af:HttpListener() {
 }
 ```
 
@@ -78,13 +78,13 @@ defaulted to `/` when not defined. If the base path contains any special charact
 as string literals
 
 ```ballerina
-service hello\-world on new af:HTTPListener() {
+service hello\-world on new af:HttpListener() {
    resource function get foo() {
 
    }
 }
 
-service http:Service "hello-world" on new af:HTTPListener() {
+service http:Service "hello-world" on new af:HttpListener() {
    resource function get foo() {
 
    }
@@ -99,7 +99,7 @@ service and it is the mostly used approach for creating a service. The declarati
 listener object, creating a service object, attaching the service object to the listener object.
 
 ```ballerina
-service af:HttpService /foo/bar on new af:HTTPListener() {
+service af:HttpService /foo/bar on new af:HttpListener() {
   resource function get greeting() returns string {
       return "hello world";
   }
@@ -312,7 +312,7 @@ record| |❌|❌|✅|❌|❌
 | |map\<record\>| ❌ | ❌ | ✅|❌|❌
 | |table\<record\>| ❌ | ❌ | ✅|❌|❌
  ```bal
-   resource function post query(string name, @af:Payload string greeting) returns @af:HttpOutput string|error {
+   resource function post query(string name, @http:Payload string greeting) returns @af:HttpOutput string|error {
                return "Hello from the query " + greeting + " " + name;
    }
 ```
@@ -539,7 +539,7 @@ response when returning `anydata` directly from a resource function.
 }
 listener af:QueueListener queueListener = new af:QueueListener();
 service "queue" on queueListener {
-   remote function onMessage (@af:Payload string inMsg) returns @af:QueueOutput {queueName: "queue3"} string|error {
+   remote function onMessage (@http:Payload string inMsg) returns @af:QueueOutput {queueName: "queue3"} string|error {
                return "helloo "+ inMsg;
    }
 }
@@ -553,7 +553,7 @@ service "queue" on queueListener {
 listener af:CosmosDBListener cosmosEp = new ();
  
 service "cosmos" on cosmosEp {
-   remote function onUpdated (@af:Payload DBEntry[] inMsg) returns @af:QueueOutput {queueName: "queue3"} string|error {
+   remote function onUpdated (@http:Payload DBEntry[] inMsg) returns @af:QueueOutput {queueName: "queue3"} string|error {
        string id = inMsg[0].id;
        return "helloo "+ id;
    }
@@ -568,7 +568,7 @@ service "cosmos" on cosmosEp {
 listener af:BlobListener blobEp = new ();
  
 service "blob" on blobEp {
-   remote function onUpdated (@af:Payload byte[] inMsg) returns @af:QueueOutput {queueName: "queue3"} string|error {
+   remote function onUpdated (@http:Payload byte[] inMsg) returns @af:QueueOutput {queueName: "queue3"} string|error {
        string id = inMsg[0].id;
        return "helloo "+ id;
    }
@@ -582,7 +582,7 @@ service "blob" on blobEp {
 listener af:TimerListener timerEp = new ();
  
 service "timer" on timerEp {
-   remote function onTriggered (@af:Payload json inMsg) returns @af:QueueOutput {queueName: "queue3"} string|error {
+   remote function onTriggered (@http:Payload json inMsg) returns @af:QueueOutput {queueName: "queue3"} string|error {
        string id = inMsg[0].id;
        return "helloo "+ id;
    }
@@ -598,7 +598,7 @@ service "timer" on timerEp {
 listener af:TimerListener timerEp = new ();
  
 service "timer" on timerEp {
-   remote function onTriggered (@af:Payload json inMsg) returns @af:QueueOutput @af:TwilioSmsOutput { fromNumber: "+12069845840" }  string|error {
+   remote function onTriggered (@http:Payload json inMsg) returns @af:QueueOutput @af:TwilioSmsOutput { fromNumber: "+12069845840" }  string|error {
        string id = inMsg[0].id;
        return "helloo "+ id;
    }

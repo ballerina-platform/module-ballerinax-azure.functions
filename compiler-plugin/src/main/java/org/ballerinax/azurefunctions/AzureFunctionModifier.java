@@ -63,7 +63,7 @@ public class AzureFunctionModifier extends TreeModifier {
             return super.transform(serviceDeclarationNode);
         }
         NodeList<Node> members = serviceDeclarationNode.members();
-        if (!name.get().equals("HTTPListener")) {
+        if (!name.get().equals("HttpListener")) {
             return super.transform(serviceDeclarationNode);
         }
         AzureFunctionNameGenerator nameGen = new AzureFunctionNameGenerator(serviceDeclarationNode);
