@@ -1,7 +1,0 @@
-[package]
-org = "anjana"
-name = "submodule"
-version = "0.1.0"
-
-[build-options]
-observabilityIncluded = true

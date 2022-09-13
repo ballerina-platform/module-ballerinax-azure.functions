@@ -37,44 +37,6 @@ public class ProjectValidationTests {
 
     protected static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/validations/");
 
-
-
-//    @Test
-//    public void mainFunctionTest() {
-//        BuildProject project = BuildProject.load(RESOURCE_DIRECTORY.resolve("main"));
-//        PackageCompilation compilation = project.currentPackage().getCompilation();
-//        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-//        Assert.assertEquals(diagnosticResult.errorCount(), 1);
-//        Diagnostic diagnostic = diagnosticResult.errors().iterator().next();
-//        Assert.assertEquals(diagnostic.message(), "main function is not allowed in azure functions");
-//    }
-//
-//    @Test
-//    public void submoduleTest() {
-//        BuildProject project = BuildProject.load(RESOURCE_DIRECTORY.resolve("submodule"));
-//        PackageCompilation compilation = project.currentPackage().getCompilation();
-//        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-//        Assert.assertEquals(diagnosticResult.errorCount(), 2);
-//        Iterator<Diagnostic> iterator = diagnosticResult.errors().iterator();
-//        Diagnostic unusedModuleDiag = iterator.next();
-//        Assert.assertEquals(unusedModuleDiag.message(), "unused module prefix 'mod1'");
-//        Diagnostic submoduleDiag = iterator.next();
-//        Assert.assertEquals(submoduleDiag.message(), "azure functions is not allowed inside sub modules");
-//    }
-//
-//    @Test
-//    public void singleFileTest() {
-//        SingleFileProject project = SingleFileProject.load(RESOURCE_DIRECTORY.resolve("single-file").resolve(
-//                "functions.bal"));
-//        PackageCompilation compilation = project.currentPackage().getCompilation();
-//        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-//        Assert.assertEquals(diagnosticResult.errorCount(), 1);
-//        Iterator<Diagnostic> iterator = diagnosticResult.errors().iterator();
-//        Diagnostic unusedModuleDiag = iterator.next();
-//        Assert.assertEquals(unusedModuleDiag.message(), "azure functions are only allowed in ballerina" +
-//                " projects");
-//    }
-
     @Test
     public void headerAnnotationTest() {
         BuildProject project = BuildProject.load(RESOURCE_DIRECTORY.resolve("http-header-annotation"));
