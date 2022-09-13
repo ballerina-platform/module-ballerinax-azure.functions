@@ -28,6 +28,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static io.ballerina.stdlib.azure.functions.Constants.HEADER_ANNOTATION;
+import static io.ballerina.stdlib.azure.functions.Constants.HTTP_PACKAGE_NAME;
+import static io.ballerina.stdlib.azure.functions.Constants.HTTP_PACKAGE_ORG;
+import static io.ballerina.stdlib.azure.functions.Constants.SERVICE_CONF_ANNOTATION;
+
 /**
  * Represents the input binding handler.
  *
@@ -62,7 +67,7 @@ public class ParamHandler {
 
         for (BString bKey : ((BMap<BString, ?>) annotation).getKeys()) {
             String key = bKey.getValue();
-            if (key.startsWith(Constants.HTTP_PACKAGE_ORG + Constants.SLASH + Constants.HTTP_PACKAGE_NAME) &&
+            if (key.startsWith(HTTP_PACKAGE_ORG + Constants.SLASH + Constants.HTTP_PACKAGE_NAME) &&
                     key.endsWith(Constants.PAYLOAD_ANNOTATAION)) {
                 return true;
             }
@@ -70,6 +75,42 @@ public class ParamHandler {
         return false;
 //        Object value = ((BMap<?, ?>) annotation).get(StringUtils.fromString("ballerinax/azure_functions:3:Payload"));
 //        return value instanceof Boolean;
+    }
+
+    public static boolean isHeaderAnnotationParam(Object annotation) {
+        if (annotation == null) {
+            return false;
+        }
+        if (!(annotation instanceof BMap)) {
+            return false;
+        }
+
+        for (BString bKey : ((BMap<BString, ?>) annotation).getKeys()) {
+            String[] keySegments = (bKey.getValue()).split("[/:]");
+            if ((keySegments.length == 4) && HTTP_PACKAGE_ORG.equals(keySegments[0]) &&
+                    HTTP_PACKAGE_NAME.equals(keySegments[1]) && HEADER_ANNOTATION.equals(keySegments[3])) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean isHttpServiceConfExist(Object annotation) {
+        if (annotation == null) {
+            return false;
+        }
+        if (!(annotation instanceof BMap)) {
+            return false;
+        }
+
+        for (BString bKey : ((BMap<BString, ?>) annotation).getKeys()) {
+            String[] keySegments = (bKey.getValue()).split("[/:]");
+            if ((keySegments.length == 4) && HTTP_PACKAGE_ORG.equals(keySegments[0]) &&
+                    HTTP_PACKAGE_NAME.equals(keySegments[1]) && SERVICE_CONF_ANNOTATION.equals(keySegments[3])) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static Optional<InputBinding> getInputBindingHandler(Object annotation) {

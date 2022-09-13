@@ -85,7 +85,8 @@ public class NativeHttpToAzureAdaptor {
         }
         ResourceMethodType resourceMethod = resourceMethodType.get();
         try {
-            HttpResource httpResource = new HttpResource(resourceMethod, body);
+            BMap serviceAnnotations = serviceType.getAnnotations();
+            HttpResource httpResource = new HttpResource(resourceMethod, body, serviceAnnotations);
             Object[] args = httpResource.getArgList();
             if (serviceType.isIsolated() && resourceMethod.isIsolated()) {
                 env.getRuntime().invokeMethodAsyncConcurrently(

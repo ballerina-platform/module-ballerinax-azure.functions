@@ -34,6 +34,16 @@ public type HTTPTriggerConfiguration record {|
 
 public annotation Payload on parameter, return;
 
+# Defines the Header resource signature parameter.
+#
+# + name - Specifies the name of the required header
+public type HttpHeader record {|
+    string name?;
+|};
+
+# The annotation which is used to define the Header resource signature parameter.
+public annotation HttpHeader Header on parameter;
+
 # @azurefunctions:HttpOutput annotation
 public const annotation HttpOutput on parameter, return;
 
