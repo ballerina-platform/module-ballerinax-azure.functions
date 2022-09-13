@@ -29,6 +29,10 @@ public class Constants {
     public static final String REQUEST_PARAMS_NAME = "params";
     public static final String HTTP_CALLER_PARAMS_NAME = "caller";
     public static final String HTTP_REQUEST_PARAMS_NAME = "request";
+    public static final String REMOTE_KEYWORD = "remote";
+    public static final String HTTP = "http";
+    public static final String AZURE_FUNCTIONS = "azure_functions";
+    public static final String HEADER_ANNOTATION_TYPE = "HttpHeader";
     public static final String AZURE_FUNCTIONS_PACKAGE_ORG = "ballerinax"; 
     public static final String AZURE_FUNCTIONS_CONTEXT_NAME = "Context";
     public static final String AZURE_FUNCS_OUTPUT_ZIP_FILENAME = "azure-functions.zip";

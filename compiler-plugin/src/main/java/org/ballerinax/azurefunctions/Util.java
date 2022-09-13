@@ -13,6 +13,11 @@ import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
+import io.ballerina.tools.diagnostics.DiagnosticFactory;
+import io.ballerina.tools.diagnostics.DiagnosticInfo;
+import io.ballerina.tools.diagnostics.DiagnosticProperty;
+import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextRange;
@@ -23,6 +28,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.List;
 import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -126,6 +132,30 @@ public class Util {
         }
 
         return normalizePath;
+    }
+
+    public static void updateDiagnostic(SyntaxNodeAnalysisContext ctx, Location location,
+                                        AzureDiagnosticCodes httpDiagnosticCodes) {
+        DiagnosticInfo diagnosticInfo = getDiagnosticInfo(httpDiagnosticCodes);
+        ctx.reportDiagnostic(DiagnosticFactory.createDiagnostic(diagnosticInfo, location));
+    }
+
+    public static void updateDiagnostic(SyntaxNodeAnalysisContext ctx, Location location,
+                                        AzureDiagnosticCodes azureDiagnosticCodes, Object... argName) {
+        DiagnosticInfo diagnosticInfo = getDiagnosticInfo(azureDiagnosticCodes, argName);
+        ctx.reportDiagnostic(DiagnosticFactory.createDiagnostic(diagnosticInfo, location));
+    }
+
+    public static void updateDiagnostic(SyntaxNodeAnalysisContext ctx, Location location,
+                                        AzureDiagnosticCodes azureDiagnosticCodes,
+                                        List<DiagnosticProperty<?>> diagnosticProperties, String argName) {
+        DiagnosticInfo diagnosticInfo = getDiagnosticInfo(azureDiagnosticCodes, argName);
+        ctx.reportDiagnostic(DiagnosticFactory.createDiagnostic(diagnosticInfo, location, diagnosticProperties));
+    }
+
+    public static DiagnosticInfo getDiagnosticInfo(AzureDiagnosticCodes  diagnostic, Object... args) {
+        return new DiagnosticInfo(diagnostic.getCode(), String.format(diagnostic.getMessage(), args),
+                diagnostic.getSeverity());
     }
 
 }
