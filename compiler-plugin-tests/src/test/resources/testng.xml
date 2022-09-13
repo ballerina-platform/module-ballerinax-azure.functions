@@ -22,7 +22,7 @@
         <classes>
 <!--            <class name="DeploymentTest"/>-->
             <class name="org.ballerinax.azurefunctions.test.HandlerTest"/>
-<!--            <class name="ProjectValidationTests"/>-->
+            <class name="org.ballerinax.azurefunctions.test.ProjectValidationTests"/>
         </classes>
     </test>
 </suite>

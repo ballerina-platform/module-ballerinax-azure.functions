@@ -20,14 +20,13 @@ package org.ballerinax.azurefunctions.test;
 import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.directory.BuildProject;
-import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Iterator;
+
 
 /**
  * Contains the project related validations of azure functions.
@@ -38,39 +37,96 @@ public class ProjectValidationTests {
 
     protected static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/validations/");
 
-    @Test
-    public void mainFunctionTest() {
-        BuildProject project = BuildProject.load(RESOURCE_DIRECTORY.resolve("main"));
-        PackageCompilation compilation = project.currentPackage().getCompilation();
-        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-        Assert.assertEquals(diagnosticResult.errorCount(), 1);
-        Diagnostic diagnostic = diagnosticResult.errors().iterator().next();
-        Assert.assertEquals(diagnostic.message(), "main function is not allowed in azure functions");
-    }
+
+
+//    @Test
+//    public void mainFunctionTest() {
+//        BuildProject project = BuildProject.load(RESOURCE_DIRECTORY.resolve("main"));
+//        PackageCompilation compilation = project.currentPackage().getCompilation();
+//        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+//        Assert.assertEquals(diagnosticResult.errorCount(), 1);
+//        Diagnostic diagnostic = diagnosticResult.errors().iterator().next();
+//        Assert.assertEquals(diagnostic.message(), "main function is not allowed in azure functions");
+//    }
+//
+//    @Test
+//    public void submoduleTest() {
+//        BuildProject project = BuildProject.load(RESOURCE_DIRECTORY.resolve("submodule"));
+//        PackageCompilation compilation = project.currentPackage().getCompilation();
+//        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+//        Assert.assertEquals(diagnosticResult.errorCount(), 2);
+//        Iterator<Diagnostic> iterator = diagnosticResult.errors().iterator();
+//        Diagnostic unusedModuleDiag = iterator.next();
+//        Assert.assertEquals(unusedModuleDiag.message(), "unused module prefix 'mod1'");
+//        Diagnostic submoduleDiag = iterator.next();
+//        Assert.assertEquals(submoduleDiag.message(), "azure functions is not allowed inside sub modules");
+//    }
+//
+//    @Test
+//    public void singleFileTest() {
+//        SingleFileProject project = SingleFileProject.load(RESOURCE_DIRECTORY.resolve("single-file").resolve(
+//                "functions.bal"));
+//        PackageCompilation compilation = project.currentPackage().getCompilation();
+//        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+//        Assert.assertEquals(diagnosticResult.errorCount(), 1);
+//        Iterator<Diagnostic> iterator = diagnosticResult.errors().iterator();
+//        Diagnostic unusedModuleDiag = iterator.next();
+//        Assert.assertEquals(unusedModuleDiag.message(), "azure functions are only allowed in ballerina" +
+//                " projects");
+//    }
 
     @Test
-    public void submoduleTest() {
-        BuildProject project = BuildProject.load(RESOURCE_DIRECTORY.resolve("submodule"));
+    public void headerAnnotationTest() {
+        BuildProject project = BuildProject.load(RESOURCE_DIRECTORY.resolve("http-header-annotation"));
         PackageCompilation compilation = project.currentPackage().getCompilation();
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-        Assert.assertEquals(diagnosticResult.errorCount(), 2);
-        Iterator<Diagnostic> iterator = diagnosticResult.errors().iterator();
-        Diagnostic unusedModuleDiag = iterator.next();
-        Assert.assertEquals(unusedModuleDiag.message(), "unused module prefix 'mod1'");
-        Diagnostic submoduleDiag = iterator.next();
-        Assert.assertEquals(submoduleDiag.message(), "azure functions is not allowed inside sub modules");
-    }
-
-    @Test
-    public void singleFileTest() {
-        SingleFileProject project = SingleFileProject.load(RESOURCE_DIRECTORY.resolve("single-file").resolve(
-                "functions.bal"));
-        PackageCompilation compilation = project.currentPackage().getCompilation();
-        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-        Assert.assertEquals(diagnosticResult.errorCount(), 1);
-        Iterator<Diagnostic> iterator = diagnosticResult.errors().iterator();
-        Diagnostic unusedModuleDiag = iterator.next();
-        Assert.assertEquals(unusedModuleDiag.message(), "azure functions are only allowed in ballerina" +
-                " projects");
+        Object [] diagnostics =  diagnosticResult.errors().toArray();
+        Assert.assertEquals(diagnosticResult.errorCount(), 13);
+        String diagnosticMessage0 = "invalid annotation type on param 'a'";
+        String diagnosticMessage1 = "invalid union type of header param 'xRate': one of the 'string','int','float'," +
+                "'decimal','boolean' types, an array of the above types or a record which consists of the above " +
+                "types can only be union with '()'. Eg: string|() or string[]|()";
+        String diagnosticMessage2 = "invalid type of header param 'abc': One of the following types is expected: " +
+                "'string','int','float','decimal','boolean', an array of the above types or a record which consists " +
+                "of the above types";
+        String diagnosticMessage3 = "invalid union type of header param 'abc': one of the 'string','int','float'," +
+                "'decimal','boolean' types, an array of the above types or a record which consists of the above types "
+                + "can only be union with '()'. Eg: string|() or string[]|()";
+        String diagnosticMessage4 = "invalid union type of header param 'abc': one of the 'string','int','float'," +
+                "'decimal','boolean' types, an array of the above types or a record which consists of the above " +
+                "types can only be union with '()'. Eg: string|() or string[]|()";
+        String diagnosticMessage5 = "rest fields are not allowed for header binding records. " +
+                "Use 'http:Headers' type to access all headers";
+        String diagnosticMessage6 = "rest fields are not allowed for header binding records. " +
+                "Use 'http:Headers' type to access all headers";
+        String diagnosticMessage7 = "invalid type of header param 'abc': One of the following types is expected: " +
+                "'string','int','float','decimal','boolean', an array of the above types or a record which " +
+                "consists of the above types";
+        String diagnosticMessage8 = "invalid multiple resource parameter annotations for 'abc'";
+        String diagnosticMessage9 = "invalid type of header param 'abc': One of the following types is expected: " +
+                "'string','int','float','decimal','boolean', an array of the above types or a record which " +
+                "consists of the above types";
+        String diagnosticMessage10 = "invalid union type of header param 'abc': one of the 'string','int','float'," +
+                "'decimal','boolean' types, an array of the above types or a record which consists of the " +
+                "above types can only be union with '()'. Eg: string|() or string[]|()";
+        String diagnosticMessage11 = "invalid type of header param 'abc': One of the following types is expected: " +
+                "'string','int','float','decimal','boolean', an array of the above types or a record which " +
+                "consists of the above types";
+        String diagnosticMessage12 = "invalid union type of header param 'abc': one of the 'string','int','float'," +
+                "'decimal','boolean' types, an array of the above types or a record which consists of " +
+                "the above types can only be union with '()'. Eg: string|() or string[]|()";
+        Assert.assertEquals(((Diagnostic) diagnostics[0]).diagnosticInfo().messageFormat(), diagnosticMessage0);
+        Assert.assertEquals(((Diagnostic) diagnostics[1]).diagnosticInfo().messageFormat(), diagnosticMessage1);
+        Assert.assertEquals(((Diagnostic) diagnostics[2]).diagnosticInfo().messageFormat(), diagnosticMessage2);
+        Assert.assertEquals(((Diagnostic) diagnostics[3]).diagnosticInfo().messageFormat(), diagnosticMessage3);
+        Assert.assertEquals(((Diagnostic) diagnostics[4]).diagnosticInfo().messageFormat(), diagnosticMessage4);
+        Assert.assertEquals(((Diagnostic) diagnostics[5]).diagnosticInfo().messageFormat(), diagnosticMessage5);
+        Assert.assertEquals(((Diagnostic) diagnostics[6]).diagnosticInfo().messageFormat(), diagnosticMessage6);
+        Assert.assertEquals(((Diagnostic) diagnostics[7]).diagnosticInfo().messageFormat(), diagnosticMessage7);
+        Assert.assertEquals(((Diagnostic) diagnostics[8]).diagnosticInfo().messageFormat(), diagnosticMessage8);
+        Assert.assertEquals(((Diagnostic) diagnostics[9]).diagnosticInfo().messageFormat(), diagnosticMessage9);
+        Assert.assertEquals(((Diagnostic) diagnostics[10]).diagnosticInfo().messageFormat(), diagnosticMessage10);
+        Assert.assertEquals(((Diagnostic) diagnostics[11]).diagnosticInfo().messageFormat(), diagnosticMessage11);
+        Assert.assertEquals(((Diagnostic) diagnostics[12]).diagnosticInfo().messageFormat(), diagnosticMessage12);
     }
 }
