@@ -35,93 +35,97 @@ listener af:HttpListener ep2 = new ();
 @http:ServiceConfig {
     treatNilableAsOptional: false
 }
-service /hello on ep2 {
-    resource function post httpHeaderTest8(@http:Header string? Hoste) returns string? {
+service /httpHeader on ep2 {
+    resource function post nonTreatNilAsOpt\-Nil\-noHeaderTest(@http:Header string? Hoste) returns string? {
         return Hoste;
     }
 
-    resource function post httpHeaderTest14(@http:Header string Hoste) returns string {
+    resource function post nonTreatNilAsOpt\-nonNil\-noHeaderTest(@http:Header string Hoste) returns string {
         return Hoste;
 
     }
 
-    resource function post httpHeaderTest15(@http:Header string Hos) returns string {
+    resource function post nonTreatNilAsOpt\-nonNil\-HeaderTest(@http:Header string Hos) returns string {
         return Hos;
 
     }
 
-    resource function post httpHeaderTest16(@http:Header string? Hos) returns string? {
+    resource function post nonTreatNilAsOpt\-Nil\-HeaderTest(@http:Header string? Hos) returns string? {
         return Hos;
 
     }
 }
 
-listener af:HttpListener ep = new ();
+listener af:HttpListener ep3 = new ();
 
-service /hello on ep {
-    resource function post httpHeaderTest1(@http:Header {name: "Content-Type"} string contentType) returns string {
+service /httpHeader on ep3 {
+    resource function post retrFromAnnotField(@http:Header {name: "Content-Type"} string contentType) returns string {
 
         return contentType;
     }
 
-    resource function post httpHeaderTest2(@http:Header string Host) returns string {
+    resource function post retrFromParam(@http:Header string Host) returns string {
 
         return Host;
 
     }
 
-    resource function post httpHeaderTest3(@http:Header {name: "Content-Length"} int contentLength) returns int {
+    resource function post retrSingleVal(@http:Header {name: "Content-Length"} int contentLength) returns int {
 
         return contentLength + 10;
 
     }
 
-    resource function post httpHeaderTest4(@http:Header {name: "Content-Length"} int[] contentLength) returns int {
+    resource function post retrArrVal(@http:Header {name: "Content-Length"} int[] contentLength) returns int {
 
         return contentLength[0] + 15;
 
     }
 
-    resource function post httpHeaderTest5(@http:Header string[] test) returns string {
+    resource function post retrArrValStr(@http:Header string[] test) returns string {
         return test[0];
 
     }
 
-    resource function post httpHeaderTest6(@http:Header RateLimitHeaders rateLimiters) returns int {
+    resource function post retrAsRecord(@http:Header RateLimitHeaders rateLimiters) returns int {
         return rateLimiters.Content\-Length + 100;
 
     }
 
-    resource function post httpHeaderTest7(@http:Header string? Host) returns string? {
+    resource function post retrNilable(@http:Header string? Host) returns string? {
         return Host;
 
     }
 
-    resource function post httpHeaderTest9(@http:Header string Hoste) returns string { 
+    resource function post treatNilAsOpt\-nonNil\-noHeaderTest(@http:Header string Hoste) returns string { 
         return Hoste;
 
     }
 
-    resource function post httpHeaderTest10(@http:Header string Hos) returns string { 
+    resource function post treatNilAsOpt\-nonNil\-HeaderTest(@http:Header string Hos) returns string { 
         return Hos;
 
     }
 
-    resource function post httpHeaderTest11(@http:Header NoHeaderVal noHeaderVal) returns int {
+    resource function post retrAsRecordNoField(@http:Header NoHeaderVal noHeaderVal) returns int {
         return noHeaderVal.Content\-Length + 100;
 
     }
 
-    resource function post httpHeaderTest12(@http:Header string? Hoste) returns string? {
+    resource function post treatNilAsOpt\-Nil\-noHeaderTest(@http:Header string? Hoste) returns string? {
         return Hoste;
 
     }
 
-    resource function post httpHeaderTest13(@http:Header string? Hos) returns string? {
+    resource function post treatNilAsOpt\-Nil\-HeaderTest(@http:Header string? Hos) returns string? {
         return Hos;
 
     }
+}
+listener af:HttpListener ep = new ();
 
+service /hello on ep {
+    
     resource function default all() returns @af:HttpOutput string {
         return "Hello from all";
     }

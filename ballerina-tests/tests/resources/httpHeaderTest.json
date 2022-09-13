@@ -1,7 +1,7 @@
 {
     "Data":{
        "httpPayload":{
-          "Url":"https://az-func-http-test.azurewebsites.net/api/hello/FUNC_NAME",
+          "Url":"https://az-func-http-test.azurewebsites.net/api/httpHeader/FUNC_NAME",
           "Method":"POST",
           "Query":{
              
@@ -59,10 +59,10 @@
                 "45.121.88.92:53880"
              ],
              "X-Original-URL":[
-                "/api/hello/FUNC_NAME"
+                "/api/httpHeader/FUNC_NAME"
              ],
              "X-WAWS-Unencoded-URL":[
-                "/api/hello/FUNC_NAME"
+                "/api/httpHeader/FUNC_NAME"
              ]
           },
           "Params":{
@@ -83,7 +83,7 @@
                 "RoleClaimType":"http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
              }
           ],
-          "Body":"hello"
+          "Body":"httpHeader"
        }
     },
     "Metadata":{
@@ -107,11 +107,11 @@
           "X-ARR-SSL":"2048|256|CN=Microsoft Azure TLS Issuing CA 01, O=Microsoft Corporation, C=US|CN=*.azurewebsites.net, O=Microsoft Corporation, L=Redmond, S=WA, C=US",
           "X-Forwarded-TlsVersion":"1.2",
           "X-Forwarded-For":"45.121.88.92:53880",
-          "X-Original-URL":"/api/hello/FUNC_NAME",
-          "X-WAWS-Unencoded-URL":"/api/hello/FUNC_NAME"
+          "X-Original-URL":"/api/httpHeader/FUNC_NAME",
+          "X-WAWS-Unencoded-URL":"/api/httpHeader/FUNC_NAME"
        },
        "sys":{
-          "MethodName":"post-hello-FUNC_NAME",
+          "MethodName":"post-httpHeader-FUNC_NAME",
           "UtcNow":"2022-09-01T10:12:54.2952774Z",
           "RandGuid":"f891f95b-cc04-4e8c-b440-24b8da192b28"
        }

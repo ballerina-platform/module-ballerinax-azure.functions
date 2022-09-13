@@ -55,7 +55,7 @@ import static io.ballerina.runtime.api.TypeTags.FLOAT_TAG;
 import static io.ballerina.runtime.api.TypeTags.INT_TAG;
 
 /**
- * Represents a Azure Resource function property.
+ * Represents an Azure Resource function property.
  *
  * @since 2.0.0
  */

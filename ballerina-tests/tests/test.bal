@@ -5,193 +5,193 @@ import ballerina/regex;
 import ballerina/test;
 
 @test:Config {}
-function httpHeaderTest1() returns error? {
+function retrFromAnnotField() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/httpHeaderTest.json";
     string readString = check io:fileReadString(jsonFilePath);
-    string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "httpHeaderTest1");
+    string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "retrFromAnnotField");
     json readJson = check value:fromJsonString(replacedString);
-    json resp = check clientEndpoint->post("/post-hello-httpHeaderTest1", readJson);
+    json resp = check clientEndpoint->post("/post-httpHeader-retrFromAnnotField", readJson);
     json expectedResp = {"Outputs":{"resp":{"statusCode":"201", "headers":{"Content-Type":"text/plain"}, "body":"text/plain"}}, "Logs":[], "ReturnValue":null};
     test:assertEquals(resp, expectedResp);
 }
 
 @test:Config {}
-function httpHeaderTest2() returns error? {
+function retrFromParam() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/httpHeaderTest.json";
     string readString = check io:fileReadString(jsonFilePath);
-    string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "httpHeaderTest2");
+    string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "retrFromParam");
     json readJson = check value:fromJsonString(replacedString);
-    json resp = check clientEndpoint->post("/post-hello-httpHeaderTest2", readJson);
+    json resp = check clientEndpoint->post("/post-httpHeader-retrFromParam", readJson);
     json expectedResp = {"Outputs":{"resp":{"statusCode":"201", "headers":{"Content-Type":"text/plain"}, "body":"az-func-http-test.azurewebsites.net"}}, "Logs":[], "ReturnValue":null};
     test:assertEquals(resp, expectedResp);
 }
 
 @test:Config {}
-function httpHeaderTest3() returns error? {
+function retrSingleVal() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/httpHeaderTest.json";
     string readString = check io:fileReadString(jsonFilePath);
-    string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "httpHeaderTest3");
+    string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "retrSingleVal");
     json readJson = check value:fromJsonString(replacedString);
-    json resp = check clientEndpoint->post("/post-hello-httpHeaderTest3", readJson);
+    json resp = check clientEndpoint->post("/post-httpHeader-retrSingleVal", readJson);
     json expectedResp = {"Outputs":{"resp":{"statusCode":"201", "headers":{"Content-Type":"application/json"}, "body":15}}, "Logs":[], "ReturnValue":null};
     test:assertEquals(resp, expectedResp);
 }
 
 @test:Config {}
-function httpHeaderTest4() returns error? {
+function retrArrVal() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/httpHeaderTest.json";
     string readString = check io:fileReadString(jsonFilePath);
-    string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "httpHeaderTest4");
+    string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "retrArrVal");
     json readJson = check value:fromJsonString(replacedString);
-    json resp = check clientEndpoint->post("/post-hello-httpHeaderTest4", readJson);
+    json resp = check clientEndpoint->post("/post-httpHeader-retrArrVal", readJson);
     json expectedResp = {"Outputs":{"resp":{"statusCode":"201", "headers":{"Content-Type":"application/json"}, "body":20}}, "Logs":[], "ReturnValue":null};
     test:assertEquals(resp, expectedResp);
 }
 
 @test:Config {}
-function httpHeaderTest5() returns error? {
+function retrArrValStr() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/httpHeaderTest.json";
     string readString = check io:fileReadString(jsonFilePath);
-    string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "httpHeaderTest5");
+    string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "retrArrValStr");
     json readJson = check value:fromJsonString(replacedString);
-    json resp = check clientEndpoint->post("/post-hello-httpHeaderTest5", readJson);
+    json resp = check clientEndpoint->post("/post-httpHeader-retrArrValStr", readJson);
     json expectedResp = {"Outputs":{"resp":{"statusCode":"201", "headers":{"Content-Type":"text/plain"}, "body":"12"}}, "Logs":[], "ReturnValue":null};
     test:assertEquals(resp, expectedResp);
 }
 
 @test:Config {}
-function httpHeaderTest6() returns error? {
+function retrAsRecord() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/httpHeaderTest.json";
     string readString = check io:fileReadString(jsonFilePath);
-    string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "httpHeaderTest6");
+    string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "retrAsRecord");
     json readJson = check value:fromJsonString(replacedString);
-    json resp = check clientEndpoint->post("/post-hello-httpHeaderTest6", readJson);
+    json resp = check clientEndpoint->post("/post-httpHeader-retrAsRecord", readJson);
     json expectedResp = {"Outputs":{"resp":{"statusCode":"201", "headers":{"Content-Type":"application/json"}, "body":105}}, "Logs":[], "ReturnValue":null};
     test:assertEquals(resp, expectedResp);
 }
 
 @test:Config {}
-function httpHeaderTest7() returns error? {
+function retrNilable() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/httpHeaderTest.json";
     string readString = check io:fileReadString(jsonFilePath);
-    string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "httpHeaderTest7");
+    string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "retrNilable");
     json readJson = check value:fromJsonString(replacedString);
-    json resp = check clientEndpoint->post("/post-hello-httpHeaderTest7", readJson);
+    json resp = check clientEndpoint->post("/post-httpHeader-retrNilable", readJson);
     json expectedResp = {"Outputs":{"resp":{"statusCode":"201", "headers":{"Content-Type":"text/plain"}, "body":"az-func-http-test.azurewebsites.net"}}, "Logs":[], "ReturnValue":null};
     test:assertEquals(resp, expectedResp);
 }
 
 @test:Config {}
-function httpHeaderTest8() returns error? {
+function nnonTreatNilAsOpt\-Nil\-noHeaderTest() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/httpHeaderTest.json";
     string readString = check io:fileReadString(jsonFilePath);
-    string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "httpHeaderTest8");
+    string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "nonTreatNilAsOpt-Nil-noHeaderTest");
     json readJson = check value:fromJsonString(replacedString);
-    json resp = check clientEndpoint->post("/post-hello-httpHeaderTest8", readJson);
+    json resp = check clientEndpoint->post("/post-httpHeader-nonTreatNilAsOpt-Nil-noHeaderTest", readJson);
     json expectedResp = {"Outputs":{"resp":{"statusCode":400, "body":"no header value found for 'Hoste'", "headers":{"Content-Type":"text/plain"}}}, "Logs":[], "ReturnValue":null};
     test:assertEquals(resp, expectedResp);
 }
 
 @test:Config {}
-function httpHeaderTest9() returns error? {
+function treatNilAsOpt\-nonNil\-noHeaderTest() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/httpHeaderTest.json";
     string readString = check io:fileReadString(jsonFilePath);
-    string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "httpHeaderTest9");
+    string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "treatNilAsOpt-nonNil-noHeaderTest");
     json readJson = check value:fromJsonString(replacedString);
-    json resp = check clientEndpoint->post("/post-hello-httpHeaderTest9", readJson);
+    json resp = check clientEndpoint->post("/post-httpHeader-treatNilAsOpt-nonNil-noHeaderTest", readJson);
     json expectedResp = {"Outputs":{"resp":{"statusCode":400, "body":"no header value found for 'Hoste'", "headers":{"Content-Type":"text/plain"}}}, "Logs":[], "ReturnValue":null};
     test:assertEquals(resp, expectedResp);
 }
 
 @test:Config {}
-function httpHeaderTest10() returns error? {
+function treatNilAsOpt\-nonNil\-HeaderTest() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/httpHeaderTest.json";
     string readString = check io:fileReadString(jsonFilePath);
-    string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "httpHeaderTest10");
+    string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "treatNilAsOpt-nonNil-HeaderTest");
     json readJson = check value:fromJsonString(replacedString);
-    json resp = check clientEndpoint->post("/post-hello-httpHeaderTest10", readJson);
+    json resp = check clientEndpoint->post("/post-httpHeader-treatNilAsOpt-nonNil-HeaderTest", readJson);
     json expectedResp = {"Outputs":{"resp":{"statusCode":400, "body":"no header value found for 'Hos'", "headers":{"Content-Type":"text/plain"}}}, "Logs":[], "ReturnValue":null};
     test:assertEquals(resp, expectedResp);
 }
 
 @test:Config {}
-function httpHeaderTest11() returns error? {
+function retrAsRecordNoField() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/httpHeaderTest.json";
     string readString = check io:fileReadString(jsonFilePath);
-    string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "httpHeaderTest11");
+    string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "retrAsRecordNoField");
     json readJson = check value:fromJsonString(replacedString);
-    json resp = check clientEndpoint->post("/post-hello-httpHeaderTest11", readJson);
+    json resp = check clientEndpoint->post("/post-httpHeader-retrAsRecordNoField", readJson);
     json expectedResp = {"Outputs":{"resp":{"statusCode":400, "body":"no header value found for 'Content-Type1'", "headers":{"Content-Type":"text/plain"}}}, "Logs":[], "ReturnValue":null};
     test:assertEquals(resp, expectedResp);
 }
 
 @test:Config {}
-function httpHeaderTest12() returns error? {
+function treatNilAsOpt\-Nil\-noHeaderTest() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/httpHeaderTest.json";
     string readString = check io:fileReadString(jsonFilePath);
-    string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "httpHeaderTest12");
+    string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "treatNilAsOpt-Nil-noHeaderTest");
     json readJson = check value:fromJsonString(replacedString);
-    json resp = check clientEndpoint->post("/post-hello-httpHeaderTest12", readJson);
+    json resp = check clientEndpoint->post("/post-httpHeader-treatNilAsOpt-Nil-noHeaderTest", readJson);
     json expectedResp = {"Outputs":{"resp":{"statusCode":"202"}},"Logs":[],"ReturnValue":null};
     test:assertEquals(resp, expectedResp);
 }
 
 @test:Config {}
-function httpHeaderTest13() returns error? {
+function treatNilAsOpt\-Nil\-HeaderTest() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/httpHeaderTest.json";
     string readString = check io:fileReadString(jsonFilePath);
-    string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "httpHeaderTest13");
+    string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "treatNilAsOpt-Nil-HeaderTest");
     json readJson = check value:fromJsonString(replacedString);
-    json resp = check clientEndpoint->post("/post-hello-httpHeaderTest13", readJson);
+    json resp = check clientEndpoint->post("/post-httpHeader-treatNilAsOpt-Nil-HeaderTest", readJson);
     json expectedResp = {"Outputs":{"resp":{"statusCode":"202"}},"Logs":[],"ReturnValue":null};
     test:assertEquals(resp, expectedResp);
 }
 
 @test:Config {}
-function httpHeaderTest14() returns error? {
+function nonTreatNilAsOpt\-nonNil\-noHeaderTest() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/httpHeaderTest.json";
     string readString = check io:fileReadString(jsonFilePath);
-    string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "httpHeaderTest14");
+    string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "nonTreatNilAsOpt-nonNil-noHeaderTest");
     json readJson = check value:fromJsonString(replacedString);
-    json resp = check clientEndpoint->post("/post-hello-httpHeaderTest14", readJson);
+    json resp = check clientEndpoint->post("/post-httpHeader-nonTreatNilAsOpt-nonNil-noHeaderTest", readJson);
     json expectedResp = {"Outputs":{"resp":{"statusCode":400, "body":"no header value found for 'Hoste'", "headers":{"Content-Type":"text/plain"}}}, "Logs":[], "ReturnValue":null};
     test:assertEquals(resp, expectedResp);
 }
 
 @test:Config {}
-function httpHeaderTest15() returns error? {
+function nonTreatNilAsOpt\-nonNil\-HeaderTest() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/httpHeaderTest.json";
     string readString = check io:fileReadString(jsonFilePath);
-    string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "httpHeaderTest15");
+    string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "nonTreatNilAsOpt-nonNil-HeaderTest");
     json readJson = check value:fromJsonString(replacedString);
-    json resp = check clientEndpoint->post("/post-hello-httpHeaderTest15", readJson);
+    json resp = check clientEndpoint->post("/post-httpHeader-nonTreatNilAsOpt-nonNil-HeaderTest", readJson);
     json expectedResp = {"Outputs":{"resp":{"statusCode":400, "body":"no header value found for 'Hos'", "headers":{"Content-Type":"text/plain"}}}, "Logs":[], "ReturnValue":null};
     test:assertEquals(resp, expectedResp);
 }
 
 @test:Config {}
-function httpHeaderTest16() returns error? {
+function nonTreatNilAsOpt\-Nil\-HeaderTest() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/httpHeaderTest.json";
     string readString = check io:fileReadString(jsonFilePath);
-    string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "httpHeaderTest16");
+    string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "nonTreatNilAsOpt-Nil-HeaderTest");
     json readJson = check value:fromJsonString(replacedString);
-    json resp = check clientEndpoint->post("/post-hello-httpHeaderTest16", readJson);
+    json resp = check clientEndpoint->post("/post-httpHeader-nonTreatNilAsOpt-Nil-HeaderTest", readJson);
     json expectedResp = {"Outputs":{"resp":{"statusCode":"202"}},"Logs":[],"ReturnValue":null};
     test:assertEquals(resp, expectedResp);
 }

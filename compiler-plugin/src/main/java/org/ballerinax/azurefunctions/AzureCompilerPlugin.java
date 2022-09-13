@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -29,8 +29,6 @@ public class AzureCompilerPlugin extends CompilerPlugin {
     @Override
     public void init(CompilerPluginContext pluginContext) {
         pluginContext.addCodeAnalyzer(new AzureFunctionsCodeAnalyzer());
-//        pluginContext.addCodeGenerator(new AzureCodeGenerator());
-        //TODO add code anaylzer to validate listener annotations
         pluginContext.addCodeModifier(new AzureCodeModifier());
         pluginContext.addCompilerLifecycleListener(new AzureLifecycleListener());
     }
