@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.ballerinax.azurefunctions;
 
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -13,6 +30,11 @@ import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
+import io.ballerina.tools.diagnostics.DiagnosticFactory;
+import io.ballerina.tools.diagnostics.DiagnosticInfo;
+import io.ballerina.tools.diagnostics.DiagnosticProperty;
+import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextRange;
@@ -23,6 +45,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.List;
 import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -126,6 +149,30 @@ public class Util {
         }
 
         return normalizePath;
+    }
+
+    public static void updateDiagnostic(SyntaxNodeAnalysisContext ctx, Location location,
+                                        AzureDiagnosticCodes httpDiagnosticCodes) {
+        DiagnosticInfo diagnosticInfo = getDiagnosticInfo(httpDiagnosticCodes);
+        ctx.reportDiagnostic(DiagnosticFactory.createDiagnostic(diagnosticInfo, location));
+    }
+
+    public static void updateDiagnostic(SyntaxNodeAnalysisContext ctx, Location location,
+                                        AzureDiagnosticCodes azureDiagnosticCodes, Object... argName) {
+        DiagnosticInfo diagnosticInfo = getDiagnosticInfo(azureDiagnosticCodes, argName);
+        ctx.reportDiagnostic(DiagnosticFactory.createDiagnostic(diagnosticInfo, location));
+    }
+
+    public static void updateDiagnostic(SyntaxNodeAnalysisContext ctx, Location location,
+                                        AzureDiagnosticCodes azureDiagnosticCodes,
+                                        List<DiagnosticProperty<?>> diagnosticProperties, String argName) {
+        DiagnosticInfo diagnosticInfo = getDiagnosticInfo(azureDiagnosticCodes, argName);
+        ctx.reportDiagnostic(DiagnosticFactory.createDiagnostic(diagnosticInfo, location, diagnosticProperties));
+    }
+
+    public static DiagnosticInfo getDiagnosticInfo(AzureDiagnosticCodes  diagnostic, Object... args) {
+        return new DiagnosticInfo(diagnostic.getCode(), String.format(diagnostic.getMessage(), args),
+                diagnostic.getSeverity());
     }
 
 }

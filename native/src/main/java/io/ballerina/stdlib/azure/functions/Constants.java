@@ -37,6 +37,8 @@ public interface Constants {
     String HTTP_OUTPUT = "HttpOutput";
     String BLOB_OUTPUT = "BlobOutput";
     String PAYLOAD_ANNOTATAION = "Payload";
+    String HEADER_ANNOTATION = "Header";
+    String SERVICE_CONF_ANNOTATION = "ServiceConfig";
     String STATUS = "status";
     String CODE = "code";
     String STATUS_CODE = "statusCode";
@@ -67,4 +69,7 @@ public interface Constants {
     String PAYLOAD_NOT_FOUND_ERROR = "PayloadNotFoundError";
     String FUNCTION_NOT_FOUND_ERROR = "FunctionNotFoundError";
     String INVALID_PAYLOAD_ERROR = "InvalidPayloadError";
+    String HEADER_NOT_FOUND_ERROR = "HeaderNotFoundError";
+    String HTTP_PACKAGE_VERSION = "2";
+
 }

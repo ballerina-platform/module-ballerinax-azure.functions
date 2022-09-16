@@ -1,4 +1,4 @@
-// Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2022 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -33,6 +33,16 @@ public type HTTPTriggerConfiguration record {|
 |};
 
 public annotation Payload on parameter, return;
+
+# Defines the Header resource signature parameter.
+#
+# + name - Specifies the name of the required header
+public type HttpHeader record {|
+    string name?;
+|};
+
+# The annotation which is used to define the Header resource signature parameter.
+public annotation HttpHeader Header on parameter;
 
 # @azurefunctions:HttpOutput annotation
 public const annotation HttpOutput on parameter, return;

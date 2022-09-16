@@ -17,19 +17,20 @@
  */
 package org.ballerinax.azurefunctions;
 
-import io.ballerina.projects.plugins.CompilerPlugin;
-import io.ballerina.projects.plugins.CompilerPluginContext;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.projects.plugins.CodeAnalysisContext;
+import io.ballerina.projects.plugins.CodeAnalyzer;
+import org.ballerinax.azurefunctions.validators.AzureFunctionsCodeAnalyzerTask;
 
 /**
- * Azure Functions Compiler plugin initializer.
- * 
+ * Contains the code analyzers for azure functions.
+ *
  * @since 2.0.0
  */
-public class AzureCompilerPlugin extends CompilerPlugin {
+public class AzureFunctionsCodeAnalyzer extends CodeAnalyzer {
+
     @Override
-    public void init(CompilerPluginContext pluginContext) {
-        pluginContext.addCodeAnalyzer(new AzureFunctionsCodeAnalyzer());
-        pluginContext.addCodeModifier(new AzureCodeModifier());
-        pluginContext.addCompilerLifecycleListener(new AzureLifecycleListener());
+    public void init(CodeAnalysisContext codeAnalysisCtx) {
+        codeAnalysisCtx.addSyntaxNodeAnalysisTask(new AzureFunctionsCodeAnalyzerTask(), SyntaxKind.SERVICE_DECLARATION);
     }
 }

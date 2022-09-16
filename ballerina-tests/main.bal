@@ -1,8 +1,6 @@
 import ballerinax/azure_functions as af;
 import ballerina/http;
 
-listener af:HttpListener ep = new ();
-
 public type DBEntry record {
     string id;
 };
@@ -11,6 +9,17 @@ type Person record {
     string name;
     int age;
 };
+
+public type RateLimitHeaders record {|
+    int Content\-Length;
+    string Content\-Type;
+|};
+
+public type NoHeaderVal record {|
+    int Content\-Length;
+    string Content\-Type;
+    string Content\-Type1;
+|};
 
 listener af:HttpListener ep1 = new ();
 
@@ -21,7 +30,102 @@ service /hello\- on ep1 {
     }
 }
 
+listener af:HttpListener ep2 = new ();
+
+@http:ServiceConfig {
+    treatNilableAsOptional: false
+}
+service /httpHeader on ep2 {
+    resource function post nonTreatNilAsOpt\-Nil\-noHeaderTest(@http:Header string? Hoste) returns string? {
+        return Hoste;
+    }
+
+    resource function post nonTreatNilAsOpt\-nonNil\-noHeaderTest(@http:Header string Hoste) returns string {
+        return Hoste;
+
+    }
+
+    resource function post nonTreatNilAsOpt\-nonNil\-HeaderTest(@http:Header string Hos) returns string {
+        return Hos;
+
+    }
+
+    resource function post nonTreatNilAsOpt\-Nil\-HeaderTest(@http:Header string? Hos) returns string? {
+        return Hos;
+
+    }
+}
+
+listener af:HttpListener ep3 = new ();
+
+service /httpHeader on ep3 {
+    resource function post retrFromAnnotField(@http:Header {name: "Content-Type"} string contentType) returns string {
+
+        return contentType;
+    }
+
+    resource function post retrFromParam(@http:Header string Host) returns string {
+
+        return Host;
+
+    }
+
+    resource function post retrSingleVal(@http:Header {name: "Content-Length"} int contentLength) returns int {
+
+        return contentLength + 10;
+
+    }
+
+    resource function post retrArrVal(@http:Header {name: "Content-Length"} int[] contentLength) returns int {
+
+        return contentLength[0] + 15;
+
+    }
+
+    resource function post retrArrValStr(@http:Header string[] test) returns string {
+        return test[0];
+
+    }
+
+    resource function post retrAsRecord(@http:Header RateLimitHeaders rateLimiters) returns int {
+        return rateLimiters.Content\-Length + 100;
+
+    }
+
+    resource function post retrNilable(@http:Header string? Host) returns string? {
+        return Host;
+
+    }
+
+    resource function post treatNilAsOpt\-nonNil\-noHeaderTest(@http:Header string Hoste) returns string { 
+        return Hoste;
+
+    }
+
+    resource function post treatNilAsOpt\-nonNil\-HeaderTest(@http:Header string Hos) returns string { 
+        return Hos;
+
+    }
+
+    resource function post retrAsRecordNoField(@http:Header NoHeaderVal noHeaderVal) returns int {
+        return noHeaderVal.Content\-Length + 100;
+
+    }
+
+    resource function post treatNilAsOpt\-Nil\-noHeaderTest(@http:Header string? Hoste) returns string? {
+        return Hoste;
+
+    }
+
+    resource function post treatNilAsOpt\-Nil\-HeaderTest(@http:Header string? Hos) returns string? {
+        return Hos;
+
+    }
+}
+listener af:HttpListener ep = new ();
+
 service /hello on ep {
+    
     resource function default all() returns @af:HttpOutput string {
         return "Hello from all";
     }

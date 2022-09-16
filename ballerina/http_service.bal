@@ -41,7 +41,7 @@ isolated service class ResourceService {
 
 
 isolated function getResponsePayload (map<anydata>|error nativeResponse) returns json {
-    if (nativeResponse is PayloadNotFoundError || nativeResponse is InvalidPayloadError ) {
+    if (nativeResponse is PayloadNotFoundError || nativeResponse is InvalidPayloadError || nativeResponse is HeaderNotFoundError) {
         return {"Outputs": {"resp": {"statusCode": 400, "body": nativeResponse.message(),"headers": {"Content-Type": "text/plain"}}}, "Logs": [], "ReturnValue": null};
     } else if (nativeResponse is error) {
         return {"Outputs": {"resp": {"statusCode": 500}}, "Logs": [], "ReturnValue": null};

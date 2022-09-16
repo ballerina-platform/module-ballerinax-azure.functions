@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -29,6 +29,10 @@ public class Constants {
     public static final String REQUEST_PARAMS_NAME = "params";
     public static final String HTTP_CALLER_PARAMS_NAME = "caller";
     public static final String HTTP_REQUEST_PARAMS_NAME = "request";
+    public static final String REMOTE_KEYWORD = "remote";
+    public static final String HTTP = "http";
+    public static final String AZURE_FUNCTIONS = "azure_functions";
+    public static final String HEADER_ANNOTATION_TYPE = "HttpHeader";
     public static final String AZURE_FUNCTIONS_PACKAGE_ORG = "ballerinax"; 
     public static final String AZURE_FUNCTIONS_CONTEXT_NAME = "Context";
     public static final String AZURE_FUNCS_OUTPUT_ZIP_FILENAME = "azure-functions.zip";
