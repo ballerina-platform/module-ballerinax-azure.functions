@@ -330,7 +330,7 @@ public class HttpResource {
                 return null;
             }
             throw new HeaderNotFoundException("no header value found for '" + fieldName + "'");
-        } else if (headerValue ==  null) {
+        } else if (headerValue.getValue().equals("")) {
             //Handle header value not exist case
             if (isNilType(type)) {
                 return null;
