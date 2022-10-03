@@ -20,10 +20,13 @@ package org.ballerinax.azurefunctions;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
+import org.ballerinax.azurefunctions.tooling.Extensions;
+import org.ballerinax.azurefunctions.tooling.LocalSettings;
+import org.ballerinax.azurefunctions.tooling.Settings;
+import org.ballerinax.azurefunctions.tooling.Tasks;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -33,14 +36,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.HashMap;
+import java.nio.file.StandardOpenOption;
 import java.util.Map;
 
 /**
@@ -49,8 +49,10 @@ import java.util.Map;
 public class FunctionsArtifact {
 
     private static final String HOST_JSON_NAME = "host.json";
-
     private static final String FUNCTION_JSON_NAME = "function.json";
+
+    private static final String VSCODE_DIRECTORY = ".vscode";
+    private static final String GITIGNORE = ".gitignore";
 
     private Map<String, JsonObject> functions;
 
@@ -111,8 +113,8 @@ public class FunctionsArtifact {
         extensionBundle.add("id", new JsonPrimitive("Microsoft.Azure.Functions.ExtensionBundle"));
         extensionBundle.add("version", new JsonPrimitive("[2.*, 3.0.0)"));
     }
-
-    private InputStream jtos(JsonElement element) {
+    
+    private InputStream jtos(Object element) {
         try {
             return new ByteArrayInputStream(this.gson.toJson(element).getBytes(Constants.CHARSET));
         } catch (UnsupportedEncodingException e) {
@@ -120,12 +122,9 @@ public class FunctionsArtifact {
         }
     }
 
-    public void generate(String outputFileName) throws IOException {
+    public void generate() throws IOException {
         // if an earlier generated file is there, delete it, or else
         // this will merge content to the earlier artifact
-        Files.deleteIfExists(Paths.get(outputFileName));
-        Map<String, String> env = new HashMap<>();
-        env.put("create", "true");
         if (this.binaryPath == null) {
             return;
         }
@@ -133,20 +132,61 @@ public class FunctionsArtifact {
         if (parent == null) {
             return;
         }
-        URI uri = URI.create("jar:file:" + parent.resolve(outputFileName).toUri().getPath());
-        try (FileSystem zipfs = FileSystems.newFileSystem(uri, env)) {
-            Files.copy(this.binaryPath, zipfs.getPath("/" + this.binaryPath.getFileName()),
-                    StandardCopyOption.REPLACE_EXISTING);
-            Files.copy(this.jtos(this.hostJson), zipfs.getPath("/" + HOST_JSON_NAME),
-                    StandardCopyOption.REPLACE_EXISTING);
-            for (Map.Entry<String, JsonObject> entry : this.functions.entrySet()) {
-                Path functionDir = zipfs.getPath("/" + entry.getKey());
-                Files.createDirectory(functionDir);
-                Files.copy(this.jtos(entry.getValue()), functionDir.resolve(FUNCTION_JSON_NAME),
-                        StandardCopyOption.REPLACE_EXISTING);
-            }
+        Path targetDir = parent.getParent();
+        if (targetDir == null) {
+            return;
         }
-        Util.unzipFolder(parent.resolve(outputFileName), parent.resolve(Constants.AF_LOCAL_DIR));
+
+        Path projectDir = targetDir.getParent();
+        if (projectDir == null) {
+            return;
+        }
+        generateVsCodeConfigs(projectDir);
+        
+        Path functionsDir = targetDir.resolve(Constants.FUNCTION_DIRECTORY);
+        Files.createDirectory(functionsDir);
+        Files.copy(this.binaryPath, functionsDir.resolve(this.binaryPath.getFileName()),
+                StandardCopyOption.REPLACE_EXISTING);
+        Files.copy(this.jtos(this.hostJson), functionsDir.resolve(HOST_JSON_NAME),
+                    StandardCopyOption.REPLACE_EXISTING);
+        generateLocalSettings(functionsDir);
+        for (Map.Entry<String, JsonObject> entry : this.functions.entrySet()) {
+            Path functionDir = functionsDir.resolve(entry.getKey());
+            Files.createDirectory(functionDir);
+            Files.copy(this.jtos(entry.getValue()), functionDir.resolve(FUNCTION_JSON_NAME),
+                    StandardCopyOption.REPLACE_EXISTING);
+        }
+    }
+    
+    private void generateLocalSettings(Path azureFunctionsDir) throws IOException {
+        Files.copy(jtos(new LocalSettings()), azureFunctionsDir.resolve(Constants.SETTINGS_LOCAL_FILE_NAME),
+                StandardCopyOption.REPLACE_EXISTING);
+    }
+    
+    private void generateVsCodeConfigs(Path projectDir) throws IOException {
+        Path vsCodeDir = projectDir.resolve(VSCODE_DIRECTORY);
+        Files.createDirectories(vsCodeDir);
+        Files.copy(jtos(new Extensions()), vsCodeDir.resolve(Constants.EXTENSIONS_FILE_NAME),
+                StandardCopyOption.REPLACE_EXISTING);
+        Files.copy(jtos(new Settings()), vsCodeDir.resolve(Constants.SETTINGS_FILE_NAME),
+                StandardCopyOption.REPLACE_EXISTING);
+        Files.copy(jtos(new Tasks()), vsCodeDir.resolve(Constants.TASKS_FILE_NAME),
+                StandardCopyOption.REPLACE_EXISTING);
+        
+        addToGitIgnore(projectDir);
     }
 
+    private void addToGitIgnore(Path projectDir) throws IOException {
+        Path gitIgnore = projectDir.resolve(GITIGNORE);
+        if (!Files.exists(gitIgnore)) {
+            return;
+        }
+        String gitIgnoreContent = Files.readString(gitIgnore);
+        if (gitIgnoreContent.contains(VSCODE_DIRECTORY)) {
+            return;
+        }
+
+        Files.write(gitIgnore, VSCODE_DIRECTORY.getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);
+    }
 }
+
