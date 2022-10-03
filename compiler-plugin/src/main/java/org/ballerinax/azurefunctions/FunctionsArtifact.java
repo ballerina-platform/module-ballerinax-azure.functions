@@ -144,7 +144,7 @@ public class FunctionsArtifact {
         generateVsCodeConfigs(projectDir);
         
         Path functionsDir = targetDir.resolve(Constants.FUNCTION_DIRECTORY);
-        Files.createDirectory(functionsDir);
+        Files.createDirectories(functionsDir);
         Files.copy(this.binaryPath, functionsDir.resolve(this.binaryPath.getFileName()),
                 StandardCopyOption.REPLACE_EXISTING);
         Files.copy(this.jtos(this.hostJson), functionsDir.resolve(HOST_JSON_NAME),
@@ -152,7 +152,7 @@ public class FunctionsArtifact {
         generateLocalSettings(functionsDir);
         for (Map.Entry<String, JsonObject> entry : this.functions.entrySet()) {
             Path functionDir = functionsDir.resolve(entry.getKey());
-            Files.createDirectory(functionDir);
+            Files.createDirectories(functionDir);
             Files.copy(this.jtos(entry.getValue()), functionDir.resolve(FUNCTION_JSON_NAME),
                     StandardCopyOption.REPLACE_EXISTING);
         }
