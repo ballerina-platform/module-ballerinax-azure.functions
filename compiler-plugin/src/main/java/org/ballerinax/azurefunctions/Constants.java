@@ -58,5 +58,12 @@ public class Constants {
      public static final String DIRECTION_IN = "in";
      public static final String DIRECTION_OUT = "out";
      
-     public static final String AF_LOCAL_DIR = "azf-local";
+     public static final String FUNCTION_DIRECTORY = "azure_functions";
+
+     public static final String ARTIFACT_PATH = "target/" + FUNCTION_DIRECTORY;
+
+     public static final String SETTINGS_LOCAL_FILE_NAME = "local.settings.json";
+     public static final String EXTENSIONS_FILE_NAME = "extensions.json";
+     public static final String SETTINGS_FILE_NAME = "settings.json";
+     public static final String TASKS_FILE_NAME = "tasks.json";
  }

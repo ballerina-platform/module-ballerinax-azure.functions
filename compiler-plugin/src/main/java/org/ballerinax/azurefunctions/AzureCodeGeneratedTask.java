@@ -23,7 +23,6 @@ import io.ballerina.projects.plugins.CompilerLifecycleEventContext;
 import io.ballerina.projects.plugins.CompilerLifecycleTask;
 import org.ballerinax.azurefunctions.service.Binding;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Path;
@@ -48,7 +47,7 @@ public class AzureCodeGeneratedTask implements CompilerLifecycleTask<CompilerLif
                 new AzureFunctionServiceExtractor(compilerLifecycleEventContext.currentPackage());
         List<FunctionContext> functionContexts = azureFunctionServiceExtractor.extractFunctions();
         Map<String, JsonObject> generatedFunctions = new HashMap<>();
-        
+
         for (FunctionContext ctx : functionContexts) {
             JsonObject functions = new JsonObject();
             JsonArray bindings = new JsonArray();
@@ -72,20 +71,19 @@ public class AzureCodeGeneratedTask implements CompilerLifecycleTask<CompilerLif
             }
             OUT.println("\n\tExecute the below command to deploy the function locally:");
             OUT.println(
-                    "\tfunc start --script-root target/bin/azf-local --java");
+                    "\tfunc start --script-root " + Constants.ARTIFACT_PATH + " --java");
             OUT.println("\n\tExecute the below command to deploy Ballerina Azure Functions:");
             Path parent = path.getParent();
             if (parent != null) {
                 OUT.println(
-                        "\taz functionapp deployment source config-zip -g <resource_group> -n <function_app_name>" +
-                                " --src " + parent.toString() + File.separator +
-                                Constants.AZURE_FUNCS_OUTPUT_ZIP_FILENAME + "\n\n");
+                        "\tfunc azure functionapp publish <function_app_name> --script-root " +
+                                Constants.ARTIFACT_PATH + " \n\n");
             }
         });
     }
 
     private void generateFunctionsArtifact(Map<String, JsonObject> functions, Path binaryPath)
             throws IOException {
-        new FunctionsArtifact(functions, binaryPath).generate(Constants.AZURE_FUNCS_OUTPUT_ZIP_FILENAME);
+        new FunctionsArtifact(functions, binaryPath).generate();
     }
 }
