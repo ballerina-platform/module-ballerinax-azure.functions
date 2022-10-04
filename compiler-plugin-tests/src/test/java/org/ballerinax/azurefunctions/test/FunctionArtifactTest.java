@@ -75,7 +75,7 @@ public class FunctionArtifactTest {
 
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
         Assert.assertFalse(diagnosticResult.hasErrors());
-        Assert.assertEquals(generatedFunctions.size(), 19);
+        Assert.assertEquals(generatedFunctions.size(), 24);
     }
 
     @Test
@@ -84,6 +84,17 @@ public class FunctionArtifactTest {
         String str =
                 "{\"bindings\":[{\"type\":\"httpTrigger\",\"authLevel\":\"anonymous\",\"methods\":[\"post\"]," +
                         "\"direction\":\"in\",\"name\":\"httpPayload\",\"route\":\"hello/optional\"}," +
+                        "{\"type\":\"http\",\"direction\":\"out\",\"name\":\"resp\"}]}";
+        JsonElement parse = jsonParser.parse(str);
+        Assert.assertEquals(httpHello, parse);
+    }
+
+    @Test
+    public void testHttpTriggerInlineListener() {
+        JsonObject httpHello = generatedFunctions.get("post-helo-hello-query");
+        String str =
+                "{\"bindings\":[{\"type\":\"httpTrigger\",\"authLevel\":\"anonymous\",\"methods\":[\"post\"]," +
+                        "\"direction\":\"in\",\"name\":\"httpPayload\",\"route\":\"helo/hello-query\"}," +
                         "{\"type\":\"http\",\"direction\":\"out\",\"name\":\"resp\"}]}";
         JsonElement parse = jsonParser.parse(str);
         Assert.assertEquals(httpHello, parse);
@@ -156,8 +167,33 @@ public class FunctionArtifactTest {
     }
 
     @Test
+    public void testQueueTriggerInlineListener() {
+        JsonObject actual = generatedFunctions.get("queue1");
+        String str =
+                "{\"bindings\":[{\"type\":\"queueTrigger\",\"connection\":\"AzureWebJobsStorage\"," +
+                        "\"queueName\":\"queue21\",\"direction\":\"in\",\"name\":\"inMsg\"},{\"type\":\"queue\"," +
+                        "\"connection\":\"AzureWebJobsStorage\",\"queueName\":\"queue3\",\"direction\":\"out\"," +
+                        "\"name\":\"outMsg\"}]}";
+        JsonElement parse = jsonParser.parse(str);
+        Assert.assertEquals(actual, parse);
+    }
+
+    @Test
     public void testCosmosTrigger() {
         JsonObject actual = generatedFunctions.get("cosmos");
+        String str =
+                "{\"bindings\":[{\"type\":\"cosmosDBTrigger\",\"connectionStringSetting\":\"CosmosDBConnection\"," +
+                        "\"databaseName\":\"db1\",\"collectionName\":\"c2\",\"name\":\"inMsg\",\"direction\":\"in\"," +
+                        "\"createLeaseCollectionIfNotExists\":true,\"leasesCollectionThroughput\":400}," +
+                        "{\"type\":\"queue\",\"connection\":\"AzureWebJobsStorage\",\"queueName\":\"queue3\"," +
+                        "\"direction\":\"out\",\"name\":\"outMsg\"}]}";
+        JsonElement parse = jsonParser.parse(str);
+        Assert.assertEquals(actual, parse);
+    }
+
+    @Test
+    public void testCosmosTriggerInlineListener() {
+        JsonObject actual = generatedFunctions.get("cosmos1");
         String str =
                 "{\"bindings\":[{\"type\":\"cosmosDBTrigger\",\"connectionStringSetting\":\"CosmosDBConnection\"," +
                         "\"databaseName\":\"db1\",\"collectionName\":\"c2\",\"name\":\"inMsg\",\"direction\":\"in\"," +
@@ -179,8 +215,29 @@ public class FunctionArtifactTest {
     }
 
     @Test
+    public void testTimerTriggerInlineListener() {
+        JsonObject actual = generatedFunctions.get("timer1");
+        String str = "{\"bindings\":[{\"type\":\"timerTrigger\",\"schedule\":\"*/10 * * * * *\"," +
+                "\"runOnStartup\":true,\"direction\":\"in\",\"name\":\"inMsg\"},{\"type\":\"queue\",\"connection\":" +
+                "\"AzureWebJobsStorage\",\"queueName\":\"queue3\",\"direction\":\"out\",\"name\":\"outMsg\"}]}";
+        JsonElement parse = jsonParser.parse(str);
+        Assert.assertEquals(actual, parse);
+    }
+
+    @Test
     public void testBlobTrigger() {
         JsonObject actual = generatedFunctions.get("blob");
+        String str = "{\"bindings\":[{\"type\":\"blobTrigger\",\"name\":\"blobIn\",\"direction\":\"in\"," +
+                "\"path\":\"bpath1/{name}\",\"connection\":\"AzureWebJobsStorage\"},{\"type\":\"blob\"," +
+                "\"direction\":\"out\",\"name\":\"outMsg\",\"path\":\"bpath1/newBlob\"," +
+                "\"connection\":\"AzureWebJobsStorage\",\"dataType\":\"string\"}]}";
+        JsonElement parse = jsonParser.parse(str);
+        Assert.assertEquals(actual, parse);
+    }
+
+    @Test
+    public void testBlobTriggerInlineListener() {
+        JsonObject actual = generatedFunctions.get("blob1");
         String str = "{\"bindings\":[{\"type\":\"blobTrigger\",\"name\":\"blobIn\",\"direction\":\"in\"," +
                 "\"path\":\"bpath1/{name}\",\"connection\":\"AzureWebJobsStorage\"},{\"type\":\"blob\"," +
                 "\"direction\":\"out\",\"name\":\"outMsg\",\"path\":\"bpath1/newBlob\"," +

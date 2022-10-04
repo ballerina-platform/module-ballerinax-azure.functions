@@ -21,6 +21,13 @@ service /hello\- on ep1 {
     }
 }
 
+service /helo on new af:HttpListener() {
+
+    resource function post hello\-query() returns string|error {
+        return "Hello from the hello-query";
+    }
+}
+
 // @af:HTTPTest
 service /hello on ep {
     resource function default all() returns @af:HttpOutput string {
@@ -94,6 +101,17 @@ service "queue" on queueListener {
     }
 }
 
+
+@af:QueueTrigger {
+    queueName: "queue21"
+}
+service "queue1" on new af:QueueListener() {
+    remote function onMessage (string inMsg) returns @af:QueueOutput {queueName: "queue3"} string|error {
+                return "helloo "+ inMsg;
+    }
+}
+
+
 @af:CosmosDBTrigger {connectionStringSetting: "CosmosDBConnection", databaseName: "db1", collectionName: "c2"}
 listener af:CosmosDBListener cosmosEp = new ();
 
@@ -104,9 +122,27 @@ service "cosmos" on cosmosEp {
     }
 }
 
+
+@af:CosmosDBTrigger {connectionStringSetting: "CosmosDBConnection", databaseName: "db1", collectionName: "c2"}
+service "cosmos1" on new af:CosmosDBListener() {
+    remote function onUpdated (DBEntry[] inMsg) returns @af:QueueOutput {queueName: "queue3"} string|error {
+        string id = inMsg[0].id;
+        return "helloo "+ id;
+    }
+}
+
+
 @af:TimerTrigger { schedule: "*/10 * * * * *" } 
 listener af:TimerListener timerListener = new af:TimerListener();
 service "timer" on timerListener {
+    remote function onTrigger (af:TimerMetadata inMsg) returns @af:QueueOutput {queueName: "queue3"} string|error {
+            return "helloo "+ inMsg.IsPastDue.toString();
+    }
+}
+
+
+@af:TimerTrigger { schedule: "*/10 * * * * *" } 
+service "timer1" on new af:TimerListener() {
     remote function onTrigger (af:TimerMetadata inMsg) returns @af:QueueOutput {queueName: "queue3"} string|error {
             return "helloo "+ inMsg.IsPastDue.toString();
     }
@@ -118,6 +154,17 @@ service "timer" on timerListener {
 listener af:BlobListener blobListener = new af:BlobListener();
 
 service "blob" on blobListener {
+    remote function onUpdated (byte[] blobIn, @af:BindingName { } string name) returns @af:BlobOutput { 
+        path: "bpath1/newBlob" } byte[]|error {
+        return blobIn;
+    }
+}
+
+@af:BlobTrigger {
+    path: "bpath1/{name}"
+}
+
+service "blob1" on new af:BlobListener() {
     remote function onUpdated (byte[] blobIn, @af:BindingName { } string name) returns @af:BlobOutput { 
         path: "bpath1/newBlob" } byte[]|error {
         return blobIn;
