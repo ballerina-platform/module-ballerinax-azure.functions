@@ -40,9 +40,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Test case for checking generated source of handler.
+ * Test cases to generated function.json in different cases.
+ * 
+ * @since 2201.3.0
  */
-public class HandlerTest {
+public class FunctionArtifactTest {
 
     public static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/handlers/");
 

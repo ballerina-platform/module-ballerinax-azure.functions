@@ -22,13 +22,9 @@ import org.ballerinax.azurefunctions.test.utils.TestUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import java.net.URI;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
 
 /**
  * Azure functions deployment test.
@@ -39,26 +35,20 @@ public class DeploymentTest {
     
     @Test
     public void testAzureFunctionsDeploymentProject() throws Exception {
-        Path depedenciesToml = SOURCE_DIR.resolve("deployment").resolve("Dependencies.toml");
+        Path handlers = SOURCE_DIR.resolve("handlers");
+        Path depedenciesToml = handlers.resolve("Dependencies.toml");
         Files.deleteIfExists(depedenciesToml);
-        ProcessOutput processOutput = TestUtils.compileBallerinaProject(SOURCE_DIR.resolve("deployment"));
+        ProcessOutput processOutput = TestUtils.compileBallerinaProject(handlers);
         Assert.assertEquals(processOutput.getExitCode(), 0);
         Assert.assertTrue(processOutput.getStdOutput().contains("@azure_functions"));
         
         // check if the executable jar and the host.json files are in the generated zip file
-        Path zipFilePath = SOURCE_DIR.resolve("deployment").resolve("target").resolve("bin").resolve("azure-functions" +
-                ".zip");
+        Path zipFilePath = handlers.resolve("target").resolve("azure_functions");
         Assert.assertTrue(Files.exists(zipFilePath));
-        URI uri = URI.create("jar:file:" + zipFilePath.toUri().getPath());
-        FileSystem zipfs = FileSystems.newFileSystem(uri, new HashMap<>());
-        try {
-            Path jarFile = zipfs.getPath("/deployment.jar");
-            Path hostJson = zipfs.getPath("/host.json");
-            Assert.assertTrue(Files.exists(jarFile));
-            Assert.assertTrue(Files.exists(hostJson));
-        } finally {
-            zipfs.close();
-        }
+
+        Assert.assertTrue(Files.exists(zipFilePath.resolve("azure_functions_tests.jar")));
+        Assert.assertTrue(Files.exists(zipFilePath.resolve("host.json")));
+        Files.deleteIfExists(depedenciesToml);
     }
 }
 
