@@ -19,6 +19,7 @@ import org.ballerinax.azurefunctions.Util;
 import java.util.List;
 import java.util.Optional;
 
+import static io.ballerina.compiler.syntax.tree.SyntaxKind.EXPLICIT_NEW_EXPRESSION;
 /**
  * Represents an Trigger Binding in Azure Functions.
  *
@@ -37,18 +38,23 @@ public abstract class TriggerBinding extends Binding {
     public Optional<AnnotationNode> getListenerAnnotation(ServiceDeclarationNode svcDeclNode, String annotationName) {
         //TODO handle inline decl
         for (ExpressionNode expression : svcDeclNode.expressions()) {
-            Optional<Symbol> symbol = this.semanticModel.symbol(expression);
-            if (symbol.isEmpty()) {
-                continue;
+            Optional<MetadataNode> metadata;
+            if (expression.kind() == EXPLICIT_NEW_EXPRESSION) {
+                metadata = svcDeclNode.metadata();
+            } else {
+                Optional<Symbol> symbol = this.semanticModel.symbol(expression);
+                if (symbol.isEmpty()) {
+                    continue;
+                }
+                Symbol listenerSymbol = symbol.get();
+                if (listenerSymbol.kind() != SymbolKind.VARIABLE) {
+                    continue;
+                }
+                VariableSymbol variableSymbol = (VariableSymbol) listenerSymbol;
+                ListenerDeclarationNode listenerDeclarationNode =
+                        (ListenerDeclarationNode) Util.findNode(svcDeclNode, variableSymbol);
+                metadata = listenerDeclarationNode.metadata();
             }
-            Symbol listenerSymbol = symbol.get();
-            if (listenerSymbol.kind() != SymbolKind.VARIABLE) {
-                continue;
-            }
-            VariableSymbol variableSymbol = (VariableSymbol) listenerSymbol;
-            ListenerDeclarationNode listenerDeclarationNode =
-                    (ListenerDeclarationNode) Util.findNode(svcDeclNode, variableSymbol);
-            Optional<MetadataNode> metadata = listenerDeclarationNode.metadata();
             if (metadata.isEmpty()) {
                 continue;
             }
@@ -79,7 +85,6 @@ public abstract class TriggerBinding extends Binding {
 //                }
 //            }
         }
-
         return Optional.empty();
     }
 

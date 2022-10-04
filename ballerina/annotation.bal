@@ -23,7 +23,7 @@ public type AZFunctionConfiguration record {|
 |};
 
 public type AUTH_LEVEL "anonymous"|"function"|"admin";
-public const annotation HTTPTriggerConfiguration HttpTrigger on source listener;
+public const annotation HTTPTriggerConfiguration HttpTrigger on source listener, service;
 
 # HTTPTrigger annotation configuration.
 # 
