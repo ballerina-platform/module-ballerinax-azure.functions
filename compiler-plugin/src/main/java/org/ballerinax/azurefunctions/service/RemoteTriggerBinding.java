@@ -69,7 +69,7 @@ public abstract class RemoteTriggerBinding extends TriggerBinding {
                     continue;
                 }
                 String variableName = reqParam.paramName().get().text();
-                if (isPayloadAnnotationExist(reqParam.annotations())) {
+                if (!isAzureFunctionsAnnotationExist(reqParam.annotations())) {
                     this.setVarName(variableName);
                     continue;
                 }

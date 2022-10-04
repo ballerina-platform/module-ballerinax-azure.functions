@@ -1,6 +1,7 @@
 package org.ballerinax.azurefunctions.service;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
@@ -10,9 +11,7 @@ import io.ballerina.compiler.syntax.tree.ListenerDeclarationNode;
 import io.ballerina.compiler.syntax.tree.MetadataNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
-import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
-import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinax.azurefunctions.Constants;
 import org.ballerinax.azurefunctions.FunctionContext;
 import org.ballerinax.azurefunctions.Util;
@@ -84,14 +83,24 @@ public abstract class TriggerBinding extends Binding {
         return Optional.empty();
     }
 
-    protected boolean isPayloadAnnotationExist(NodeList<AnnotationNode> nodes) {
+    protected boolean isAzureFunctionsAnnotationExist(NodeList<AnnotationNode> nodes) {
         for (AnnotationNode annotation : nodes) {
             Node annotRef = annotation.annotReference();
-            if (annotRef.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
-                QualifiedNameReferenceNode annotationRef = (QualifiedNameReferenceNode) annotRef;
-                if (annotationRef.identifier().text().equals("Payload")) { //Add other stuff
-                    return true;
-                }
+            Optional<Symbol> annotationSymbol = semanticModel.symbol(annotRef);
+            if (annotationSymbol.isEmpty()) {
+                continue;
+            }
+            Optional<ModuleSymbol> module = annotationSymbol.get().getModule();
+            if (module.isEmpty()) {
+                continue;
+            }
+            Optional<String> name = module.get().getName();
+            if (name.isEmpty()) {
+                continue;
+            }
+
+            if (name.get().equals(Constants.AZURE_FUNCTIONS_MODULE_NAME)) {
+                return true;
             }
         }
         return false;
