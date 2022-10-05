@@ -158,8 +158,7 @@ public class HTTPTriggerBinding extends TriggerBinding {
                 continue;
             }
             QualifiedNameReferenceNode qualifiedRef = (QualifiedNameReferenceNode) ref;
-            if (!qualifiedRef.identifier().text().equals("AzureFunction") ||
-                    !qualifiedRef.modulePrefix().text().equals("af")) {
+            if (!qualifiedRef.identifier().text().equals(Constants.FUNCTION_ANNOTATION)) {
                 continue;
             }
             Optional<MappingConstructorExpressionNode> val =

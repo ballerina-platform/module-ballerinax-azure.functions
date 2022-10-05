@@ -22,10 +22,14 @@ package io.ballerina.stdlib.azure.functions;
  * {@code Constants} contains the public constants to be used.
  */
 public interface Constants {
+
     String SLASH = "/";
 
     String PACKAGE_ORG = "ballerinax";
     String PACKAGE_NAME = "azure_functions";
+
+    String PACKAGE_COMPLETE = PACKAGE_ORG + "/" + PACKAGE_NAME + ":3";
+    String FUNCTION_ANNOTATION_COMPLETE = PACKAGE_COMPLETE + ":Function";
     String HTTP_PACKAGE_ORG = "ballerina";
     String HTTP_PACKAGE_NAME = "http";
 
@@ -71,5 +75,4 @@ public interface Constants {
     String INVALID_PAYLOAD_ERROR = "InvalidPayloadError";
     String HEADER_NOT_FOUND_ERROR = "HeaderNotFoundError";
     String HTTP_PACKAGE_VERSION = "2";
-
 }

@@ -73,8 +73,6 @@ public class ParamHandler {
             }
         }
         return false;
-//        Object value = ((BMap<?, ?>) annotation).get(StringUtils.fromString("ballerinax/azure_functions:3:Payload"));
-//        return value instanceof Boolean;
     }
 
     public static boolean isHeaderAnnotationParam(Object annotation) {
@@ -146,7 +144,7 @@ public class ParamHandler {
         }
 
         Object value =
-                ((BMap<?, ?>) annotation).get(StringUtils.fromString("ballerinax/azure_functions:3:BindingName"));
+                ((BMap<?, ?>) annotation).get(StringUtils.fromString(Constants.PACKAGE_COMPLETE + ":BindingName"));
         return value != null;
     }
 

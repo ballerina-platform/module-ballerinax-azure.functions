@@ -54,7 +54,7 @@ public class NativeHttpToAzureAdaptor {
         List<BString> functionNameList = new ArrayList<>();
         for (ResourceMethodType resourceMethod : svcType.getResourceMethods()) {
             BString functionName = ((BMap) resourceMethod
-                    .getAnnotation(StringUtils.fromString("ballerinax/azure_functions:3:AzureFunction")))
+                    .getAnnotation(StringUtils.fromString(Constants.FUNCTION_ANNOTATION_COMPLETE)))
                     .getStringValue(StringUtils.fromString("name"));
             functionNameList.add(functionName);
         }
@@ -108,9 +108,9 @@ public class NativeHttpToAzureAdaptor {
     private static Optional<ResourceMethodType> getResourceMethodType(ResourceMethodType[] types,
                                                                       BString enteredFunctionName) {
         for (ResourceMethodType type : types) {
-            BString functionName = ((BMap) type
-                    .getAnnotation(StringUtils.fromString("ballerinax/azure_functions:3:AzureFunction")))
-                    .getStringValue(StringUtils.fromString("name"));
+            BString functionName =
+                    ((BMap) type.getAnnotation(StringUtils.fromString(Constants.FUNCTION_ANNOTATION_COMPLETE)))
+                            .getStringValue(StringUtils.fromString("name"));
 
             if (functionName.toString().equals(enteredFunctionName.toString())) {
                 return Optional.of(type);

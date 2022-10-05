@@ -111,7 +111,7 @@ public class AzureFunctionModifier extends TreeModifier {
         QualifiedNameReferenceNode azureFunctionAnnotRef =
                 NodeFactory.createQualifiedNameReferenceNode(NodeFactory.createIdentifierToken(modulePrefix),
                         NodeFactory.createToken(SyntaxKind.COLON_TOKEN),
-                        NodeFactory.createIdentifierToken("AzureFunction"));
+                        NodeFactory.createIdentifierToken(Constants.FUNCTION_ANNOTATION));
         LiteralValueToken literalValueToken =
                 NodeFactory.createLiteralValueToken(SyntaxKind.STRING_LITERAL_TOKEN, "\"" + functionName +
                         "\"", NodeFactory.createEmptyMinutiaeList(), AbstractNodeFactory
