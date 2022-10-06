@@ -29,7 +29,7 @@ def ballerinaTomlFilePlaceHolder = new File("${project.rootDir}/build-config/res
 def ballerinaTomlFile = new File("$project.projectDir/Ballerina.toml")
 def ballerinaDist = "${project.rootDir}/target/ballerina-runtime"
 def distributionBinPath =  "${ballerinaDist}/bin"
-def testCoverageParam = "--code-coverage --includes=*"
+def testCoverageParam = "--test-report --code-coverage --coverage-format=xml --includes=io.ballerina.stdlib.azure.functions.*:ballerinax.azure_functions"
 
 def stripBallerinaExtensionVersion(String extVersion) {
     if (extVersion.matches(project.ext.timestampedVersionRegex)) {
