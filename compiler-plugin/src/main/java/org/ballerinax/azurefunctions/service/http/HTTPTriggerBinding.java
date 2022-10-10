@@ -89,7 +89,12 @@ public class HTTPTriggerBinding extends TriggerBinding {
                 }
                 //TODO add wildcard
             }
-            httpTriggerBinding.setPath(resourcePath.toString());
+            String resPath = resourcePath.toString();
+            if (resPath.startsWith("/")) {
+                httpTriggerBinding.setPath(resPath.substring(1));
+            } else {
+                httpTriggerBinding.setPath(resPath);
+            }
             bindings.add(httpTriggerBinding);
             String variableName;
             SeparatedNodeList<ParameterNode> parameters = functionDefinitionNode.functionSignature().parameters();
