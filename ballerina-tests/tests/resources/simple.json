@@ -1,7 +1,7 @@
 {
     "Data": {
         "httpPayload": {
-            "Url": "https://functions1778.azurewebsites.net/api/hello",
+            "Url": "https://functions1778.azurewebsites.net/hello",
             "Method": "POST",
             "Query": {},
             "Headers": {
@@ -12,12 +12,12 @@
                 "Host": ["functions1778.azurewebsites.net"],
                 "Max-Forwards": ["9"],
                 "User-Agent": ["curl/7.71.1"],
-                "X-WAWS-Unencoded-URL": ["/api/hello"],
+                "X-WAWS-Unencoded-URL": ["/hello"],
                 "CLIENT-IP": ["10.0.128.35:48692"],
                 "X-ARR-LOG-ID": ["b1d1b77a-689a-41a0-8e6e-aeb9563c7c41"],
                 "X-SITE-DEPLOYMENT-ID": ["functions1778"],
                 "WAS-DEFAULT-HOSTNAME": ["functions1778.azurewebsites.net"],
-                "X-Original-URL": ["/api/hello"],
+                "X-Original-URL": ["/hello"],
                 "X-Forwarded-For": ["45.30.94.9:41710"],
                 "X-ARR-SSL": ["2048|256|C=US, O=Microsoft Corporation, CN=Microsoft RSA TLS CA 01|CN=*.azurewebsites.net"],
                 "X-Forwarded-Proto": ["https"],
@@ -52,12 +52,12 @@
             "Host": "functions1778.azurewebsites.net",
             "Max-Forwards": "9",
             "User-Agent": "curl/7.71.1",
-            "X-WAWS-Unencoded-URL": "/api/hello",
+            "X-WAWS-Unencoded-URL": "/hello",
             "CLIENT-IP": "10.0.128.35:48692",
             "X-ARR-LOG-ID": "b1d1b77a-689a-41a0-8e6e-aeb9563c7c41",
             "X-SITE-DEPLOYMENT-ID": "functions1778",
             "WAS-DEFAULT-HOSTNAME": "functions1778.azurewebsites.net",
-            "X-Original-URL": "/api/hello",
+            "X-Original-URL": "/hello",
             "X-Forwarded-For": "45.30.94.9:41710",
             "X-ARR-SSL": "2048|256|C=US, O=Microsoft Corporation, CN=Microsoft RSA TLS CA 01|CN=*.azurewebsites.net",
             "X-Forwarded-Proto": "https",
