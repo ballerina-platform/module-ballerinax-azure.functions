@@ -288,7 +288,7 @@ dependencies = [
 [[package]]
 org = "ballerinax"
 name = "azure_functions"
-version = "3.0.0"
+version = "3.0.0-alpha.1"
 dependencies = [
 	{org = "ballerina", name = "http"},
 	{org = "ballerina", name = "io"},
