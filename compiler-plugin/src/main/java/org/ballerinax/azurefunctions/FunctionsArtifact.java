@@ -176,10 +176,12 @@ public class FunctionsArtifact {
     }
 
     private void deleteDirectory(Path azureFunctionsDir) throws IOException {
-        Files.walk(azureFunctionsDir)
-                .sorted(Comparator.reverseOrder())
-                .map(Path::toFile)
-                .forEach(File::delete);
+        if (azureFunctionsDir.toFile().exists()) {
+            Files.walk(azureFunctionsDir)
+                    .sorted(Comparator.reverseOrder())
+                    .map(Path::toFile)
+                    .forEach(File::delete);
+        }
     }
 
     private void generateLocalSettings(Path azureFunctionsDir) throws IOException {
