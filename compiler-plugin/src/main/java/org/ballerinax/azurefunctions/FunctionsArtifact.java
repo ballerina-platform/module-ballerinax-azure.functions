@@ -41,7 +41,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
+import java.util.Comparator;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Represents the output artifact (.zip) generated for Azure Functions.
@@ -149,12 +151,22 @@ public class FunctionsArtifact {
         generateVsCodeConfigs(projectDir);
 
         Path functionsDir = targetDir.resolve(Constants.FUNCTION_DIRECTORY);
+        Optional<String> cachedLocalSettings = cacheLocalSettings(functionsDir);
+        deleteDirectory(functionsDir);
         Files.createDirectories(functionsDir);
         Files.copy(this.binaryPath, functionsDir.resolve(this.binaryPath.getFileName()),
                 StandardCopyOption.REPLACE_EXISTING);
         Files.copy(this.jtos(this.hostJson), functionsDir.resolve(HOST_JSON_NAME),
                 StandardCopyOption.REPLACE_EXISTING);
-        generateLocalSettings(functionsDir);
+        if (cachedLocalSettings.isEmpty()) {
+            generateLocalSettings(functionsDir);
+        } else {
+            String localSettings = cachedLocalSettings.get();
+            ByteArrayInputStream inStream =
+                    new ByteArrayInputStream(localSettings.getBytes(StandardCharsets.UTF_8));
+            Files.copy(inStream, functionsDir.resolve(Constants.SETTINGS_LOCAL_FILE_NAME),
+                    StandardCopyOption.REPLACE_EXISTING);
+        }
         for (Map.Entry<String, JsonObject> entry : this.functions.entrySet()) {
             Path functionDir = functionsDir.resolve(entry.getKey());
             Files.createDirectories(functionDir);
@@ -163,9 +175,24 @@ public class FunctionsArtifact {
         }
     }
 
+    private void deleteDirectory(Path azureFunctionsDir) throws IOException {
+        Files.walk(azureFunctionsDir)
+                .sorted(Comparator.reverseOrder())
+                .map(Path::toFile)
+                .forEach(File::delete);
+    }
+
     private void generateLocalSettings(Path azureFunctionsDir) throws IOException {
         Files.copy(jtos(new LocalSettings()), azureFunctionsDir.resolve(Constants.SETTINGS_LOCAL_FILE_NAME),
                 StandardCopyOption.REPLACE_EXISTING);
+    }
+
+    private Optional<String> cacheLocalSettings(Path azureFunctionsDir) throws IOException {
+        Path localSettingsPath = azureFunctionsDir.resolve(Constants.SETTINGS_LOCAL_FILE_NAME);
+        if (localSettingsPath.toFile().exists()) {
+            return Optional.of(Files.readString(localSettingsPath));
+        }
+        return Optional.empty();
     }
 
     private void generateVsCodeConfigs(Path projectDir) throws IOException {
