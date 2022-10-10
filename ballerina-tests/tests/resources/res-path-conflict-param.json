@@ -1,7 +1,7 @@
 {
     "Data": {
         "httpPayload": {
-            "Url": "https://bal-dev.azurewebsites.net/api/hello/foo/meow",
+            "Url": "https://bal-dev.azurewebsites.net/hello/foo/meow",
             "Method": "POST",
             "Query": {},
             "Headers": {
@@ -51,10 +51,10 @@
                     "112.134.128.105:42408"
                 ],
                 "X-Original-URL": [
-                    "/api/hello/foo/meow"
+                    "/hello/foo/meow"
                 ],
                 "X-WAWS-Unencoded-URL": [
-                    "/api/hello/foo/meow"
+                    "/hello/foo/meow"
                 ],
                 "DISGUISED-HOST": [
                     "bal-dev.azurewebsites.net"
@@ -98,8 +98,8 @@
             "X-ARR-SSL": "2048|256|CN=Microsoft Azure TLS Issuing CA 01, O=Microsoft Corporation, C=US|CN=*.azurewebsites.net, O=Microsoft Corporation, L=Redmond, S=WA, C=US",
             "X-Forwarded-TlsVersion": "1.2",
             "X-Forwarded-For": "112.134.128.105:42408",
-            "X-Original-URL": "/api/hello/foo/meow",
-            "X-WAWS-Unencoded-URL": "/api/hello/foo/meow",
+            "X-Original-URL": "/hello/foo/meow",
+            "X-WAWS-Unencoded-URL": "/hello/foo/meow",
             "DISGUISED-HOST": "bal-dev.azurewebsites.net"
         },
         "sys": {

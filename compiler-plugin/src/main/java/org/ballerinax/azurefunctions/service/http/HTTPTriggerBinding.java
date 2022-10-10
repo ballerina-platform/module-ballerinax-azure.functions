@@ -89,7 +89,12 @@ public class HTTPTriggerBinding extends TriggerBinding {
                 }
                 //TODO add wildcard
             }
-            httpTriggerBinding.setPath(resourcePath.toString());
+            String resPath = resourcePath.toString();
+            if (resPath.startsWith("/")) {
+                httpTriggerBinding.setPath(resPath.substring(1));
+            } else {
+                httpTriggerBinding.setPath(resPath);
+            }
             bindings.add(httpTriggerBinding);
             String variableName;
             SeparatedNodeList<ParameterNode> parameters = functionDefinitionNode.functionSignature().parameters();
@@ -158,8 +163,7 @@ public class HTTPTriggerBinding extends TriggerBinding {
                 continue;
             }
             QualifiedNameReferenceNode qualifiedRef = (QualifiedNameReferenceNode) ref;
-            if (!qualifiedRef.identifier().text().equals("AzureFunction") ||
-                    !qualifiedRef.modulePrefix().text().equals("af")) {
+            if (!qualifiedRef.identifier().text().equals(Constants.FUNCTION_ANNOTATION)) {
                 continue;
             }
             Optional<MappingConstructorExpressionNode> val =

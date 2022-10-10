@@ -1,7 +1,7 @@
 {
     "Data": {
         "httpPayload": {
-            "Url": "https://bal-dev.azurewebsites.net/api/hello/all",
+            "Url": "https://bal-dev.azurewebsites.net/hello/all",
             "Method": "POST",
             "Query": {},
             "Headers": {
@@ -54,10 +54,10 @@
                     "112.134.128.105:41856"
                 ],
                 "X-Original-URL": [
-                    "/api/hello/all"
+                    "/hello/all"
                 ],
                 "X-WAWS-Unencoded-URL": [
-                    "/api/hello/all"
+                    "/hello/all"
                 ]
             },
             "Params": {},
@@ -95,8 +95,8 @@
             "X-ARR-SSL": "2048|256|CN=Microsoft Azure TLS Issuing CA 01, O=Microsoft Corporation, C=US|CN=*.azurewebsites.net, O=Microsoft Corporation, L=Redmond, S=WA, C=US",
             "X-Forwarded-TlsVersion": "1.2",
             "X-Forwarded-For": "112.134.128.105:41856",
-            "X-Original-URL": "/api/hello/all",
-            "X-WAWS-Unencoded-URL": "/api/hello/all"
+            "X-Original-URL": "/hello/all",
+            "X-WAWS-Unencoded-URL": "/hello/all"
         },
         "sys": {
             "MethodName": "default-hello-all",

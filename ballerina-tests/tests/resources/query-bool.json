@@ -1,7 +1,7 @@
 {
     "Data": {
         "httpPayload": {
-            "Url": "http://localhost:7071/api/hello/query/bool?name=false",
+            "Url": "http://localhost:7071/hello/query/bool?name=false",
             "Method": "GET",
             "Query": {
                 "name": "false"

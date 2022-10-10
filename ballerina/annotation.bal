@@ -14,11 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# @azurefunctions:Function annotation.
-public const annotation Function on function; //Todo remove
-public const annotation AZFunctionConfiguration AzureFunction on function;
+public const annotation FunctionConfiguration Function on function;
 
-public type AZFunctionConfiguration record {|
+public type FunctionConfiguration record {|
     string name;
 |};
 

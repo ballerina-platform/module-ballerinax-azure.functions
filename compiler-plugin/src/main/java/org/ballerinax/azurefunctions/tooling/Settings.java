@@ -42,7 +42,7 @@ public class Settings {
     public Settings() {
         this.deploySubpath = Constants.ARTIFACT_PATH;
         this.projectLanguage = "Custom";
-        this.projectRuntime = "~3";
+        this.projectRuntime = "~4";
         this.internalConsoleOptions = "neverOpen";
     }
 }

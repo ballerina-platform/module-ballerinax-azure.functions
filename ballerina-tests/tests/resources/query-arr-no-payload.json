@@ -1,7 +1,7 @@
 {
     "Data": {
         "httpPayload": {
-            "Url": "https://bal-svc-impl.azurewebsites.net/api/hello",
+            "Url": "https://bal-svc-impl.azurewebsites.net/hello",
             "Method": "GET",
             "Query": {
                 "name" : ["Jack 1", "Jack 2"]
@@ -53,10 +53,10 @@
                     "112.134.134.89:51660"
                 ],
                 "X-Original-URL": [
-                    "/api/hello/foo/bar?test=hello"
+                    "/hello/foo/bar?test=hello"
                 ],
                 "X-WAWS-Unencoded-URL": [
-                    "/api/hello/foo/bar?test=hello"
+                    "/hello/foo/bar?test=hello"
                 ],
                 "DISGUISED-HOST": [
                     "bal-svc-impl.azurewebsites.net"
@@ -100,8 +100,8 @@
             "X-ARR-SSL": "2048|256|CN=Microsoft Azure TLS Issuing CA 01, O=Microsoft Corporation, C=US|CN=*.azurewebsites.net, O=Microsoft Corporation, L=Redmond, S=WA, C=US",
             "X-Forwarded-TlsVersion": "1.2",
             "X-Forwarded-For": "112.134.134.89:51660",
-            "X-Original-URL": "/api/hello/foo/bar?test=hello",
-            "X-WAWS-Unencoded-URL": "/api/hello/foo/bar?test=hello",
+            "X-Original-URL": "/hello/foo/bar?test=hello",
+            "X-WAWS-Unencoded-URL": "/hello/foo/bar?test=hello",
             "DISGUISED-HOST": "bal-svc-impl.azurewebsites.net"
         },
         "sys": {

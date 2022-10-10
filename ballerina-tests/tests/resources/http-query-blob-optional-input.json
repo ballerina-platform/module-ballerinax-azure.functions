@@ -1,7 +1,7 @@
 {
     "Data": {
         "httpPayload": {
-            "Url": "https://bal-dev.azurewebsites.net/api/hello/blobInput?name=hello1.txt",
+            "Url": "https://bal-dev.azurewebsites.net/hello/blobInput?name=hello1.txt",
             "Method": "GET",
             "Query": {
                 "name": "hello1.txt"
@@ -59,10 +59,10 @@
                     "112.134.128.76:48828"
                 ],
                 "X-Original-URL": [
-                    "/api/hello/blobInput?name=hello1.txt"
+                    "/hello/blobInput?name=hello1.txt"
                 ],
                 "X-WAWS-Unencoded-URL": [
-                    "/api/hello/blobInput?name=hello1.txt"
+                    "/hello/blobInput?name=hello1.txt"
                 ],
                 "DISGUISED-HOST": [
                     "bal-dev.azurewebsites.net"
@@ -109,8 +109,8 @@
             "X-ARR-SSL": "2048|256|CN=Microsoft Azure TLS Issuing CA 01, O=Microsoft Corporation, C=US|CN=*.azurewebsites.net, O=Microsoft Corporation, L=Redmond, S=WA, C=US",
             "X-Forwarded-TlsVersion": "1.2",
             "X-Forwarded-For": "112.134.128.76:48828",
-            "X-Original-URL": "/api/hello/blobInput?name=hello1.txt",
-            "X-WAWS-Unencoded-URL": "/api/hello/blobInput?name=hello1.txt",
+            "X-Original-URL": "/hello/blobInput?name=hello1.txt",
+            "X-WAWS-Unencoded-URL": "/hello/blobInput?name=hello1.txt",
             "DISGUISED-HOST": "bal-dev.azurewebsites.net"
         },
         "sys": {

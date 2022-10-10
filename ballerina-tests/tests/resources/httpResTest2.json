@@ -1,7 +1,7 @@
 {
     "Data": {
         "httpPayload": {
-            "Url": "https://bal-dev.azurewebsites.net/api/hello/httpResTest2",
+            "Url": "https://bal-dev.azurewebsites.net/hello/httpResTest2",
             "Method": "POST",
             "Query": {},
             "Headers": {
@@ -54,10 +54,10 @@
                     "112.134.128.105:41856"
                 ],
                 "X-Original-URL": [
-                    "/api/hello/httpResTest2"
+                    "/hello/httpResTest2"
                 ],
                 "X-WAWS-Unencoded-URL": [
-                    "/api/hello/httpResTest2"
+                    "/hello/httpResTest2"
                 ]
             },
             "Params": {},
@@ -96,8 +96,8 @@
             "X-ARR-SSL": "2048|256|CN=Microsoft Azure TLS Issuing CA 01, O=Microsoft Corporation, C=US|CN=*.azurewebsites.net, O=Microsoft Corporation, L=Redmond, S=WA, C=US",
             "X-Forwarded-TlsVersion": "1.2",
             "X-Forwarded-For": "112.134.128.105:41856",
-            "X-Original-URL": "/api/hello/httpResTest2",
-            "X-WAWS-Unencoded-URL": "/api/hello/httpResTest2"
+            "X-Original-URL": "/hello/httpResTest2",
+            "X-WAWS-Unencoded-URL": "/hello/httpResTest2"
         },
         "sys": {
             "MethodName": "post-hello-httpResTest2",

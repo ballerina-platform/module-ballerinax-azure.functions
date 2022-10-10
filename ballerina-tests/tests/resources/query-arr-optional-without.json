@@ -1,7 +1,7 @@
 {
     "Data": {
         "httpPayload": {
-            "Url": "http://localhost:7071/api/hello/query/arrOrNil",
+            "Url": "http://localhost:7071/hello/query/arrOrNil",
             "Method": "GET",
             "Query": {},
             "Headers": {

@@ -1,7 +1,7 @@
 {
     "Data": {
         "httpPayload": {
-            "Url": "http://localhost:7071/api/hello/query/arrOrNil?name=red&name=green",
+            "Url": "http://localhost:7071/hello/query/arrOrNil?name=red&name=green",
             "Method": "GET",
             "Query": {
                 "name": "red,green"

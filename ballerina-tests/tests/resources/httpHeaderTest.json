@@ -1,7 +1,7 @@
 {
     "Data":{
        "httpPayload":{
-          "Url":"https://az-func-http-test.azurewebsites.net/api/httpHeader/FUNC_NAME",
+          "Url":"https://az-func-http-test.azurewebsites.net/httpHeader/FUNC_NAME",
           "Method":"POST",
           "Query":{
              
@@ -59,10 +59,10 @@
                 "45.121.88.92:53880"
              ],
              "X-Original-URL":[
-                "/api/httpHeader/FUNC_NAME"
+                "/httpHeader/FUNC_NAME"
              ],
              "X-WAWS-Unencoded-URL":[
-                "/api/httpHeader/FUNC_NAME"
+                "/httpHeader/FUNC_NAME"
              ]
           },
           "Params":{
@@ -108,8 +108,8 @@
           "X-ARR-SSL":"2048|256|CN=Microsoft Azure TLS Issuing CA 01, O=Microsoft Corporation, C=US|CN=*.azurewebsites.net, O=Microsoft Corporation, L=Redmond, S=WA, C=US",
           "X-Forwarded-TlsVersion":"1.2",
           "X-Forwarded-For":"45.121.88.92:53880",
-          "X-Original-URL":"/api/httpHeader/FUNC_NAME",
-          "X-WAWS-Unencoded-URL":"/api/httpHeader/FUNC_NAME"
+          "X-Original-URL":"/httpHeader/FUNC_NAME",
+          "X-WAWS-Unencoded-URL":"/httpHeader/FUNC_NAME"
        },
        "sys":{
           "MethodName":"post-httpHeader-FUNC_NAME",

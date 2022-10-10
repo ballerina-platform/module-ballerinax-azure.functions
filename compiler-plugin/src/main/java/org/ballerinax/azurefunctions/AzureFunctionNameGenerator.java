@@ -49,7 +49,11 @@ public class AzureFunctionNameGenerator {
                 resourcePath.append("/").append(token.text());
             }
         }
-        return method + "-" + resourcePath.toString().replace("/", "-");
+        String functionName = resourcePath.toString().replace("/", "-");
+        if (servicePath.equals("")) {
+            return method + functionName;
+        }
+        return method + "-" + functionName;
     }
 
     public String getUniqueFunctionName(String servicePath, FunctionDefinitionNode functionDefinitionNode) {

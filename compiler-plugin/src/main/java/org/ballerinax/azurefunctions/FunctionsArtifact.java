@@ -41,7 +41,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
+import java.util.Comparator;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Represents the output artifact (.zip) generated for Azure Functions.
@@ -95,6 +97,11 @@ public class FunctionsArtifact {
             this.hostJson = new JsonObject();
         }
         this.hostJson.add("version", new JsonPrimitive("2.0"));
+        JsonObject extensions = new JsonObject();
+        JsonObject http = new JsonObject();
+        http.addProperty("routePrefix", "");
+        extensions.add("http", http);
+        this.hostJson.add("extensions", extensions);
         JsonObject httpWorker = new JsonObject();
         this.hostJson.add("customHandler", httpWorker);
         JsonObject httpWorkerDesc = new JsonObject();
@@ -111,9 +118,9 @@ public class FunctionsArtifact {
         JsonObject extensionBundle = new JsonObject();
         this.hostJson.add("extensionBundle", extensionBundle);
         extensionBundle.add("id", new JsonPrimitive("Microsoft.Azure.Functions.ExtensionBundle"));
-        extensionBundle.add("version", new JsonPrimitive("[2.*, 3.0.0)"));
+        extensionBundle.add("version", new JsonPrimitive("[3.*, 4.0.0)"));
     }
-    
+
     private InputStream jtos(Object element) {
         try {
             return new ByteArrayInputStream(this.gson.toJson(element).getBytes(Constants.CHARSET));
@@ -142,14 +149,24 @@ public class FunctionsArtifact {
             return;
         }
         generateVsCodeConfigs(projectDir);
-        
+
         Path functionsDir = targetDir.resolve(Constants.FUNCTION_DIRECTORY);
+        Optional<String> cachedLocalSettings = cacheLocalSettings(functionsDir);
+        deleteDirectory(functionsDir);
         Files.createDirectories(functionsDir);
         Files.copy(this.binaryPath, functionsDir.resolve(this.binaryPath.getFileName()),
                 StandardCopyOption.REPLACE_EXISTING);
         Files.copy(this.jtos(this.hostJson), functionsDir.resolve(HOST_JSON_NAME),
+                StandardCopyOption.REPLACE_EXISTING);
+        if (cachedLocalSettings.isEmpty()) {
+            generateLocalSettings(functionsDir);
+        } else {
+            String localSettings = cachedLocalSettings.get();
+            ByteArrayInputStream inStream =
+                    new ByteArrayInputStream(localSettings.getBytes(StandardCharsets.UTF_8));
+            Files.copy(inStream, functionsDir.resolve(Constants.SETTINGS_LOCAL_FILE_NAME),
                     StandardCopyOption.REPLACE_EXISTING);
-        generateLocalSettings(functionsDir);
+        }
         for (Map.Entry<String, JsonObject> entry : this.functions.entrySet()) {
             Path functionDir = functionsDir.resolve(entry.getKey());
             Files.createDirectories(functionDir);
@@ -157,12 +174,29 @@ public class FunctionsArtifact {
                     StandardCopyOption.REPLACE_EXISTING);
         }
     }
-    
+
+    private void deleteDirectory(Path azureFunctionsDir) throws IOException {
+        if (azureFunctionsDir.toFile().exists()) {
+            Files.walk(azureFunctionsDir)
+                    .sorted(Comparator.reverseOrder())
+                    .map(Path::toFile)
+                    .forEach(File::delete);
+        }
+    }
+
     private void generateLocalSettings(Path azureFunctionsDir) throws IOException {
         Files.copy(jtos(new LocalSettings()), azureFunctionsDir.resolve(Constants.SETTINGS_LOCAL_FILE_NAME),
                 StandardCopyOption.REPLACE_EXISTING);
     }
-    
+
+    private Optional<String> cacheLocalSettings(Path azureFunctionsDir) throws IOException {
+        Path localSettingsPath = azureFunctionsDir.resolve(Constants.SETTINGS_LOCAL_FILE_NAME);
+        if (localSettingsPath.toFile().exists()) {
+            return Optional.of(Files.readString(localSettingsPath));
+        }
+        return Optional.empty();
+    }
+
     private void generateVsCodeConfigs(Path projectDir) throws IOException {
         Path vsCodeDir = projectDir.resolve(VSCODE_DIRECTORY);
         Files.createDirectories(vsCodeDir);
@@ -172,7 +206,7 @@ public class FunctionsArtifact {
                 StandardCopyOption.REPLACE_EXISTING);
         Files.copy(jtos(new Tasks()), vsCodeDir.resolve(Constants.TASKS_FILE_NAME),
                 StandardCopyOption.REPLACE_EXISTING);
-        
+
         addToGitIgnore(projectDir);
     }
 

@@ -1,7 +1,7 @@
 {
     "Data": {
         "httpPayload": {
-            "Url": "https://bal-dev.azurewebsites.net/api/hello/db",
+            "Url": "https://bal-dev.azurewebsites.net/hello/db",
             "Method": "POST",
             "Query": {},
             "Headers": {
@@ -51,10 +51,10 @@
                     "112.134.130.212:17220"
                 ],
                 "X-Original-URL": [
-                    "/api/hello/db"
+                    "/hello/db"
                 ],
                 "X-WAWS-Unencoded-URL": [
-                    "/api/hello/db"
+                    "/hello/db"
                 ],
                 "DISGUISED-HOST": [
                     "bal-dev.azurewebsites.net"
@@ -96,8 +96,8 @@
             "X-ARR-SSL": "2048|256|CN=Microsoft Azure TLS Issuing CA 01, O=Microsoft Corporation, C=US|CN=*.azurewebsites.net, O=Microsoft Corporation, L=Redmond, S=WA, C=US",
             "X-Forwarded-TlsVersion": "1.2",
             "X-Forwarded-For": "112.134.130.212:17220",
-            "X-Original-URL": "/api/hello/db",
-            "X-WAWS-Unencoded-URL": "/api/hello/db",
+            "X-Original-URL": "/hello/db",
+            "X-WAWS-Unencoded-URL": "/hello/db",
             "DISGUISED-HOST": "bal-dev.azurewebsites.net"
         },
         "sys": {

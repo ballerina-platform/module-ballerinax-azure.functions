@@ -22,32 +22,12 @@ package org.ballerinax.azurefunctions;
  */
 public class Constants {
     
-    public static final String MAIN_FUNC_NAME = "main";
     public static final String AZURE_FUNCTIONS_MODULE_NAME = "azure_functions";
-    public static final String BALLERINA_ORG = "ballerina";
-    public static final String REQUEST_PARAMS_TYPE = "HandlerParams";
-    public static final String REQUEST_PARAMS_NAME = "params";
-    public static final String HTTP_CALLER_PARAMS_NAME = "caller";
-    public static final String HTTP_REQUEST_PARAMS_NAME = "request";
-    public static final String REMOTE_KEYWORD = "remote";
     public static final String HTTP = "http";
     public static final String AZURE_FUNCTIONS = "azure_functions";
     public static final String HEADER_ANNOTATION_TYPE = "HttpHeader";
-    public static final String AZURE_FUNCTIONS_PACKAGE_ORG = "ballerinax"; 
-    public static final String AZURE_FUNCTIONS_CONTEXT_NAME = "Context";
-    public static final String AZURE_FUNCS_OUTPUT_ZIP_FILENAME = "azure-functions.zip";
-    public static final String FUNCTION_BINDINGS_NAME = "bindings";
+    public static final String AZURE_FUNCTIONS_PACKAGE_ORG = "ballerinax";
     public static final String CHARSET = "UTF-8";
-    public static final String DEFAULT_STORAGE_CONNECTION_NAME = "AzureWebJobsStorage";
-    public static final String DEFAULT_TWILIO_ACCOUNT_SID_SETTING = "AzureWebJobsTwilioAccountSid";
-    public static final String DEFAULT_TWILIO_AUTH_TOKEN_SETTING = "AzureWebJobsTwilioAuthToken";
-    public static final boolean DEFAULT_TIMER_TRIGGER_RUNONSTARTUP = true;
-    public static final boolean DEFAULT_COSMOS_DB_CREATELEASECOLLECTIONIFNOTEXISTS = true;
-     public static final String PARAMS = "params";
-     public static final String AF_IMPORT_ALIAS = "af";
-     public static final String HTTP_IMPORT = "http";
-     public static final String AWS_FUNCTION_TYPE = "Function";
-     public static final String AZ_FUNCTION_PREFIX = "az-func";
      
      public static final String ANNOTATION_HTTP_TRIGGER = "HttpTrigger";
      public static final String ANNOTATION_QUEUE_TRIGGER = "QueueTrigger";
@@ -66,4 +46,6 @@ public class Constants {
      public static final String EXTENSIONS_FILE_NAME = "extensions.json";
      public static final String SETTINGS_FILE_NAME = "settings.json";
      public static final String TASKS_FILE_NAME = "tasks.json";
+     
+     public static final String FUNCTION_ANNOTATION = "Function";
  }
