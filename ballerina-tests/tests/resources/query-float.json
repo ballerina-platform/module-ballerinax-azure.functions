@@ -1,0 +1,64 @@
+{
+    "Data": {
+        "httpPayload": {
+            "Url": "http://localhost:7071/hello/floatt/bool?name=10.5",
+            "Method": "GET",
+            "Query": {
+                "name": "10.5"
+            },
+            "Headers": {
+                "Connection": [
+                    "keep-alive"
+                ],
+                "Accept": [
+                    "*/*"
+                ],
+                "Accept-Encoding": [
+                    "gzip, deflate, br"
+                ],
+                "Host": [
+                    "localhost:7071"
+                ],
+                "User-Agent": [
+                    "PostmanRuntime/7.26.8"
+                ],
+                "Postman-Token": [
+                    "0af627a1-73fe-4990-865d-6e438249ae98"
+                ]
+            },
+            "Params": {},
+            "Identities": [
+                {
+                    "AuthenticationType": null,
+                    "IsAuthenticated": false,
+                    "Actor": null,
+                    "BootstrapContext": null,
+                    "Claims": [],
+                    "Label": null,
+                    "Name": null,
+                    "NameClaimType": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name",
+                    "RoleClaimType": "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+                }
+            ]
+        }
+    },
+    "Metadata": {
+        "name": "\"10.5\"",
+        "Query": {
+            "name": "10.5"
+        },
+        "Headers": {
+            "Connection": "keep-alive",
+            "Accept": "*/*",
+            "Accept-Encoding": "gzip, deflate, br",
+            "Host": "localhost:7071",
+            "User-Agent": "PostmanRuntime/7.26.8",
+            "Postman-Token": "0af627a1-73fe-4990-865d-6e438249ae98"
+        },
+        "sys": {
+            "MethodName": "get-hello-query-floatt",
+            "UtcNow": "2022-08-16T10:28:47.6485592Z",
+            "RandGuid": "e31b37f3-08fe-4268-aabb-ff055227f24d"
+        }
+    }
+}

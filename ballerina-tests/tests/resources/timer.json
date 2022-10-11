@@ -1,0 +1,18 @@
+{
+    "Data": {
+        "inMsg": {
+            "Schedule": {
+                "AdjustForDST": true
+            },
+            "ScheduleStatus": null,
+            "IsPastDue": false
+        }
+    },
+    "Metadata": {
+        "sys": {
+            "MethodName": "timer",
+            "UtcNow": "2022-07-05T11:40:07.4850616Z",
+            "RandGuid": "9cd4c06c-fc8f-4b63-af94-56bc75c3f0cb"
+        }
+    }
+}

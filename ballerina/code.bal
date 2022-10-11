@@ -1,4 +1,4 @@
-// Copyright (c) 2021 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2022 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -20,6 +20,57 @@ import ballerina/lang.'int as ints;
 import ballerina/lang.'array as arrays;
 import ballerina/lang.'string as strings;
 import ballerina/lang.'boolean as booleans;
+
+http:Listener httpListener = check new (check ints:fromString(os:getEnv("FUNCTIONS_CUSTOMHANDLER_PORT")));
+
+public type TimerMetadata record {
+    TimerSchedule Schedule;
+    anydata ScheduleStatus?;
+    boolean IsPastDue;
+};
+
+public type TimerSchedule record {
+    boolean AdjustForDST;
+};
+
+type Payload record {
+    map<HttpPayload|string> Data;
+    Metadata Metadata;
+};
+
+type Metadata record {
+    map<string> Query;
+    map<string> Headers;
+    Sys sys;
+};
+
+type Sys record {
+    string MethodName;
+    string UtcNow;
+    string RandGuid;
+};
+
+type HttpPayload record {
+    string Url;
+    string Method;
+    map<string> Query;
+    map<anydata> Headers;
+    map<anydata> Params;
+    Identity[] Identities;
+    anydata? Body?;
+};
+
+type Identity record {
+    // anydata? AuthenticationType?;
+    // boolean IsAuthenticated?;
+    // anydata? Actor?;
+    // anydata BootstrapContext?;
+    // anydata[] Claims?;
+    // anydata? Label?;
+    // anydata? Name?;
+    // string NameClaimType?;
+    // string RoleClaimType?;
+};
 
 # HTTP binding data.
 # 
@@ -151,7 +202,7 @@ public isolated function logRequest(HandlerParams hparams, http:Request request)
 # Function handler type.
 type FunctionHandler (function (HandlerParams) returns error?);
 
-@untainted public listener http:Listener hl = new(check ints:fromString(os:getEnv("FUNCTIONS_CUSTOMHANDLER_PORT")));
+@untainted public listener http:Listener hl = new(9000);
 
 public isolated function handleFunctionResposne(error? err, HandlerParams hparams) {
     http:Request request = hparams.request;

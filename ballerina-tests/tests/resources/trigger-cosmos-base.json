@@ -1,0 +1,12 @@
+{
+    "Data": {
+        "inMsg": "[{\"id\":\"ehee\",\"_rid\":\"zlIsAKxe8VCHhB4AAAAAAA==\",\"_self\":\"dbs\/zlIsAA==\/colls\/zlIsAKxe8VA=\/docs\/zlIsAKxe8VCHhB4AAAAAAA==\/\",\"_ts\":1656505802,\"_etag\":\"\\\"1f0507d0-0000-0700-0000-62bc45ca0000\\\"\",\"_lsn\":9}]"
+    },
+    "Metadata": {
+        "sys": {
+            "MethodName": "cosmos",
+            "UtcNow": "2022-06-29T12:30:04.2341186Z",
+            "RandGuid": "5e14dca0-efb6-47e0-ae50-a4c994675dce"
+        }
+    }
+}
