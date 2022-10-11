@@ -25,6 +25,7 @@ import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.Parameter;
 import io.ballerina.runtime.api.types.RecordType;
+import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.ResourceMethodType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
@@ -291,8 +292,9 @@ public class HttpResource {
             BMap headerAnnotationField = (BMap) ((BMap) annotation).get(StringUtils.fromString(headerAnnotation));
             if (headerAnnotationField.size() == 0) {
                 //No annotation field defined {name: ....}
-                if ((parameter.type).getTag() == TypeTags.RECORD_TYPE_TAG) {
-                    headerParam = processHeaderRecordParam(headers, parameter, treatNilableAsOptional);
+                if ((parameter.type).getTag() == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
+                    ReferenceType type = (ReferenceType) parameter.type;
+                    headerParam = processHeaderRecordParam(headers, type, treatNilableAsOptional);
                     return Optional.of(new HeaderParameter(i, parameter, headerParam));
                 }
                 headerParam = getHeaderValue(headers, parameter.type, name, treatNilableAsOptional);
@@ -324,7 +326,7 @@ public class HttpResource {
                 headerValue = (BString) ((BArray) (headers.get(headerKey))).get(0);
             }
         }
-        if (isHeaderExist == false) {
+        if (!isHeaderExist) {
             //Header name not exist case
             if (isNilType(type) && treatNilableAsOptional) {
                 return null;
@@ -341,9 +343,9 @@ public class HttpResource {
         return createValue(type, headerValue);
     }
 
-    private Object processHeaderRecordParam(BMap<BString, ?> headers, Parameter parameter,
+    private Object processHeaderRecordParam(BMap<BString, ?> headers, ReferenceType parameter,
                                             Boolean treatNilableAsOptional) {
-        RecordType recordType = (RecordType) parameter.type;
+        RecordType recordType = (RecordType) parameter.getReferredType();
         Map<String, Field> fields = recordType.getFields();
         BMap<BString, Object> recordValue = ValueCreator.createRecordValue(recordType);
         for (Map.Entry<String, Field> field : fields.entrySet()) {

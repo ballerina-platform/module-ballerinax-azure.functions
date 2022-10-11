@@ -3,7 +3,7 @@ import ballerina/http;
 
 listener af:HttpListener ep = new ();
 
-type Person record {|
+public type Person record {|
     readonly int id;
 |};
 

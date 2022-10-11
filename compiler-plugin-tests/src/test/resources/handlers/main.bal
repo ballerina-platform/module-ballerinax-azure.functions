@@ -7,7 +7,7 @@ public type DBEntry record {
     string id;
 };
 
-type Person record {
+public type Person record {
     string name;
     int age;
 };
