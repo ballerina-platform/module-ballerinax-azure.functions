@@ -2,3 +2,8 @@
 org = "ballerinax"
 name = "azure_functions_tests"
 version = "3.0.0-alpha.1"
+
+[[dependency]]
+org = "ballerinax"
+name = "azure_functions"
+version = "3.0.0-alpha.1"
