@@ -84,7 +84,7 @@ public class HTTPTriggerBinding extends TriggerBinding {
                 if (pathBlock.kind() == SyntaxKind.RESOURCE_PATH_SEGMENT_PARAM) {
                     ResourcePathParameterNode pathParamNode = (ResourcePathParameterNode) pathBlock;
                     //TODO Handle optional
-                    resourcePath.append("/" + "{").append(pathParamNode.paramName().text()).append("}");
+                    resourcePath.append("/" + "{").append(pathParamNode.paramName().get().text()).append("}");
                     continue;
                 }
                 //TODO add wildcard
