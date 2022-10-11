@@ -10,4 +10,4 @@ path = "../native/build/libs/azure_functions-native-3.0.0-alpha.1.jar"
 #path = "./lib/http-native-@stdlib.httpnative.version@.jar"
 
 [[platform.java11.dependency]]
-path = "./lib/mime-native-2.3.0.jar"
+path = "./lib/mime-native-2.4.0.jar"
