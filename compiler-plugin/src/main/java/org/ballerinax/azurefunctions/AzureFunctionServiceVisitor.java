@@ -32,8 +32,7 @@ import java.util.List;
  * @since 2.0.0
  */
 public class AzureFunctionServiceVisitor extends NodeVisitor {
-
-    //    private String moduleName;
+    
     private List<FunctionContext> functionContexts;
     private SemanticModel semanticModel;
 
@@ -46,28 +45,6 @@ public class AzureFunctionServiceVisitor extends NodeVisitor {
     public void visit(ModulePartNode modulePartNode) {
         super.visit(modulePartNode);
     }
-
-//    @Override
-//    public void visit(ImportDeclarationNode importDeclarationNode) {
-//        if (importDeclarationNode.orgName().isEmpty()) {
-//            return;
-//        }
-//        String orgName = importDeclarationNode.orgName().get().orgName().text();
-//        if (!Constants.AZURE_FUNCTIONS_PACKAGE_ORG.equals(orgName)) {
-//            return;
-//        }
-//        if (importDeclarationNode.moduleName().size() != 1) {
-//            return;
-//        }
-//        String moduleName = importDeclarationNode.moduleName().get(0).text();
-//        if (Constants.AZURE_FUNCTIONS_MODULE_NAME.equals(moduleName)) {
-//            this.moduleName = moduleName;
-//        }
-//        if (importDeclarationNode.prefix().isEmpty()) {
-//            return;
-//        }
-//        this.moduleName = importDeclarationNode.prefix().get().prefix().text();
-//    }
 
     @Override
     public void visit(ServiceDeclarationNode serviceDeclarationNode) {

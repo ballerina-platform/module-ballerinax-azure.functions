@@ -64,7 +64,7 @@ public class ParamHandler {
         if (!(annotation instanceof BMap)) {
             return false;
         }
-
+        
         for (BString bKey : ((BMap<BString, ?>) annotation).getKeys()) {
             String key = bKey.getValue();
             if (key.startsWith(HTTP_PACKAGE_ORG + Constants.SLASH + Constants.HTTP_PACKAGE_NAME) &&

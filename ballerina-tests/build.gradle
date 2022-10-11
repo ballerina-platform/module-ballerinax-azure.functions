@@ -22,7 +22,7 @@ import org.apache.tools.ant.taskdefs.condition.Os
 description = 'Ballerinax - Azure Functions Tests'
 
 def packageName = "azure_functions"
-def packageOrg = "ballerinax" //TODO change 
+def packageOrg = "ballerinax"
 def moduleName = "tests"
 def tomlVersion = stripBallerinaExtensionVersion("${project.version}")
 def ballerinaTomlFilePlaceHolder = new File("${project.rootDir}/build-config/resources/BallerinaTest.toml")

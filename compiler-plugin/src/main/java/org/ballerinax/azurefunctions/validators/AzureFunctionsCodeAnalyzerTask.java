@@ -29,6 +29,7 @@ import io.ballerina.projects.plugins.AnalysisTask;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+import org.ballerinax.azurefunctions.Constants;
 
 import java.util.List;
 import java.util.Optional;
@@ -70,21 +71,18 @@ public class AzureFunctionsCodeAnalyzerTask implements AnalysisTask<SyntaxNodeAn
 
 
     private boolean isHTTPListener(TypeSymbol listenerType) {
-        if (listenerType.nameEquals("HttpListener")) {
-            return true;
-        }
-        return  false;
+        return listenerType.nameEquals(Constants.AZURE_HTTP_LISTENER);
     }
 
     private boolean isListenerBelongsToAzureFuncModule(TypeSymbol listenerType) {
-        if (listenerType.typeKind() == TypeDescKind.UNION) {
+        if (TypeDescKind.UNION == listenerType.typeKind()) {
             return ((UnionTypeSymbol) listenerType).memberTypeDescriptors().stream()
                     .filter(typeDescriptor -> typeDescriptor instanceof TypeReferenceTypeSymbol)
                     .map(typeReferenceTypeSymbol -> (TypeReferenceTypeSymbol) typeReferenceTypeSymbol)
                     .anyMatch(typeReferenceTypeSymbol -> isAzureFuncModule(typeReferenceTypeSymbol.getModule().get()));
         }
 
-        if (listenerType.typeKind() == TypeDescKind.TYPE_REFERENCE) {
+        if (TypeDescKind.TYPE_REFERENCE == listenerType.typeKind()) {
             return isAzureFuncModule(((TypeReferenceTypeSymbol) listenerType).typeDescriptor().getModule().get());
         }
         return false;

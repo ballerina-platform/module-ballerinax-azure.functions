@@ -52,7 +52,6 @@ import static io.ballerina.runtime.api.utils.StringUtils.fromString;
  */
 public class FunctionCallback implements Callback {
 
-
     private final Future future;
     private final Module module;
     private final List<String> annotations;
@@ -63,7 +62,8 @@ public class FunctionCallback implements Callback {
         this.module = module;
         this.methodType = methodType;
         this.annotations = new ArrayList<>();
-        BMap<BString, ?> annotations = (BMap<BString, ?>) methodType.getAnnotation(StringUtils.fromString("$returns$"));
+        BMap<BString, ?> annotations =
+                (BMap<BString, ?>) methodType.getAnnotation(StringUtils.fromString(Constants.RETURN_ANNOTATION));
         if (annotations != null) {
             for (BString annotation : annotations.getKeys()) {
                 String[] split = annotation.getValue().split(":");
@@ -82,7 +82,6 @@ public class FunctionCallback implements Callback {
         return this.annotations.get(0);
     }
 
-
     @Override
     public void notifySuccess(Object result) {
         if (result instanceof BError) {
@@ -97,11 +96,11 @@ public class FunctionCallback implements Callback {
         BMap<BString, Object> mapValue =
                 ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_ANYDATA));
         if (result == null) {
-            BString statusCode = StringUtils.fromString("202");
+            BString statusCode = StringUtils.fromString(Constants.ACCEPTED);
             BMap<BString, Object> respMap =
                     ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_ANYDATA));
             respMap.put(StringUtils.fromString(Constants.STATUS_CODE), statusCode);
-            mapValue.put(StringUtils.fromString(Constants.RESP), respMap);
+            mapValue.put(StringUtils.fromString(Constants.RESPONSE_FIELD), respMap);
             future.complete(mapValue);
             return;
         }
@@ -115,19 +114,18 @@ public class FunctionCallback implements Callback {
             if (result instanceof BArray) {
                 BArray arrayValue = (BArray) result;
                 BString encodedString = ToBase64.toBase64(arrayValue);
-                mapValue.put(StringUtils.fromString("outMsg"), encodedString);
+                mapValue.put(StringUtils.fromString(Constants.OUT_MSG), encodedString);
             }
 
         } else if (outputBinding == null || Constants.HTTP_OUTPUT.equals(outputBinding)) {
             if (isHTTPStatusCodeResponse(result)) {
-                handleStatusCodeResponse((BMap) result, mapValue);
+                handleStatusCodeResponse((BMap<?, ?>) result, mapValue);
             } else {
                 handleNonStatusCodeResponse(result, mapValue);
             }
         }
         future.complete(mapValue);
     }
-
 
     @Override
     public void notifyFailure(BError bError) {
@@ -148,28 +146,28 @@ public class FunctionCallback implements Callback {
 
     private boolean isHTTPStatusCodeResponse(Object result) {
 //        Module resultPkg = TypeUtils.getType(result).getPackage();
-        return (result instanceof  BMap) && (((BMap) result).containsKey(fromString(Constants.STATUS)));
+        return (result instanceof BMap) && (((BMap) result).containsKey(fromString(Constants.STATUS)));
         //TODO : Check inheritance
         //(https://github.com/ballerina-platform/module-ballerinax-azure.functions/issues/490)
     }
 
-    private boolean isContentTypeExist(BMap<BString , ?> headersMap) {
+    private boolean isContentTypeExist(BMap<BString, ?> headersMap) {
         for (BString headerKey : headersMap.getKeys()) {
             if (headerKey.getValue().toLowerCase(Locale.ROOT).equals(Constants.CONTENT_TYPE.toLowerCase(Locale.ROOT))) {
-                return  true;
+                return true;
             }
         }
         return false;
     }
 
-    private void addStatusCodeImplicitly(BMap respMap) {
+    private void addStatusCodeImplicitly(BMap<BString, Object> respMap) {
         String accessor = ((ResourceMethodType) this.methodType).getAccessor();
         Object statusCode = "";
         if (Constants.POST.equals(accessor)) {
             statusCode = Constants.CREATED_201;
-        } else if (Constants.GET.equals(accessor) || Constants.PUT.equals(accessor)  ||
-                Constants.PATCH.equals(accessor)  || Constants.DELETE.equals(accessor)  ||
-                Constants.HEAD.equals(accessor)  || Constants.OPTIONS.equals(accessor) ||
+        } else if (Constants.GET.equals(accessor) || Constants.PUT.equals(accessor) ||
+                Constants.PATCH.equals(accessor) || Constants.DELETE.equals(accessor) ||
+                Constants.HEAD.equals(accessor) || Constants.OPTIONS.equals(accessor) ||
                 Constants.DEFAULT.equals(accessor)) {
             statusCode = Constants.OK_200;
         }
@@ -177,7 +175,7 @@ public class FunctionCallback implements Callback {
         respMap.put(StringUtils.fromString(Constants.STATUS_CODE), statusCode);
     }
 
-    private void addContentTypeImplicitly(Object result, BMap headers) {
+    private void addContentTypeImplicitly(Object result, BMap<BString, Object> headers) {
         if (result instanceof BString) {
             headers.put(StringUtils.fromString(Constants.CONTENT_TYPE), StringUtils.fromString(Constants.TEXT_PLAIN));
 
@@ -231,34 +229,31 @@ public class FunctionCallback implements Callback {
         }
     }
 
-
     private void handleNonStatusCodeResponse(Object result, BMap<BString, Object> mapValue) {
         BMap<BString, Object> respMap =
                 ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_ANYDATA));
-        Object headers =
+        BMap<BString, Object> headers =
                 ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_ANYDATA));
 
         addStatusCodeImplicitly(respMap);
-        addContentTypeImplicitly(result, (BMap) headers);
+        addContentTypeImplicitly(result, headers);
 
         respMap.put(StringUtils.fromString(Constants.HEADERS), headers);
         if (result instanceof BArray) {
             BArray arrayResult = (BArray) result;
             if (Constants.BYTE_TYPE.equals(arrayResult.getElementType().getName())) {
                 respMap.put(StringUtils.fromString(Constants.BODY), ToBase64.toBase64(arrayResult));
-//                respMap.put(StringUtils.fromString(Constants.BODY), arrayResult);
-//                respMap.put(StringUtils.fromString("isRaw"), true);
             } else {
                 respMap.put(StringUtils.fromString(Constants.BODY), result);
             }
         } else {
             respMap.put(StringUtils.fromString(Constants.BODY), result);
         }
-        mapValue.put(StringUtils.fromString(Constants.RESP), respMap);
+        mapValue.put(StringUtils.fromString(Constants.RESPONSE_FIELD), respMap);
     }
 
-    private void handleStatusCodeResponse(BMap result, BMap<BString, Object> mapValue) {
-        BMap resultMap = result;
+    private void handleStatusCodeResponse(BMap<?, ?> result, BMap<BString, Object> mapValue) {
+        BMap<?, ?> resultMap = result;
 
         // Extract status code
         BObject status = (BObject) (resultMap.get(StringUtils.fromString(Constants.STATUS)));
@@ -304,7 +299,7 @@ public class FunctionCallback implements Callback {
                 ((BMap) headers).put(StringUtils.fromString(Constants.CONTENT_TYPE), mediaType);
             }
         }
-        mapValue.put(StringUtils.fromString(Constants.RESP), respMap);
+        mapValue.put(StringUtils.fromString(Constants.RESPONSE_FIELD), respMap);
     }
 }
 

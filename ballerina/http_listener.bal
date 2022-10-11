@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
-
 public class HttpListener {
     ResourceService[] httpServices;
 
@@ -25,11 +23,10 @@ public class HttpListener {
     
     public function attach(HttpService svc, string[]|string? name = ()) returns error? {
         HttpToAzureAdaptor adaptor = new(svc);
-        string[] resList = adaptor.getAzureFunctionNames();
-        foreach string resPath in resList{
-            io:println(resPath);
+        string[] resourcePaths = adaptor.getAzureFunctionNames();
+        foreach string resourcePath in resourcePaths{
             ResourceService httpService = new (adaptor);
-            check httpListener.attach(<ResourceService>httpService, resPath);
+            check httpListener.attach(<ResourceService>httpService, resourcePath);
         }
     }
 

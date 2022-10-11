@@ -24,7 +24,6 @@ public class Constants {
     
     public static final String AZURE_FUNCTIONS_MODULE_NAME = "azure_functions";
     public static final String HTTP = "http";
-    public static final String AZURE_FUNCTIONS = "azure_functions";
     public static final String HEADER_ANNOTATION_TYPE = "HttpHeader";
     public static final String AZURE_FUNCTIONS_PACKAGE_ORG = "ballerinax";
     public static final String CHARSET = "UTF-8";
@@ -34,9 +33,26 @@ public class Constants {
      public static final String ANNOTATION_COSMOS_TRIGGER = "CosmosDBTrigger";
      public static final String ANNOTATION_TIMER_TRIGGER = "TimerTrigger";
      public static final String ANNOTATION_BLOB_TRIGGER = "BlobTrigger";
+
+     public static final String AZURE_HTTP_LISTENER = "HttpListener";
+     public static final String AZURE_QUEUE_LISTENER = "QueueListener";
+     public static final String AZURE_COSMOS_LISTENER = "CosmosDBListener";
+     public static final String AZURE_TIMER_LISTENER = "TimerListener";
+     public static final String AZURE_BLOB_LISTENER = "BlobListener";
      
+     public static final String COSMOS_INPUT_BINDING = "CosmosDBInput";
+     public static final String BLOB_INPUT_BINDING = "BlobInput";
+
+     public static final String QUEUE_OUTPUT_BINDING = "QueueOutput";
+     public static final String HTTP_OUTPUT_BINDING = "HttpOutput";
+     public static final String COSMOS_OUTPUT_BINDING = "CosmosDBOutput";
+     public static final String TWILIO_OUTPUT_BINDING = "TwilioSmsOutput";
+     public static final String BLOB_OUTPUT_BINDING = "BlobOutput";
+
      public static final String DIRECTION_IN = "in";
      public static final String DIRECTION_OUT = "out";
+
+     public static final String RETURN_VAR_NAME = "outMsg";
      
      public static final String FUNCTION_DIRECTORY = "azure_functions";
 

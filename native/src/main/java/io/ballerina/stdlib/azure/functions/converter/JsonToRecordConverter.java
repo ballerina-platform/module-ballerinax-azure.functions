@@ -39,8 +39,6 @@ public class JsonToRecordConverter {
     }
 
     private static Object getRecordEntity(Object entity, Type entityBodyType) {
-//        Object bjson = EntityBodyHandler.getMessageDataSource(entity) == null ? getBJsonValue(entity)
-//                : EntityBodyHandler.getMessageDataSource(entity);
         Object result = getRecord(entityBodyType, entity);
         if (result instanceof BError) {
             throw (BError) result;
@@ -63,19 +61,6 @@ public class JsonToRecordConverter {
                                                           entityBodyType.getName());
         }
     }
-
-//    /**
-//     * Given an inbound request entity construct the ballerina json.
-//     *
-//     * @param entity Represents inbound request entity
-//     * @return a ballerina json value
-//     */
-//    private static Object getBJsonValue(BObject entity) {
-//        Object bjson = EntityBodyHandler.constructJsonDataSource(entity);
-//        EntityBodyHandler.addJsonMessageDataSource(entity, bjson);
-//        return bjson;
-//    }
-
     private JsonToRecordConverter() {
 
     }

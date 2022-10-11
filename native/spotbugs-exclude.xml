@@ -24,4 +24,8 @@
         <Class name="io.ballerina.stdlib.azure.functions.builder.JsonPayloadBuilder"/>
         <Bug pattern="BC_UNCONFIRMED_CAST"/>
     </Match>
+    <Match>
+        <Class name="io.ballerina.stdlib.azure.functions.Utils"/>
+        <Bug pattern="BC_UNCONFIRMED_CAST"/>
+    </Match>
 </FindBugsFilter>

@@ -28,18 +28,31 @@ public interface Constants {
     String PACKAGE_ORG = "ballerinax";
     String PACKAGE_NAME = "azure_functions";
 
+    //TODO restrict "httpPayload" from the param names.
+    String HTTP_TRIGGER_IDENTIFIER = "httpPayload";
+
+    String PARAMETER_ANNOTATION = "$param$.";
+    String RETURN_ANNOTATION = "$returns$";
+
     String PACKAGE_COMPLETE = PACKAGE_ORG + "/" + PACKAGE_NAME + ":3";
     String FUNCTION_ANNOTATION_COMPLETE = PACKAGE_COMPLETE + ":Function";
+    String FUNCTION_ANNOTATION_NAME_FIELD = "name";
+    
     String HTTP_PACKAGE_ORG = "ballerina";
     String HTTP_PACKAGE_NAME = "http";
+
+    String HTTP_ANNOTATION_PREFIX = Constants.HTTP_PACKAGE_ORG + Constants.SLASH + Constants.HTTP_PACKAGE_NAME + ":" +
+            Constants.HTTP_PACKAGE_VERSION + ":";
 
     String SERVICE_OBJECT = "AZURE_FUNCTION_SERVICE_OBJECT";
 
     String QUEUE_OUTPUT = "QueueOutput";
     String COSMOS_DBOUTPUT = "CosmosDBOutput";
-    String OUT_MSG = "outMsg";
     String HTTP_OUTPUT = "HttpOutput";
     String BLOB_OUTPUT = "BlobOutput";
+    
+    String OUT_MSG = "outMsg";
+    
     String PAYLOAD_ANNOTATAION = "Payload";
     String HEADER_ANNOTATION = "Header";
     String SERVICE_CONF_ANNOTATION = "ServiceConfig";
@@ -50,7 +63,8 @@ public interface Constants {
     String HEADERS = "headers";
     String CONTENT_TYPE = "Content-Type";
     String MEDIA_TYPE = "mediaType";
-    String RESP = "resp";
+    String RESPONSE_FIELD = "resp";
+    
     String POST = "post";
     String CREATED_201 = "201";
     String GET = "get";
@@ -60,11 +74,15 @@ public interface Constants {
     String HEAD = "head";
     String OPTIONS = "options";
     String DEFAULT = "default";
+    
     String OK_200 = "200";
+    String ACCEPTED = "202";
+    
     String TEXT_PLAIN = "text/plain";
     String APPLICATION_XML = "application/xml";
     String APPLICATION_OCTET_STREAM = "application/octet-stream";
     String APPLICATION_JSON = "application/json";
+    
     String BYTE_TYPE = "byte";
     String MAP_TYPE = "map";
     String JSON_TYPE = "json";
@@ -75,4 +93,11 @@ public interface Constants {
     String INVALID_PAYLOAD_ERROR = "InvalidPayloadError";
     String HEADER_NOT_FOUND_ERROR = "HeaderNotFoundError";
     String HTTP_PACKAGE_VERSION = "2";
+
+    String PATH_PARAM = "*";
+    
+    String AZURE_PAYLOAD_PARAMS = "Params";
+    String AZURE_PAYLOAD_HEADERS = "Headers";
+    String AZURE_QUERY_HEADERS = "Query";
+    String AZURE_BODY_HEADERS = "Body";
 }

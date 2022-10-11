@@ -53,22 +53,22 @@ public class NativeHttpToAzureAdaptor {
         ServiceType svcType = (ServiceType) bHubService.getType();
         List<BString> functionNameList = new ArrayList<>();
         for (ResourceMethodType resourceMethod : svcType.getResourceMethods()) {
-            BString functionName = ((BMap) resourceMethod
+            BString functionName = ((BMap<?, ?>) resourceMethod
                     .getAnnotation(StringUtils.fromString(Constants.FUNCTION_ANNOTATION_COMPLETE)))
-                    .getStringValue(StringUtils.fromString("name"));
+                    .getStringValue(StringUtils.fromString(Constants.FUNCTION_ANNOTATION_NAME_FIELD));
             functionNameList.add(functionName);
         }
         return ValueCreator.createArrayValue(functionNameList.toArray(BString[]::new));
     }
 
-    public static Object callNativeMethod(Environment env, BObject adaptor, BMap body, BString functionName) {
+    public static Object callNativeMethod(Environment env, BObject adaptor, BMap<?, ?> body, BString functionName) {
         BObject bHubService = (BObject) adaptor.getNativeData(SERVICE_OBJECT);
         return invokeResourceFunction(env, bHubService,
                 "callNativeMethod", body, functionName);
     }
 
     private static Object invokeResourceFunction(Environment env, BObject bHubService, String parentFunctionName,
-                                                 BMap body, BString functionName) {
+                                                 BMap<?, ?> body, BString functionName) {
         Future balFuture = env.markAsync();
         Module module = ModuleUtils.getModule();
         StrandMetadata metadata = new StrandMetadata(module.getOrg(), module.getName(), module.getVersion(),
@@ -76,7 +76,6 @@ public class NativeHttpToAzureAdaptor {
         ServiceType serviceType = (ServiceType) bHubService.getType();
 
         ResourceMethodType[] resourceMethods = serviceType.getResourceMethods();
-        //TODO restrict "httpPayload" from the param names.
         Optional<ResourceMethodType> resourceMethodType = getResourceMethodType(resourceMethods, functionName);
         if (resourceMethodType.isEmpty()) {
             balFuture.complete(Utils.createError(module, "function " + functionName.getValue() + " not found in the " +
@@ -85,7 +84,7 @@ public class NativeHttpToAzureAdaptor {
         }
         ResourceMethodType resourceMethod = resourceMethodType.get();
         try {
-            BMap serviceAnnotations = serviceType.getAnnotations();
+            BMap<?, ?> serviceAnnotations = serviceType.getAnnotations();
             HttpResource httpResource = new HttpResource(resourceMethod, body, serviceAnnotations);
             Object[] args = httpResource.getArgList();
             if (serviceType.isIsolated() && resourceMethod.isIsolated()) {
@@ -109,8 +108,8 @@ public class NativeHttpToAzureAdaptor {
                                                                       BString enteredFunctionName) {
         for (ResourceMethodType type : types) {
             BString functionName =
-                    ((BMap) type.getAnnotation(StringUtils.fromString(Constants.FUNCTION_ANNOTATION_COMPLETE)))
-                            .getStringValue(StringUtils.fromString("name"));
+                    ((BMap<?, ?>) type.getAnnotation(StringUtils.fromString(Constants.FUNCTION_ANNOTATION_COMPLETE)))
+                            .getStringValue(StringUtils.fromString(Constants.FUNCTION_ANNOTATION_NAME_FIELD));
 
             if (functionName.toString().equals(enteredFunctionName.toString())) {
                 return Optional.of(type);

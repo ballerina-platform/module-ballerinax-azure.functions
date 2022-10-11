@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/io;
 
 isolated service class DispatcherService {
     *http:Service;
@@ -30,21 +29,11 @@ isolated service class DispatcherService {
 
     isolated resource function post .(http:Caller caller, http:Request request) returns error? {
         http:Response response = new;
-        json message = check request.getJsonPayload();
-        io:println(message.toJsonString());
-        //map<json> body = <map<json>>check message.Data;
+        json platformPayload = check request.getJsonPayload();
 
-        map<anydata>|error callRegisterMethod = self.adaptor.callRemoteFunction(<map<json>>message, self
-        .remoteMethodName);
-        if (callRegisterMethod is error) {
-            io:println (callRegisterMethod);
-            return;
-        }
-        json result = {Outputs: callRegisterMethod.toJson(), Logs: []};
-        result = check result.mergeJson({ReturnValue: null});
-        io:println(result);
-        response.setJsonPayload(result);
+        map<anydata> callRegisterMethod = check self.adaptor.callRemoteFunction(<map<json>>platformPayload, self.remoteMethodName);
 
+        response.setJsonPayload({Outputs: callRegisterMethod.toJson(), Logs: [], ReturnValue: null});
         check caller->respond(response);
     }
 }

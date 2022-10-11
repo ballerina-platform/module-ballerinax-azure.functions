@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.ballerinax.azurefunctions;
 
 import io.ballerina.compiler.api.SemanticModel;
@@ -51,7 +68,7 @@ public class AzureFunctionModifier extends TreeModifier {
             return super.transform(serviceDeclarationNode);
         }
         TypeReferenceTypeSymbol typeSymbol1;
-        if (typeSymbol.get().typeKind() == TypeDescKind.UNION) {
+        if (TypeDescKind.UNION == typeSymbol.get().typeKind()) {
             UnionTypeSymbol union = (UnionTypeSymbol) typeSymbol.get();
             typeSymbol1 = (TypeReferenceTypeSymbol) union.memberTypeDescriptors().get(0);
 
@@ -63,7 +80,7 @@ public class AzureFunctionModifier extends TreeModifier {
             return super.transform(serviceDeclarationNode);
         }
         NodeList<Node> members = serviceDeclarationNode.members();
-        if (!name.get().equals("HttpListener")) {
+        if (!Constants.AZURE_HTTP_LISTENER.equals(name.get())) {
             return super.transform(serviceDeclarationNode);
         }
         AzureFunctionNameGenerator nameGen = new AzureFunctionNameGenerator(serviceDeclarationNode);
@@ -81,7 +98,7 @@ public class AzureFunctionModifier extends TreeModifier {
     }
 
     public Optional<Node> getModifiedMember(Node node, String servicePath, AzureFunctionNameGenerator nameGen) {
-        if (node.kind() != SyntaxKind.RESOURCE_ACCESSOR_DEFINITION) {
+        if (SyntaxKind.RESOURCE_ACCESSOR_DEFINITION != node.kind()) {
             return Optional.empty();
         }
         FunctionDefinitionNode functionDefinitionNode = (FunctionDefinitionNode) node;
@@ -98,7 +115,7 @@ public class AzureFunctionModifier extends TreeModifier {
 
         //Create and add annotation
         NodeList<AnnotationNode> modifiedAnnotations =
-                existingAnnotations.add(getFunctionNameAnnotation(uniqueFunctionName));
+                existingAnnotations.add(createFunctionAnnotation(uniqueFunctionName));
         MetadataNode modifiedMetadata =
                 new MetadataNode.MetadataNodeModifier(metadataNode).withAnnotations(modifiedAnnotations).apply();
         FunctionDefinitionNode updatedFunctionNode =
@@ -107,7 +124,7 @@ public class AzureFunctionModifier extends TreeModifier {
         return Optional.of(updatedFunctionNode);
     }
 
-    public AnnotationNode getFunctionNameAnnotation(String functionName) {
+    public AnnotationNode createFunctionAnnotation(String functionName) {
         QualifiedNameReferenceNode azureFunctionAnnotRef =
                 NodeFactory.createQualifiedNameReferenceNode(NodeFactory.createIdentifierToken(modulePrefix),
                         NodeFactory.createToken(SyntaxKind.COLON_TOKEN),

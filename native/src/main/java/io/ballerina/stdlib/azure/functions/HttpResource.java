@@ -17,18 +17,14 @@
  */
 package io.ballerina.stdlib.azure.functions;
 
-import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
-import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.Parameter;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.ResourceMethodType;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
@@ -39,8 +35,6 @@ import io.ballerina.stdlib.azure.functions.builder.AbstractPayloadBuilder;
 import io.ballerina.stdlib.azure.functions.exceptions.HeaderNotFoundException;
 import io.ballerina.stdlib.azure.functions.exceptions.InvalidPayloadException;
 import io.ballerina.stdlib.azure.functions.exceptions.PayloadNotFoundException;
-import org.ballerinalang.langlib.bool.FromString;
-
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -50,11 +44,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
-import static io.ballerina.runtime.api.TypeTags.BOOLEAN_TAG;
-import static io.ballerina.runtime.api.TypeTags.DECIMAL_TAG;
-import static io.ballerina.runtime.api.TypeTags.FLOAT_TAG;
-import static io.ballerina.runtime.api.TypeTags.INT_TAG;
-
 /**
  * Represents an Azure Resource function property.
  *
@@ -62,23 +51,18 @@ import static io.ballerina.runtime.api.TypeTags.INT_TAG;
  */
 public class HttpResource {
 
-    private static final ArrayType INT_ARR = TypeCreator.createArrayType(PredefinedTypes.TYPE_INT);
-    private static final ArrayType FLOAT_ARR = TypeCreator.createArrayType(PredefinedTypes.TYPE_FLOAT);
-    private static final ArrayType BOOLEAN_ARR = TypeCreator.createArrayType(PredefinedTypes.TYPE_BOOLEAN);
-    private static final ArrayType DECIMAL_ARR = TypeCreator.createArrayType(PredefinedTypes.TYPE_DECIMAL);
-
     private PathParameter[] pathParams;
     private QueryParameter[] queryParameter;
     private PayloadParameter payloadParameter;
     private InputBindingParameter[] inputBindingParameters;
     private HeaderParameter headerParameter;
 
-    public HttpResource(ResourceMethodType resourceMethodType, BMap<?, ?> body, BMap serviceAnnotations) {
+    public HttpResource(ResourceMethodType resourceMethodType, BMap<?, ?> body, BMap<?, ?> serviceAnnotations) {
         this.pathParams = getPathParams(resourceMethodType, body);
         this.payloadParameter = processPayloadParam(resourceMethodType, body).orElse(null);
         this.queryParameter = getQueryParams(resourceMethodType, body);
         this.inputBindingParameters = getInputBindingParams(resourceMethodType, body);
-        this.headerParameter = processHeaderParam(resourceMethodType, body, serviceAnnotations).orElse(null);;
+        this.headerParameter = processHeaderParam(resourceMethodType, body, serviceAnnotations).orElse(null);
     }
 
     private InputBindingParameter[] getInputBindingParams(ResourceMethodType resourceMethod, BMap<?, ?> body)
@@ -88,7 +72,8 @@ public class HttpResource {
         for (int i = this.pathParams.length, parametersLength = parameters.length; i < parametersLength; i++) {
             Parameter parameter = parameters[i];
             String name = parameter.name;
-            Object annotation = resourceMethod.getAnnotation(StringUtils.fromString("$param$." + name));
+            Object annotation =
+                    resourceMethod.getAnnotation(StringUtils.fromString(Constants.PARAMETER_ANNOTATION + name));
             Optional<InputBinding> inputBindingHandler = ParamHandler.getInputBindingHandler(annotation);
             if (inputBindingHandler.isEmpty()) {
                 continue;
@@ -109,21 +94,21 @@ public class HttpResource {
     }
 
     private QueryParameter[] getQueryParams(ResourceMethodType resourceMethod, BMap<?, ?> body) {
-        BMap<?, ?> queryParams = body.getMapValue(StringUtils.fromString("httpPayload"))
-                .getMapValue(StringUtils.fromString("Query"));
+        BMap<?, ?> queryParams = body.getMapValue(StringUtils.fromString(Constants.HTTP_TRIGGER_IDENTIFIER))
+                .getMapValue(StringUtils.fromString(Constants.AZURE_QUERY_HEADERS));
         Parameter[] parameters = resourceMethod.getParameters();
         List<QueryParameter> queryParameters = new ArrayList<>();
         for (int i = this.pathParams.length, parametersLength = parameters.length; i < parametersLength; i++) {
             Parameter parameter = parameters[i];
             String name = parameter.name;
-            Object annotation = resourceMethod.getAnnotation(StringUtils.fromString("$param$." + name));
-            //TODO Add other annotations as well
-            if (isAzAnnotationExist(annotation)) {
+            Object annotation =
+                    resourceMethod.getAnnotation(StringUtils.fromString(Constants.PARAMETER_ANNOTATION + name));
+            if (Utils.isAzAnnotationExist(annotation)) {
                 continue;
             }
             BString queryValue = queryParams.getStringValue(StringUtils.fromString(name));
             try {
-                Object bValue = createValue(parameter.type, queryValue);
+                Object bValue = Utils.createValue(parameter.type, queryValue);
                 queryParameters.add(new QueryParameter(i, parameter, bValue));
             } catch (BError bError) {
                 throw new InvalidPayloadException(bError.getMessage());
@@ -132,97 +117,16 @@ public class HttpResource {
         return queryParameters.toArray(QueryParameter[]::new);
     }
 
-    private Object createValue(Type type, BString strValue) {
-        switch (type.getTag()) {
-            case TypeTags.STRING_TAG:
-                return strValue;
-            case TypeTags.BOOLEAN_TAG:
-                return FromString.fromString(strValue);
-            case TypeTags.INT_TAG:
-                return org.ballerinalang.langlib.integer.FromString.fromString(strValue);
-            case TypeTags.FLOAT_TAG:
-                return org.ballerinalang.langlib.floatingpoint.FromString.fromString(strValue);
-            case TypeTags.DECIMAL_TAG:
-                return org.ballerinalang.langlib.decimal.FromString.fromString(strValue);
-            case TypeTags.UNION_TAG:
-                List<Type> memberTypes = ((UnionType) type).getMemberTypes();
-                for (Type memberType : memberTypes) {
-                    try {
-                        return createValue(memberType, strValue);
-                    } catch (BError ignored) {
-                        // thrown errors are ignored until all the types are iterated
-                    }
-                }
-                return null;
-            case TypeTags.ARRAY_TAG:
-                ArrayType arrayType = (ArrayType) type;
-                Type elementType = arrayType.getElementType();
-                if (strValue == null) {
-                    return null;
-                }
-                String[] values = strValue.getValue().split(",");
-                return castParamArray(elementType.getTag(), values);
-            default:
-                throw new InvalidPayloadException("unsupported parameter type " + type.getName());
-        }
-    }
-
-    public static BArray castParamArray(int targetElementTypeTag, String[] argValueArr) {
-        switch (targetElementTypeTag) {
-            case INT_TAG:
-                return getBArray(argValueArr, INT_ARR, targetElementTypeTag);
-            case FLOAT_TAG:
-                return getBArray(argValueArr, FLOAT_ARR, targetElementTypeTag);
-            case BOOLEAN_TAG:
-                return getBArray(argValueArr, BOOLEAN_ARR, targetElementTypeTag);
-            case DECIMAL_TAG:
-                return getBArray(argValueArr, DECIMAL_ARR, targetElementTypeTag);
-            default:
-                return StringUtils.fromStringArray(argValueArr);
-        }
-    }
-
-    private static BArray getBArray(String[] valueArray, ArrayType arrayType, int elementTypeTag) {
-        BArray arrayValue = ValueCreator.createArrayValue(arrayType);
-        int index = 0;
-        for (String element : valueArray) {
-            switch (elementTypeTag) {
-                case INT_TAG:
-                    arrayValue.add(index++, Long.parseLong(element));
-                    break;
-                case FLOAT_TAG:
-                    arrayValue.add(index++, Double.parseDouble(element));
-                    break;
-                case BOOLEAN_TAG:
-                    arrayValue.add(index++, Boolean.parseBoolean(element));
-                    break;
-                case DECIMAL_TAG:
-                    arrayValue.add(index++, ValueCreator.createDecimalValue(element));
-                    break;
-                default:
-                    throw new InvalidPayloadException("Illegal state error: unexpected param type");
-            }
-        }
-        return arrayValue;
-    }
-
-    private boolean isAzAnnotationExist(Object annotation) {
-        if (annotation == null) {
-            return false;
-        }
-        return true;
-    }
-
     private PathParameter[] getPathParams(ResourceMethodType resourceMethod, BMap<?, ?> body) {
         String[] resourcePath = resourceMethod.getResourcePath();
         Parameter[] parameters = resourceMethod.getParameters();
         List<PathParameter> pathParams = new ArrayList<>();
         int count = 0;
         for (String path : resourcePath) {
-            if (path.equals("*")) {
+            if (path.equals(Constants.PATH_PARAM)) {
                 Parameter parameter = parameters[count];
-                BMap<?, ?> payload = body.getMapValue(StringUtils.fromString("httpPayload"));
-                BMap<?, ?> params = payload.getMapValue(StringUtils.fromString("Params"));
+                BMap<?, ?> payload = body.getMapValue(StringUtils.fromString(Constants.HTTP_TRIGGER_IDENTIFIER));
+                BMap<?, ?> params = payload.getMapValue(StringUtils.fromString(Constants.AZURE_PAYLOAD_PARAMS));
                 BString param = params.getStringValue(StringUtils.fromString(parameter.name));
                 pathParams.add(new PathParameter(count, parameter, param.getValue()));
                 count++;
@@ -238,16 +142,17 @@ public class HttpResource {
         for (int i = this.pathParams.length, parametersLength = parameters.length; i < parametersLength; i++) {
             Parameter parameter = parameters[i];
             String name = parameter.name;
-            Object annotation = resourceMethod.getAnnotation(StringUtils.fromString("$param$." + name));
+            Object annotation =
+                    resourceMethod.getAnnotation(StringUtils.fromString(Constants.PARAMETER_ANNOTATION + name));
             if (!ParamHandler.isPayloadAnnotationParam(annotation)) {
                 continue;
             }
-            BMap<?, ?> httpPayload = body.getMapValue(StringUtils.fromString("httpPayload"));
-            BMap<?, ?> headers = httpPayload.getMapValue(StringUtils.fromString("Headers"));
+            BMap<?, ?> httpPayload = body.getMapValue(StringUtils.fromString(Constants.HTTP_TRIGGER_IDENTIFIER));
+            BMap<?, ?> headers = httpPayload.getMapValue(StringUtils.fromString(Constants.AZURE_PAYLOAD_HEADERS));
             Type type = parameter.type;
-            String contentType = getContentTypeHeader(headers);
-            BString bodyValue = getRequestBody(httpPayload, name, type);
-            if (isNilType(type) && bodyValue == null) {
+            String contentType = Utils.getContentTypeHeader(headers);
+            BString bodyValue = Utils.getRequestBody(httpPayload, name, type);
+            if (Utils.isNilType(type) && bodyValue == null) {
                 return Optional.of(new PayloadParameter(i, parameter, null));
             }
             try {
@@ -262,13 +167,12 @@ public class HttpResource {
     }
 
     private Optional<HeaderParameter> processHeaderParam(ResourceMethodType resourceMethod, BMap<?, ?> body,
-                                                         BMap serviceAnnotations) {
+                                                         BMap<?, ?> serviceAnnotations) {
         Parameter[] parameters = resourceMethod.getParameters();
-        Object headerParam = null;
+        Object headerParam;
         Boolean treatNilableAsOptional = true;
-        String serviceConfig = Constants.HTTP_PACKAGE_ORG + Constants.SLASH  + Constants.HTTP_PACKAGE_NAME + ":" +
-                Constants.HTTP_PACKAGE_VERSION + ":" + Constants.SERVICE_CONF_ANNOTATION;
-        Boolean isServiceConfExist = ParamHandler.isHttpServiceConfExist(serviceAnnotations);
+        String serviceConfig = Constants.HTTP_ANNOTATION_PREFIX + Constants.SERVICE_CONF_ANNOTATION;
+        boolean isServiceConfExist = ParamHandler.isHttpServiceConfExist(serviceAnnotations);
         if (isServiceConfExist) {
             treatNilableAsOptional = serviceAnnotations.getMapValue(StringUtils.fromString(serviceConfig)).
                     getBooleanValue(StringUtils.fromString("treatNilableAsOptional"));
@@ -276,20 +180,22 @@ public class HttpResource {
         for (int i = this.pathParams.length, parametersLength = parameters.length; i < parametersLength; i++) {
             Parameter parameter = parameters[i];
             String name = parameter.name;
-            Object annotation = resourceMethod.getAnnotation(StringUtils.fromString("$param$." + name));
+            Object annotation =
+                    resourceMethod.getAnnotation(StringUtils.fromString(Constants.PARAMETER_ANNOTATION + name));
             if (annotation == null) {
                 continue;
             }
-            Boolean isHeaderAnnotation = ParamHandler.isHeaderAnnotationParam(annotation);
+            boolean isHeaderAnnotation = ParamHandler.isHeaderAnnotationParam(annotation);
             if (!isHeaderAnnotation) {
                 continue;
             }
-            BMap httpPayload = body.getMapValue(StringUtils.fromString("httpPayload"));
-            BMap headers = httpPayload.getMapValue(StringUtils.fromString("Headers"));
+            BMap<?, ?> httpPayload = body.getMapValue(StringUtils.fromString(Constants.HTTP_TRIGGER_IDENTIFIER));
+            BMap<BString, ?> headers =
+                    (BMap<BString, ?>) httpPayload.getMapValue(StringUtils.fromString(Constants.AZURE_PAYLOAD_HEADERS));
 
-            String headerAnnotation = Constants.HTTP_PACKAGE_ORG + Constants.SLASH  + Constants.HTTP_PACKAGE_NAME +
-                    ":" + Constants.HTTP_PACKAGE_VERSION + ":" + Constants.HEADER_ANNOTATION;
-            BMap headerAnnotationField = (BMap) ((BMap) annotation).get(StringUtils.fromString(headerAnnotation));
+            String headerAnnotation = Constants.HTTP_ANNOTATION_PREFIX + Constants.HEADER_ANNOTATION;
+            BMap<?, ?> headerAnnotationField =
+                    (BMap<?, ?>) ((BMap<?, ?>) annotation).get(StringUtils.fromString(headerAnnotation));
             if (headerAnnotationField.size() == 0) {
                 //No annotation field defined {name: ....}
                 if ((parameter.type).getTag() == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
@@ -301,22 +207,21 @@ public class HttpResource {
                 return Optional.of(new HeaderParameter(i, parameter, headerParam));
             } else if (headerAnnotationField.size() == 1) {
                 // Annotation field is defined
-                BString headerName = ((BMap) headerAnnotationField).getStringValue(StringUtils.fromString("name"));
+                BString headerName = headerAnnotationField.getStringValue(StringUtils.fromString("name"));
                 headerParam = getHeaderValue(headers, parameter.type, headerName.getValue(), treatNilableAsOptional);
                 return Optional.of(new HeaderParameter(i, parameter, headerParam));
             } else {
                 throw new RuntimeException("Header annotation can have only one name field.");
                 //TODO :- add proper exception
             }
-
         }
         return Optional.empty();
     }
 
     private Object getHeaderValue(BMap<BString, ?> headers, Type type, String fieldName,
-                                  Boolean treatNilableAsOptional) {
+                                  boolean treatNilableAsOptional) {
         BString headerValue = null;
-        Boolean isHeaderExist = false;
+        boolean isHeaderExist = false;
         for (BString headerKey : headers.getKeys()) {
             if (headerKey.getValue().toLowerCase(Locale.ROOT).equals(fieldName.toLowerCase(Locale.ROOT))) {
                 isHeaderExist = true;
@@ -328,19 +233,19 @@ public class HttpResource {
         }
         if (!isHeaderExist) {
             //Header name not exist case
-            if (isNilType(type) && treatNilableAsOptional) {
+            if (Utils.isNilType(type) && treatNilableAsOptional) {
                 return null;
             }
             throw new HeaderNotFoundException("no header value found for '" + fieldName + "'");
         } else if (headerValue.getValue().equals("")) {
             //Handle header value not exist case
-            if (isNilType(type)) {
+            if (Utils.isNilType(type)) {
                 return null;
             }
             throw new HeaderNotFoundException("no header value found for '" + fieldName + "'");
 
         }
-        return createValue(type, headerValue);
+        return Utils.createValue(type, headerValue);
     }
 
     private Object processHeaderRecordParam(BMap<BString, ?> headers, ReferenceType parameter,
@@ -355,43 +260,6 @@ public class HttpResource {
             recordValue.put(StringUtils.fromString(fieldName), headerValue);
         }
         return recordValue;
-    }
-
-
-    private boolean isNilType(Type type) {
-        if (type.getTag() == TypeTags.UNION_TAG) {
-            List<Type> memberTypes = ((UnionType) type).getMemberTypes();
-            for (Type memberType : memberTypes) {
-                if (isNilType(memberType)) {
-                    return true;
-                }
-            }
-        } else if (type.getTag() == TypeTags.NULL_TAG) {
-            return true;
-        }
-        return false;
-    }
-
-
-    private BString getRequestBody(BMap<?, ?> httpPayload, String name, Type type) throws PayloadNotFoundException {
-        BString bBody = StringUtils.fromString("Body");
-        if (httpPayload.containsKey(bBody)) {
-            return httpPayload.getStringValue(bBody);
-        }
-        if (!isNilType(type)) {
-            throw new PayloadNotFoundException("payload not found for the variable '" + name + "'");
-        }
-        return null;
-    }
-
-    private String getContentTypeHeader(BMap<?, ?> headers) {
-        //TODO fix lower case
-        if (headers.containsKey(StringUtils.fromString(Constants.CONTENT_TYPE))) {
-            BArray headersArrayValue = headers.getArrayValue(StringUtils.fromString(Constants.CONTENT_TYPE));
-            return headersArrayValue.getBString(0).getValue();
-        } else {
-            return null;
-        }
     }
 
     public Object[] getArgList() {

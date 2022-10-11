@@ -40,8 +40,6 @@ public class XmlPayloadBuilder extends AbstractPayloadBuilder {
     @Override
     public Object getValue(BString entity, boolean readonly) {
         if (isSubtypeOfAllowedType(payloadType, TypeTags.XML_TAG)) {
-//            BXml bxml = EntityBodyHandler.constructXmlDataSource(entity);
-//            EntityBodyHandler.addMessageDataSource(entity, bxml);
             BXml bxml = XmlUtils.parse(entity);
             if (readonly) {
                 bxml.freezeDirect();

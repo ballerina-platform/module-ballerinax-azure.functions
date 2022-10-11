@@ -51,6 +51,9 @@ public class Util {
 
     public static Optional<String> extractValueFromAnnotationField(SpecificFieldNode fieldNode) {
         Optional<ExpressionNode> expressionNode = fieldNode.valueExpr();
+        if (expressionNode.isEmpty()) {
+            return Optional.empty();
+        }
         ExpressionNode expressionNode1 = expressionNode.get();
         if (expressionNode1.kind() == SyntaxKind.STRING_LITERAL) {
             String text1 = ((BasicLiteralNode) expressionNode1).literalToken().text();

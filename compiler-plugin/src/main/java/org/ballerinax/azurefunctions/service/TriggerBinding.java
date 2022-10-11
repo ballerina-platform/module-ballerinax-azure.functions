@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.ballerinax.azurefunctions.service;
 
 import io.ballerina.compiler.api.SemanticModel;
@@ -36,10 +53,9 @@ public abstract class TriggerBinding extends Binding {
     public abstract List<FunctionContext> getBindings();
 
     public Optional<AnnotationNode> getListenerAnnotation(ServiceDeclarationNode svcDeclNode, String annotationName) {
-        //TODO handle inline decl
         for (ExpressionNode expression : svcDeclNode.expressions()) {
             Optional<MetadataNode> metadata;
-            if (expression.kind() == EXPLICIT_NEW_EXPRESSION) {
+            if (EXPLICIT_NEW_EXPRESSION == expression.kind()) {
                 metadata = svcDeclNode.metadata();
             } else {
                 Optional<Symbol> symbol = this.semanticModel.symbol(expression);
@@ -47,13 +63,13 @@ public abstract class TriggerBinding extends Binding {
                     continue;
                 }
                 Symbol listenerSymbol = symbol.get();
-                if (listenerSymbol.kind() != SymbolKind.VARIABLE) {
+                if (SymbolKind.VARIABLE != listenerSymbol.kind()) {
                     continue;
                 }
                 VariableSymbol variableSymbol = (VariableSymbol) listenerSymbol;
                 ListenerDeclarationNode listenerDeclarationNode =
                         (ListenerDeclarationNode) Util.findNode(svcDeclNode, variableSymbol);
-                metadata = listenerDeclarationNode.metadata();
+                metadata = listenerDeclarationNode != null ? listenerDeclarationNode.metadata() : Optional.empty();
             }
             if (metadata.isEmpty()) {
                 continue;
@@ -73,17 +89,6 @@ public abstract class TriggerBinding extends Binding {
                     return Optional.of(annotationNode);
                 }
             }
-
-//            List<AnnotationSymbol> annotations = variableSymbol.annotations();
-//            for (AnnotationSymbol annotationSymbol : annotations) {
-//                Optional<String> name = annotationSymbol.getName();
-//                if (name.isEmpty()) {
-//                    continue;
-//                }
-//                if (name.get().equals(annotationName)) {
-//                    return Optional.of(annotationSymbol);
-//                }
-//            }
         }
         return Optional.empty();
     }
@@ -104,7 +109,7 @@ public abstract class TriggerBinding extends Binding {
                 continue;
             }
 
-            if (name.get().equals(Constants.AZURE_FUNCTIONS_MODULE_NAME)) {
+            if (Constants.AZURE_FUNCTIONS_MODULE_NAME.equals(name.get())) {
                 return true;
             }
         }

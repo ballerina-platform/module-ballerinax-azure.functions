@@ -70,7 +70,7 @@ public class NativeRemoteAdapter {
         Parameter[] parameters = methodType.getParameters();
         for (Parameter parameter : parameters) {
             String name = parameter.name;
-            Object annotation = methodType.getAnnotation(StringUtils.fromString("$param$." + name));
+            Object annotation = methodType.getAnnotation(StringUtils.fromString(Constants.PARAMETER_ANNOTATION + name));
             if (!ParamHandler.isAzureAnnotationExist(annotation)) {
                 Object bValue = getDataboundValue(data, parameter, serviceType);
                 argList.add(bValue);

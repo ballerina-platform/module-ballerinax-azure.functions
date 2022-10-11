@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.ballerinax.azurefunctions.service.http;
 
 import com.google.gson.JsonArray;
@@ -61,13 +78,11 @@ public class HTTPTriggerBinding extends TriggerBinding {
         List<FunctionContext> functionContexts = new ArrayList<>();
         NodeList<Node> members = this.serviceDeclarationNode.members();
         for (Node node : members) {
-//            HTTPTriggerBinding httpTriggerBinding =
-//                    httpTriggerAnnot.map(HTTPTriggerBinding::new).orElseGet(HTTPTriggerBinding::new);
             HTTPTriggerBinding httpTriggerBinding =
                     new HTTPTriggerBinding(this.serviceDeclarationNode, this.semanticModel);
             httpTriggerAnnot.ifPresent(queueTrigger -> getAnnotation(httpTriggerBinding, queueTrigger));
             List<Binding> bindings = new ArrayList<>();
-            if (node.kind() != SyntaxKind.RESOURCE_ACCESSOR_DEFINITION) {
+            if (SyntaxKind.RESOURCE_ACCESSOR_DEFINITION != node.kind()) {
                 continue;
             }
             FunctionDefinitionNode functionDefinitionNode = (FunctionDefinitionNode) node;
@@ -85,16 +100,10 @@ public class HTTPTriggerBinding extends TriggerBinding {
                     ResourcePathParameterNode pathParamNode = (ResourcePathParameterNode) pathBlock;
                     //TODO Handle optional
                     resourcePath.append("/" + "{").append(pathParamNode.paramName().get().text()).append("}");
-                    continue;
                 }
                 //TODO add wildcard
             }
-            String resPath = resourcePath.toString();
-            if (resPath.startsWith("/")) {
-                httpTriggerBinding.setPath(resPath.substring(1));
-            } else {
-                httpTriggerBinding.setPath(resPath);
-            }
+            httpTriggerBinding.setPath(getFunctionPath(resourcePath.toString()));
             bindings.add(httpTriggerBinding);
             String variableName;
             SeparatedNodeList<ParameterNode> parameters = functionDefinitionNode.functionSignature().parameters();
@@ -109,18 +118,14 @@ public class HTTPTriggerBinding extends TriggerBinding {
                 variableName = reqParam.paramName().get().text();
                 InputBindingBuilder inputBuilder = new InputBindingBuilder();
                 Optional<Binding> inputBinding = inputBuilder.getInputBinding(reqParam.annotations(), variableName);
-                if (inputBinding.isPresent()) {
-                    bindings.add(inputBinding.get());
-                    continue;
-                }
+                inputBinding.ifPresent(bindings::add);
             }
             Optional<ReturnTypeDescriptorNode> returnTypeDescriptor =
                     functionDefinitionNode.functionSignature().returnTypeDesc();
             if (returnTypeDescriptor.isEmpty()) {
                 bindings.add(new HTTPOutputBinding(null));
             } else {
-                ReturnTypeDescriptorNode returnTypeNode =
-                        returnTypeDescriptor.get();
+                ReturnTypeDescriptorNode returnTypeNode = returnTypeDescriptor.get();
                 OutputBindingBuilder outputBuilder = new OutputBindingBuilder();
                 Optional<Binding> returnBinding = outputBuilder.getOutputBinding(returnTypeNode.annotations());
                 if (returnBinding.isEmpty()) {
@@ -133,6 +138,14 @@ public class HTTPTriggerBinding extends TriggerBinding {
             functionContexts.add(new FunctionContext(functionName.get(), bindings));
         }
         return functionContexts;
+    }
+
+    private String getFunctionPath(String resourcePath) {
+        if (resourcePath.startsWith("/")) {
+            return resourcePath.substring(1);
+        } else {
+            return resourcePath;
+        }
     }
 
     private void getAnnotation(HTTPTriggerBinding triggerBinding, AnnotationNode queueTrigger) {
@@ -247,7 +260,7 @@ public class HTTPTriggerBinding extends TriggerBinding {
             methods.add("POST");
             methods.add("PUT");
         } else {
-            methods.add(this.methods); //TODO add default
+            methods.add(this.methods);
         }
         return methods;
     }

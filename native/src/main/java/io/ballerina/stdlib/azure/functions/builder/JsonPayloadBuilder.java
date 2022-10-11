@@ -57,10 +57,7 @@ public class JsonPayloadBuilder extends AbstractPayloadBuilder {
     }
 
     public Object createValue(Type payloadType, boolean readonly, Object dataSource) {
-
-//        Object bjson = EntityBodyHandler.constructJsonDataSource(null);
-//        EntityBodyHandler.addJsonMessageDataSource(null, bjson);
-//        var result = FromJsonWithType.fromJsonWithType(bjson, ValueCreator.createTypedescValue(payloadType));
+        
         if (dataSource instanceof BString) {
             BString datasource = (BString) dataSource;
             if (payloadType.getTag() == TypeTags.UNION_TAG) {

@@ -47,11 +47,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.ballerinax.azurefunctions.Constants.AZURE_FUNCTIONS;
+import static org.ballerinax.azurefunctions.Constants.AZURE_FUNCTIONS_MODULE_NAME;
 import static org.ballerinax.azurefunctions.Constants.HEADER_ANNOTATION_TYPE;
 import static org.ballerinax.azurefunctions.Constants.HTTP;
 import static org.ballerinax.azurefunctions.Util.updateDiagnostic;
-
 
 /**
  * Validates azure-function service on a HTTPListener .
@@ -69,6 +68,7 @@ class HttpListenerValidator {
         }
 
     }
+
     private static void validateResourceFunction(SyntaxNodeAnalysisContext ctx, FunctionDefinitionNode member) {
         validateInputParameters(ctx, member);
         //TODO : Other necessary validation for a resource function
@@ -134,7 +134,8 @@ class HttpListenerValidator {
                 reportInvalidParameter(ctx, paramLocation, paramName);
                 continue;
             }
-            if (!HTTP.equals(nameSymbolOptional.get()) && !AZURE_FUNCTIONS.equals(nameSymbolOptional.get())) {
+            if (!HTTP.equals(nameSymbolOptional.get()) &&
+                    !AZURE_FUNCTIONS_MODULE_NAME.equals(nameSymbolOptional.get())) {
                 reportInvalidParameterAnnotation(ctx, paramLocation, paramName);
                 continue;
             }
@@ -229,9 +230,8 @@ class HttpListenerValidator {
         }
     }
 
-
     private static void checkAllowedHeaderParamUnionType(SyntaxNodeAnalysisContext ctx, Location paramLocation,
-                                                     Symbol param, String paramName, TypeDescKind elementKind) {
+                                                         Symbol param, String paramName, TypeDescKind elementKind) {
         if (!isAllowedHeaderParamPureType(elementKind)) {
             reportInvalidUnionHeaderType(ctx, paramLocation, paramName);
         }
@@ -290,8 +290,6 @@ class HttpListenerValidator {
                                                String paramName) {
         updateDiagnostic(ctx, location, AzureDiagnosticCodes.AF_002, paramName);
     }
-
-
 
     private static void reportInvalidHeaderParameterType(SyntaxNodeAnalysisContext ctx, Location location,
                                                          String paramName, Symbol parameterSymbol) {

@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.ballerinax.azurefunctions.service;
 
 import io.ballerina.compiler.api.SemanticModel;
@@ -51,7 +68,7 @@ public abstract class RemoteTriggerBinding extends TriggerBinding {
         NodeList<Node> members = this.serviceDeclarationNode.members();
         for (Node node : members) {
             List<Binding> bindings = new ArrayList<>();
-            if (node.kind() != SyntaxKind.OBJECT_METHOD_DEFINITION) {
+            if (SyntaxKind.OBJECT_METHOD_DEFINITION != node.kind()) {
                 continue;
             }
             FunctionDefinitionNode functionDefinitionNode = (FunctionDefinitionNode) node;
@@ -61,7 +78,7 @@ public abstract class RemoteTriggerBinding extends TriggerBinding {
             }
 
             for (ParameterNode parameterNode : functionDefinitionNode.functionSignature().parameters()) {
-                if (parameterNode.kind() != SyntaxKind.REQUIRED_PARAM) {
+                if (SyntaxKind.REQUIRED_PARAM != parameterNode.kind()) {
                     continue;
                 }
                 RequiredParameterNode reqParam = (RequiredParameterNode) parameterNode;
@@ -76,28 +93,15 @@ public abstract class RemoteTriggerBinding extends TriggerBinding {
 
                 InputBindingBuilder inputBuilder = new InputBindingBuilder();
                 Optional<Binding> inputBinding = inputBuilder.getInputBinding(reqParam.annotations(), variableName);
-                if (inputBinding.isPresent()) {
-                    bindings.add(inputBinding.get());
-                    continue;
-                }
-
+                inputBinding.ifPresent(bindings::add);
             }
             bindings.add(this);
-//                    ParameterNode parameterNode = functionDefinitionNode.functionSignature().parameters().get(0);
-//                    //TODO valid
-//                    if (parameterNode.kind() != SyntaxKind.REQUIRED_PARAM) {
-//                        continue;
-//                    }
-//                    RequiredParameterNode reqParam = (RequiredParameterNode) parameterNode;
-//                    String paramName = reqParam.paramName().orElseThrow().text();
-//                    bindings.add(new QueueTriggerBinding(paramName, queueName));
-
             ReturnTypeDescriptorNode returnTypeDescriptorNode =
                     functionDefinitionNode.functionSignature().returnTypeDesc().get(); //TODO recheck if return is must
             OutputBindingBuilder outputBuilder = new OutputBindingBuilder();
             Optional<Binding> returnBinding  = outputBuilder.getOutputBinding(returnTypeDescriptorNode.annotations());
             bindings.add(returnBinding.orElseThrow()); //TODO handle in code analyzer
-            functionContexts.add(new FunctionContext(servicePath.replace("/", ""), bindings)); //TODO remove /
+            functionContexts.add(new FunctionContext(servicePath.replace("/", ""), bindings));
         }
         return functionContexts;
     }

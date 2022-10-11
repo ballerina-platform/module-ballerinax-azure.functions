@@ -74,10 +74,6 @@ public class FunctionsArtifact {
         return functions;
     }
 
-    public Path getBinaryPath() {
-        return binaryPath;
-    }
-
     private JsonObject readExistingHostJson() throws IOException {
         File file = new File(HOST_JSON_NAME);
         if (file.exists()) {
