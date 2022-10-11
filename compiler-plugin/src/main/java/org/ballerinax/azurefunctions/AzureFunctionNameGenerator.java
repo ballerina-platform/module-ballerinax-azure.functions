@@ -45,7 +45,6 @@ public class AzureFunctionNameGenerator {
                 String specialCharReplacedPathBlock = (((IdentifierToken) pathBlock).text()).replace("\\", "");
                 resourcePath.append("/").append(specialCharReplacedPathBlock);
             } else if (pathBlock.kind() == SyntaxKind.RESOURCE_PATH_SEGMENT_PARAM) {
-                //TODO changed
                 Token token = ((ResourcePathParameterNode) pathBlock).paramName().get();
                 resourcePath.append("/").append(token.text());
             }

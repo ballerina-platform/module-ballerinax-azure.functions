@@ -84,7 +84,6 @@ public class HTTPTriggerBinding extends TriggerBinding {
                 if (pathBlock.kind() == SyntaxKind.RESOURCE_PATH_SEGMENT_PARAM) {
                     ResourcePathParameterNode pathParamNode = (ResourcePathParameterNode) pathBlock;
                     //TODO Handle optional
-                    //TODO changed
                     resourcePath.append("/" + "{").append(pathParamNode.paramName().get().text()).append("}");
                     continue;
                 }
