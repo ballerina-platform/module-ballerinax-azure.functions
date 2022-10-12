@@ -80,7 +80,7 @@ public class HTTPTriggerBinding extends TriggerBinding {
         for (Node node : members) {
             HTTPTriggerBinding httpTriggerBinding =
                     new HTTPTriggerBinding(this.serviceDeclarationNode, this.semanticModel);
-            httpTriggerAnnot.ifPresent(queueTrigger -> getAnnotation(httpTriggerBinding, queueTrigger));
+            httpTriggerAnnot.ifPresent(trigger -> getAnnotation(httpTriggerBinding, trigger));
             List<Binding> bindings = new ArrayList<>();
             if (SyntaxKind.RESOURCE_ACCESSOR_DEFINITION != node.kind()) {
                 continue;

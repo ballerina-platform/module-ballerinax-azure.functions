@@ -99,7 +99,7 @@ public class Util {
         String finalPath = out.toString();
         if (finalPath.startsWith("/")) {
             return finalPath.substring(1);
-        }
+        }   
         return finalPath;
     }
 

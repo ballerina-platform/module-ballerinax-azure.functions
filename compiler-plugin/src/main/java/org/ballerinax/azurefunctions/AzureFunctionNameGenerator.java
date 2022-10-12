@@ -68,7 +68,7 @@ public class AzureFunctionNameGenerator {
         }
         return getEncodedAzureFunctionName(resourcePath.toString(), servicePath, method);
     }
-
+    //TODO move slashs, dashes to consts
     private String getEncodedAzureFunctionName(String resourcePath, String servicePath, String method) {
         String functionName = resourcePath.replace("/", "-");
         if (servicePath.equals("")) {

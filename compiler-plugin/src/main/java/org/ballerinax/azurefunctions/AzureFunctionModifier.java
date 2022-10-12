@@ -27,6 +27,10 @@ import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerina.compiler.syntax.tree.IdentifierToken;
+import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ImportOrgNameNode;
+import io.ballerina.compiler.syntax.tree.ImportPrefixNode;
 import io.ballerina.compiler.syntax.tree.LiteralValueToken;
 import io.ballerina.compiler.syntax.tree.MappingConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.MappingFieldNode;
@@ -56,26 +60,52 @@ public class AzureFunctionModifier extends TreeModifier {
     public AzureFunctionModifier(SemanticModel semanticModel) {
         super();
         this.semanticModel = semanticModel;
-        this.modulePrefix = "af"; //TODO fixme
+        this.modulePrefix = Constants.AZURE_FUNCTIONS_MODULE_NAME;
+    }
+
+    @Override
+    public ImportDeclarationNode transform(ImportDeclarationNode importDeclarationNode) {
+        Optional<ImportOrgNameNode> importOrgNameNode = importDeclarationNode.orgName();
+        if (importOrgNameNode.isEmpty()) {
+            return importDeclarationNode;
+        }
+        if (!Constants.AZURE_FUNCTIONS_PACKAGE_ORG.equals(importOrgNameNode.get().orgName().text())) {
+            return importDeclarationNode;
+        }
+        SeparatedNodeList<IdentifierToken> identifierTokens = importDeclarationNode.moduleName();
+        if (identifierTokens.size() != 1) {
+            return importDeclarationNode;
+        }
+        if (!Constants.AZURE_FUNCTIONS_MODULE_NAME.equals(identifierTokens.get(0).text())) {
+            return importDeclarationNode;
+        }
+
+        Optional<ImportPrefixNode> prefix = importDeclarationNode.prefix();
+        if (prefix.isEmpty()) {
+            this.modulePrefix = Constants.AZURE_FUNCTIONS_MODULE_NAME;
+            return importDeclarationNode;
+        }
+        this.modulePrefix = prefix.get().prefix().text();
+        return importDeclarationNode;
     }
 
     @Override
     public ServiceDeclarationNode transform(ServiceDeclarationNode serviceDeclarationNode) {
         String servicePath = Util.resourcePathToString(serviceDeclarationNode.absoluteResourcePath());
         ExpressionNode listenerExpressionNode = serviceDeclarationNode.expressions().get(0);
-        Optional<TypeSymbol> typeSymbol = semanticModel.typeOf(listenerExpressionNode);
-        if (typeSymbol.isEmpty()) {
+        Optional<TypeSymbol> listenerSymbol = semanticModel.typeOf(listenerExpressionNode);
+        if (listenerSymbol.isEmpty()) {
             return super.transform(serviceDeclarationNode);
         }
-        TypeReferenceTypeSymbol typeSymbol1;
-        if (TypeDescKind.UNION == typeSymbol.get().typeKind()) {
-            UnionTypeSymbol union = (UnionTypeSymbol) typeSymbol.get();
-            typeSymbol1 = (TypeReferenceTypeSymbol) union.memberTypeDescriptors().get(0);
+        TypeReferenceTypeSymbol typeRefSymbol;
+        if (TypeDescKind.UNION == listenerSymbol.get().typeKind()) {
+            UnionTypeSymbol union = (UnionTypeSymbol) listenerSymbol.get();
+            typeRefSymbol = (TypeReferenceTypeSymbol) union.memberTypeDescriptors().get(0);
 
         } else {
-            typeSymbol1 = (TypeReferenceTypeSymbol) typeSymbol.get();
+            typeRefSymbol = (TypeReferenceTypeSymbol) listenerSymbol.get();
         }
-        Optional<String> name = typeSymbol1.definition().getName();
+        Optional<String> name = typeRefSymbol.definition().getName();
         if (name.isEmpty()) {
             return super.transform(serviceDeclarationNode);
         }

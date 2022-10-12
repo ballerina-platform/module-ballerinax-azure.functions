@@ -42,11 +42,6 @@ public class AzureFunctionServiceVisitor extends NodeVisitor {
     }
 
     @Override
-    public void visit(ModulePartNode modulePartNode) {
-        super.visit(modulePartNode);
-    }
-
-    @Override
     public void visit(ServiceDeclarationNode serviceDeclarationNode) {
         TriggerBinding builder = ServiceHandler.getBuilder(serviceDeclarationNode, semanticModel);
         List<FunctionContext> contexts = builder.getBindings();
