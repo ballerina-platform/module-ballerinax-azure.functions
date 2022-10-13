@@ -31,12 +31,19 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
+import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerina.compiler.syntax.tree.IdentifierToken;
+import io.ballerina.compiler.syntax.tree.MappingConstructorExpressionNode;
+import io.ballerina.compiler.syntax.tree.MappingFieldNode;
+import io.ballerina.compiler.syntax.tree.MetadataNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
+import io.ballerina.tools.diagnostics.DiagnosticFactory;
+import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinax.azurefunctions.AzureDiagnosticCodes;
 import org.wso2.ballerinalang.compiler.diagnostic.properties.BSymbolicProperty;
@@ -47,9 +54,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static org.ballerinax.azurefunctions.AzureDiagnosticCodes.AF_008;
 import static org.ballerinax.azurefunctions.Constants.AZURE_FUNCTIONS_MODULE_NAME;
+import static org.ballerinax.azurefunctions.Constants.COLON;
 import static org.ballerinax.azurefunctions.Constants.HEADER_ANNOTATION_TYPE;
 import static org.ballerinax.azurefunctions.Constants.HTTP;
+import static org.ballerinax.azurefunctions.Constants.SERVICE_CONFIG_ANNOTATION;
+import static org.ballerinax.azurefunctions.Constants.TREAT_NILABLE_AS_OPTIONAL;
 import static org.ballerinax.azurefunctions.Util.updateDiagnostic;
 
 /**
@@ -76,7 +87,36 @@ class HttpListenerValidator {
 
     private static void extractServiceAnnotationAndValidate(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext,
                                                             ServiceDeclarationNode serviceDeclarationNode) {
-        //TODO : Validate service annotation fields
+        //HTTP serviceconfig validation currently supports only for treatNilableAsTrue field
+        Optional<MetadataNode> metadataNodeOptional = serviceDeclarationNode.metadata();
+        if (metadataNodeOptional.isEmpty()) {
+            return;
+        }
+        NodeList<AnnotationNode> annotations = metadataNodeOptional.get().annotations();
+        for (AnnotationNode annotation : annotations) {
+            Node annotReference = annotation.annotReference();
+            String annotName = annotReference.toString();
+            Optional<MappingConstructorExpressionNode> annotValue = annotation.annotValue();
+            if (annotReference.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+                continue;
+            }
+            String[] annotStrings = annotName.split(COLON);
+            if (SERVICE_CONFIG_ANNOTATION.equals(annotStrings[annotStrings.length - 1].trim())
+                    && (annotValue.isPresent())) {
+                MappingConstructorExpressionNode mapping = annotValue.get();
+                NodeList fields = mapping.fields();
+                if (fields.size() == 1) {
+                    MappingFieldNode field = (MappingFieldNode) fields.get(0);
+                    String fieldName = ((IdentifierToken) (field.children()).get(0)).text();
+                    if (!TREAT_NILABLE_AS_OPTIONAL.equals(fieldName)) {
+                        warnInvalidServiceConfig(syntaxNodeAnalysisContext, field);
+                    }
+                } else {
+                    warnInvalidServiceConfig(syntaxNodeAnalysisContext, mapping);
+                }
+            }
+        }
+
     }
 
     private static void validateInputParameters(SyntaxNodeAnalysisContext ctx, FunctionDefinitionNode member) {
@@ -88,9 +128,6 @@ class HttpListenerValidator {
         Optional<List<ParameterSymbol>> parametersOptional =
                 ((ResourceMethodSymbol) resourceMethodSymbolOptional.get()).typeDescriptor().params();
         if (parametersOptional.isEmpty()) {
-            return;
-        }
-        if (parametersOptional.get().size() == 0) {
             return;
         }
 
@@ -314,6 +351,11 @@ class HttpListenerValidator {
     private static void reportInvalidMultipleAnnotation(SyntaxNodeAnalysisContext ctx, Location location,
                                                         String paramName) {
         updateDiagnostic(ctx, location, AzureDiagnosticCodes.AF_007, paramName);
+    }
+
+    private static void warnInvalidServiceConfig(SyntaxNodeAnalysisContext ctx, Node node) {
+        DiagnosticInfo diagInfo = new DiagnosticInfo(AF_008.getCode(), AF_008.getMessage(), AF_008.getSeverity());
+        ctx.reportDiagnostic(DiagnosticFactory.createDiagnostic(diagInfo, node.location()));
     }
 }
 

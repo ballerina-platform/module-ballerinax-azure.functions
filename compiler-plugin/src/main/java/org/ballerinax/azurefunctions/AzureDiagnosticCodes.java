@@ -21,6 +21,7 @@ package org.ballerinax.azurefunctions;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
 import static io.ballerina.tools.diagnostics.DiagnosticSeverity.ERROR;
+import static io.ballerina.tools.diagnostics.DiagnosticSeverity.WARNING;
 
 /**
  * {@code DiagnosticCodes} is used to hold diagnostic codes.
@@ -37,7 +38,9 @@ public enum AzureDiagnosticCodes {
     AF_005("AF_005", "invalid intersection type : '%s'. Only readonly type is allowed", ERROR),
     AF_006("AF_006", "rest fields are not allowed for header binding records. Use 'http:Headers' type to access " +
             "all headers", ERROR),
-    AF_007("AF_007", "invalid multiple resource parameter annotations for '%s'", ERROR);
+    AF_007("AF_007", "invalid multiple resource parameter annotations for '%s'", ERROR),
+    AF_008("AF_008", "'treatNilableAsOptional' is the only @http:serviceConfig field supported by Azure " +
+            "Function at the moment", WARNING);
 
     private final String code;
     private final String message;

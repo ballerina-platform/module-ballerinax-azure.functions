@@ -91,4 +91,17 @@ public class ProjectValidationTests {
         Assert.assertEquals(((Diagnostic) diagnostics[11]).diagnosticInfo().messageFormat(), diagnosticMessage11);
         Assert.assertEquals(((Diagnostic) diagnostics[12]).diagnosticInfo().messageFormat(), diagnosticMessage12);
     }
+
+    @Test
+    public void httpServiceConfigTest() {
+        BuildProject project = BuildProject.load(RESOURCE_DIRECTORY.resolve("http-service-config"));
+        PackageCompilation compilation = project.currentPackage().getCompilation();
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        Object[] diagnostics = diagnosticResult.warnings().toArray();
+        Assert.assertEquals(diagnosticResult.warningCount(), 2);
+        String diagnosticMessage = "'treatNilableAsOptional' is the only @http:serviceConfig " +
+                "field supported by Azure Function at the moment";
+        Assert.assertEquals(((Diagnostic) diagnostics[0]).diagnosticInfo().messageFormat(), diagnosticMessage);
+        Assert.assertEquals(((Diagnostic) diagnostics[1]).diagnosticInfo().messageFormat(), diagnosticMessage);
+    }
 }
