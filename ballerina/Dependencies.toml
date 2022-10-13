@@ -139,20 +139,6 @@ dependencies = [
 	{org = "ballerina", name = "jballerina.java"},
 	{org = "ballerina", name = "lang.__internal"}
 ]
-modules = [
-	{org = "ballerina", packageName = "lang.array", moduleName = "lang.array"}
-]
-
-[[package]]
-org = "ballerina"
-name = "lang.boolean"
-version = "0.0.0"
-dependencies = [
-	{org = "ballerina", name = "jballerina.java"}
-]
-modules = [
-	{org = "ballerina", packageName = "lang.boolean", moduleName = "lang.boolean"}
-]
 
 [[package]]
 org = "ballerina"
@@ -192,9 +178,6 @@ name = "lang.string"
 version = "0.0.0"
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"}
-]
-modules = [
-	{org = "ballerina", packageName = "lang.string", moduleName = "lang.string"}
 ]
 
 [[package]]
@@ -299,10 +282,7 @@ version = "3.0.0-alpha.1"
 dependencies = [
 	{org = "ballerina", name = "http"},
 	{org = "ballerina", name = "jballerina.java"},
-	{org = "ballerina", name = "lang.array"},
-	{org = "ballerina", name = "lang.boolean"},
 	{org = "ballerina", name = "lang.int"},
-	{org = "ballerina", name = "lang.string"},
 	{org = "ballerina", name = "os"}
 ]
 modules = [
