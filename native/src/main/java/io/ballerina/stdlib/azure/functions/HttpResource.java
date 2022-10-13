@@ -131,6 +131,7 @@ public class HttpResource {
                 pathParams.add(new PathParameter(count, parameter, param.getValue()));
                 count++;
             }
+            //TODO handle wildcard
         }
 
         return pathParams.toArray(PathParameter[]::new);

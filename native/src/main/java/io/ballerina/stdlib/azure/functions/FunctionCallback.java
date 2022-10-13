@@ -95,12 +95,9 @@ public class FunctionCallback implements Callback {
 
         BMap<BString, Object> mapValue =
                 ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_ANYDATA));
+        //Refactor to readable
         if (result == null) {
-            BString statusCode = StringUtils.fromString(Constants.ACCEPTED);
-            BMap<BString, Object> respMap =
-                    ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_ANYDATA));
-            respMap.put(StringUtils.fromString(Constants.STATUS_CODE), statusCode);
-            mapValue.put(StringUtils.fromString(Constants.RESPONSE_FIELD), respMap);
+            handleNilReturnType(mapValue);
             future.complete(mapValue);
             return;
         }
@@ -127,6 +124,14 @@ public class FunctionCallback implements Callback {
         future.complete(mapValue);
     }
 
+    private void handleNilReturnType(BMap<BString, Object> mapValue) {
+        BString statusCode = StringUtils.fromString(Constants.ACCEPTED);
+        BMap<BString, Object> respMap =
+                ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_ANYDATA));
+        respMap.put(StringUtils.fromString(Constants.STATUS_CODE), statusCode);
+        mapValue.put(StringUtils.fromString(Constants.RESPONSE_FIELD), respMap);
+    }
+
     @Override
     public void notifyFailure(BError bError) {
         bError.printStackTrace();
@@ -145,7 +150,6 @@ public class FunctionCallback implements Callback {
     }
 
     private boolean isHTTPStatusCodeResponse(Object result) {
-//        Module resultPkg = TypeUtils.getType(result).getPackage();
         return (result instanceof BMap) && (((BMap) result).containsKey(fromString(Constants.STATUS)));
         //TODO : Check inheritance
         //(https://github.com/ballerina-platform/module-ballerinax-azure.functions/issues/490)

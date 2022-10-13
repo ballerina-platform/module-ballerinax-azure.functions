@@ -66,7 +66,8 @@ public class NativeHttpToAzureAdaptor {
         return invokeResourceFunction(env, bHubService,
                 "callNativeMethod", body, functionName);
     }
-
+    
+    //Todo See if we can call parent bal method directly and check deprecated usages
     private static Object invokeResourceFunction(Environment env, BObject bHubService, String parentFunctionName,
                                                  BMap<?, ?> body, BString functionName) {
         Future balFuture = env.markAsync();

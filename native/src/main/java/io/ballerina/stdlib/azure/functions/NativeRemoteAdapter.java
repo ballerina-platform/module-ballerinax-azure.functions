@@ -66,7 +66,7 @@ public class NativeRemoteAdapter {
                 parentFunctionName);
         ServiceType serviceType = (ServiceType) bHubService.getType();
         List<Object> argList = new ArrayList<>();
-        RemoteMethodType methodType = getRemoteMethod(serviceType, remoteFuncName).orElseThrow(); //TODO handle error
+        RemoteMethodType methodType = getRemoteMethod(serviceType, remoteFuncName).orElseThrow();
         Parameter[] parameters = methodType.getParameters();
         for (Parameter parameter : parameters) {
             String name = parameter.name;

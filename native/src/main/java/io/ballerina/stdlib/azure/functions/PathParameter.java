@@ -27,6 +27,7 @@ import io.ballerina.runtime.api.utils.StringUtils;
  */
 public class PathParameter extends AZFParameter {
     private  String value;
+    
     public PathParameter(int index, Parameter parameter, String value) {
         super(index, parameter);
         this.value = value;
