@@ -96,7 +96,7 @@ function nnonTreatNilAsOpt\-Nil\-noHeaderTest() returns error? {
     string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "nonTreatNilAsOpt-Nil-noHeaderTest");
     json readJson = check value:fromJsonString(replacedString);
     json resp = check clientEndpoint->post("/post-httpHeader-nonTreatNilAsOpt-Nil-noHeaderTest", readJson);
-    json expectedResp = {"Outputs":{"resp":{"statusCode":400, "body":"no header value found for 'Hoste'", "headers":{"Content-Type":"text/plain"}}}, "Logs":[], "ReturnValue":null};
+    json expectedResp = {"Outputs":{"resp":{"statusCode":400, "body":"no header value found for 'hoste'", "headers":{"Content-Type":"text/plain"}}}, "Logs":[], "ReturnValue":null};
     test:assertEquals(resp, expectedResp);
 }
 
@@ -108,7 +108,7 @@ function treatNilAsOpt\-nonNil\-noHeaderTest() returns error? {
     string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "treatNilAsOpt-nonNil-noHeaderTest");
     json readJson = check value:fromJsonString(replacedString);
     json resp = check clientEndpoint->post("/post-httpHeader-treatNilAsOpt-nonNil-noHeaderTest", readJson);
-    json expectedResp = {"Outputs":{"resp":{"statusCode":400, "body":"no header value found for 'Hoste'", "headers":{"Content-Type":"text/plain"}}}, "Logs":[], "ReturnValue":null};
+    json expectedResp = {"Outputs":{"resp":{"statusCode":400, "body":"no header value found for 'hoste'", "headers":{"Content-Type":"text/plain"}}}, "Logs":[], "ReturnValue":null};
     test:assertEquals(resp, expectedResp);
 }
 
@@ -120,7 +120,7 @@ function treatNilAsOpt\-nonNil\-HeaderTest() returns error? {
     string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "treatNilAsOpt-nonNil-HeaderTest");
     json readJson = check value:fromJsonString(replacedString);
     json resp = check clientEndpoint->post("/post-httpHeader-treatNilAsOpt-nonNil-HeaderTest", readJson);
-    json expectedResp = {"Outputs":{"resp":{"statusCode":400, "body":"no header value found for 'Hos'", "headers":{"Content-Type":"text/plain"}}}, "Logs":[], "ReturnValue":null};
+    json expectedResp = {"Outputs":{"resp":{"statusCode":400, "body":"no header value found for 'hos'", "headers":{"Content-Type":"text/plain"}}}, "Logs":[], "ReturnValue":null};
     test:assertEquals(resp, expectedResp);
 }
 
@@ -168,7 +168,7 @@ function nonTreatNilAsOpt\-nonNil\-noHeaderTest() returns error? {
     string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "nonTreatNilAsOpt-nonNil-noHeaderTest");
     json readJson = check value:fromJsonString(replacedString);
     json resp = check clientEndpoint->post("/post-httpHeader-nonTreatNilAsOpt-nonNil-noHeaderTest", readJson);
-    json expectedResp = {"Outputs":{"resp":{"statusCode":400, "body":"no header value found for 'Hoste'", "headers":{"Content-Type":"text/plain"}}}, "Logs":[], "ReturnValue":null};
+    json expectedResp = {"Outputs":{"resp":{"statusCode":400, "body":"no header value found for 'hoste'", "headers":{"Content-Type":"text/plain"}}}, "Logs":[], "ReturnValue":null};
     test:assertEquals(resp, expectedResp);
 }
 
@@ -180,7 +180,7 @@ function nonTreatNilAsOpt\-nonNil\-HeaderTest() returns error? {
     string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "nonTreatNilAsOpt-nonNil-HeaderTest");
     json readJson = check value:fromJsonString(replacedString);
     json resp = check clientEndpoint->post("/post-httpHeader-nonTreatNilAsOpt-nonNil-HeaderTest", readJson);
-    json expectedResp = {"Outputs":{"resp":{"statusCode":400, "body":"no header value found for 'Hos'", "headers":{"Content-Type":"text/plain"}}}, "Logs":[], "ReturnValue":null};
+    json expectedResp = {"Outputs":{"resp":{"statusCode":400, "body":"no header value found for 'hos'", "headers":{"Content-Type":"text/plain"}}}, "Logs":[], "ReturnValue":null};
     test:assertEquals(resp, expectedResp);
 }
 

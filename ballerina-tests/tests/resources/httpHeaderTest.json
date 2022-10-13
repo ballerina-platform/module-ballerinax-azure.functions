@@ -25,7 +25,7 @@
              "test":[
                 "12, 13, 14"
              ],
-             "Hos":[
+             "hos":[
                 ""
             ],
              "X-ARR-LOG-ID":[
@@ -97,7 +97,7 @@
           "Max-Forwards":"10",
           "User-Agent":"ballerina",
           "test":"12, 13, 14",
-          "Hos": "",
+          "hos": "",
           "X-ARR-LOG-ID":"77ef8e37-520e-417b-a972-30746b719b60",
           "CLIENT-IP":"45.121.88.92:53880",
           "DISGUISED-HOST":"az-func-http-test.azurewebsites.net",

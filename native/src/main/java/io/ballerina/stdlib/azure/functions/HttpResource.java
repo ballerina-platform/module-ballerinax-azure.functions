@@ -212,7 +212,6 @@ public class HttpResource {
                 return Optional.of(new HeaderParameter(i, parameter, headerParam));
             } else {
                 throw new RuntimeException("Header annotation can have only one name field.");
-                //TODO :- add proper exception
             }
         }
         return Optional.empty();

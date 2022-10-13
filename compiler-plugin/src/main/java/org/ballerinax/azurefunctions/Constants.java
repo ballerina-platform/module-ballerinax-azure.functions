@@ -23,6 +23,8 @@ package org.ballerinax.azurefunctions;
 public class Constants {
     
     public static final String AZURE_FUNCTIONS_MODULE_NAME = "azure_functions";
+    public static final String COLON = ":";
+
     public static final String HTTP = "http";
     public static final String HEADER_ANNOTATION_TYPE = "HttpHeader";
     public static final String AZURE_FUNCTIONS_PACKAGE_ORG = "ballerinax";
@@ -64,4 +66,7 @@ public class Constants {
      public static final String TASKS_FILE_NAME = "tasks.json";
      
      public static final String FUNCTION_ANNOTATION = "Function";
+     public static final String SERVICE_CONFIG_ANNOTATION = "ServiceConfig";
+     public static final String TREAT_NILABLE_AS_OPTIONAL = "treatNilableAsOptional";
+
  }

@@ -36,22 +36,22 @@ listener af:HttpListener ep2 = new ();
     treatNilableAsOptional: false
 }
 service /httpHeader on ep2 {
-    resource function post nonTreatNilAsOpt\-Nil\-noHeaderTest(@http:Header string? Hoste) returns string? {
-        return Hoste;
+    resource function post nonTreatNilAsOpt\-Nil\-noHeaderTest(@http:Header string? hoste) returns string? {
+        return hoste;
     }
 
-    resource function post nonTreatNilAsOpt\-nonNil\-noHeaderTest(@http:Header string Hoste) returns string {
-        return Hoste;
-
-    }
-
-    resource function post nonTreatNilAsOpt\-nonNil\-HeaderTest(@http:Header string Hos) returns string {
-        return Hos;
+    resource function post nonTreatNilAsOpt\-nonNil\-noHeaderTest(@http:Header string hoste) returns string {
+        return hoste;
 
     }
 
-    resource function post nonTreatNilAsOpt\-Nil\-HeaderTest(@http:Header string? Hos) returns string? {
-        return Hos;
+    resource function post nonTreatNilAsOpt\-nonNil\-HeaderTest(@http:Header string hos) returns string {
+        return hos;
+
+    }
+
+    resource function post nonTreatNilAsOpt\-Nil\-HeaderTest(@http:Header string? hos) returns string? {
+        return hos;
 
     }
 }
@@ -97,13 +97,13 @@ service /httpHeader on ep3 {
 
     }
 
-    resource function post treatNilAsOpt\-nonNil\-noHeaderTest(@http:Header string Hoste) returns string { 
-        return Hoste;
+    resource function post treatNilAsOpt\-nonNil\-noHeaderTest(@http:Header string hoste) returns string {
+        return hoste;
 
     }
 
-    resource function post treatNilAsOpt\-nonNil\-HeaderTest(@http:Header string Hos) returns string { 
-        return Hos;
+    resource function post treatNilAsOpt\-nonNil\-HeaderTest(@http:Header string hos) returns string {
+        return hos;
 
     }
 
@@ -112,13 +112,13 @@ service /httpHeader on ep3 {
 
     }
 
-    resource function post treatNilAsOpt\-Nil\-noHeaderTest(@http:Header string? Hoste) returns string? {
-        return Hoste;
+    resource function post treatNilAsOpt\-Nil\-noHeaderTest(@http:Header string? hoste) returns string? {
+        return hoste;
 
     }
 
-    resource function post treatNilAsOpt\-Nil\-HeaderTest(@http:Header string? Hos) returns string? {
-        return Hos;
+    resource function post treatNilAsOpt\-Nil\-HeaderTest(@http:Header string? hos) returns string? {
+        return hos;
 
     }
 }
