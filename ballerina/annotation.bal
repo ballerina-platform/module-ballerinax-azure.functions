@@ -1,4 +1,4 @@
-// Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2022 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -14,25 +14,36 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# @azurefunctions:Function annotation.
-public const annotation Function on function;
+public const annotation FunctionConfiguration Function on function;
+
+public type FunctionConfiguration record {|
+    string name;
+|};
 
 public type AUTH_LEVEL "anonymous"|"function"|"admin";
+public const annotation HTTPTriggerConfiguration HttpTrigger on source listener, service;
 
 # HTTPTrigger annotation configuration.
 # 
 # + authLevel - The authentication level of the function
-# + route - The route template
 public type HTTPTriggerConfiguration record {|
-    AUTH_LEVEL authLevel?;
-    string route?;
+    AUTH_LEVEL authLevel = "anonymous";
 |};
 
-# @azurefunctions:HTTPTrigger annotation.
-public const annotation HTTPTriggerConfiguration HTTPTrigger on parameter;
+public annotation Payload on parameter, return;
 
-# @azurefunctions:HTTPOutput annotation
-public const annotation HTTPOutput on parameter, return;
+# Defines the Header resource signature parameter.
+#
+# + name - Specifies the name of the required header
+public type HttpHeader record {|
+    string name?;
+|};
+
+# The annotation which is used to define the Header resource signature parameter.
+public annotation HttpHeader Header on parameter;
+
+# @azurefunctions:HttpOutput annotation
+public const annotation HttpOutput on parameter, return;
 
 # Queue annotation configuration.
 # 
@@ -47,7 +58,7 @@ public type QueueConfiguration record {|
 public const annotation QueueConfiguration QueueOutput on parameter, return;
 
 # @azurefunctions:QueueOutput annotation.
-public const annotation QueueConfiguration QueueTrigger on parameter;
+public const annotation QueueConfiguration QueueTrigger on source listener, service;
 
 # TimerTrigger annotation configuration.
 # 
@@ -59,7 +70,7 @@ public type TimerTriggerConfiguration record {|
 |};
 
 # @azurefunctions:TimerTrigger annotation.
-public const annotation TimerTriggerConfiguration TimerTrigger on parameter;
+public const annotation TimerTriggerConfiguration TimerTrigger on source listener, service;
 
 # Blob annotation configuration.
 # 
@@ -71,13 +82,13 @@ public type BlobConfiguration record {|
 |};
 
 # @azurefunctions:BlobTrigger annotation.
-public const annotation BlobConfiguration BlobTrigger on parameter;
+public const annotation BlobConfiguration BlobTrigger on source listener, service;
 
 # @azurefunctions:BlobInput annotation.
 public const annotation BlobConfiguration BlobInput on parameter;
 
 # @azurefunctions:BlobOutput annotation.
-public const annotation BlobConfiguration BlobOutput on parameter;
+public const annotation BlobConfiguration BlobOutput on return;
 
 # CosmosDB trigger annotation configuration.
 # 
@@ -119,7 +130,7 @@ public type CosmosDBTriggerConfiguration record {|
 |};
 
 # @azurefunctions:CosmosDBTrigger annotation.
-public const annotation CosmosDBTriggerConfiguration CosmosDBTrigger on parameter;
+public const annotation CosmosDBTriggerConfiguration CosmosDBTrigger on source listener, service;
 
 # CosmosDB input annotation configuration.
 # 
@@ -171,15 +182,18 @@ public const annotation CosmosDBOutputConfiguration CosmosDBOutput on return;
 # 
 # + accountSidSetting - The app setting which holds the Twilio Account Sid
 # + authTokenSetting - The app setting which holds the Twilio authentication token
-# + fromNumber - The phone number the SMS is sent from
+# + from - The phone number the SMS is sent from
+# + to - The phone number the SMS is sent to
 public type TwilioSmsConfiguration record {|
     string accountSidSetting = "AzureWebJobsTwilioAccountSid";
     string authTokenSetting	= "AzureWebJobsTwilioAuthToken";
-    string fromNumber;
+    string 'from;
+    string to;
+    
 |};
 
 # @azurefunctions:TwilioSmsOutput annotation.
-public const annotation TwilioSmsConfiguration TwilioSmsOutput on parameter;
+public const annotation TwilioSmsConfiguration TwilioSmsOutput on return;
 
 # BindingName annotation configuration.
 # 

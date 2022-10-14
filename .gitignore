@@ -39,3 +39,5 @@ target
 .ballerina
 .idea
 *.iml
+
+compiler-plugin-tests/src/test/resources/handlers/.vscode/

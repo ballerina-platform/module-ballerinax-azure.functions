@@ -1,0 +1,18 @@
+{
+    "Data": {
+        "inMsg": "\"aaaaa\""
+    },
+    "Metadata": {
+        "DequeueCount": "1",
+        "ExpirationTime": "2022-06-20T06:00:06+00:00",
+        "Id": "\"a0004923-f050-417a-9742-6d7c7b984134\"",
+        "InsertionTime": "2022-06-13T06:00:06+00:00",
+        "NextVisibleTime": "2022-06-13T06:10:18+00:00",
+        "PopReceipt": "\"AgAAAAMAAAAAAAAA8d5gQex+2AE=\"",
+        "sys": {
+            "MethodName": "queue",
+            "UtcNow": "2022-06-13T06:00:18.1974545Z",
+            "RandGuid": "d9ba2785-ee1a-4260-a83b-f57cb54b969e"
+        }
+    }
+}

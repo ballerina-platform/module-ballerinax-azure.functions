@@ -29,7 +29,7 @@
     </Match>
     
     <Match>
-        <Class name="org.ballerinax.azurefunctions.generator.AzureCodeGeneratedTask"/>
+        <Class name="AzureCodeGeneratedTask"/>
         <Bug pattern="SIC_INNER_SHOULD_BE_STATIC_ANON"/>
     </Match>
 
@@ -37,5 +37,16 @@
     <Match>
         <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE"/>
     </Match>
+
+    <Match>
+        <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE"/>
+    </Match>
+
+    <!--POJOs for GSON-->
+    <Match>
+        <Package name="org.ballerinax.azurefunctions.tooling"/>
+        <Bug pattern="URF_UNREAD_FIELD"/>
+    </Match>
+    
     
 </FindBugsFilter>

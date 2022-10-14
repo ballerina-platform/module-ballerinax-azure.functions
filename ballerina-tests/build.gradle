@@ -22,14 +22,14 @@ import org.apache.tools.ant.taskdefs.condition.Os
 description = 'Ballerinax - Azure Functions Tests'
 
 def packageName = "azure_functions"
-def packageOrg = "ballerinax" //TODO change 
+def packageOrg = "ballerinax"
 def moduleName = "tests"
 def tomlVersion = stripBallerinaExtensionVersion("${project.version}")
 def ballerinaTomlFilePlaceHolder = new File("${project.rootDir}/build-config/resources/BallerinaTest.toml")
 def ballerinaTomlFile = new File("$project.projectDir/Ballerina.toml")
 def ballerinaDist = "${project.rootDir}/target/ballerina-runtime"
 def distributionBinPath =  "${ballerinaDist}/bin"
-def testCoverageParam = "--code-coverage --includes=*"
+def testCoverageParam = "--test-report --code-coverage --coverage-format=xml --includes=io.ballerina.stdlib.azure.functions.*:ballerinax.azure_functions"
 
 def stripBallerinaExtensionVersion(String extVersion) {
     if (extVersion.matches(project.ext.timestampedVersionRegex)) {

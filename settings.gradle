@@ -21,13 +21,16 @@ plugins {
 
 rootProject.name = 'azure_functions'
 
+include(':native')
 include ':checkstyle'
+include ':azure_functions-native'
 include ':azure_functions-ballerina'
 include ':azure_functions-compiler-plugin'
 include ':azure_functions-ballerina-tests'
 include ':azure_functions-compiler-plugin-tests'
 
 project(':checkstyle').projectDir = file("build-config${File.separator}checkstyle")
+project(':azure_functions-native').projectDir = file('native')
 project(':azure_functions-ballerina').projectDir = file('ballerina')
 project(':azure_functions-compiler-plugin').projectDir = file('compiler-plugin')
 project(':azure_functions-ballerina-tests').projectDir = file('ballerina-tests')

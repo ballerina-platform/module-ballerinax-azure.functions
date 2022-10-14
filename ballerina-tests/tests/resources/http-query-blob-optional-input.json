@@ -1,0 +1,122 @@
+{
+    "Data": {
+        "httpPayload": {
+            "Url": "https://bal-dev.azurewebsites.net/hello/blobInput?name=hello1.txt",
+            "Method": "GET",
+            "Query": {
+                "name": "hello1.txt"
+            },
+            "Headers": {
+                "Accept": [
+                    "*/*"
+                ],
+                "Accept-Encoding": [
+                    "gzip, deflate, br"
+                ],
+                "Content-Length": [
+                    "4"
+                ],
+                "Content-Type": [
+                    "text/plain"
+                ],
+                "Host": [
+                    "bal-dev.azurewebsites.net"
+                ],
+                "Max-Forwards": [
+                    "9"
+                ],
+                "User-Agent": [
+                    "PostmanRuntime/7.26.8"
+                ],
+                "Postman-Token": [
+                    "01ebc672-cde0-4cc4-a5df-77de30196d8d"
+                ],
+                "X-ARR-LOG-ID": [
+                    "27b8e1d3-8468-4c53-a28c-7f84874488d3"
+                ],
+                "CLIENT-IP": [
+                    "10.0.32.17:43005"
+                ],
+                "X-SITE-DEPLOYMENT-ID": [
+                    "bal-dev"
+                ],
+                "WAS-DEFAULT-HOSTNAME": [
+                    "bal-dev.azurewebsites.net"
+                ],
+                "X-Forwarded-Proto": [
+                    "https"
+                ],
+                "X-AppService-Proto": [
+                    "https"
+                ],
+                "X-ARR-SSL": [
+                    "2048|256|CN=Microsoft Azure TLS Issuing CA 01, O=Microsoft Corporation, C=US|CN=*.azurewebsites.net, O=Microsoft Corporation, L=Redmond, S=WA, C=US"
+                ],
+                "X-Forwarded-TlsVersion": [
+                    "1.2"
+                ],
+                "X-Forwarded-For": [
+                    "112.134.128.76:48828"
+                ],
+                "X-Original-URL": [
+                    "/hello/blobInput?name=hello1.txt"
+                ],
+                "X-WAWS-Unencoded-URL": [
+                    "/hello/blobInput?name=hello1.txt"
+                ],
+                "DISGUISED-HOST": [
+                    "bal-dev.azurewebsites.net"
+                ]
+            },
+            "Params": {},
+            "Identities": [
+                {
+                    "AuthenticationType": null,
+                    "IsAuthenticated": false,
+                    "Actor": null,
+                    "BootstrapContext": null,
+                    "Claims": [],
+                    "Label": null,
+                    "Name": null,
+                    "NameClaimType": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name",
+                    "RoleClaimType": "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+                }
+            ],
+            "Body": "Jack"
+        },
+        "blobIn": "null"
+    },
+    "Metadata": {
+        "name": "\"hello1.txt\"",
+        "Query": {
+            "name": "hello1.txt"
+        },
+        "Headers": {
+            "Accept": "*/*",
+            "Accept-Encoding": "gzip, deflate, br",
+            "Content-Length": "4",
+            "Content-Type": "text/plain",
+            "Host": "bal-dev.azurewebsites.net",
+            "Max-Forwards": "9",
+            "User-Agent": "PostmanRuntime/7.26.8",
+            "Postman-Token": "01ebc672-cde0-4cc4-a5df-77de30196d8d",
+            "X-ARR-LOG-ID": "27b8e1d3-8468-4c53-a28c-7f84874488d3",
+            "CLIENT-IP": "10.0.32.17:43005",
+            "X-SITE-DEPLOYMENT-ID": "bal-dev",
+            "WAS-DEFAULT-HOSTNAME": "bal-dev.azurewebsites.net",
+            "X-Forwarded-Proto": "https",
+            "X-AppService-Proto": "https",
+            "X-ARR-SSL": "2048|256|CN=Microsoft Azure TLS Issuing CA 01, O=Microsoft Corporation, C=US|CN=*.azurewebsites.net, O=Microsoft Corporation, L=Redmond, S=WA, C=US",
+            "X-Forwarded-TlsVersion": "1.2",
+            "X-Forwarded-For": "112.134.128.76:48828",
+            "X-Original-URL": "/hello/blobInput?name=hello1.txt",
+            "X-WAWS-Unencoded-URL": "/hello/blobInput?name=hello1.txt",
+            "DISGUISED-HOST": "bal-dev.azurewebsites.net"
+        },
+        "sys": {
+            "MethodName": "get-hello-blobInput",
+            "UtcNow": "2022-08-15T08:50:15.0529418Z",
+            "RandGuid": "8b11d3f8-ed35-4cbb-aeda-deeea3ef07c2"
+        }
+    }
+}

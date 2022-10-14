@@ -1,0 +1,118 @@
+{
+    "Data": {
+        "httpPayload": {
+            "Url": "https://bal-dev.azurewebsites.net/hello",
+            "Method": "POST",
+            "Query": {},
+            "Headers": {
+                "Accept": [
+                    "*/*"
+                ],
+                "Accept-Encoding": [
+                    "gzip, deflate, br"
+                ],
+                "Content-Length": [
+                    "41"
+                ],
+                "Content-Type": [
+                    "application/json"
+                ],
+                "Host": [
+                    "bal-dev.azurewebsites.net"
+                ],
+                "Max-Forwards": [
+                    "9"
+                ],
+                "User-Agent": [
+                    "PostmanRuntime/7.26.8"
+                ],
+                "Postman-Token": [
+                    "39884e46-dbbd-4396-a921-d24cd2003063"
+                ],
+                "X-ARR-LOG-ID": [
+                    "0320ea36-d38d-476d-a3d2-61cb5b113763"
+                ],
+                "CLIENT-IP": [
+                    "10.0.32.18:48308"
+                ],
+                "X-SITE-DEPLOYMENT-ID": [
+                    "bal-dev"
+                ],
+                "WAS-DEFAULT-HOSTNAME": [
+                    "bal-dev.azurewebsites.net"
+                ],
+                "X-Forwarded-Proto": [
+                    "https"
+                ],
+                "X-AppService-Proto": [
+                    "https"
+                ],
+                "X-ARR-SSL": [
+                    "2048|256|CN=Microsoft Azure TLS Issuing CA 01, O=Microsoft Corporation, C=US|CN=*.azurewebsites.net, O=Microsoft Corporation, L=Redmond, S=WA, C=US"
+                ],
+                "X-Forwarded-TlsVersion": [
+                    "1.2"
+                ],
+                "X-Forwarded-For": [
+                    "112.134.131.214:19414"
+                ],
+                "X-Original-URL": [
+                    "/hello"
+                ],
+                "X-WAWS-Unencoded-URL": [
+                    "/hello"
+                ],
+                "DISGUISED-HOST": [
+                    "bal-dev.azurewebsites.net"
+                ]
+            },
+            "Params": {},
+            "Identities": [
+                {
+                    "AuthenticationType": null,
+                    "IsAuthenticated": false,
+                    "Actor": null,
+                    "BootstrapContext": null,
+                    "Claims": [],
+                    "Label": null,
+                    "Name": null,
+                    "NameClaimType": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name",
+                    "RoleClaimType": "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+                }
+            ],
+            "Body": "{\n    \"name\" : \"Anjana\",\n    \"age\" : 12\n}"
+        }
+    },
+    "Metadata": {
+        "name": "\"Anjana\"",
+        "age": "\"12\"",
+        "Query": {},
+        "Headers": {
+            "Accept": "*/*",
+            "Accept-Encoding": "gzip, deflate, br",
+            "Content-Length": "41",
+            "Content-Type": "application/json",
+            "Host": "bal-dev.azurewebsites.net",
+            "Max-Forwards": "9",
+            "User-Agent": "PostmanRuntime/7.26.8",
+            "Postman-Token": "39884e46-dbbd-4396-a921-d24cd2003063",
+            "X-ARR-LOG-ID": "0320ea36-d38d-476d-a3d2-61cb5b113763",
+            "CLIENT-IP": "10.0.32.18:48308",
+            "X-SITE-DEPLOYMENT-ID": "bal-dev",
+            "WAS-DEFAULT-HOSTNAME": "bal-dev.azurewebsites.net",
+            "X-Forwarded-Proto": "https",
+            "X-AppService-Proto": "https",
+            "X-ARR-SSL": "2048|256|CN=Microsoft Azure TLS Issuing CA 01, O=Microsoft Corporation, C=US|CN=*.azurewebsites.net, O=Microsoft Corporation, L=Redmond, S=WA, C=US",
+            "X-Forwarded-TlsVersion": "1.2",
+            "X-Forwarded-For": "112.134.131.214:19414",
+            "X-Original-URL": "/hello",
+            "X-WAWS-Unencoded-URL": "/hello",
+            "DISGUISED-HOST": "bal-dev.azurewebsites.net"
+        },
+        "sys": {
+            "MethodName": "post-hello-payload-jsonToJson",
+            "UtcNow": "2022-06-20T07:50:50.4482488Z",
+            "RandGuid": "3e4ea15e-30cf-408b-8e72-58409d33e9c4"
+        }
+    }
+}
