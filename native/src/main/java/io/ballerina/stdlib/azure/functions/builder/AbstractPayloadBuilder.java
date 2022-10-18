@@ -45,6 +45,7 @@ public abstract class AbstractPayloadBuilder {
     private static final String TEXT_PATTERN = "^.*text.*$";
     private static final String OCTET_STREAM_PATTERN = "^.*octet-stream.*$";
     private static final String URL_ENCODED_PATTERN = "^.*x-www-form-urlencoded.*$";
+    private static final String FORM_DATA_PATTERN = "^.*form-data.*$";
 
     /**
      * Get the built inbound payload after binding it to the respective type.
@@ -59,17 +60,19 @@ public abstract class AbstractPayloadBuilder {
         if (contentType == null || contentType.isEmpty()) {
             return getBuilderFromType(payloadType);
         }
-        contentType = contentType.toLowerCase(Locale.getDefault());
-        if (contentType.matches(XML_PATTERN)) {
+        String contentTypeLower = contentType.toLowerCase(Locale.getDefault());
+        if (contentTypeLower.matches(XML_PATTERN)) {
             return new XmlPayloadBuilder(payloadType);
-        } else if (contentType.matches(TEXT_PATTERN)) {
+        } else if (contentTypeLower.matches(TEXT_PATTERN)) {
             return new StringPayloadBuilder(payloadType);
-        } else if (contentType.matches(URL_ENCODED_PATTERN)) {
+        } else if (contentTypeLower.matches(URL_ENCODED_PATTERN)) {
             return new StringPayloadBuilder(payloadType);
-        } else if (contentType.matches(OCTET_STREAM_PATTERN)) {
+        } else if (contentTypeLower.matches(OCTET_STREAM_PATTERN)) {
             return new BinaryPayloadBuilder(payloadType);
-        } else if (contentType.matches(JSON_PATTERN)) {
+        } else if (contentTypeLower.matches(JSON_PATTERN)) {
             return new JsonPayloadBuilder(payloadType);
+        } else if (contentTypeLower.matches(FORM_DATA_PATTERN)) {
+            return new FormPayloadBuilder(payloadType, contentType);
         } else {
             return getBuilderFromType(payloadType);
         }

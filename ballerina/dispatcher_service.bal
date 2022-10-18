@@ -30,7 +30,6 @@ isolated service class DispatcherService {
     isolated resource function post .(http:Caller caller, http:Request request) returns error? {
         http:Response response = new;
         json platformPayload = check request.getJsonPayload();
-
         map<anydata> callRegisterMethod = check self.adaptor.callRemoteFunction(<map<json>>platformPayload, self.remoteMethodName);
 
         response.setJsonPayload({Outputs: callRegisterMethod.toJson(), Logs: [], ReturnValue: null});

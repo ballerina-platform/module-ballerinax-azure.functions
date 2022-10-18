@@ -377,6 +377,12 @@ service /hello on ep {
             return "Query arr not found but all good ;)";
         }
     }
+    
+    resource function post payload/formdata(@http:Payload byte[] image) returns string? {
+        if image.length() > 0 {
+            return "success";
+        }
+    }
 }
 
 @af:QueueTrigger {
