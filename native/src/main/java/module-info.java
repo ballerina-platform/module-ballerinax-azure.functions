@@ -26,4 +26,6 @@ module io.ballerina.stdlib.azure.functions {
     requires io.ballerina.lang.integer;
     requires io.ballerina.lang.decimal;
     requires io.ballerina.lang.string;
+    requires org.jvnet.mimepull;
+    requires jakarta.activation;
 }

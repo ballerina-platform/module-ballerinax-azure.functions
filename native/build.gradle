@@ -40,8 +40,8 @@ dependencies {
         transitive = false
     }
 
-//    implementation group: 'io.ballerina.stdlib', name: 'http-native', version: "${stdlibHttpVersion}"
-//    implementation group: 'io.ballerina.stdlib', name: 'mime-native', version: "${stdlibMimeVersion}"
+    implementation group: 'org.jvnet.mimepull', name: 'mimepull', version: "1.10.0"
+    implementation group: 'com.sun.activation', name: 'jakarta.activation', version: "1.2.2"
 }
 
 checkstyle {

@@ -997,3 +997,24 @@ function testHttpBlobInputOptional() returns error? {
     };
     test:assertEquals(resp, expectedResp);
 }
+
+
+@test:Config {}
+function testMultipartFormData() returns error? {
+    final http:Client clientEndpoint = check new ("http://localhost:3000");
+    string jsonFilePath = "./tests/resources/http-multipart-formdata.json";
+    json readJson = check io:fileReadJson(jsonFilePath);
+    json resp = check clientEndpoint->post("/post-hello-payload-formdata", readJson);
+    json expectedResp = {
+        "Outputs": {
+            "resp": {
+                "statusCode": "201",
+                "headers": {"Content-Type": "text/plain"},
+                "body": "success"
+            }
+        },
+        "Logs": [],
+        "ReturnValue": null
+    };
+    test:assertEquals(resp, expectedResp);
+}
