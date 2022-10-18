@@ -378,11 +378,9 @@ service /hello on ep {
         }
     }
     
-    resource function post payload/formdata(@http:Payload byte[] image) returns string {
-        if (image.length() > 0) {
+    resource function post payload/formdata(@http:Payload byte[] image) returns string? {
+        if image.length() > 0 {
             return "success";
-        } else {
-            return "failed";
         }
     }
 }
