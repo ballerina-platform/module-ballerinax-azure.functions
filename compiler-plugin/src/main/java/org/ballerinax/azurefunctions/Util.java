@@ -17,6 +17,8 @@
  */
 package org.ballerinax.azurefunctions;
 
+import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
@@ -99,7 +101,7 @@ public class Util {
         String finalPath = out.toString();
         if (finalPath.startsWith("/")) {
             return finalPath.substring(1);
-        }   
+        }
         return finalPath;
     }
 
@@ -122,9 +124,18 @@ public class Util {
         ctx.reportDiagnostic(DiagnosticFactory.createDiagnostic(diagnosticInfo, location, diagnosticProperties));
     }
 
-    public static DiagnosticInfo getDiagnosticInfo(AzureDiagnosticCodes  diagnostic, Object... args) {
+    public static DiagnosticInfo getDiagnosticInfo(AzureDiagnosticCodes diagnostic, Object... args) {
         return new DiagnosticInfo(diagnostic.getCode(), String.format(diagnostic.getMessage(), args),
                 diagnostic.getSeverity());
     }
 
+    public static boolean isSymbolAzureFunctions(Symbol definition) {
+        Optional<ModuleSymbol> definitionModule = definition.getModule();
+        if (definitionModule.isEmpty()) {
+            return false;
+        }
+        ModuleID moduleID = definitionModule.get().id();
+        return moduleID.orgName().equals(Constants.AZURE_FUNCTIONS_PACKAGE_ORG) &&
+                moduleID.packageName().equals(Constants.AZURE_FUNCTIONS_MODULE_NAME);
+    }
 }
