@@ -75,7 +75,7 @@ public class FunctionArtifactTest {
 
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
         Assert.assertFalse(diagnosticResult.hasErrors());
-        Assert.assertEquals(generatedFunctions.size(), 24);
+        Assert.assertEquals(generatedFunctions.size(), 25);
     }
 
     @Test
@@ -84,6 +84,17 @@ public class FunctionArtifactTest {
         String str =
                 "{\"bindings\":[{\"type\":\"httpTrigger\",\"authLevel\":\"anonymous\",\"methods\":[\"post\"]," +
                         "\"direction\":\"in\",\"name\":\"httpPayload\",\"route\":\"hello/optional\"}," +
+                        "{\"type\":\"http\",\"direction\":\"out\",\"name\":\"resp\"}]}";
+        JsonElement parse = jsonParser.parse(str);
+        Assert.assertEquals(httpHello, parse);
+    }
+
+    @Test
+    public void testRestParameterPathHttp() {
+        JsonObject httpHello = generatedFunctions.get("post-hello-restParamTest-bar");
+        String str =
+                "{\"bindings\":[{\"type\":\"httpTrigger\",\"authLevel\":\"anonymous\",\"methods\":[\"post\"]," +
+                        "\"direction\":\"in\",\"name\":\"httpPayload\",\"route\":\"hello/restParamTest/{**bar}\"}," +
                         "{\"type\":\"http\",\"direction\":\"out\",\"name\":\"resp\"}]}";
         JsonElement parse = jsonParser.parse(str);
         Assert.assertEquals(httpHello, parse);
