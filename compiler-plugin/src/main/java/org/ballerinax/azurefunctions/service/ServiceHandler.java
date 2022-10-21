@@ -18,6 +18,7 @@
 package org.ballerinax.azurefunctions.service;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -26,6 +27,7 @@ import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import org.ballerinax.azurefunctions.Constants;
+import org.ballerinax.azurefunctions.Util;
 import org.ballerinax.azurefunctions.service.blob.BlobTriggerBinding;
 import org.ballerinax.azurefunctions.service.cosmosdb.CosmosDBTriggerBinding;
 import org.ballerinax.azurefunctions.service.http.HTTPTriggerBinding;
@@ -41,7 +43,8 @@ import java.util.Optional;
  */
 public abstract class ServiceHandler {
 
-    public static TriggerBinding getBuilder(ServiceDeclarationNode svcDeclarationNode, SemanticModel semanticModel) {
+    public static Optional<TriggerBinding> getBuilder(ServiceDeclarationNode svcDeclarationNode,
+                                                SemanticModel semanticModel) {
         SeparatedNodeList<ExpressionNode> expressions = svcDeclarationNode.expressions();
         for (ExpressionNode expressionNode : expressions) {
             Optional<TypeSymbol> typeSymbol = semanticModel.typeOf(expressionNode);
@@ -56,7 +59,11 @@ public abstract class ServiceHandler {
             } else {
                 typeSymbol1 = (TypeReferenceTypeSymbol) typeSymbol.get();
             }
-            Optional<String> name = typeSymbol1.definition().getName();
+            Symbol definition = typeSymbol1.definition();
+            if (!Util.isSymbolAzureFunctions(definition)) {
+                continue;
+            }
+            Optional<String> name = definition.getName();
             if (name.isEmpty()) {
                 continue;
             }
@@ -64,19 +71,19 @@ public abstract class ServiceHandler {
             String serviceTypeName = name.get();
             switch (serviceTypeName) {
                 case Constants.AZURE_HTTP_LISTENER:
-                    return new HTTPTriggerBinding(svcDeclarationNode, semanticModel);
+                    return Optional.of(new HTTPTriggerBinding(svcDeclarationNode, semanticModel));
                 case Constants.AZURE_QUEUE_LISTENER:
-                    return new QueueTriggerBinding(svcDeclarationNode, semanticModel);
+                    return Optional.of(new QueueTriggerBinding(svcDeclarationNode, semanticModel));
                 case Constants.AZURE_COSMOS_LISTENER:
-                    return new CosmosDBTriggerBinding(svcDeclarationNode, semanticModel);
+                    return Optional.of(new CosmosDBTriggerBinding(svcDeclarationNode, semanticModel));
                 case Constants.AZURE_TIMER_LISTENER:
-                    return new TimerTriggerBinding(svcDeclarationNode, semanticModel);
+                    return Optional.of(new TimerTriggerBinding(svcDeclarationNode, semanticModel));
                 case Constants.AZURE_BLOB_LISTENER: 
-                    return new BlobTriggerBinding(svcDeclarationNode, semanticModel);
+                    return Optional.of(new BlobTriggerBinding(svcDeclarationNode, semanticModel));
                 default:
                     throw new RuntimeException("Unsupported Listener type");
             }
         }
-        throw new RuntimeException("Unsupported Listener type");
+        return Optional.empty();
     }
 }

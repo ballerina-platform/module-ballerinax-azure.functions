@@ -25,6 +25,8 @@ import org.ballerinax.azurefunctions.service.TriggerBinding;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
 /**
  * Visitor for extracting Azure functions from a ballerina document.
  *
@@ -42,9 +44,11 @@ public class AzureFunctionServiceVisitor extends NodeVisitor {
 
     @Override
     public void visit(ServiceDeclarationNode serviceDeclarationNode) {
-        TriggerBinding builder = ServiceHandler.getBuilder(serviceDeclarationNode, semanticModel);
-        List<FunctionContext> contexts = builder.getBindings();
-        functionContexts.addAll(contexts);
+        Optional<TriggerBinding> builder = ServiceHandler.getBuilder(serviceDeclarationNode, semanticModel);
+        builder.ifPresent(triggerBinding -> {
+            List<FunctionContext> contexts = triggerBinding.getBindings();
+            functionContexts.addAll(contexts);
+        });
     }
 
     public List<FunctionContext> getFunctionContexts() {

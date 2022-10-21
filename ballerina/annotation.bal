@@ -43,7 +43,7 @@ public type HttpHeader record {|
 public annotation HttpHeader Header on parameter;
 
 # @azurefunctions:HttpOutput annotation
-public const annotation HttpOutput on parameter, return;
+public const annotation HttpOutput on return;
 
 # Queue annotation configuration.
 # 
@@ -55,7 +55,7 @@ public type QueueConfiguration record {|
 |};
 
 # @azurefunctions:QueueOutput annotation.
-public const annotation QueueConfiguration QueueOutput on parameter, return;
+public const annotation QueueConfiguration QueueOutput on return;
 
 # @azurefunctions:QueueOutput annotation.
 public const annotation QueueConfiguration QueueTrigger on source listener, service;

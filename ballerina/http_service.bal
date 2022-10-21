@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/http;
+import ballerina/log;
 
 isolated service class ResourceService {
     *http:Service;
@@ -39,8 +40,10 @@ isolated service class ResourceService {
 
 isolated function getResponsePayload (map<anydata>|error nativeResponse) returns json {
     if (nativeResponse is PayloadNotFoundError || nativeResponse is InvalidPayloadError || nativeResponse is HeaderNotFoundError) {
+        log:printError(nativeResponse.message());
         return {"Outputs": {"resp": {"statusCode": 400, "body": nativeResponse.message(),"headers": {"Content-Type": "text/plain"}}}, "Logs": [], "ReturnValue": null};
     } else if (nativeResponse is error) {
+        log:printError(nativeResponse.message());
         return {"Outputs": {"resp": {"statusCode": 500}}, "Logs": [], "ReturnValue": null};
     } else {
         return {Outputs: nativeResponse.toJson(), Logs: [], ReturnValue: null};
