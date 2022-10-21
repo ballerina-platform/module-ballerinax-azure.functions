@@ -130,6 +130,13 @@ service /hello on ep {
         return "Hello from all";
     }
 
+    resource function get nonNilableQueryParamTest(string foo) returns string? {
+        if (foo == "") {
+            return "alpha";
+        }
+        return foo;
+    }
+
     resource function post optional/out(@http:Payload string greeting) returns string {
         return "Hello from optional output binding";
     }

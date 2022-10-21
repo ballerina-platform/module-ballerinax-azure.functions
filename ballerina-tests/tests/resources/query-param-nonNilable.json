@@ -1,0 +1,113 @@
+{
+    "Data": {
+        "httpPayload": {
+            "Url": "https://bal-dev.azurewebsites.net/hello/query?name=test1",
+            "Method": "POST",
+            "Query": {
+                "name": "test1"
+            },
+            "Headers": {
+                "Accept": [
+                    "*/*"
+                ],
+                "Content-Length": [
+                    "4"
+                ],
+                "Content-Type": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "Host": [
+                    "bal-dev.azurewebsites.net"
+                ],
+                "Max-Forwards": [
+                    "9"
+                ],
+                "User-Agent": [
+                    "curl/7.78.0"
+                ],
+                "X-ARR-LOG-ID": [
+                    "072319b5-49e5-4c56-859c-4fcc1a714811"
+                ],
+                "CLIENT-IP": [
+                    "10.0.32.4:29256"
+                ],
+                "X-SITE-DEPLOYMENT-ID": [
+                    "bal-dev"
+                ],
+                "WAS-DEFAULT-HOSTNAME": [
+                    "bal-dev.azurewebsites.net"
+                ],
+                "X-Forwarded-Proto": [
+                    "https"
+                ],
+                "X-AppService-Proto": [
+                    "https"
+                ],
+                "X-ARR-SSL": [
+                    "2048|256|CN=Microsoft Azure TLS Issuing CA 01, O=Microsoft Corporation, C=US|CN=*.azurewebsites.net, O=Microsoft Corporation, L=Redmond, S=WA, C=US"
+                ],
+                "X-Forwarded-TlsVersion": [
+                    "1.2"
+                ],
+                "X-Forwarded-For": [
+                    "112.134.130.212:18792"
+                ],
+                "X-Original-URL": [
+                    "/hello/query?name=test1"
+                ],
+                "X-WAWS-Unencoded-URL": [
+                    "/hello/query?name=test1"
+                ],
+                "DISGUISED-HOST": [
+                    "bal-dev.azurewebsites.net"
+                ]
+            },
+            "Params": {},
+            "Identities": [
+                {
+                    "AuthenticationType": null,
+                    "IsAuthenticated": false,
+                    "Actor": null,
+                    "BootstrapContext": null,
+                    "Claims": [],
+                    "Label": null,
+                    "Name": null,
+                    "NameClaimType": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name",
+                    "RoleClaimType": "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+                }
+            ],
+            "Body": "Jack"
+        }
+    },
+    "Metadata": {
+        "name": "\"test1\"",
+        "Query": {
+            "name": "test1"
+        },
+        "Headers": {
+            "Accept": "*/*",
+            "Content-Length": "4",
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Host": "bal-dev.azurewebsites.net",
+            "Max-Forwards": "9",
+            "User-Agent": "curl/7.78.0",
+            "X-ARR-LOG-ID": "072319b5-49e5-4c56-859c-4fcc1a714811",
+            "CLIENT-IP": "10.0.32.4:29256",
+            "X-SITE-DEPLOYMENT-ID": "bal-dev",
+            "WAS-DEFAULT-HOSTNAME": "bal-dev.azurewebsites.net",
+            "X-Forwarded-Proto": "https",
+            "X-AppService-Proto": "https",
+            "X-ARR-SSL": "2048|256|CN=Microsoft Azure TLS Issuing CA 01, O=Microsoft Corporation, C=US|CN=*.azurewebsites.net, O=Microsoft Corporation, L=Redmond, S=WA, C=US",
+            "X-Forwarded-TlsVersion": "1.2",
+            "X-Forwarded-For": "112.134.130.212:18792",
+            "X-Original-URL": "/hello/query?name=test1",
+            "X-WAWS-Unencoded-URL": "/hello/query?name=test1",
+            "DISGUISED-HOST": "bal-dev.azurewebsites.net"
+        },
+        "sys": {
+            "MethodName": "get-hello-nonNilableQueryParamTest",
+            "UtcNow": "2022-06-13T10:12:25.6088199Z",
+            "RandGuid": "80274c51-3807-49ae-bfbf-44c5b74fa4e9"
+        }
+    }
+}
