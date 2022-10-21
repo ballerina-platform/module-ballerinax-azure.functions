@@ -185,6 +185,9 @@ service /hello on ep {
     resource function post foo/bar(@http:Payload string greeting) returns @af:HttpOutput string {
         return "Hello from foo bar res";
     }
+    resource function post restParamTest/[string... bar]() returns string {
+        return "Hellow from rest param " + bar[0];
+    }
 
     resource function post db(@http:Payload string greeting, @af:CosmosDBInput {
                                   connectionStringSetting: "CosmosDBConnection",

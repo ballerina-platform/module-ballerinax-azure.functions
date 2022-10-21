@@ -25,6 +25,8 @@ public interface Constants {
 
     String SLASH = "/";
 
+    String COMMA = ",";
+
     String PACKAGE_ORG = "ballerinax";
     String PACKAGE_NAME = "azure_functions";
 
@@ -95,6 +97,8 @@ public interface Constants {
     String HTTP_PACKAGE_VERSION = "2";
 
     String PATH_PARAM = "*";
+
+    String REST_PATH_PARAM = "**";
     
     String AZURE_PAYLOAD_PARAMS = "Params";
     String AZURE_PAYLOAD_HEADERS = "Headers";

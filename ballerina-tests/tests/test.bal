@@ -606,6 +606,16 @@ function testSimpleConflictingPathParam() returns error? {
 }
 
 @test:Config {}
+function testRestPathParam() returns error? {
+    final http:Client clientEndpoint = check new ("http://localhost:3000");
+    string jsonFilePath = "./tests/resources/path-rest-param.json";
+    json readJson = check io:fileReadJson(jsonFilePath);
+    json resp = check clientEndpoint->post("/post-hello-restParamTest-bar", readJson);
+    json expectedResp = {"Outputs": {"resp": {"statusCode": "201", "headers": {"Content-Type": "text/plain"}, "body": "Hellow from rest param i"}}, "Logs": [], "ReturnValue": null};
+    test:assertEquals(resp, expectedResp);
+}
+
+@test:Config {}
 function testSimpleMultiQueryPath() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/query-param.json";
