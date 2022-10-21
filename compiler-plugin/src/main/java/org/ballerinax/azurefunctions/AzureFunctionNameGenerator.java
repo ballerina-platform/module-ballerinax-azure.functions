@@ -64,6 +64,9 @@ public class AzureFunctionNameGenerator {
             } else if (pathBlock.kind() == SyntaxKind.RESOURCE_PATH_SEGMENT_PARAM) {
                 Token token = ((ResourcePathParameterNode) pathBlock).paramName().get();
                 resourcePath.append("/").append(token.text());
+            } else if (pathBlock.kind() == SyntaxKind.RESOURCE_PATH_REST_PARAM) {
+                Token token = ((ResourcePathParameterNode) pathBlock).paramName().get();
+                resourcePath.append("/").append(token.text());
             }
         }
         return getEncodedAzureFunctionName(resourcePath.toString(), servicePath, method);

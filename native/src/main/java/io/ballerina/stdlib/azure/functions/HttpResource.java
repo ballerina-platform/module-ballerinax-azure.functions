@@ -128,8 +128,19 @@ public class HttpResource {
                 BMap<?, ?> payload = body.getMapValue(StringUtils.fromString(Constants.HTTP_TRIGGER_IDENTIFIER));
                 BMap<?, ?> params = payload.getMapValue(StringUtils.fromString(Constants.AZURE_PAYLOAD_PARAMS));
                 BString param = params.getStringValue(StringUtils.fromString(parameter.name));
-                pathParams.add(new PathParameter(count, parameter, param.getValue()));
+                pathParams.add(new PathParameter(count, parameter, param));
                 count++;
+            } else if (path.equals(Constants.REST_PATH_PARAM)) {
+                Parameter parameter = parameters[count];
+                BMap<?, ?> payload = body.getMapValue(StringUtils.fromString(Constants.HTTP_TRIGGER_IDENTIFIER));
+                BMap<?, ?> params = payload.getMapValue(StringUtils.fromString(Constants.AZURE_PAYLOAD_PARAMS));
+                String param = params.getStringValue(StringUtils.fromString(parameter.name)).getValue();
+                BString modParamValue = StringUtils.fromString(param.replace(Constants.SLASH,
+                        Constants.ELEMENT_SEPARATOR));
+                Object arrValue = Utils.createValue(parameter.type, modParamValue);
+                pathParams.add(new PathParameter(count, parameter, arrValue));
+                count++;
+
             }
             //TODO handle wildcard
         }

@@ -101,6 +101,12 @@ public class HTTPTriggerBinding extends TriggerBinding {
                     //TODO Handle optional
                     resourcePath.append("/" + "{").append(pathParamNode.paramName().get().text()).append("}");
                 }
+                if (pathBlock.kind() == SyntaxKind.RESOURCE_PATH_REST_PARAM) {
+                    ResourcePathParameterNode pathParamNode = (ResourcePathParameterNode) pathBlock;
+                    if (pathParamNode.paramName().isPresent()) {
+                        resourcePath.append("/" + "{**").append(pathParamNode.paramName().get().text()).append("}");
+                    }
+                }
                 //TODO add wildcard
             }
             httpTriggerBinding.setPath(getFunctionPath(resourcePath.toString()));

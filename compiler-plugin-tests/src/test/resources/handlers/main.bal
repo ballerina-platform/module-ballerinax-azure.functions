@@ -54,6 +54,10 @@ service /hello on ep {
         return "Hello from foo bar res";
     }
 
+    resource function post restParamTest/[string... bar](@http:Payload string greeting) returns @af:HttpOutput string  {
+        return "Hello from foo bar res";
+    }
+
     resource function post query(string name, @http:Payload string greeting) returns @af:HttpOutput string|error {
                 return "Hello from the query " + greeting + " " + name;
     }
