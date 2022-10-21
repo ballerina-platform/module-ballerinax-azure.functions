@@ -16,6 +16,7 @@
 
 import ballerina/http;
 import ballerina/log;
+import ballerina/io;
 
 isolated service class DispatcherService {
     *http:Service;
@@ -31,6 +32,7 @@ isolated service class DispatcherService {
     isolated resource function post .(http:Caller caller, http:Request request) returns error? {
         http:Response response = new;
         json platformPayload = check request.getJsonPayload();
+        io:println(platformPayload.toJsonString());
         map<anydata>|error callRemoteFunction = self.adaptor.callRemoteFunction(<map<json>>platformPayload, self.remoteMethodName);
         if (callRemoteFunction is error) {
             log:printError(callRemoteFunction.message());
