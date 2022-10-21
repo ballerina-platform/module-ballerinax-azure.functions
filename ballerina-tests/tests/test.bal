@@ -626,6 +626,16 @@ function testSimpleMultiQueryPath() returns error? {
 }
 
 @test:Config {}
+function testNonNilableQueryParam() returns error? {
+    final http:Client clientEndpoint = check new ("http://localhost:3000");
+    string jsonFilePath = "./tests/resources/query-param-nonNilable.json";
+    json readJson = check io:fileReadJson(jsonFilePath);
+    json resp = check clientEndpoint->post("/get-hello-nonNilableQueryParamTest", readJson);
+    json expectedResp = {"Outputs": {"resp": {"statusCode": 400, "headers": {"Content-Type": "text/plain"}, "body": "Error : no query param value found for 'foo'"}}, "Logs": [], "ReturnValue": null};
+    test:assertEquals(resp, expectedResp);
+}
+
+@test:Config {}
 function testOptionalQueryWithQuery() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/query-optional-with.json";

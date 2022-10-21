@@ -107,6 +107,10 @@ public class HttpResource {
                 continue;
             }
             BString queryValue = queryParams.getStringValue(StringUtils.fromString(name));
+            // '<url-query-param>' and '<url-query-param>=' are identical in azure platform.
+            if (queryValue == null && !Utils.isNilType(parameter.type)) {
+                throw new InvalidPayloadException("Error : no query param value found for '" + name + "'");
+            }
             try {
                 Object bValue = Utils.createValue(parameter.type, queryValue);
                 queryParameters.add(new QueryParameter(i, parameter, bValue));
