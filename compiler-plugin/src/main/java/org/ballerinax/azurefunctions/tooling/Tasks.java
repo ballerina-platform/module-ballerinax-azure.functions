@@ -32,10 +32,10 @@ public class Tasks {
     private String version;
     private Tasks.Task[] tasks;
 
-    public Tasks() {
+    public Tasks(boolean isNative) {
         this.version = "2.0.0";
         this.tasks = new Tasks.Task[1];
-        this.tasks[0] = new Tasks.Task();
+        this.tasks[0] = new Tasks.Task(isNative);
     }
 
     static class Task {
@@ -46,13 +46,17 @@ public class Tasks {
         private boolean isBackground;
         private Map<String, String> options;
 
-        public Task() {
+        public Task(boolean isNative) {
             this.type = "func";
             this.command = "host start";
             this.problemMatcher = "$func-watch";
             this.isBackground = true;
             this.options = new HashMap<>();
-            this.options.put("cwd", "${workspaceFolder}/" + Constants.ARTIFACT_PATH);
+            if (isNative) {
+                this.options.put("cwd", "${workspaceFolder}/" + Constants.LOCAL_ARTIFACT_PATH);
+            } else {
+                this.options.put("cwd", "${workspaceFolder}/" + Constants.ARTIFACT_PATH);
+            }
         }
     }
 }

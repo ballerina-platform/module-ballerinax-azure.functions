@@ -57,17 +57,15 @@ public class FunctionsArtifact {
     private static final String GITIGNORE = ".gitignore";
 
     private Map<String, JsonObject> functions;
-
-    private Path binaryPath;
-
-    private JsonObject hostJson;
+    private Path jarPath;
+    private boolean isNative;
 
     private Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-    public FunctionsArtifact(Map<String, JsonObject> functions, Path binaryPath) throws IOException {
+    public FunctionsArtifact(Map<String, JsonObject> functions, Path jarPath, boolean isNative) throws IOException {
         this.functions = functions;
-        this.binaryPath = binaryPath;
-        this.generateHostJson();
+        this.jarPath = jarPath;
+        this.isNative = isNative;
     }
 
     public Map<String, JsonObject> getFunctions() {
@@ -87,23 +85,23 @@ public class FunctionsArtifact {
         }
     }
 
-    private void generateHostJson() throws IOException {
-        this.hostJson = readExistingHostJson();
-        if (this.hostJson == null) {
-            this.hostJson = new JsonObject();
+    private JsonObject generateHostJson() throws IOException {
+        JsonObject hostJson = readExistingHostJson();
+        if (hostJson == null) {
+            hostJson = new JsonObject();
         }
-        this.hostJson.add("version", new JsonPrimitive("2.0"));
+        hostJson.add("version", new JsonPrimitive("2.0"));
         JsonObject extensions = new JsonObject();
         JsonObject http = new JsonObject();
         http.addProperty("routePrefix", "");
         extensions.add("http", http);
-        this.hostJson.add("extensions", extensions);
+        hostJson.add("extensions", extensions);
         JsonObject httpWorker = new JsonObject();
-        this.hostJson.add("customHandler", httpWorker);
+        hostJson.add("customHandler", httpWorker);
         JsonObject httpWorkerDesc = new JsonObject();
         httpWorker.add("description", httpWorkerDesc);
         httpWorkerDesc.add("defaultExecutablePath", new JsonPrimitive("java"));
-        Path fileName = this.binaryPath.getFileName();
+        Path fileName = this.jarPath.getFileName();
         if (fileName != null) {
             httpWorkerDesc.add("defaultWorkerPath", new JsonPrimitive(fileName.toString()));
         }
@@ -112,9 +110,10 @@ public class FunctionsArtifact {
         httpWorkerDesc.add("arguments", workerArgs);
         httpWorker.add("enableForwardingHttpRequest", new JsonPrimitive(false));
         JsonObject extensionBundle = new JsonObject();
-        this.hostJson.add("extensionBundle", extensionBundle);
+        hostJson.add("extensionBundle", extensionBundle);
         extensionBundle.add("id", new JsonPrimitive("Microsoft.Azure.Functions.ExtensionBundle"));
         extensionBundle.add("version", new JsonPrimitive("[3.*, 4.0.0)"));
+        return hostJson;
     }
 
     private InputStream jtos(Object element) {
@@ -128,10 +127,10 @@ public class FunctionsArtifact {
     public void generate() throws IOException {
         // if an earlier generated file is there, delete it, or else
         // this will merge content to the earlier artifact
-        if (this.binaryPath == null) {
+        if (this.jarPath == null) {
             return;
         }
-        Path parent = this.binaryPath.toAbsolutePath().getParent();
+        Path parent = this.jarPath.toAbsolutePath().getParent();
         if (parent == null) {
             return;
         }
@@ -144,15 +143,20 @@ public class FunctionsArtifact {
         if (projectDir == null) {
             return;
         }
-        generateVsCodeConfigs(projectDir);
+        generateVsCodeConfigs(projectDir, isNative);
 
         Path functionsDir = targetDir.resolve(Constants.FUNCTION_DIRECTORY);
         Optional<String> cachedLocalSettings = cacheLocalSettings(functionsDir);
         deleteDirectory(functionsDir);
         Files.createDirectories(functionsDir);
-        Files.copy(this.binaryPath, functionsDir.resolve(this.binaryPath.getFileName()),
-                StandardCopyOption.REPLACE_EXISTING);
-        Files.copy(this.jtos(this.hostJson), functionsDir.resolve(HOST_JSON_NAME),
+        Path jarFileName = this.jarPath.getFileName();
+        Path azureFunctionsJar = functionsDir.resolve(jarFileName);
+        Files.copy(this.jarPath, azureFunctionsJar, StandardCopyOption.REPLACE_EXISTING);
+        if (isNative) {
+            buildImage(functionsDir, jarFileName.toString());
+            Files.deleteIfExists(functionsDir.resolve(azureFunctionsJar));
+        }
+        Files.copy(this.jtos(this.generateHostJson()), functionsDir.resolve(HOST_JSON_NAME),
                 StandardCopyOption.REPLACE_EXISTING);
         if (cachedLocalSettings.isEmpty()) {
             generateLocalSettings(functionsDir);
@@ -168,6 +172,24 @@ public class FunctionsArtifact {
             Files.createDirectories(functionDir);
             Files.copy(this.jtos(entry.getValue()), functionDir.resolve(FUNCTION_JSON_NAME),
                     StandardCopyOption.REPLACE_EXISTING);
+        }
+    }
+
+    public void buildImage(Path azureFunctionsDir, String jarFileName) {
+        String executableName = jarFileName.replaceFirst(".jar", "");
+        ProcessBuilder pb = new ProcessBuilder("docker", "run", "--rm", "-it", "-v",
+                azureFunctionsDir.toAbsolutePath() + ":/app/build/temp", "azure_builder", jarFileName, executableName);
+        pb.inheritIO();
+
+        try {
+            Process process = pb.start();
+            int exitCode = process.waitFor();
+            if (exitCode != 0) {
+                throw new RuntimeException("docker build failed. refer to the build log");
+            }
+
+        } catch (IOException | InterruptedException | RuntimeException e) {
+            throw new RuntimeException();
         }
     }
 
@@ -193,14 +215,14 @@ public class FunctionsArtifact {
         return Optional.empty();
     }
 
-    private void generateVsCodeConfigs(Path projectDir) throws IOException {
+    private void generateVsCodeConfigs(Path projectDir, boolean isNative) throws IOException {
         Path vsCodeDir = projectDir.resolve(VSCODE_DIRECTORY);
         Files.createDirectories(vsCodeDir);
         Files.copy(jtos(new Extensions()), vsCodeDir.resolve(Constants.EXTENSIONS_FILE_NAME),
                 StandardCopyOption.REPLACE_EXISTING);
-        Files.copy(jtos(new Settings()), vsCodeDir.resolve(Constants.SETTINGS_FILE_NAME),
+        Files.copy(jtos(new Settings(isNative)), vsCodeDir.resolve(Constants.SETTINGS_FILE_NAME),
                 StandardCopyOption.REPLACE_EXISTING);
-        Files.copy(jtos(new Tasks()), vsCodeDir.resolve(Constants.TASKS_FILE_NAME),
+        Files.copy(jtos(new Tasks(isNative)), vsCodeDir.resolve(Constants.TASKS_FILE_NAME),
                 StandardCopyOption.REPLACE_EXISTING);
 
         addToGitIgnore(projectDir);

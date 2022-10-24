@@ -39,10 +39,18 @@ public class Settings {
     @SerializedName("debug.internalConsoleOptions")
     private String internalConsoleOptions;
 
-    public Settings() {
+    @SerializedName("azureFunctions.projectSubpath")
+    private String projectSubpath;
+
+    public Settings(boolean isNative) {
         this.deploySubpath = Constants.ARTIFACT_PATH;
         this.projectLanguage = "Custom";
         this.projectRuntime = "~4";
         this.internalConsoleOptions = "neverOpen";
+        if (isNative) {
+            this.projectSubpath = Constants.LOCAL_ARTIFACT_PATH;
+        } else {
+            this.projectSubpath = Constants.ARTIFACT_PATH;
+        }
     }
 }

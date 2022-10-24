@@ -61,9 +61,10 @@ public class AzureCodeGeneratedTask implements CompilerLifecycleTask<CompilerLif
 
         OUT.println("\t@azure_functions:Function: " + String.join(", ", generatedFunctions.keySet()));
         Optional<Path> generatedArtifactPath = compilerLifecycleEventContext.getGeneratedArtifactPath();
+        boolean isNative = compilerLifecycleEventContext.currentPackage().project().buildOptions().nativeImage();
         generatedArtifactPath.ifPresent(path -> {
             try {
-                this.generateFunctionsArtifact(generatedFunctions, path);
+                this.generateFunctionsArtifact(generatedFunctions, path, isNative);
             } catch (IOException e) {
                 String msg = "Error generating Azure Functions: " + e.getMessage();
                 OUT.println(msg);
@@ -82,8 +83,8 @@ public class AzureCodeGeneratedTask implements CompilerLifecycleTask<CompilerLif
         });
     }
 
-    private void generateFunctionsArtifact(Map<String, JsonObject> functions, Path binaryPath)
+    private void generateFunctionsArtifact(Map<String, JsonObject> functions, Path binaryPath, boolean isNative)
             throws IOException {
-        new FunctionsArtifact(functions, binaryPath).generate();
+        new FunctionsArtifact(functions, binaryPath, isNative).generate();
     }
 }
