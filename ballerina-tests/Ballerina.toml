@@ -1,9 +1,4 @@
 [package]
 org = "ballerinax"
 name = "azure_functions_tests"
-version = "3.0.0-alpha.3"
-
-[[dependency]]
-org = "ballerinax"
-name = "azure_functions"
-version = "3.0.0-alpha.3"
+version = "3.0.0"

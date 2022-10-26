@@ -6,8 +6,3 @@ distribution = "2201.1.0"
 
 [build-options]
 observabilityIncluded = true
-
-[[dependency]]
-org = "ballerinax"
-name = "azure_functions"
-version = "3.0.0-alpha.3"

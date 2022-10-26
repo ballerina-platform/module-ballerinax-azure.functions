@@ -12,13 +12,14 @@ This module provides an annotation-based [Azure Functions](https://azure.microso
    - Runtime stack - "Java 11"
    - Hosting operating system - "Windows" (This is the default and Linux is not supported in Azure for custom handlers at the moment)
 
-## Supported Annotations:
+## Supported Triggers and bindings:
 
-### @azure.functions:Function
-
-#### Custom 'host.json'
-
-A custom [host.json](https://docs.microsoft.com/en-us/azure/azure-functions/functions-host-json) file for the functions deployment can be optionally provided by placing a 'host.json' file in the current working directory in which the `bal build` is done. The required `host.json` properties are provided/overridden by the values derived from the source code by the compiler extension. 
+- Http - Trigger and Output Binding
+- Queue - Trigger and Output Binding
+- Blob - Trigger, Input and Output Binding
+- Twilio - Output Binding
+- CosmosDB - Trigger, Input and Output Binding
+- Timer - Trigger
 
 ### Report Issues
 
