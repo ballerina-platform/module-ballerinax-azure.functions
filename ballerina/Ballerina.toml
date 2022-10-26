@@ -4,7 +4,7 @@ name = "azure_functions"
 version = "3.0.0"
 
 [[platform.java11.dependency]]
-path = "../native/build/libs/azure_functions-native-3.0.0-SNAPSHOT.jar"
+path = "../native/build/libs/azure_functions-native-3.0.0.jar"
 
 #[[platform.java11.dependency]]
 #path = "./lib/http-native-@stdlib.httpnative.version@.jar"
