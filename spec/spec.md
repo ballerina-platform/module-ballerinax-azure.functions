@@ -1,9 +1,9 @@
 # Specification: Ballerina Azure Function Library
 
-_Owners_:  
-_Reviewers_:  
-_Created_:  
-_Updated_:  
+_Owners_:  @Hevayo @Anuruddhal @Xlight05 @Thevakumar-Luheerathan
+_Reviewers_: @Hevayo @Anuruddhal @Xlight05 @Thevakumar-Luheerathan 
+_Created_:  2022/10/28
+_Updated_:  2022/10/28
 _Edition_: Swan Lake
 
 ## Introduction
