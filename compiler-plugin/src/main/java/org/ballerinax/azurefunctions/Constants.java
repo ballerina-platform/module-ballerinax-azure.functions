@@ -73,4 +73,18 @@ public class Constants {
     public static final String SERVICE_CONFIG_ANNOTATION = "ServiceConfig";
     public static final String TREAT_NILABLE_AS_OPTIONAL = "treatNilableAsOptional";
 
+    public static final String HOST_JSON_NAME = "host.json";
+    public static final String FUNCTION_JSON_NAME = "function.json";
+
+    public static final String VSCODE_DIRECTORY = ".vscode";
+    public static final String GITIGNORE = ".gitignore";
+
+    public static final String BALLERINA_DOCKER_ORG = "ballerina";
+    public static final String NATIVE_BUILDER_IMAGE_NAME = "azure_native_builder";
+    public static final String NATIVE_BUILDER_IMAGE = BALLERINA_DOCKER_ORG + "/" + NATIVE_BUILDER_IMAGE_NAME;
+
+    public static final String CONTAINER_OUTPUT_PATH = ":/app/build/output";
+    
+    public static final String DOCKER_PLATFORM_FLAG = "--platform";
+    public static final String AZURE_REMOTE_COMPATIBLE_ARCHITECTURE = "linux/amd64";
 }
