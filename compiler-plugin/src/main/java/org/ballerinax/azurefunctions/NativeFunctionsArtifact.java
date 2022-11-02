@@ -121,7 +121,7 @@ public class NativeFunctionsArtifact extends FunctionsArtifact {
     public void buildImage(Path azureFunctionsDir, String jarFileName) {
         String executableName = getExecutableFileName();
         String volumeMount = azureFunctionsDir.toAbsolutePath() + Constants.CONTAINER_OUTPUT_PATH;
-        ProcessBuilder pb = new ProcessBuilder("docker", "run", "--rm", "-it", Constants.DOCKER_PLATFORM_FLAG,
+        ProcessBuilder pb = new ProcessBuilder("docker", "run", "--rm", Constants.DOCKER_PLATFORM_FLAG,
                 Constants.AZURE_REMOTE_COMPATIBLE_ARCHITECTURE, "-v", volumeMount, Constants.NATIVE_BUILDER_IMAGE,
                 jarFileName, executableName);
         pb.inheritIO();

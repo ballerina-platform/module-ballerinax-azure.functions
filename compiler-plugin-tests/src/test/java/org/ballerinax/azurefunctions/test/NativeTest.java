@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -29,25 +29,32 @@ import java.nio.file.Paths;
 /**
  * Azure functions deployment test.
  */
-public class DeploymentTest {
+public class NativeTest {
 
     private static final Path SOURCE_DIR = Paths.get("src").resolve("test").resolve("resources");
 
     @Test
-    public void testAzureFunctionsDeploymentProject() throws Exception {
+    public void testNativeAzureFunctionsDeploymentProject() throws Exception {
         Path handlers = SOURCE_DIR.resolve("handlers");
         Path depedenciesToml = handlers.resolve("Dependencies.toml");
         Files.deleteIfExists(depedenciesToml);
-        ProcessOutput processOutput = TestUtils.compileBallerinaProject(handlers, false);
+        ProcessOutput processOutput = TestUtils.compileBallerinaProject(handlers, true);
         Assert.assertEquals(processOutput.getExitCode(), 0);
         Assert.assertTrue(processOutput.getStdOutput().contains("@azure_functions"));
 
         // check if the executable jar and the host.json files are in the generated zip file
-        Path zipFilePath = handlers.resolve("target").resolve("azure_functions");
-        Assert.assertTrue(Files.exists(zipFilePath));
+        Path target = handlers.resolve("target");
+        Path azureFunctionsDir = target.resolve("azure_functions");
+        Assert.assertTrue(Files.exists(azureFunctionsDir));
 
-        Assert.assertTrue(Files.exists(zipFilePath.resolve("azure_functions_tests.jar")));
-        Assert.assertTrue(Files.exists(zipFilePath.resolve("host.json")));
+        Assert.assertTrue(Files.exists(azureFunctionsDir.resolve("azure_functions_tests")));
+        Assert.assertTrue(Files.exists(azureFunctionsDir.resolve("host.json")));
+
+        Path azureFunctionsLocalDir = target.resolve("azure_functions_local");
+        Assert.assertTrue(Files.exists(azureFunctionsLocalDir));
+
+        Assert.assertTrue(Files.exists(azureFunctionsLocalDir.resolve("azure_functions_tests")));
+        Assert.assertTrue(Files.exists(azureFunctionsLocalDir.resolve("host.json")));
         Files.deleteIfExists(depedenciesToml);
     }
 }
