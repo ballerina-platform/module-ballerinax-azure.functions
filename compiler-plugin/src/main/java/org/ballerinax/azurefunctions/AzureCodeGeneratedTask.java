@@ -59,20 +59,25 @@ public class AzureCodeGeneratedTask implements CompilerLifecycleTask<CompilerLif
             generatedFunctions.put(ctx.getFunctionName(), functions);
         }
 
-        OUT.println("\t@azure_functions:Function: " + String.join(", ", generatedFunctions.keySet()));
         Optional<Path> generatedArtifactPath = compilerLifecycleEventContext.getGeneratedArtifactPath();
+        boolean isNative = compilerLifecycleEventContext.currentPackage().project().buildOptions().nativeImage();
         generatedArtifactPath.ifPresent(path -> {
             try {
-                this.generateFunctionsArtifact(generatedFunctions, path);
+                if (isNative) {
+                    OUT.println("\n\t@azure_functions: Building native image compatible for the Cloud. This may take " +
+                            "a while\n");
+                }
+                this.generateFunctionsArtifact(generatedFunctions, path, isNative);
             } catch (IOException e) {
                 String msg = "Error generating Azure Functions: " + e.getMessage();
                 OUT.println(msg);
                 throw new RuntimeException(msg, e);
             }
-            OUT.println("\n\tExecute the below command to deploy the function locally:");
+            OUT.println("\n\t@azure_functions:Function: " + String.join(", ", generatedFunctions.keySet()));
+            OUT.println("\n\tExecute the command below to deploy the function locally:");
             OUT.println(
-                    "\tfunc start --script-root " + Constants.ARTIFACT_PATH + " --java");
-            OUT.println("\n\tExecute the below command to deploy Ballerina Azure Functions:");
+                    "\tfunc start --script-root " + getLocalArtifactPath(isNative) + getLocalRuntimeFlag(isNative));
+            OUT.println("\n\tExecute the command below to deploy Ballerina Azure Functions:");
             Path parent = path.getParent();
             if (parent != null) {
                 OUT.println(
@@ -82,8 +87,27 @@ public class AzureCodeGeneratedTask implements CompilerLifecycleTask<CompilerLif
         });
     }
 
-    private void generateFunctionsArtifact(Map<String, JsonObject> functions, Path binaryPath)
+    private void generateFunctionsArtifact(Map<String, JsonObject> functions, Path binaryPath, boolean isNative)
             throws IOException {
-        new FunctionsArtifact(functions, binaryPath).generate();
+        if (isNative) {
+            new NativeFunctionsArtifact(functions, binaryPath).generate();
+        } else {
+            new FunctionsArtifact(functions, binaryPath).generate();
+        }
+    }
+
+    private String getLocalArtifactPath(boolean isNative) {
+        if (isNative) {
+            return Constants.LOCAL_ARTIFACT_PATH;
+        } else {
+            return Constants.ARTIFACT_PATH;
+        }
+    }
+
+    private String getLocalRuntimeFlag(boolean isNative) {
+        if (!isNative) {
+            return " --java";
+        }
+        return "";
     }
 }

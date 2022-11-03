@@ -17,11 +17,11 @@
  */
 package org.ballerinax.azurefunctions;
 
- /**
+/**
  * Constants for Azure Functions.
  */
 public class Constants {
-    
+
     public static final String AZURE_FUNCTIONS_MODULE_NAME = "azure_functions";
     public static final String COLON = ":";
 
@@ -29,44 +29,62 @@ public class Constants {
     public static final String HEADER_ANNOTATION_TYPE = "HttpHeader";
     public static final String AZURE_FUNCTIONS_PACKAGE_ORG = "ballerinax";
     public static final String CHARSET = "UTF-8";
-     
-     public static final String ANNOTATION_HTTP_TRIGGER = "HttpTrigger";
-     public static final String ANNOTATION_QUEUE_TRIGGER = "QueueTrigger";
-     public static final String ANNOTATION_COSMOS_TRIGGER = "CosmosDBTrigger";
-     public static final String ANNOTATION_TIMER_TRIGGER = "TimerTrigger";
-     public static final String ANNOTATION_BLOB_TRIGGER = "BlobTrigger";
 
-     public static final String AZURE_HTTP_LISTENER = "HttpListener";
-     public static final String AZURE_QUEUE_LISTENER = "QueueListener";
-     public static final String AZURE_COSMOS_LISTENER = "CosmosDBListener";
-     public static final String AZURE_TIMER_LISTENER = "TimerListener";
-     public static final String AZURE_BLOB_LISTENER = "BlobListener";
-     
-     public static final String COSMOS_INPUT_BINDING = "CosmosDBInput";
-     public static final String BLOB_INPUT_BINDING = "BlobInput";
+    public static final String ANNOTATION_HTTP_TRIGGER = "HttpTrigger";
+    public static final String ANNOTATION_QUEUE_TRIGGER = "QueueTrigger";
+    public static final String ANNOTATION_COSMOS_TRIGGER = "CosmosDBTrigger";
+    public static final String ANNOTATION_TIMER_TRIGGER = "TimerTrigger";
+    public static final String ANNOTATION_BLOB_TRIGGER = "BlobTrigger";
 
-     public static final String QUEUE_OUTPUT_BINDING = "QueueOutput";
-     public static final String HTTP_OUTPUT_BINDING = "HttpOutput";
-     public static final String COSMOS_OUTPUT_BINDING = "CosmosDBOutput";
-     public static final String TWILIO_OUTPUT_BINDING = "TwilioSmsOutput";
-     public static final String BLOB_OUTPUT_BINDING = "BlobOutput";
+    public static final String AZURE_HTTP_LISTENER = "HttpListener";
+    public static final String AZURE_QUEUE_LISTENER = "QueueListener";
+    public static final String AZURE_COSMOS_LISTENER = "CosmosDBListener";
+    public static final String AZURE_TIMER_LISTENER = "TimerListener";
+    public static final String AZURE_BLOB_LISTENER = "BlobListener";
 
-     public static final String DIRECTION_IN = "in";
-     public static final String DIRECTION_OUT = "out";
+    public static final String COSMOS_INPUT_BINDING = "CosmosDBInput";
+    public static final String BLOB_INPUT_BINDING = "BlobInput";
 
-     public static final String RETURN_VAR_NAME = "outMsg";
-     
-     public static final String FUNCTION_DIRECTORY = "azure_functions";
+    public static final String QUEUE_OUTPUT_BINDING = "QueueOutput";
+    public static final String HTTP_OUTPUT_BINDING = "HttpOutput";
+    public static final String COSMOS_OUTPUT_BINDING = "CosmosDBOutput";
+    public static final String TWILIO_OUTPUT_BINDING = "TwilioSmsOutput";
+    public static final String BLOB_OUTPUT_BINDING = "BlobOutput";
 
-     public static final String ARTIFACT_PATH = "target/" + FUNCTION_DIRECTORY;
+    public static final String DIRECTION_IN = "in";
+    public static final String DIRECTION_OUT = "out";
 
-     public static final String SETTINGS_LOCAL_FILE_NAME = "local.settings.json";
-     public static final String EXTENSIONS_FILE_NAME = "extensions.json";
-     public static final String SETTINGS_FILE_NAME = "settings.json";
-     public static final String TASKS_FILE_NAME = "tasks.json";
-     
-     public static final String FUNCTION_ANNOTATION = "Function";
-     public static final String SERVICE_CONFIG_ANNOTATION = "ServiceConfig";
-     public static final String TREAT_NILABLE_AS_OPTIONAL = "treatNilableAsOptional";
+    public static final String RETURN_VAR_NAME = "outMsg";
 
- }
+    public static final String FUNCTION_DIRECTORY = "azure_functions";
+    public static final String LOCAL_FUNCTION_DIRECTORY = FUNCTION_DIRECTORY + "_local";
+
+    public static final String TARGET_DIRECTORY = "target/";
+
+    public static final String ARTIFACT_PATH = TARGET_DIRECTORY + FUNCTION_DIRECTORY;
+    public static final String LOCAL_ARTIFACT_PATH = TARGET_DIRECTORY + LOCAL_FUNCTION_DIRECTORY;
+
+    public static final String SETTINGS_LOCAL_FILE_NAME = "local.settings.json";
+    public static final String EXTENSIONS_FILE_NAME = "extensions.json";
+    public static final String SETTINGS_FILE_NAME = "settings.json";
+    public static final String TASKS_FILE_NAME = "tasks.json";
+
+    public static final String FUNCTION_ANNOTATION = "Function";
+    public static final String SERVICE_CONFIG_ANNOTATION = "ServiceConfig";
+    public static final String TREAT_NILABLE_AS_OPTIONAL = "treatNilableAsOptional";
+
+    public static final String HOST_JSON_NAME = "host.json";
+    public static final String FUNCTION_JSON_NAME = "function.json";
+
+    public static final String VSCODE_DIRECTORY = ".vscode";
+    public static final String GITIGNORE = ".gitignore";
+
+    public static final String BALLERINA_DOCKER_ORG = "ballerina";
+    public static final String NATIVE_BUILDER_IMAGE_NAME = "azure_native_builder";
+    public static final String NATIVE_BUILDER_IMAGE = BALLERINA_DOCKER_ORG + "/" + NATIVE_BUILDER_IMAGE_NAME;
+
+    public static final String CONTAINER_OUTPUT_PATH = ":/app/build/output";
+    
+    public static final String DOCKER_PLATFORM_FLAG = "--platform";
+    public static final String AZURE_REMOTE_COMPATIBLE_ARCHITECTURE = "linux/amd64";
+}

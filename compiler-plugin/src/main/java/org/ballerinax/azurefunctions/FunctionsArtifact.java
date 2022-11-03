@@ -41,7 +41,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
-import java.util.Comparator;
 import java.util.Map;
 import java.util.Optional;
 
@@ -50,32 +49,22 @@ import java.util.Optional;
  */
 public class FunctionsArtifact {
 
-    private static final String HOST_JSON_NAME = "host.json";
-    private static final String FUNCTION_JSON_NAME = "function.json";
+    protected Map<String, JsonObject> functions;
+    protected Path jarPath;
 
-    private static final String VSCODE_DIRECTORY = ".vscode";
-    private static final String GITIGNORE = ".gitignore";
+    protected Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-    private Map<String, JsonObject> functions;
-
-    private Path binaryPath;
-
-    private JsonObject hostJson;
-
-    private Gson gson = new GsonBuilder().setPrettyPrinting().create();
-
-    public FunctionsArtifact(Map<String, JsonObject> functions, Path binaryPath) throws IOException {
+    public FunctionsArtifact(Map<String, JsonObject> functions, Path jarPath) {
         this.functions = functions;
-        this.binaryPath = binaryPath;
-        this.generateHostJson();
+        this.jarPath = jarPath;
     }
 
     public Map<String, JsonObject> getFunctions() {
         return functions;
     }
 
-    private JsonObject readExistingHostJson() throws IOException {
-        File file = new File(HOST_JSON_NAME);
+    protected JsonObject readExistingHostJson() throws IOException {
+        File file = new File(Constants.HOST_JSON_NAME);
         if (file.exists()) {
             try (BufferedReader reader = new BufferedReader(
                     new InputStreamReader(new FileInputStream(file), Constants.CHARSET))) {
@@ -87,23 +76,23 @@ public class FunctionsArtifact {
         }
     }
 
-    private void generateHostJson() throws IOException {
-        this.hostJson = readExistingHostJson();
-        if (this.hostJson == null) {
-            this.hostJson = new JsonObject();
+    protected JsonObject generateHostJson() throws IOException {
+        JsonObject hostJson = readExistingHostJson();
+        if (hostJson == null) {
+            hostJson = new JsonObject();
         }
-        this.hostJson.add("version", new JsonPrimitive("2.0"));
+        hostJson.add("version", new JsonPrimitive("2.0"));
         JsonObject extensions = new JsonObject();
         JsonObject http = new JsonObject();
         http.addProperty("routePrefix", "");
         extensions.add("http", http);
-        this.hostJson.add("extensions", extensions);
+        hostJson.add("extensions", extensions);
         JsonObject httpWorker = new JsonObject();
-        this.hostJson.add("customHandler", httpWorker);
+        hostJson.add("customHandler", httpWorker);
         JsonObject httpWorkerDesc = new JsonObject();
         httpWorker.add("description", httpWorkerDesc);
         httpWorkerDesc.add("defaultExecutablePath", new JsonPrimitive("java"));
-        Path fileName = this.binaryPath.getFileName();
+        Path fileName = this.jarPath.getFileName();
         if (fileName != null) {
             httpWorkerDesc.add("defaultWorkerPath", new JsonPrimitive(fileName.toString()));
         }
@@ -112,80 +101,92 @@ public class FunctionsArtifact {
         httpWorkerDesc.add("arguments", workerArgs);
         httpWorker.add("enableForwardingHttpRequest", new JsonPrimitive(false));
         JsonObject extensionBundle = new JsonObject();
-        this.hostJson.add("extensionBundle", extensionBundle);
+        hostJson.add("extensionBundle", extensionBundle);
         extensionBundle.add("id", new JsonPrimitive("Microsoft.Azure.Functions.ExtensionBundle"));
         extensionBundle.add("version", new JsonPrimitive("[3.*, 4.0.0)"));
+        return hostJson;
     }
 
-    private InputStream jtos(Object element) {
+    protected InputStream jtos(Object element) {
         try {
             return new ByteArrayInputStream(this.gson.toJson(element).getBytes(Constants.CHARSET));
         } catch (UnsupportedEncodingException e) {
             throw new IllegalStateException(e);
         }
     }
-
-    public void generate() throws IOException {
-        // if an earlier generated file is there, delete it, or else
-        // this will merge content to the earlier artifact
-        if (this.binaryPath == null) {
-            return;
+    
+    protected Optional<Path> getTargetDir() {
+        if (this.jarPath == null) {
+            return Optional.empty();
         }
-        Path parent = this.binaryPath.toAbsolutePath().getParent();
+        Path parent = this.jarPath.toAbsolutePath().getParent();
         if (parent == null) {
-            return;
+            return Optional.empty();
         }
         Path targetDir = parent.getParent();
         if (targetDir == null) {
+            return Optional.empty();
+        }
+        
+        return Optional.of(targetDir);
+    }
+
+    public void generate() throws IOException {
+        Optional<Path> targetDir = getTargetDir();
+        if (targetDir.isEmpty()) {
             return;
         }
 
-        Path projectDir = targetDir.getParent();
+        Path projectDir = targetDir.get().getParent();
         if (projectDir == null) {
             return;
         }
+        
         generateVsCodeConfigs(projectDir);
 
-        Path functionsDir = targetDir.resolve(Constants.FUNCTION_DIRECTORY);
+        Path functionsDir = targetDir.get().resolve(Constants.FUNCTION_DIRECTORY);
         Optional<String> cachedLocalSettings = cacheLocalSettings(functionsDir);
-        deleteDirectory(functionsDir);
+        Util.deleteDirectory(functionsDir);
         Files.createDirectories(functionsDir);
-        Files.copy(this.binaryPath, functionsDir.resolve(this.binaryPath.getFileName()),
-                StandardCopyOption.REPLACE_EXISTING);
-        Files.copy(this.jtos(this.hostJson), functionsDir.resolve(HOST_JSON_NAME),
+        generateExecutable(functionsDir);
+        Files.copy(this.jtos(this.generateHostJson()), functionsDir.resolve(Constants.HOST_JSON_NAME),
                 StandardCopyOption.REPLACE_EXISTING);
         if (cachedLocalSettings.isEmpty()) {
             generateLocalSettings(functionsDir);
         } else {
-            String localSettings = cachedLocalSettings.get();
-            ByteArrayInputStream inStream =
-                    new ByteArrayInputStream(localSettings.getBytes(StandardCharsets.UTF_8));
-            Files.copy(inStream, functionsDir.resolve(Constants.SETTINGS_LOCAL_FILE_NAME),
-                    StandardCopyOption.REPLACE_EXISTING);
+            useCachedLocalSettings(functionsDir, cachedLocalSettings.get());
         }
+        createFunctionArtifact(functionsDir);
+    }
+
+    protected void generateExecutable(Path functionsDir) throws IOException {
+        Path jarFileName = this.jarPath.getFileName();
+        Path azureFunctionsJar = functionsDir.resolve(jarFileName);
+        Files.copy(this.jarPath, azureFunctionsJar, StandardCopyOption.REPLACE_EXISTING);
+    }
+
+    private void useCachedLocalSettings(Path functionsDir, String localSettings) throws IOException {
+        ByteArrayInputStream inStream =
+                new ByteArrayInputStream(localSettings.getBytes(StandardCharsets.UTF_8));
+        Files.copy(inStream, functionsDir.resolve(Constants.SETTINGS_LOCAL_FILE_NAME),
+                StandardCopyOption.REPLACE_EXISTING);
+    }
+
+    private void createFunctionArtifact(Path functionsDir) throws IOException {
         for (Map.Entry<String, JsonObject> entry : this.functions.entrySet()) {
             Path functionDir = functionsDir.resolve(entry.getKey());
             Files.createDirectories(functionDir);
-            Files.copy(this.jtos(entry.getValue()), functionDir.resolve(FUNCTION_JSON_NAME),
+            Files.copy(this.jtos(entry.getValue()), functionDir.resolve(Constants.FUNCTION_JSON_NAME),
                     StandardCopyOption.REPLACE_EXISTING);
         }
     }
 
-    private void deleteDirectory(Path azureFunctionsDir) throws IOException {
-        if (azureFunctionsDir.toFile().exists()) {
-            Files.walk(azureFunctionsDir)
-                    .sorted(Comparator.reverseOrder())
-                    .map(Path::toFile)
-                    .forEach(File::delete);
-        }
-    }
-
-    private void generateLocalSettings(Path azureFunctionsDir) throws IOException {
+    protected void generateLocalSettings(Path azureFunctionsDir) throws IOException {
         Files.copy(jtos(new LocalSettings()), azureFunctionsDir.resolve(Constants.SETTINGS_LOCAL_FILE_NAME),
                 StandardCopyOption.REPLACE_EXISTING);
     }
 
-    private Optional<String> cacheLocalSettings(Path azureFunctionsDir) throws IOException {
+    protected Optional<String> cacheLocalSettings(Path azureFunctionsDir) throws IOException {
         Path localSettingsPath = azureFunctionsDir.resolve(Constants.SETTINGS_LOCAL_FILE_NAME);
         if (localSettingsPath.toFile().exists()) {
             return Optional.of(Files.readString(localSettingsPath));
@@ -193,30 +194,30 @@ public class FunctionsArtifact {
         return Optional.empty();
     }
 
-    private void generateVsCodeConfigs(Path projectDir) throws IOException {
-        Path vsCodeDir = projectDir.resolve(VSCODE_DIRECTORY);
+    protected void generateVsCodeConfigs(Path projectDir) throws IOException {
+        Path vsCodeDir = projectDir.resolve(Constants.VSCODE_DIRECTORY);
         Files.createDirectories(vsCodeDir);
         Files.copy(jtos(new Extensions()), vsCodeDir.resolve(Constants.EXTENSIONS_FILE_NAME),
                 StandardCopyOption.REPLACE_EXISTING);
-        Files.copy(jtos(new Settings()), vsCodeDir.resolve(Constants.SETTINGS_FILE_NAME),
+        Files.copy(jtos(new Settings(false)), vsCodeDir.resolve(Constants.SETTINGS_FILE_NAME),
                 StandardCopyOption.REPLACE_EXISTING);
-        Files.copy(jtos(new Tasks()), vsCodeDir.resolve(Constants.TASKS_FILE_NAME),
+        Files.copy(jtos(new Tasks(false)), vsCodeDir.resolve(Constants.TASKS_FILE_NAME),
                 StandardCopyOption.REPLACE_EXISTING);
 
         addToGitIgnore(projectDir);
     }
 
-    private void addToGitIgnore(Path projectDir) throws IOException {
-        Path gitIgnore = projectDir.resolve(GITIGNORE);
+    protected void addToGitIgnore(Path projectDir) throws IOException {
+        Path gitIgnore = projectDir.resolve(Constants.GITIGNORE);
         if (!Files.exists(gitIgnore)) {
             return;
         }
         String gitIgnoreContent = Files.readString(gitIgnore);
-        if (gitIgnoreContent.contains(VSCODE_DIRECTORY)) {
+        if (gitIgnoreContent.contains(Constants.VSCODE_DIRECTORY)) {
             return;
         }
 
-        Files.write(gitIgnore, VSCODE_DIRECTORY.getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);
+        Files.write(gitIgnore, Constants.VSCODE_DIRECTORY.getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);
     }
 }
 

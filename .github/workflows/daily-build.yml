@@ -27,13 +27,20 @@ jobs:
 
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
-
+      
+    - uses: graalvm/setup-graalvm@v1
+      with:
+        version: '22.2.0'
+        java-version: '11'
+        components: 'native-image'
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        set-java-home: 'false'
     - name: Build with Gradle
       env:
         packageUser: ${{ secrets.BALLERINA_BOT_USERNAME }}
         packagePAT: ${{ secrets.BALLERINA_BOT_TOKEN }}
       run: |
-        ./gradlew clean build --scan --no-daemon $GRADLE_SKIP_TASKS
+        ./gradlew clean build -Pnative.test --scan --no-daemon $GRADLE_SKIP_TASKS
 
     - name: Generate Codecov Report
       uses: codecov/codecov-action@v1

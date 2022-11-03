@@ -17,36 +17,21 @@
   -->
 
 <FindBugsFilter>
-
-    <Match>
-        <!-- As values are populated from invocation and post invocation is not called if null-->
-        <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"/>
-    </Match>
-
+    
     <Match>
         <!-- As kind checks are used-->
         <Bug pattern="BC_UNCONFIRMED_CAST"/>
     </Match>
     
-    <Match>
-        <Class name="AzureCodeGeneratedTask"/>
-        <Bug pattern="SIC_INNER_SHOULD_BE_STATIC_ANON"/>
-    </Match>
-
-    <!--https://github.com/spotbugs/spotbugs/issues/756-->
-    <Match>
-        <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE"/>
-    </Match>
-
-    <Match>
-        <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE"/>
-    </Match>
-
     <!--POJOs for GSON-->
     <Match>
         <Package name="org.ballerinax.azurefunctions.tooling"/>
         <Bug pattern="URF_UNREAD_FIELD"/>
     </Match>
-    
+
+    <Match>
+        <Class name="org.ballerinax.azurefunctions.NativeFunctionsArtifact"/>
+        <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
+    </Match>
     
 </FindBugsFilter>

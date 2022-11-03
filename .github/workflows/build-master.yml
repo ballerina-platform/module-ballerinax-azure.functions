@@ -27,6 +27,13 @@ jobs:
         sed -i "s/version=\(.*\)/version=$updatedVersion/g" gradle.properties
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
+    - uses: graalvm/setup-graalvm@v1
+      with:
+        version: '22.2.0'
+        java-version: '11'
+        components: 'native-image'
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        set-java-home: 'false'
     - name: Build with Gradle
       env:
         packageUser: ${{ secrets.BALLERINA_BOT_USERNAME }}
@@ -34,6 +41,6 @@ jobs:
         publishUser: ${{ secrets.BALLERINA_BOT_USERNAME }}
         publishPAT: ${{ secrets.BALLERINA_BOT_TOKEN }}
       run: |
-        ./gradlew publish --scan --no-daemon
+        ./gradlew publish -Pnative.test --scan --no-daemon
     - name: Generate Codecov Report
       uses: codecov/codecov-action@v1

@@ -79,8 +79,8 @@ public interface Constants {
     String INVALID_PAYLOAD_ERROR = "InvalidPayloadError";
     String HEADER_NOT_FOUND_ERROR = "HeaderNotFoundError";
     String HTTP_PACKAGE_VERSION = "2";
-    String PATH_PARAM = "*";
-    String REST_PATH_PARAM = "**";
+    String PATH_PARAM = "^";
+    String REST_PATH_PARAM = "^^";
     String AZURE_PAYLOAD_PARAMS = "Params";
     String AZURE_PAYLOAD_HEADERS = "Headers";
     String AZURE_QUERY_HEADERS = "Query";
