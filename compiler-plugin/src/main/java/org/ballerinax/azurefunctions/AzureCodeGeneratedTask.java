@@ -82,7 +82,7 @@ public class AzureCodeGeneratedTask implements CompilerLifecycleTask<CompilerLif
             if (parent != null) {
                 OUT.println(
                         "\tfunc azure functionapp publish <function_app_name> --script-root " +
-                                Constants.ARTIFACT_PATH + " \n\n");
+                                Constants.ARTIFACT_PATH + " \n");
             }
         });
     }
