@@ -40,4 +40,4 @@ target
 .idea
 *.iml
 
-compiler-plugin-tests/src/test/resources/handlers/.vscode/
+.vscode/
