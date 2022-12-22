@@ -18,6 +18,7 @@
 
 package io.ballerina.stdlib.azure.functions.builder;
 
+import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
@@ -26,18 +27,33 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.stdlib.azure.functions.Constants;
+import io.ballerina.stdlib.mime.util.EntityHeaderHandler;
+import io.ballerina.stdlib.mime.util.MimeUtil;
+import io.ballerina.stdlib.mime.util.MultipartDecoder;
 import org.jvnet.mimepull.MIMEConfig;
 import org.jvnet.mimepull.MIMEMessage;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
+
+import static io.ballerina.runtime.api.utils.StringUtils.fromStringArray;
+import static io.ballerina.runtime.api.utils.StringUtils.fromStringSet;
+import static io.ballerina.stdlib.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
+import static io.ballerina.stdlib.mime.util.MimeConstants.HEADERS_MAP_FIELD;
+import static io.ballerina.stdlib.mime.util.MimeConstants.HEADER_NAMES_ARRAY_FIELD;
 
 /**
  * The form blob type payload builder.
@@ -71,6 +87,13 @@ public class FormPayloadBuilder extends AbstractPayloadBuilder {
                     }
                 }
             }
+        } else if (payloadType.getTag() == TypeTags.OBJECT_TYPE_TAG) {
+            Module objPackage = payloadType.getPackage();
+            if (objPackage.getOrg().equals(Constants.BALLERINA_PACKAGE) &&
+                    objPackage.getName().equals(Constants.MIME_PACKAGE_NAME) &&
+                    payloadType.getName().equals(Constants.ENTITY)) {
+                return getEntity(entity);
+            }
         }
         throw ErrorCreator.createError(StringUtils.fromString("incompatible type found: '" + payloadType.toString()));
     }
@@ -88,5 +111,55 @@ public class FormPayloadBuilder extends AbstractPayloadBuilder {
         } catch (IOException | MimeTypeParseException ignored) {
             return ValueCreator.createArrayValue(new byte[0]);
         }
+    }
+
+    private BObject getEntity(BString encodedBody) {
+        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(
+                Base64.getDecoder().decode(encodedBody.getValue()));
+        BObject entityObject = createEntityObject();
+        MultipartDecoder.parseBody(entityObject, contentType, byteArrayInputStream);
+        //TODO Generalize mime entity creation for all cases
+
+        BMap<BString, Object> headers = EntityHeaderHandler.getNewHeaderMap();
+
+        headers.put(StringUtils.fromString("content-type"), fromStringArray(new String[]{ this.contentType }));
+        entityObject.set(HEADERS_MAP_FIELD, headers);
+
+        Set<String> distinctNames = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+        List<String> headerNames = new ArrayList<>();
+        headerNames.add("content-type");
+
+        distinctNames.addAll(headerNames);
+        entityObject.set(HEADER_NAMES_ARRAY_FIELD, fromStringSet(distinctNames));
+        return entityObject;
+    }
+
+    public static BObject createEntityObject() {
+        BObject entity = createObjectValue(MimeUtil.getMimePackage(), Constants.ENTITY);
+        entity.addNativeData(ENTITY_BYTE_CHANNEL, null);
+        return entity;
+    }
+
+    /**
+     * Method that creates a runtime object value using the given package id and object type name.
+     *
+     * @param module         value creator specific for the package.
+     * @param objectTypeName name of the object type.
+     * @param fieldValues    values to be used for fields when creating the object value instance.
+     * @return value of the object.
+     */
+    private static BObject createObjectValue(Module module, String objectTypeName,
+                                             Object... fieldValues) {
+
+        Object[] fields = new Object[fieldValues.length * 2];
+
+        // Adding boolean values for each arg
+        for (int i = 0, j = 0; i < fieldValues.length; i++) {
+            fields[j++] = fieldValues[i];
+            fields[j++] = true;
+        }
+
+        // passing scheduler, strand and properties as null for the moment, but better to expose them via this method
+        return ValueCreator.createObjectValue(module, objectTypeName, null, null, null, fields);
     }
 }

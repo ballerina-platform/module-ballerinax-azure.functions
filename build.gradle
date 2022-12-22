@@ -28,6 +28,7 @@ ext.commomsIOVersion = "2.6"
 ext.commonsLoggingVersion = "1.2"
 ext.googleGsonVersion = "2.7"
 ext.slf4jVersion = "1.7.26"
+ext.stdlibMimeVersion = project.stdlibMimeVersion
 
 ext.puppycrawlCheckstyleVersion = "8.18"
 

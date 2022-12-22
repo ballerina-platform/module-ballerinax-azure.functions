@@ -1,5 +1,6 @@
 import ballerinax/azure_functions as af;
 import ballerina/http;
+import ballerina/mime;
 
 public type DBEntry record {
     string id;
@@ -392,6 +393,13 @@ service /hello on ep {
         if image.length() > 0 {
             return "success";
         }
+    }
+    
+    resource function post payload/mimeformdata(@http:Payload mime:Entity image) returns int|error {
+        mime:Entity[] bodyParts = check image.getBodyParts();
+        mime:Entity bodyPart = bodyParts[0];
+        byte[] byteArray = check bodyPart.getByteArray();
+        return byteArray.length();
     }
 }
 
