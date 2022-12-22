@@ -1038,3 +1038,23 @@ function testMultipartFormData() returns error? {
     };
     test:assertEquals(resp, expectedResp);
 }
+
+@test:Config {}
+function testMultipartMimeFormData() returns error? {
+    final http:Client clientEndpoint = check new ("http://localhost:3000");
+    string jsonFilePath = "./tests/resources/http-multipart-formdata-mime.json";
+    json readJson = check io:fileReadJson(jsonFilePath);
+    json resp = check clientEndpoint->post("/post-hello-payload-mimeformdata", readJson);
+    json expectedResp = {
+        "Outputs": {
+            "resp": {
+                "statusCode": "201",
+                "headers": {"Content-Type": "application/json"}, //TODO see if the implicit return is valid
+                "body": 21553
+            }
+        },
+        "Logs": [],
+        "ReturnValue": null
+    };
+    test:assertEquals(resp, expectedResp);
+}

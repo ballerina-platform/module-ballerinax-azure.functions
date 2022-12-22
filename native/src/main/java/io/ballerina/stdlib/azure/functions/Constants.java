@@ -34,7 +34,8 @@ public interface Constants {
     String PACKAGE_COMPLETE = PACKAGE_ORG + "/" + PACKAGE_NAME + ":3";
     String FUNCTION_ANNOTATION_COMPLETE = PACKAGE_COMPLETE + ":Function";
     String FUNCTION_ANNOTATION_NAME_FIELD = "name";
-    String HTTP_PACKAGE_ORG = "ballerina";
+    String BALLERINA_PACKAGE = "ballerina";
+    String HTTP_PACKAGE_ORG = BALLERINA_PACKAGE;
     String HTTP_PACKAGE_NAME = "http";
     String HTTP_ANNOTATION_PREFIX = Constants.HTTP_PACKAGE_ORG + Constants.SLASH + Constants.HTTP_PACKAGE_NAME + ":" +
             Constants.HTTP_PACKAGE_VERSION + ":";
@@ -85,4 +86,6 @@ public interface Constants {
     String AZURE_PAYLOAD_HEADERS = "Headers";
     String AZURE_QUERY_HEADERS = "Query";
     String AZURE_BODY_HEADERS = "Body";
+    String MIME_PACKAGE_NAME = "mime";
+    String ENTITY = "Entity";
 }

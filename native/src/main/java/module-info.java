@@ -28,4 +28,5 @@ module io.ballerina.stdlib.azure.functions {
     requires io.ballerina.lang.string;
     requires org.jvnet.mimepull;
     requires jakarta.activation;
+    requires io.ballerina.stdlib.mime;
 }

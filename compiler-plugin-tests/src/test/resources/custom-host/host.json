@@ -1,0 +1,27 @@
+{
+  "version": "2.0",
+  "logging": {
+    "logLevel": {
+      "default": "Trace"
+    }
+  },
+  "extensions": {
+    "http": {
+      "routePrefix": ""
+    }
+  },
+  "customHandler": {
+    "description": {
+      "defaultExecutablePath": "java",
+      "defaultWorkerPath": "custom_host.jar",
+      "arguments": [
+        "-jar"
+      ]
+    },
+    "enableForwardingHttpRequest": false
+  },
+  "extensionBundle": {
+    "id": "Microsoft.Azure.Functions.ExtensionBundle",
+    "version": "[3.*, 4.0.0)"
+  }
+}
