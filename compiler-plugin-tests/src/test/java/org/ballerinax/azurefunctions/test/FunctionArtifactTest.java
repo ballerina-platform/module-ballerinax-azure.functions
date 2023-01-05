@@ -84,7 +84,7 @@ public class FunctionArtifactTest {
         String str =
                 "{\"bindings\":[{\"type\":\"httpTrigger\",\"authLevel\":\"anonymous\",\"methods\":[\"post\"]," +
                         "\"direction\":\"in\",\"name\":\"httpPayload\",\"route\":\"hello/optional\"}," +
-                        "{\"type\":\"http\",\"direction\":\"out\",\"name\":\"resp\"}]}";
+                        "{\"type\":\"http\",\"direction\":\"out\",\"name\":\"outResp\"}]}";
         JsonElement parse = jsonParser.parse(str);
         Assert.assertEquals(httpHello, parse);
     }
@@ -95,7 +95,7 @@ public class FunctionArtifactTest {
         String str =
                 "{\"bindings\":[{\"type\":\"httpTrigger\",\"authLevel\":\"anonymous\",\"methods\":[\"post\"]," +
                         "\"direction\":\"in\",\"name\":\"httpPayload\",\"route\":\"hello/restParamTest/{**bar}\"}," +
-                        "{\"type\":\"http\",\"direction\":\"out\",\"name\":\"resp\"}]}";
+                        "{\"type\":\"http\",\"direction\":\"out\",\"name\":\"outResp\"}]}";
         JsonElement parse = jsonParser.parse(str);
         Assert.assertEquals(httpHello, parse);
     }
@@ -106,7 +106,7 @@ public class FunctionArtifactTest {
         String str =
                 "{\"bindings\":[{\"type\":\"httpTrigger\",\"authLevel\":\"anonymous\",\"methods\":[\"post\"]," +
                         "\"direction\":\"in\",\"name\":\"httpPayload\",\"route\":\"helo/hello-query\"}," +
-                        "{\"type\":\"http\",\"direction\":\"out\",\"name\":\"resp\"}]}";
+                        "{\"type\":\"http\",\"direction\":\"out\",\"name\":\"outResp\"}]}";
         JsonElement parse = jsonParser.parse(str);
         Assert.assertEquals(httpHello, parse);
     }
@@ -117,7 +117,7 @@ public class FunctionArtifactTest {
         String str =
                 "{\"bindings\":[{\"type\":\"httpTrigger\",\"authLevel\":\"anonymous\",\"methods\":[\"post\"]," +
                         "\"direction\":\"in\",\"name\":\"httpPayload\",\"route\":\"hello\"}," +
-                        "{\"type\":\"http\",\"direction\":\"out\",\"name\":\"resp\"}]}";
+                        "{\"type\":\"http\",\"direction\":\"out\",\"name\":\"outResp\"}]}";
         JsonElement parse = jsonParser.parse(str);
         Assert.assertEquals(httpHello, parse);
     }
@@ -127,7 +127,7 @@ public class FunctionArtifactTest {
         JsonObject httpHello = generatedFunctions.get("default-hello-all");
         String str = "{\"bindings\":[{\"type\":\"httpTrigger\",\"authLevel\":\"anonymous\",\"methods\":[\"DELETE\"," +
                 "\"GET\",\"HEAD\",\"OPTIONS\",\"POST\",\"PUT\"],\"direction\":\"in\",\"name\":\"httpPayload\"," +
-                "\"route\":\"hello/all\"},{\"type\":\"http\",\"direction\":\"out\",\"name\":\"resp\"}]}";
+                "\"route\":\"hello/all\"},{\"type\":\"http\",\"direction\":\"out\",\"name\":\"outResp\"}]}";
         JsonElement parse = jsonParser.parse(str);
         Assert.assertEquals(httpHello, parse);
     }
@@ -138,7 +138,7 @@ public class FunctionArtifactTest {
         String str =
                 "{\"bindings\":[{\"type\":\"httpTrigger\",\"authLevel\":\"anonymous\",\"methods\":[\"post\"]," +
                         "\"direction\":\"in\",\"name\":\"httpPayload\",\"route\":\"hello/foo\"},{\"type\":\"http\"," +
-                        "\"direction\":\"out\",\"name\":\"resp\"}]}";
+                        "\"direction\":\"out\",\"name\":\"outResp\"}]}";
         JsonElement parse = jsonParser.parse(str);
         Assert.assertEquals(actual, parse);
     }
@@ -149,7 +149,7 @@ public class FunctionArtifactTest {
         String str =
                 "{\"bindings\":[{\"type\":\"httpTrigger\",\"authLevel\":\"anonymous\",\"methods\":[\"post\"]," +
                         "\"direction\":\"in\",\"name\":\"httpPayload\",\"route\":\"hello/foo/{bar}\"}," +
-                        "{\"type\":\"http\",\"direction\":\"out\",\"name\":\"resp\"}]}";
+                        "{\"type\":\"http\",\"direction\":\"out\",\"name\":\"outResp\"}]}";
         JsonElement parse = jsonParser.parse(str);
         Assert.assertEquals(actual, parse);
     }
@@ -160,7 +160,7 @@ public class FunctionArtifactTest {
         String str =
                 "{\"bindings\":[{\"type\":\"httpTrigger\",\"authLevel\":\"anonymous\",\"methods\":[\"post\"]," +
                         "\"direction\":\"in\",\"name\":\"httpPayload\",\"route\":\"hello/foo/bar\"},{\"type\":" +
-                        "\"http\",\"direction\":\"out\",\"name\":\"resp\"}]}";
+                        "\"http\",\"direction\":\"out\",\"name\":\"outResp\"}]}";
         JsonElement parse = jsonParser.parse(str);
         Assert.assertEquals(actual, parse);
     }
@@ -172,7 +172,7 @@ public class FunctionArtifactTest {
                 "{\"bindings\":[{\"type\":\"queueTrigger\",\"connection\":\"AzureWebJobsStorage\"," +
                         "\"queueName\":\"queue2\",\"direction\":\"in\",\"name\":\"inMsg\"},{\"type\":\"queue\"," +
                         "\"connection\":\"AzureWebJobsStorage\",\"queueName\":\"queue3\",\"direction\":\"out\"," +
-                        "\"name\":\"outMsg\"}]}";
+                        "\"name\":\"outResp\"}]}";
         JsonElement parse = jsonParser.parse(str);
         Assert.assertEquals(actual, parse);
     }
@@ -184,7 +184,7 @@ public class FunctionArtifactTest {
                 "{\"bindings\":[{\"type\":\"queueTrigger\",\"connection\":\"AzureWebJobsStorage\"," +
                         "\"queueName\":\"queue21\",\"direction\":\"in\",\"name\":\"inMsg\"},{\"type\":\"queue\"," +
                         "\"connection\":\"AzureWebJobsStorage\",\"queueName\":\"queue3\",\"direction\":\"out\"," +
-                        "\"name\":\"outMsg\"}]}";
+                        "\"name\":\"outResp\"}]}";
         JsonElement parse = jsonParser.parse(str);
         Assert.assertEquals(actual, parse);
     }
@@ -197,7 +197,7 @@ public class FunctionArtifactTest {
                         "\"databaseName\":\"db1\",\"collectionName\":\"c2\",\"name\":\"inMsg\",\"direction\":\"in\"," +
                         "\"createLeaseCollectionIfNotExists\":true,\"leasesCollectionThroughput\":400}," +
                         "{\"type\":\"queue\",\"connection\":\"AzureWebJobsStorage\",\"queueName\":\"queue3\"," +
-                        "\"direction\":\"out\",\"name\":\"outMsg\"}]}";
+                        "\"direction\":\"out\",\"name\":\"outResp\"}]}";
         JsonElement parse = jsonParser.parse(str);
         Assert.assertEquals(actual, parse);
     }
@@ -210,7 +210,7 @@ public class FunctionArtifactTest {
                         "\"databaseName\":\"db1\",\"collectionName\":\"c2\",\"name\":\"inMsg\",\"direction\":\"in\"," +
                         "\"createLeaseCollectionIfNotExists\":true,\"leasesCollectionThroughput\":400}," +
                         "{\"type\":\"queue\",\"connection\":\"AzureWebJobsStorage\",\"queueName\":\"queue3\"," +
-                        "\"direction\":\"out\",\"name\":\"outMsg\"}]}";
+                        "\"direction\":\"out\",\"name\":\"outResp\"}]}";
         JsonElement parse = jsonParser.parse(str);
         Assert.assertEquals(actual, parse);
     }
@@ -220,7 +220,7 @@ public class FunctionArtifactTest {
         JsonObject actual = generatedFunctions.get("timer");
         String str = "{\"bindings\":[{\"type\":\"timerTrigger\",\"schedule\":\"*/10 * * * * *\"," +
                 "\"runOnStartup\":true,\"direction\":\"in\",\"name\":\"inMsg\"},{\"type\":\"queue\",\"connection\":" +
-                "\"AzureWebJobsStorage\",\"queueName\":\"queue3\",\"direction\":\"out\",\"name\":\"outMsg\"}]}";
+                "\"AzureWebJobsStorage\",\"queueName\":\"queue3\",\"direction\":\"out\",\"name\":\"outResp\"}]}";
         JsonElement parse = jsonParser.parse(str);
         Assert.assertEquals(actual, parse);
     }
@@ -230,7 +230,7 @@ public class FunctionArtifactTest {
         JsonObject actual = generatedFunctions.get("timer1");
         String str = "{\"bindings\":[{\"type\":\"timerTrigger\",\"schedule\":\"*/10 * * * * *\"," +
                 "\"runOnStartup\":true,\"direction\":\"in\",\"name\":\"inMsg\"},{\"type\":\"queue\",\"connection\":" +
-                "\"AzureWebJobsStorage\",\"queueName\":\"queue3\",\"direction\":\"out\",\"name\":\"outMsg\"}]}";
+                "\"AzureWebJobsStorage\",\"queueName\":\"queue3\",\"direction\":\"out\",\"name\":\"outResp\"}]}";
         JsonElement parse = jsonParser.parse(str);
         Assert.assertEquals(actual, parse);
     }
@@ -240,7 +240,7 @@ public class FunctionArtifactTest {
         JsonObject actual = generatedFunctions.get("blob");
         String str = "{\"bindings\":[{\"type\":\"blobTrigger\",\"name\":\"blobIn\",\"direction\":\"in\"," +
                 "\"path\":\"bpath1/{name}\",\"connection\":\"AzureWebJobsStorage\"},{\"type\":\"blob\"," +
-                "\"direction\":\"out\",\"name\":\"outMsg\",\"path\":\"bpath1/newBlob\"," +
+                "\"direction\":\"out\",\"name\":\"outResp\",\"path\":\"bpath1/newBlob\"," +
                 "\"connection\":\"AzureWebJobsStorage\",\"dataType\":\"string\"}]}";
         JsonElement parse = jsonParser.parse(str);
         Assert.assertEquals(actual, parse);
@@ -251,7 +251,7 @@ public class FunctionArtifactTest {
         JsonObject actual = generatedFunctions.get("blob1");
         String str = "{\"bindings\":[{\"type\":\"blobTrigger\",\"name\":\"blobIn\",\"direction\":\"in\"," +
                 "\"path\":\"bpath1/{name}\",\"connection\":\"AzureWebJobsStorage\"},{\"type\":\"blob\"," +
-                "\"direction\":\"out\",\"name\":\"outMsg\",\"path\":\"bpath1/newBlob\"," +
+                "\"direction\":\"out\",\"name\":\"outResp\",\"path\":\"bpath1/newBlob\"," +
                 "\"connection\":\"AzureWebJobsStorage\",\"dataType\":\"string\"}]}";
         JsonElement parse = jsonParser.parse(str);
         Assert.assertEquals(actual, parse);
@@ -263,7 +263,7 @@ public class FunctionArtifactTest {
         String str =
                 "{\"bindings\":[{\"type\":\"httpTrigger\",\"authLevel\":\"anonymous\",\"methods\":[\"post\"]," +
                         "\"direction\":\"in\",\"name\":\"httpPayload\",\"route\":\"hello-/hello-query\"}," +
-                        "{\"type\":\"http\",\"direction\":\"out\",\"name\":\"resp\"}]}";
+                        "{\"type\":\"http\",\"direction\":\"out\",\"name\":\"outResp\"}]}";
         JsonElement parse = jsonParser.parse(str);
         Assert.assertEquals(httpHello, parse);
     }

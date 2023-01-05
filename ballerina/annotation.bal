@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public const annotation FunctionConfiguration Function on function;
+public const annotation FunctionConfiguration Function on function, return;
 
 public type FunctionConfiguration record {|
     string name;
@@ -43,7 +43,7 @@ public type HttpHeader record {|
 public annotation HttpHeader Header on parameter;
 
 # @azurefunctions:HttpOutput annotation
-public const annotation HttpOutput on return;
+public const annotation HttpOutput on field, return;
 
 # Queue annotation configuration.
 # 
@@ -55,7 +55,7 @@ public type QueueConfiguration record {|
 |};
 
 # @azurefunctions:QueueOutput annotation.
-public const annotation QueueConfiguration QueueOutput on return;
+public const annotation QueueConfiguration QueueOutput on field, return;
 
 # @azurefunctions:QueueOutput annotation.
 public const annotation QueueConfiguration QueueTrigger on source listener, service;
@@ -88,7 +88,7 @@ public const annotation BlobConfiguration BlobTrigger on source listener, servic
 public const annotation BlobConfiguration BlobInput on parameter;
 
 # @azurefunctions:BlobOutput annotation.
-public const annotation BlobConfiguration BlobOutput on return;
+public const annotation BlobConfiguration BlobOutput on field, return;
 
 # CosmosDB trigger annotation configuration.
 # 
@@ -176,7 +176,7 @@ public type CosmosDBOutputConfiguration record {|
 |};
 
 # @azurefunctions:CosmosDBOutput annotation.
-public const annotation CosmosDBOutputConfiguration CosmosDBOutput on return;
+public const annotation CosmosDBOutputConfiguration CosmosDBOutput on field, return;
 
 # Twilio annotation configuration.
 # 
@@ -204,4 +204,3 @@ public type BindingNameConfiguration record {|
 
 # @azurefunctions:BindingName annotation.
 public const annotation BindingNameConfiguration BindingName on parameter;
-

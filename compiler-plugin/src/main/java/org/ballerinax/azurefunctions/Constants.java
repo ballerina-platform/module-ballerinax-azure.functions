@@ -54,7 +54,7 @@ public class Constants {
     public static final String DIRECTION_IN = "in";
     public static final String DIRECTION_OUT = "out";
 
-    public static final String RETURN_VAR_NAME = "outMsg";
+    public static final String RETURN_VAR_NAME = "outResp";
 
     public static final String FUNCTION_DIRECTORY = "azure_functions";
     public static final String LOCAL_FUNCTION_DIRECTORY = FUNCTION_DIRECTORY + "_local";

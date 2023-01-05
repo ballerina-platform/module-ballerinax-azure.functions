@@ -19,6 +19,7 @@ package org.ballerinax.azurefunctions.service.http;
 
 import com.google.gson.JsonObject;
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
+import org.ballerinax.azurefunctions.Constants;
 import org.ballerinax.azurefunctions.service.OutputBinding;
 
 /**
@@ -30,7 +31,7 @@ public class HTTPOutputBinding extends OutputBinding {
 
     public HTTPOutputBinding(AnnotationNode annotationNode) {
         super("http");
-        this.setVarName("resp");
+        this.setVarName(Constants.RETURN_VAR_NAME);
     }
 
     @Override

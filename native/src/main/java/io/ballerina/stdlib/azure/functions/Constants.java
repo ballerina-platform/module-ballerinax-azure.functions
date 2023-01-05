@@ -44,7 +44,7 @@ public interface Constants {
     String COSMOS_DBOUTPUT = "CosmosDBOutput";
     String HTTP_OUTPUT = "HttpOutput";
     String BLOB_OUTPUT = "BlobOutput";
-    String OUT_MSG = "outMsg";
+    String RETURN_VAR_NAME = "outResp";
     String PAYLOAD_ANNOTATAION = "Payload";
     String HEADER_ANNOTATION = "Header";
     String SERVICE_CONF_ANNOTATION = "ServiceConfig";
@@ -55,7 +55,6 @@ public interface Constants {
     String HEADERS = "headers";
     String CONTENT_TYPE = "Content-Type";
     String MEDIA_TYPE = "mediaType";
-    String RESPONSE_FIELD = "resp";
     String POST = "post";
     int CREATED_201 = 201;
     int OK_200 = 200;
@@ -72,6 +71,7 @@ public interface Constants {
     String FUNCTION_NOT_FOUND_ERROR = "FunctionNotFoundError";
     String INVALID_PAYLOAD_ERROR = "InvalidPayloadError";
     String HEADER_NOT_FOUND_ERROR = "HeaderNotFoundError";
+    String UNSUPPORTED_TYPE_ERROR = "UnsupportedTypeError";
     String INTERNAL_SERVER_ERROR = "Error";
     String HTTP_PACKAGE_VERSION = "2";
     String PATH_PARAM = "^";

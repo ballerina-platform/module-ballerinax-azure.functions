@@ -21,7 +21,9 @@ package io.ballerina.stdlib.azure.functions;
 import io.ballerina.runtime.api.Future;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.async.Callback;
+import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.MapType;
@@ -37,12 +39,15 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
+import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.api.values.BXmlItem;
+import io.ballerina.stdlib.azure.functions.exceptions.UnsupportedTypeException;
 import org.ballerinalang.langlib.array.ToBase64;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import static io.ballerina.runtime.api.utils.StringUtils.fromString;
 
@@ -53,32 +58,43 @@ public class FunctionCallback implements Callback {
 
     private final Future future;
     private final Module module;
-    private final List<String> annotations;
     private final MethodType methodType;
 
     public FunctionCallback(Future future, Module module, MethodType methodType) {
         this.future = future;
         this.module = module;
         this.methodType = methodType;
-        this.annotations = new ArrayList<>();
+    }
+
+    private String getOutputAnnotation() {
+        List<String> returnAnnotations = new ArrayList<>();
         BMap<BString, ?> annotations =
                 (BMap<BString, ?>) methodType.getAnnotation(StringUtils.fromString(Constants.RETURN_ANNOTATION));
         if (annotations != null) {
             for (BString annotation : annotations.getKeys()) {
                 String[] split = annotation.getValue().split(":");
-                this.annotations.add(split[split.length - 1]);
+                //TODO only add azure functions annotations
+                returnAnnotations.add(split[split.length - 1]);
             }
         }
-    }
 
-    private String getOutputAnnotation() {
-        if (this.annotations.size() == 0) {
+        if (returnAnnotations.size() == 0) {
+
+            //TODO see if we can check trigger type
             if (methodType instanceof ResourceMethodType) {
                 return Constants.HTTP_OUTPUT;
             }
             //TODO impl compiler ext validations to make sure output annotations exists
         }
-        return this.annotations.get(0);
+        return returnAnnotations.get(0);
+    }
+    boolean generated = false;
+    public String getMockAnnotation() {
+        if (!generated) {
+            generated = true;
+            return "HttpOutput";
+        }
+        return "QueueOutput";
     }
 
     @Override
@@ -101,33 +117,51 @@ public class FunctionCallback implements Callback {
             return;
         }
 
-        String outputBinding = getOutputAnnotation();
+        try {
+            if (result instanceof BValue && ((BValue) result).getType().getTag() == TypeTags.TUPLE_TAG) {
+                BArray tupleValues = (BArray) result;
+                for (Object value : tupleValues.getValues()) {
+                    Map.Entry<BString, Object> webWorkerResponse = handleOutputBinding(getMockAnnotation(), value);
+                    mapValue.put(webWorkerResponse.getKey(), webWorkerResponse.getValue());
+                }
+            } else {
+                String outputBinding = getOutputAnnotation();
+                Map.Entry<BString, Object> webWorkerResponse = handleOutputBinding(outputBinding, result);
+                mapValue.put(webWorkerResponse.getKey(), webWorkerResponse.getValue());
+            }
+            future.complete(mapValue);
+        } catch (UnsupportedTypeException e) {
+            future.complete(Utils.createError(module, e.getMessage(), e.getType()));
+        }
+    }
 
+    private Map.Entry<BString, Object> handleOutputBinding(String outputBinding, Object value) {
         if (Constants.QUEUE_OUTPUT.equals(outputBinding) || Constants.COSMOS_DBOUTPUT.equals(outputBinding)) {
-            mapValue.put(StringUtils.fromString(Constants.OUT_MSG), result);
+            return Map.entry(StringUtils.fromString(Constants.RETURN_VAR_NAME), value);
 
         } else if (Constants.BLOB_OUTPUT.equals(outputBinding)) {
-            if (result instanceof BArray) {
-                BArray arrayValue = (BArray) result;
+            if (value instanceof BArray) {
+                BArray arrayValue = (BArray) value;
                 BString encodedString = ToBase64.toBase64(arrayValue);
-                mapValue.put(StringUtils.fromString(Constants.OUT_MSG), encodedString);
+                return Map.entry(StringUtils.fromString(Constants.RETURN_VAR_NAME), encodedString);
             }
 
         } else if (outputBinding == null || Constants.HTTP_OUTPUT.equals(outputBinding)) {
-            if (isHTTPStatusCodeResponse(result)) {
-                handleStatusCodeResponse((BMap<?, ?>) result, mapValue);
+            if (isHTTPStatusCodeResponse(value)) {
+                return handleStatusCodeResponse((BMap<?, ?>) value);
             } else {
-                handleNonStatusCodeResponse(result, mapValue);
+                return handleNonStatusCodeResponse(value);
             }
         }
-        future.complete(mapValue);
+
+        throw new UnsupportedTypeException();
     }
 
     private void handleNilReturnType(BMap<BString, Object> mapValue) {
         BMap<BString, Object> respMap =
                 ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_ANYDATA));
         respMap.put(StringUtils.fromString(Constants.STATUS_CODE), Constants.ACCEPTED);
-        mapValue.put(StringUtils.fromString(Constants.RESPONSE_FIELD), respMap);
+        mapValue.put(StringUtils.fromString(Constants.RETURN_VAR_NAME), respMap);
     }
 
     @Override
@@ -227,7 +261,7 @@ public class FunctionCallback implements Callback {
         }
     }
 
-    private void handleNonStatusCodeResponse(Object result, BMap<BString, Object> mapValue) {
+    private Map.Entry<BString, Object> handleNonStatusCodeResponse(Object result) {
         BMap<BString, Object> respMap =
                 ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_ANYDATA));
         BMap<BString, Object> headers =
@@ -247,16 +281,16 @@ public class FunctionCallback implements Callback {
         } else {
             respMap.put(StringUtils.fromString(Constants.BODY), result);
         }
-        mapValue.put(StringUtils.fromString(Constants.RESPONSE_FIELD), respMap);
+        return Map.entry(StringUtils.fromString(Constants.RETURN_VAR_NAME), respMap);
     }
 
-    private void handleStatusCodeResponse(BMap<?, ?> result, BMap<BString, Object> mapValue) {
+    private Map.Entry<BString, Object> handleStatusCodeResponse(BMap<?, ?> result) {
         BMap<?, ?> resultMap = result;
 
         // Extract status code
         BObject status = (BObject) (resultMap.get(StringUtils.fromString(Constants.STATUS)));
         long statusCode = status.getIntValue(StringUtils.fromString(Constants.CODE));
-
+        
         // Create a BMap for response field
         BMap<BString, Object> respMap =
                 ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_ANYDATA));
@@ -296,8 +330,6 @@ public class FunctionCallback implements Callback {
                 ((BMap) headers).put(StringUtils.fromString(Constants.CONTENT_TYPE), mediaType);
             }
         }
-        mapValue.put(StringUtils.fromString(Constants.RESPONSE_FIELD), respMap);
+        return Map.entry(StringUtils.fromString(Constants.RETURN_VAR_NAME), respMap);
     }
 }
-
-
