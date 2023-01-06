@@ -92,6 +92,10 @@ service /hello on ep {
     resource function post payload/octaToByte (@http:Payload byte[] greeting) returns @af:HttpOutput string|error {
         return string:fromBytes(greeting);
     }
+    
+    resource function get tuples(string name) returns [@af:HttpOutput string,@af:QueueOutput{queueName: "queue3"} string] {
+        return ["Hello, " + name + "!","To Queue"];
+    }
 }
 
 @af:QueueTrigger {

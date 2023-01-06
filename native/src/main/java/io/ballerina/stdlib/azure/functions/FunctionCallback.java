@@ -88,7 +88,9 @@ public class FunctionCallback implements Callback {
         }
         return returnAnnotations.get(0);
     }
+
     boolean generated = false;
+
     public String getMockAnnotation() {
         if (!generated) {
             generated = true;
@@ -120,13 +122,15 @@ public class FunctionCallback implements Callback {
         try {
             if (result instanceof BValue && ((BValue) result).getType().getTag() == TypeTags.TUPLE_TAG) {
                 BArray tupleValues = (BArray) result;
-                for (Object value : tupleValues.getValues()) {
-                    Map.Entry<BString, Object> webWorkerResponse = handleOutputBinding(getMockAnnotation(), value);
+                Object[] values = tupleValues.getValues();
+                for (int i = 0, valuesLength = values.length; i < valuesLength; i++) {
+                    Object value = values[i];
+                    Map.Entry<BString, Object> webWorkerResponse = handleOutputBinding(getMockAnnotation(), value, i);
                     mapValue.put(webWorkerResponse.getKey(), webWorkerResponse.getValue());
                 }
             } else {
                 String outputBinding = getOutputAnnotation();
-                Map.Entry<BString, Object> webWorkerResponse = handleOutputBinding(outputBinding, result);
+                Map.Entry<BString, Object> webWorkerResponse = handleOutputBinding(outputBinding, result, 0);
                 mapValue.put(webWorkerResponse.getKey(), webWorkerResponse.getValue());
             }
             future.complete(mapValue);
@@ -135,22 +139,22 @@ public class FunctionCallback implements Callback {
         }
     }
 
-    private Map.Entry<BString, Object> handleOutputBinding(String outputBinding, Object value) {
+    private Map.Entry<BString, Object> handleOutputBinding(String outputBinding, Object value, int index) {
         if (Constants.QUEUE_OUTPUT.equals(outputBinding) || Constants.COSMOS_DBOUTPUT.equals(outputBinding)) {
-            return Map.entry(StringUtils.fromString(Constants.RETURN_VAR_NAME), value);
+            return Map.entry(StringUtils.fromString(getBindingIdentifier(index)), value);
 
         } else if (Constants.BLOB_OUTPUT.equals(outputBinding)) {
             if (value instanceof BArray) {
                 BArray arrayValue = (BArray) value;
                 BString encodedString = ToBase64.toBase64(arrayValue);
-                return Map.entry(StringUtils.fromString(Constants.RETURN_VAR_NAME), encodedString);
+                return Map.entry(StringUtils.fromString(getBindingIdentifier(index)), encodedString);
             }
 
         } else if (outputBinding == null || Constants.HTTP_OUTPUT.equals(outputBinding)) {
             if (isHTTPStatusCodeResponse(value)) {
-                return handleStatusCodeResponse((BMap<?, ?>) value);
+                return handleStatusCodeResponse((BMap<?, ?>) value, index);
             } else {
-                return handleNonStatusCodeResponse(value);
+                return handleNonStatusCodeResponse(value, index);
             }
         }
 
@@ -161,7 +165,7 @@ public class FunctionCallback implements Callback {
         BMap<BString, Object> respMap =
                 ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_ANYDATA));
         respMap.put(StringUtils.fromString(Constants.STATUS_CODE), Constants.ACCEPTED);
-        mapValue.put(StringUtils.fromString(Constants.RETURN_VAR_NAME), respMap);
+        mapValue.put(StringUtils.fromString(getBindingIdentifier(0)), respMap);
     }
 
     @Override
@@ -233,7 +237,6 @@ public class FunctionCallback implements Callback {
                         headers.put(StringUtils.fromString(Constants.CONTENT_TYPE),
                                 StringUtils.fromString(Constants.APPLICATION_JSON));
                     }
-
                 }
             } else {
                 headers.put(StringUtils.fromString(Constants.CONTENT_TYPE),
@@ -261,7 +264,7 @@ public class FunctionCallback implements Callback {
         }
     }
 
-    private Map.Entry<BString, Object> handleNonStatusCodeResponse(Object result) {
+    private Map.Entry<BString, Object> handleNonStatusCodeResponse(Object result, int index) {
         BMap<BString, Object> respMap =
                 ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_ANYDATA));
         BMap<BString, Object> headers =
@@ -281,16 +284,16 @@ public class FunctionCallback implements Callback {
         } else {
             respMap.put(StringUtils.fromString(Constants.BODY), result);
         }
-        return Map.entry(StringUtils.fromString(Constants.RETURN_VAR_NAME), respMap);
+        return Map.entry(StringUtils.fromString(getBindingIdentifier(index)), respMap);
     }
 
-    private Map.Entry<BString, Object> handleStatusCodeResponse(BMap<?, ?> result) {
+    private Map.Entry<BString, Object> handleStatusCodeResponse(BMap<?, ?> result, int index) {
         BMap<?, ?> resultMap = result;
 
         // Extract status code
         BObject status = (BObject) (resultMap.get(StringUtils.fromString(Constants.STATUS)));
         long statusCode = status.getIntValue(StringUtils.fromString(Constants.CODE));
-        
+
         // Create a BMap for response field
         BMap<BString, Object> respMap =
                 ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_ANYDATA));
@@ -320,6 +323,7 @@ public class FunctionCallback implements Callback {
                     StringUtils.fromString(Constants.APPLICATION_JSON));
             respMap.put(StringUtils.fromString(Constants.HEADERS), headers);
             //TODO https://github.com/ballerina-platform/module-ballerinax-azure.functions/issues/601
+
         }
 
         // If there is mediaType replace content-type in headers
@@ -330,6 +334,15 @@ public class FunctionCallback implements Callback {
                 ((BMap) headers).put(StringUtils.fromString(Constants.CONTENT_TYPE), mediaType);
             }
         }
-        return Map.entry(StringUtils.fromString(Constants.RETURN_VAR_NAME), respMap);
+        return Map.entry(StringUtils.fromString(getBindingIdentifier(index)), respMap);
+    }
+
+    private String getBindingIdentifier(int index) {
+        if (index == 0) {
+            return Constants.RETURN_VAR_NAME;
+        }
+        return Constants.RETURN_VAR_NAME + index;
     }
 }
+
+

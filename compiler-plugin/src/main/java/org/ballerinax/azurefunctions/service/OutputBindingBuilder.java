@@ -18,10 +18,14 @@
 package org.ballerinax.azurefunctions.service;
 
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
+import io.ballerina.compiler.syntax.tree.MemberTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.TupleTypeDescriptorNode;
 import org.ballerinax.azurefunctions.Constants;
 import org.ballerinax.azurefunctions.service.blob.BlobOutputBinding;
 import org.ballerinax.azurefunctions.service.cosmosdb.CosmosDBOutputBinding;
@@ -29,6 +33,8 @@ import org.ballerinax.azurefunctions.service.http.HTTPOutputBinding;
 import org.ballerinax.azurefunctions.service.queue.QueueOutputBinding;
 import org.ballerinax.azurefunctions.service.twilio.TwilioSmsOutputBinding;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -38,7 +44,7 @@ import java.util.Optional;
  */
 public class OutputBindingBuilder {
 
-    public Optional<Binding> getOutputBinding(NodeList<AnnotationNode> nodes) {
+    private Optional<Binding> getOutputBinding(NodeList<AnnotationNode> nodes, int index) {
         for (AnnotationNode annotationNode : nodes) {
             Node node = annotationNode.annotReference();
             if (SyntaxKind.QUALIFIED_NAME_REFERENCE != node.kind()) {
@@ -48,19 +54,41 @@ public class OutputBindingBuilder {
             String annotationName = qualifiedNameReferenceNode.identifier().text();
             switch (annotationName) {
                 case Constants.QUEUE_OUTPUT_BINDING:
-                    return Optional.of(new QueueOutputBinding(annotationNode));
+                    return Optional.of(new QueueOutputBinding(annotationNode, index));
                 case Constants.HTTP_OUTPUT_BINDING:
-                    return Optional.of(new HTTPOutputBinding(annotationNode));
+                    return Optional.of(new HTTPOutputBinding(annotationNode, index));
                 case Constants.COSMOS_OUTPUT_BINDING:
-                    return Optional.of(new CosmosDBOutputBinding(annotationNode));
+                    return Optional.of(new CosmosDBOutputBinding(annotationNode, index));
                 case Constants.TWILIO_OUTPUT_BINDING:
-                    return Optional.of(new TwilioSmsOutputBinding(annotationNode));
+                    return Optional.of(new TwilioSmsOutputBinding(annotationNode, index));
                 case Constants.BLOB_OUTPUT_BINDING:
-                    return Optional.of(new BlobOutputBinding(annotationNode));
+                    return Optional.of(new BlobOutputBinding(annotationNode, index));
                 default:
                     throw new RuntimeException("Unexpected property in the annotation");
             }
         }
         return Optional.empty();
+    }
+
+    public List<Binding> getOutputBinding(ReturnTypeDescriptorNode returnTypeDescriptorNode) {
+        List<Binding> outputBindings = new ArrayList<>();
+        Node type = returnTypeDescriptorNode.type();
+        if (type.kind() == SyntaxKind.TUPLE_TYPE_DESC) {
+            TupleTypeDescriptorNode tupleTypeDesc = (TupleTypeDescriptorNode) type;
+            SeparatedNodeList<Node> tupleMembers = tupleTypeDesc.memberTypeDesc();
+            for (int i = 0; i < tupleMembers.size(); i++) {
+                Node node = tupleMembers.get(i);
+                if (node.kind() == SyntaxKind.MEMBER_TYPE_DESC) {
+                    MemberTypeDescriptorNode typeDescMember = (MemberTypeDescriptorNode) node;
+                    Optional<Binding> outputBinding = getOutputBinding(typeDescMember.annotations(), i);
+                    outputBinding.ifPresent(outputBindings::add);
+                }
+            }
+        } else {
+            Optional<Binding> outputBinding = getOutputBinding(returnTypeDescriptorNode.annotations(), 0);
+            outputBinding.ifPresent(outputBindings::add);
+        }
+
+        return outputBindings;
     }
 }

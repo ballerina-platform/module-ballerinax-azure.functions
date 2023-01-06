@@ -23,7 +23,6 @@ import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.MappingFieldNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
-import org.ballerinax.azurefunctions.Constants;
 import org.ballerinax.azurefunctions.Util;
 import org.ballerinax.azurefunctions.service.OutputBinding;
 
@@ -39,9 +38,8 @@ public class QueueOutputBinding extends OutputBinding {
     private String connection = "AzureWebJobsStorage";
     private String queueName;
 
-    public QueueOutputBinding(AnnotationNode annotationNode) {
-        super("queue");
-        this.setVarName(Constants.RETURN_VAR_NAME);
+    public QueueOutputBinding(AnnotationNode annotationNode, int index) {
+        super("queue", index);
         SeparatedNodeList<MappingFieldNode> fields = annotationNode.annotValue().orElseThrow().fields();
         for (MappingFieldNode fieldNode : fields) {
             extractValueFromAnnotation((SpecificFieldNode) fieldNode);

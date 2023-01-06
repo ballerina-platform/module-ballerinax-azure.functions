@@ -25,7 +25,12 @@ import org.ballerinax.azurefunctions.Constants;
  * @since 2.0.0
  */
 public abstract class OutputBinding extends Binding {
-    public OutputBinding(String triggerType) {
+    public OutputBinding(String triggerType, int index) {
         super(triggerType, Constants.DIRECTION_OUT);
+        if (index == 0) {
+            this.setVarName(Constants.RETURN_VAR_NAME);
+        } else {
+            this.setVarName(Constants.RETURN_VAR_NAME + index);
+        }
     }
 }

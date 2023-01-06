@@ -41,7 +41,7 @@ import java.util.Map;
 
 /**
  * Test cases to generated function.json in different cases.
- * 
+ *
  * @since 2201.3.0
  */
 public class FunctionArtifactTest {
@@ -75,7 +75,7 @@ public class FunctionArtifactTest {
 
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
         Assert.assertFalse(diagnosticResult.hasErrors());
-        Assert.assertEquals(generatedFunctions.size(), 25);
+        Assert.assertEquals(generatedFunctions.size(), 26);
     }
 
     @Test
@@ -266,5 +266,17 @@ public class FunctionArtifactTest {
                         "{\"type\":\"http\",\"direction\":\"out\",\"name\":\"outResp\"}]}";
         JsonElement parse = jsonParser.parse(str);
         Assert.assertEquals(httpHello, parse);
+    }
+
+    @Test
+    public void testHttpMultipleOutputBindings() {
+        JsonObject actual = generatedFunctions.get("get-hello-tuples");
+        String str = "{\"bindings\":[{\"type\":\"httpTrigger\",\"authLevel\":\"anonymous\",\"methods\":[\"get\"]," +
+                        "\"direction\":\"in\",\"name\":\"httpPayload\",\"route\":\"hello/tuples\"},{\"type\":\"http" +
+                        "\",\"direction\":\"out\",\"name\":\"outResp\"},{\"type\":\"queue\",\"connection\":" +
+                        "\"AzureWebJobsStorage\",\"queueName\":\"queue3\",\"direction\":\"out\",\"name\":" +
+                        "\"outResp1\"}]}";
+        JsonElement parse = jsonParser.parse(str);
+        Assert.assertEquals(actual, parse);
     }
 }

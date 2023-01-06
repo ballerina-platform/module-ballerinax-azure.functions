@@ -23,7 +23,6 @@ import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.MappingFieldNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
-import org.ballerinax.azurefunctions.Constants;
 import org.ballerinax.azurefunctions.Util;
 import org.ballerinax.azurefunctions.service.OutputBinding;
 
@@ -41,9 +40,8 @@ public class TwilioSmsOutputBinding extends OutputBinding {
     private String from;
     private String to;
 
-    public TwilioSmsOutputBinding(AnnotationNode annotationNode) {
-        super("twilioSms");
-        this.setVarName(Constants.RETURN_VAR_NAME);
+    public TwilioSmsOutputBinding(AnnotationNode annotationNode, int index) {
+        super("twilioSms", index);
         SeparatedNodeList<MappingFieldNode> fields = annotationNode.annotValue().orElseThrow().fields();
         for (MappingFieldNode fieldNode : fields) {
             extractValueFromAnnotation((SpecificFieldNode) fieldNode);

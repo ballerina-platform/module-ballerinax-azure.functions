@@ -23,7 +23,6 @@ import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.MappingFieldNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
-import org.ballerinax.azurefunctions.Constants;
 import org.ballerinax.azurefunctions.Util;
 import org.ballerinax.azurefunctions.service.OutputBinding;
 
@@ -40,9 +39,8 @@ public class CosmosDBOutputBinding extends OutputBinding {
     private String databaseName;
     private String collectionName;
 
-    public CosmosDBOutputBinding(AnnotationNode annotationNode) {
-        super("cosmosDB");
-        this.setVarName(Constants.RETURN_VAR_NAME);
+    public CosmosDBOutputBinding(AnnotationNode annotationNode, int index) {
+        super("cosmosDB", index);
         SeparatedNodeList<MappingFieldNode> fields = annotationNode.annotValue().orElseThrow().fields();
         for (MappingFieldNode fieldNode : fields) {
             extractValueFromAnnotation((SpecificFieldNode) fieldNode);
