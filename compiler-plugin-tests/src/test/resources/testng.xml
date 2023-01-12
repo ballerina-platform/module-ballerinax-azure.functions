@@ -24,6 +24,7 @@
             <class name="org.ballerinax.azurefunctions.test.FunctionArtifactTest"/>
             <class name="org.ballerinax.azurefunctions.test.ProjectValidationTests"/>
             <class name="org.ballerinax.azurefunctions.test.CustomHostTest"/>
+            <class name="org.ballerinax.azurefunctions.test.OutputTypeValidatorTests"/>
         </classes>
     </test>
 </suite>

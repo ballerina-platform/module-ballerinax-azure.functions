@@ -27,7 +27,6 @@ import org.testng.annotations.Test;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-
 /**
  * Contains the project related validations of azure functions.
  *
@@ -42,7 +41,7 @@ public class ProjectValidationTests {
         BuildProject project = BuildProject.load(RESOURCE_DIRECTORY.resolve("http-header-annotation"));
         PackageCompilation compilation = project.currentPackage().getCompilation();
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-        Object [] diagnostics =  diagnosticResult.errors().toArray();
+        Object[] diagnostics = diagnosticResult.errors().toArray();
         Assert.assertEquals(diagnosticResult.errorCount(), 13);
         String diagnosticMessage0 = "invalid annotation type on param 'a'";
         String diagnosticMessage1 = "invalid union type of header param 'xRate': one of the 'string','int','float'," +
@@ -103,5 +102,17 @@ public class ProjectValidationTests {
                 "field supported by Azure Function at the moment";
         Assert.assertEquals(((Diagnostic) diagnostics[0]).diagnosticInfo().messageFormat(), diagnosticMessage);
         Assert.assertEquals(((Diagnostic) diagnostics[1]).diagnosticInfo().messageFormat(), diagnosticMessage);
+    }
+
+    @Test
+    public void httpQueryParamValidationTest() {
+        BuildProject project = BuildProject.load(RESOURCE_DIRECTORY.resolve("http-query-param-validation"));
+        PackageCompilation compilation = project.currentPackage().getCompilation();
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        Object[] diagnostics = diagnosticResult.errors().toArray();
+        Assert.assertEquals(diagnosticResult.errorCount(), 1);
+        String diagnosticMessage = "invalid type of query param 'name': expected one of the 'string', 'int', 'float'," +
+                " 'boolean', 'decimal', 'map<json>' types or the array types of them";
+        Assert.assertEquals(((Diagnostic) diagnostics[0]).diagnosticInfo().messageFormat(), diagnosticMessage);
     }
 }

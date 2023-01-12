@@ -417,6 +417,14 @@ service /hello on ep {
         byte[] byteArray = check bodyPart.getByteArray();
         return byteArray.length();
     }
+    
+    resource function get products(map<json> name) returns string|error {
+        return (check name.name).toString() + (check name.value).toString();
+    }
+    
+    resource function get catalog(int[] name) returns string|error {
+        return name.toString();
+    }
 }
 
 @af:QueueTrigger {

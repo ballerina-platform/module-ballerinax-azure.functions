@@ -105,7 +105,7 @@ function retrNilable() returns error? {
 }
 
 @test:Config {}
-function nnonTreatNilAsOpt\-Nil\-noHeaderTest() returns error? {
+function nnonTreatNilAsOptNilnoHeaderTest() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/httpHeaderTest.json";
     string readString = check io:fileReadString(jsonFilePath);
@@ -117,7 +117,7 @@ function nnonTreatNilAsOpt\-Nil\-noHeaderTest() returns error? {
 }
 
 @test:Config {}
-function treatNilAsOpt\-nonNil\-noHeaderTest() returns error? {
+function treatNilAsOptnonNilnoHeaderTest() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/httpHeaderTest.json";
     string readString = check io:fileReadString(jsonFilePath);
@@ -129,7 +129,7 @@ function treatNilAsOpt\-nonNil\-noHeaderTest() returns error? {
 }
 
 @test:Config {}
-function treatNilAsOpt\-nonNil\-HeaderTest() returns error? {
+function treatNilAsOptnonNilHeaderTest() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/httpHeaderTest.json";
     string readString = check io:fileReadString(jsonFilePath);
@@ -153,7 +153,7 @@ function retrAsRecordNoField() returns error? {
 }
 
 @test:Config {}
-function treatNilAsOpt\-Nil\-noHeaderTest() returns error? {
+function treatNilAsOptNilnoHeaderTest() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/httpHeaderTest.json";
     string readString = check io:fileReadString(jsonFilePath);
@@ -165,7 +165,7 @@ function treatNilAsOpt\-Nil\-noHeaderTest() returns error? {
 }
 
 @test:Config {}
-function treatNilAsOpt\-Nil\-HeaderTest() returns error? {
+function treatNilAsOptNilHeaderTest() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/httpHeaderTest.json";
     string readString = check io:fileReadString(jsonFilePath);
@@ -177,7 +177,7 @@ function treatNilAsOpt\-Nil\-HeaderTest() returns error? {
 }
 
 @test:Config {}
-function nonTreatNilAsOpt\-nonNil\-noHeaderTest() returns error? {
+function nonTreatNilAsOptnonNilnoHeaderTest() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/httpHeaderTest.json";
     string readString = check io:fileReadString(jsonFilePath);
@@ -189,7 +189,7 @@ function nonTreatNilAsOpt\-nonNil\-noHeaderTest() returns error? {
 }
 
 @test:Config {}
-function nonTreatNilAsOpt\-nonNil\-HeaderTest() returns error? {
+function nonTreatNilAsOptnonNilHeaderTest() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/httpHeaderTest.json";
     string readString = check io:fileReadString(jsonFilePath);
@@ -201,7 +201,7 @@ function nonTreatNilAsOpt\-nonNil\-HeaderTest() returns error? {
 }
 
 @test:Config {}
-function nonTreatNilAsOpt\-Nil\-HeaderTest() returns error? {
+function nonTreatNilAsOptNilHeaderTest() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/httpHeaderTest.json";
     string readString = check io:fileReadString(jsonFilePath);
@@ -1067,6 +1067,46 @@ function testMultipartMimeFormData() returns error? {
                 "statusCode": 201,
                 "headers": {"Content-Type": "application/json"}, //TODO see if the implicit return is valid
                 "body": 21553
+            }
+        },
+        "Logs": [],
+        "ReturnValue": null
+    };
+    test:assertEquals(resp, expectedResp);
+}
+
+@test:Config {}
+function testQueryMapJson() returns error? {
+    final http:Client clientEndpoint = check new ("http://localhost:3000");
+    string jsonFilePath = "./tests/resources/query-map-json.json";
+    json readJson = check io:fileReadJson(jsonFilePath);
+    json resp = check clientEndpoint->post("/get-hello-products", readJson);
+    json expectedResp = {
+        "Outputs": {
+            "outResp": {
+                "statusCode": "200",
+                "headers": {"Content-Type": "text/plain"},
+                "body": "testjson"
+            }
+        },
+        "Logs": [],
+        "ReturnValue": null
+    };
+    test:assertEquals(resp, expectedResp);
+}
+
+@test:Config {}
+function testQueryArrFail() returns error? {
+    final http:Client clientEndpoint = check new ("http://localhost:3000");
+    string jsonFilePath = "./tests/resources/query-array-mixed.json";
+    json readJson = check io:fileReadJson(jsonFilePath);
+    json resp = check clientEndpoint->post("/get-hello-catalog", readJson);
+    json expectedResp = {
+        "Outputs": {
+            "outResp": {
+                "statusCode": 400,
+                "headers": {"Content-Type": "text/plain"},
+                "body": "Query param value parsing failed for 'name'"
             }
         },
         "Logs": [],

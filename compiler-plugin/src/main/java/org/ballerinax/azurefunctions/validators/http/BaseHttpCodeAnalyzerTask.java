@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinax.azurefunctions.validators;
+package org.ballerinax.azurefunctions.validators.http;
 
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ServiceDeclarationSymbol;
@@ -36,42 +36,50 @@ import java.util.Optional;
 
 import static org.ballerinax.azurefunctions.Constants.AZURE_FUNCTIONS_MODULE_NAME;
 import static org.ballerinax.azurefunctions.Constants.AZURE_FUNCTIONS_PACKAGE_ORG;
-import static org.ballerinax.azurefunctions.validators.HttpListenerValidator.validate;
 
 /***
  * Code analyzer for azure function specific validations.
- * 
+ *
  * @since 2.0.0
  */
-public class AzureFunctionsCodeAnalyzerTask implements AnalysisTask<SyntaxNodeAnalysisContext> {
+public abstract class BaseHttpCodeAnalyzerTask implements AnalysisTask<SyntaxNodeAnalysisContext> {
 
-    @Override
-    public void perform(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext) {
+    protected boolean isHttpListener(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext) {
         List<Diagnostic> diagnostics = syntaxNodeAnalysisContext.semanticModel().diagnostics();
         boolean erroneousCompilation = diagnostics.stream()
                 .anyMatch(d -> DiagnosticSeverity.ERROR.equals(d.diagnosticInfo().severity()));
         if (erroneousCompilation) {
-            return;
+            return false;
         }
 
         ServiceDeclarationNode serviceDeclarationNode = (ServiceDeclarationNode) syntaxNodeAnalysisContext.node();
         Optional<Symbol> serviceSymOptional = syntaxNodeAnalysisContext.semanticModel().symbol(serviceDeclarationNode);
 
-        if (serviceSymOptional.isPresent()) {
-            List<TypeSymbol> listenerTypes = ((ServiceDeclarationSymbol) serviceSymOptional.get()).listenerTypes();
-            if (listenerTypes.stream().noneMatch(this::isListenerBelongsToAzureFuncModule)) {
-                return;
-            }
-            if (listenerTypes.stream().anyMatch(this::isHTTPListener)) {
-                validate(syntaxNodeAnalysisContext, serviceDeclarationNode);
-            }
+        if (serviceSymOptional.isEmpty()) {
+            return false;
         }
-   }
-
-
+        List<TypeSymbol> listenerTypes = ((ServiceDeclarationSymbol) serviceSymOptional.get()).listenerTypes();
+        if (listenerTypes.stream().noneMatch(this::isListenerBelongsToAzureFuncModule)) {
+            return false;
+        }
+        return listenerTypes.stream().anyMatch(this::isHTTPListener);
+    }
 
     private boolean isHTTPListener(TypeSymbol listenerType) {
-        return listenerType.nameEquals(Constants.AZURE_HTTP_LISTENER);
+        if (listenerType.nameEquals(Constants.AZURE_HTTP_LISTENER)) {
+            return true;
+        }
+        if (listenerType.typeKind() != TypeDescKind.UNION) {
+            return false;
+        }
+        List<TypeSymbol> typeSymbols = ((UnionTypeSymbol) listenerType).memberTypeDescriptors();
+        for (TypeSymbol typeSymbol : typeSymbols) {
+            if (!typeSymbol.nameEquals(Constants.AZURE_HTTP_LISTENER)) {
+                continue;
+            }
+            return true;
+        }
+        return false;
     }
 
     private boolean isListenerBelongsToAzureFuncModule(TypeSymbol listenerType) {

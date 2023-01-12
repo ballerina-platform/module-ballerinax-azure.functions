@@ -49,3 +49,4 @@ isolated function getResponsePayload (map<anydata>|error nativeResponse) returns
         return {Outputs: nativeResponse.toJson(), Logs: [], ReturnValue: null};
     }
 }
+

@@ -25,9 +25,11 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
+import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.Parameter;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
+import io.ballerina.runtime.api.utils.JsonUtils;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
@@ -43,6 +45,7 @@ import static io.ballerina.runtime.api.TypeTags.BOOLEAN_TAG;
 import static io.ballerina.runtime.api.TypeTags.DECIMAL_TAG;
 import static io.ballerina.runtime.api.TypeTags.FLOAT_TAG;
 import static io.ballerina.runtime.api.TypeTags.INT_TAG;
+import static io.ballerina.runtime.api.TypeTags.MAP_TAG;
 import static io.ballerina.runtime.api.utils.StringUtils.fromString;
 
 /**
@@ -52,10 +55,12 @@ import static io.ballerina.runtime.api.utils.StringUtils.fromString;
  */
 public class Utils {
 
+    private static final MapType MAP_TYPE = TypeCreator.createMapType(PredefinedTypes.TYPE_JSON);
     private static final ArrayType INT_ARR = TypeCreator.createArrayType(PredefinedTypes.TYPE_INT);
     private static final ArrayType FLOAT_ARR = TypeCreator.createArrayType(PredefinedTypes.TYPE_FLOAT);
     private static final ArrayType BOOLEAN_ARR = TypeCreator.createArrayType(PredefinedTypes.TYPE_BOOLEAN);
     private static final ArrayType DECIMAL_ARR = TypeCreator.createArrayType(PredefinedTypes.TYPE_DECIMAL);
+    private static final ArrayType MAP_ARR = TypeCreator.createArrayType(MAP_TYPE);
 
     public static BError createError(Module module, String message, String type) {
         BString errorMessage = fromString(message);
@@ -103,6 +108,9 @@ public class Utils {
                 }
                 String[] values = strValue.getValue().split(",");
                 return castParamArray(elementType.getTag(), values);
+            case MAP_TAG:
+                Object json = JsonUtils.parse(strValue);
+                return JsonUtils.convertJSONToMap(json, MAP_TYPE);
             default:
                 throw new InvalidPayloadException("unsupported parameter type " + type.getName());
         }
@@ -118,6 +126,8 @@ public class Utils {
                 return getBArray(argValueArr, BOOLEAN_ARR, targetElementTypeTag);
             case DECIMAL_TAG:
                 return getBArray(argValueArr, DECIMAL_ARR, targetElementTypeTag);
+            case MAP_TAG:
+                return getBArray(argValueArr, MAP_ARR, targetElementTypeTag);
             default:
                 return StringUtils.fromStringArray(argValueArr);
         }
@@ -139,6 +149,10 @@ public class Utils {
                     break;
                 case DECIMAL_TAG:
                     arrayValue.add(index++, ValueCreator.createDecimalValue(element));
+                    break;
+                case MAP_TAG:
+                    Object json = JsonUtils.parse(element);
+                    arrayValue.add(index++, JsonUtils.convertJSONToMap(json, MAP_TYPE));
                     break;
                 default:
                     throw new InvalidPayloadException("Illegal state error: unexpected param type");

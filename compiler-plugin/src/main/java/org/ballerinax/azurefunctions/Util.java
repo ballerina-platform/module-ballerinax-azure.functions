@@ -33,6 +33,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
+import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticFactory;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticProperty;
@@ -112,6 +113,11 @@ public class Util {
             return finalPath.substring(1);
         }
         return finalPath;
+    }
+    
+    public static Diagnostic getDiagnostic(Location location, AzureDiagnosticCodes diagnosticCode, Object... argName) {
+        DiagnosticInfo diagnosticInfo = getDiagnosticInfo(diagnosticCode, argName);
+        return DiagnosticFactory.createDiagnostic(diagnosticInfo, location);
     }
 
     public static void updateDiagnostic(SyntaxNodeAnalysisContext ctx, Location location,
