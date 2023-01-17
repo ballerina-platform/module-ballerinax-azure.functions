@@ -38,6 +38,8 @@ public type NoHeaderVal record {|
     string Content\-Type1;
 |};
 
+public type AzureReturn [@af:HttpOutput string,@af:QueueOutput{queueName: "queue3"} string];
+
 listener af:HttpListener ep1 = new ();
 
 service /hello\- on ep1 {
@@ -424,6 +426,14 @@ service /hello on ep {
     
     resource function get catalog(int[] name) returns string|error {
         return name.toString();
+    }
+    
+    resource function get multiout() returns [@af:HttpOutput string, @af:QueueOutput{queueName: "queue3"} string] {
+        return ["hello", "world"];
+    }
+    
+    resource function get multiout/ref() returns AzureReturn {
+        return ["hello1", "world1"];
     }
 }
 

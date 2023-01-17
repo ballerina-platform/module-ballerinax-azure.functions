@@ -28,4 +28,8 @@
         <Class name="io.ballerina.stdlib.azure.functions.Utils"/>
         <Bug pattern="BC_UNCONFIRMED_CAST"/>
     </Match>
+    <Match>
+        <Class name="io.ballerina.stdlib.azure.functions.FunctionCallback"/>
+        <Bug pattern="BC_UNCONFIRMED_CAST_OF_RETURN_VALUE"/>
+    </Match>
 </FindBugsFilter>

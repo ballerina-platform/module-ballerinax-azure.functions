@@ -82,4 +82,6 @@ public interface Constants {
     String AZURE_BODY_HEADERS = "Body";
     String MIME_PACKAGE_NAME = "mime";
     String ENTITY = "Entity";
+    
+    String UNSUPPORTED_TYPE_MESSAGE = "return type is not supported for azure functions";
 }

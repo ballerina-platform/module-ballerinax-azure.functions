@@ -26,8 +26,10 @@ import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.AnnotatableType;
 import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.MethodType;
+import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.ResourceMethodType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.Type;
@@ -88,15 +90,19 @@ public class FunctionCallback implements Callback {
         }
         return returnAnnotations.get(0);
     }
-
-    boolean generated = false;
-
-    public String getMockAnnotation() {
-        if (!generated) {
-            generated = true;
-            return "HttpOutput";
+    
+    public List<String> parseTupleAnnotations(BMap<BString, Object> annotations) {
+        List<String> returnAnnotations = new ArrayList<>();
+        for (int i = 0; i < annotations.size(); i++) {
+            BMap<BString, ?> mapValue1 =
+                    (BMap<BString, ?>) annotations.getMapValue(StringUtils.fromString("$field$." + i));
+            for (BString annotation : mapValue1.getKeys()) {
+                String[] split = annotation.getValue().split(":");
+                //TODO only add azure functions annotations
+                returnAnnotations.add(split[split.length - 1]);
+            }
         }
-        return "QueueOutput";
+        return returnAnnotations;
     }
 
     @Override
@@ -120,22 +126,47 @@ public class FunctionCallback implements Callback {
         }
 
         try {
-            if (result instanceof BValue && ((BValue) result).getType().getTag() == TypeTags.TUPLE_TAG) {
-                BArray tupleValues = (BArray) result;
-                Object[] values = tupleValues.getValues();
-                for (int i = 0, valuesLength = values.length; i < valuesLength; i++) {
-                    Object value = values[i];
-                    Map.Entry<BString, Object> webWorkerResponse = handleOutputBinding(getMockAnnotation(), value, i);
-                    mapValue.put(webWorkerResponse.getKey(), webWorkerResponse.getValue());
+            if (result instanceof BValue) {
+                BValue bValue = (BValue) result;
+                if (bValue.getType().getTag() == TypeTags.TUPLE_TAG) {
+                    BArray tupleValues = (BArray) result;
+                    BMap<BString, Object> tupleAnnotations = tupleValues.getTypedesc().getAnnotations();
+                    List<String> annotations = parseTupleAnnotations(tupleAnnotations);
+                    handleTuples(mapValue, tupleValues, annotations);
+                    future.complete(mapValue);
+                    return;
+                } else if (bValue.getType().getTag() == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
+                    ReferenceType typeRef = (ReferenceType) bValue.getType();
+                    Type referredType = typeRef.getReferredType();
+                    if (referredType.getTag() == TypeTags.TUPLE_TAG) {
+                        BArray tupleValues = (BArray) bValue;
+                        BMap<BString, Object> annotations = ((AnnotatableType) typeRef).getAnnotations();
+                        handleTuples(mapValue, tupleValues, parseTupleAnnotations(annotations));
+                        future.complete(mapValue);
+                        return;
+                    }
                 }
-            } else {
-                String outputBinding = getOutputAnnotation();
-                Map.Entry<BString, Object> webWorkerResponse = handleOutputBinding(outputBinding, result, 0);
-                mapValue.put(webWorkerResponse.getKey(), webWorkerResponse.getValue());
             }
+            String outputBinding = getOutputAnnotation();
+            Map.Entry<BString, Object> webWorkerResponse = handleOutputBinding(outputBinding, result, 0);
+            mapValue.put(webWorkerResponse.getKey(), webWorkerResponse.getValue());
             future.complete(mapValue);
         } catch (UnsupportedTypeException e) {
             future.complete(Utils.createError(module, e.getMessage(), e.getType()));
+        } catch (Exception e) {
+            future.complete(
+                    Utils.createError(module, Constants.UNSUPPORTED_TYPE_MESSAGE, Constants.UNSUPPORTED_TYPE_ERROR));
+        }
+    }
+
+    private void handleTuples(BMap<BString, Object> mapValue, BArray tupleValues, List<String> annotations) {
+        Object[] values = tupleValues.getValues();
+        for (int i = 0, valuesLength = values.length; i < valuesLength; i++) {
+            Object value = values[i];
+
+            Map.Entry<BString, Object> webWorkerResponse =
+                    handleOutputBinding(annotations.get(i), value, i);
+            mapValue.put(webWorkerResponse.getKey(), webWorkerResponse.getValue());
         }
     }
 

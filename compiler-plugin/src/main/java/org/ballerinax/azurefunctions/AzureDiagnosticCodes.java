@@ -46,7 +46,9 @@ public enum AzureDiagnosticCodes {
             "'boolean', 'decimal', 'map<json>' types or the array types of them", ERROR),
     AF_011("AF_011", "invalid union type of query param '%s': 'string', 'int', 'float', 'boolean', " +
             "'decimal', 'map<json>' type or the array types of them can only be union with '()'. Eg: string? or int[]?",
-            ERROR);
+            ERROR),
+    AF_012("AF_012", "binding annotation not found for the parameter '%s'", ERROR),
+    AF_013("AF_013", "multiple bindings not allowed for the parameter '%s'", ERROR);
     private final String code;
     private final String message;
     private final DiagnosticSeverity severity;

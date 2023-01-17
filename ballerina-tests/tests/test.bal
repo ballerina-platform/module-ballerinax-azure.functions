@@ -1114,3 +1114,45 @@ function testQueryArrFail() returns error? {
     };
     test:assertEquals(resp, expectedResp);
 }
+
+@test:Config {}
+function testMultiOut() returns error? {
+    final http:Client clientEndpoint = check new ("http://localhost:3000");
+    string jsonFilePath = "./tests/resources/multi-out.json";
+    json readJson = check io:fileReadJson(jsonFilePath);
+    json resp = check clientEndpoint->post("/get-hello-multiout", readJson);
+    json expectedResp = {
+        "Outputs": {
+            "outResp": {
+                "statusCode": "200",
+                "headers": {"Content-Type": "text/plain"},
+                "body": "hello"
+            },
+            "outResp1": "world"
+        },
+        "Logs": [],
+        "ReturnValue": null
+    };
+    test:assertEquals(resp, expectedResp);
+}
+
+@test:Config {}
+function testMultiOutRef() returns error? {
+    final http:Client clientEndpoint = check new ("http://localhost:3000");
+    string jsonFilePath = "./tests/resources/multi-out-ref.json";
+    json readJson = check io:fileReadJson(jsonFilePath);
+    json resp = check clientEndpoint->post("/get-hello-multiout-ref", readJson);
+    json expectedResp = {
+        "Outputs": {
+            "outResp": {
+                "statusCode": "200",
+                "headers": {"Content-Type": "text/plain"},
+                "body": "hello1"
+            },
+            "outResp1": "world1"
+        },
+        "Logs": [],
+        "ReturnValue": null
+    };
+    test:assertEquals(resp, expectedResp);
+}

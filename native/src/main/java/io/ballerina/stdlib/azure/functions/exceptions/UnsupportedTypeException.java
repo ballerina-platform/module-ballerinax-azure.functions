@@ -30,7 +30,7 @@ public class UnsupportedTypeException extends RuntimeException {
     private String type;
 
     public UnsupportedTypeException() {
-        super("return type is not supported for azure functions");
+        super(Constants.UNSUPPORTED_TYPE_MESSAGE);
         this.type = Constants.UNSUPPORTED_TYPE_ERROR;
     }
 

@@ -20,6 +20,7 @@ package org.ballerinax.azurefunctions.test;
 import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.tools.diagnostics.Diagnostic;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -37,12 +38,33 @@ public class OutputTypeValidatorTests {
 
     @Test
     public void outputBindingTypeTest() {
-        BuildProject project = BuildProject.load(RESOURCE_DIRECTORY.resolve("output-types"));
+        BuildProject project = BuildProject.load(RESOURCE_DIRECTORY.resolve("output").resolve("invalid-types"));
         PackageCompilation compilation = project.currentPackage().getCompilation();
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
         Assert.assertEquals(diagnosticResult.errorCount(), 1);
         Assert.assertEquals(diagnosticResult.errors().iterator().next().message(),
                 "invalid return type for BlobOutput");
     }
+    
+    @Test
+    public void invalidMultipleAzAnnotTest() {
+        BuildProject project = BuildProject.load(RESOURCE_DIRECTORY.resolve("output").resolve("multi-annot"));
+        PackageCompilation compilation = project.currentPackage().getCompilation();
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        Object[] diagnostics = diagnosticResult.errors().toArray();
+        Assert.assertEquals(diagnosticResult.errorCount(), 1);
+        String diagnosticMessage = "multiple bindings not allowed for the parameter 'string'";
+        Assert.assertEquals(((Diagnostic) diagnostics[0]).diagnosticInfo().messageFormat(), diagnosticMessage);
+    }
 
+    @Test
+    public void emptyAzureReturnAnnotTest() {
+        BuildProject project = BuildProject.load(RESOURCE_DIRECTORY.resolve("output").resolve("empty-annot"));
+        PackageCompilation compilation = project.currentPackage().getCompilation();
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        Object[] diagnostics = diagnosticResult.errors().toArray();
+        Assert.assertEquals(diagnosticResult.errorCount(), 1);
+        String diagnosticMessage = "binding annotation not found for the parameter 'string'";
+        Assert.assertEquals(((Diagnostic) diagnostics[0]).diagnosticInfo().messageFormat(), diagnosticMessage);
+    }
 }
