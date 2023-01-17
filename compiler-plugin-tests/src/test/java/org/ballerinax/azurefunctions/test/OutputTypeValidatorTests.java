@@ -67,4 +67,15 @@ public class OutputTypeValidatorTests {
         String diagnosticMessage = "binding annotation not found for the parameter 'string'";
         Assert.assertEquals(((Diagnostic) diagnostics[0]).diagnosticInfo().messageFormat(), diagnosticMessage);
     }
+    
+    @Test
+    public void remoteMissingReturnAnnotTest() {
+        BuildProject project = BuildProject.load(RESOURCE_DIRECTORY.resolve("output").resolve("remote-missing-annot"));
+        PackageCompilation compilation = project.currentPackage().getCompilation();
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        Object[] diagnostics = diagnosticResult.errors().toArray();
+        Assert.assertEquals(diagnosticResult.errorCount(), 1);
+        String diagnosticMessage = "missing output binding annotation for the remote function";
+        Assert.assertEquals(((Diagnostic) diagnostics[0]).diagnosticInfo().messageFormat(), diagnosticMessage);
+    }
 }

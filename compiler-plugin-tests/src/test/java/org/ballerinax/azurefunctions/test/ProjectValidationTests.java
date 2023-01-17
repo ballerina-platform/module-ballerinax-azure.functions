@@ -167,4 +167,13 @@ public class ProjectValidationTests {
 //        Object[] diagnostics = diagnosticResult.errors().toArray();
         Assert.assertEquals(diagnosticResult.errorCount(), 6);
     }
+
+    @Test
+    public void httpAllowedFunctionTypesValidationTest() {
+        BuildProject project = BuildProject.load(RESOURCE_DIRECTORY.resolve("http").resolve("function-types"));
+        PackageCompilation compilation = project.currentPackage().getCompilation();
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+//        Object[] diagnostics = diagnosticResult.errors().toArray();
+        Assert.assertEquals(diagnosticResult.errorCount(), 1);
+    }
 }

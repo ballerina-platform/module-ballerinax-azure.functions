@@ -64,8 +64,6 @@ public class TwilioSmsOutputBinding extends OutputBinding {
             case "to":
                 value.ifPresent(this::setTo);
                 break;
-            default:
-                throw new RuntimeException("Unexpected property in the annotation");
         }
     }
 
@@ -105,10 +103,10 @@ public class TwilioSmsOutputBinding extends OutputBinding {
     public JsonObject getJsonObject() {
         JsonObject output = new JsonObject();
         output.addProperty("type", this.getTriggerType());
-        output.addProperty("accountSidSetting", this.accountSidSetting);
-        output.addProperty("authTokenSetting", this.authTokenSetting);
-        output.addProperty("from", this.from);
-        output.addProperty("to", this.to);
+        output.addProperty("accountSidSetting", this.getAccountSidSetting());
+        output.addProperty("authTokenSetting", this.getAuthTokenSetting());
+        output.addProperty("from", this.getFrom());
+        output.addProperty("to", this.getTo());
         output.addProperty("direction", this.getDirection());
         output.addProperty("name", this.getVarName());
         return output;

@@ -53,8 +53,6 @@ public class QueueTriggerBinding extends RemoteTriggerBinding {
             case "connection":
                 value.ifPresent(this::setConnection);
                 break;
-            default:
-                throw new RuntimeException("Unexpected property in the annotation");
         }
     }
 
@@ -78,9 +76,9 @@ public class QueueTriggerBinding extends RemoteTriggerBinding {
     public JsonObject getJsonObject() {
         JsonObject inputTrigger = new JsonObject();
         inputTrigger.addProperty("type", this.getTriggerType());
-        inputTrigger.addProperty("connection", this.connection);
+        inputTrigger.addProperty("connection", this.getConnection());
         if (this.queueName != null) {
-            inputTrigger.addProperty("queueName", this.queueName);
+            inputTrigger.addProperty("queueName", this.getQueueName());
         }
         inputTrigger.addProperty("direction", this.getDirection());
         inputTrigger.addProperty("name", this.getVarName());

@@ -42,11 +42,15 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
+import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticFactory;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinax.azurefunctions.AzureDiagnosticCodes;
+import org.ballerinax.azurefunctions.Constants;
+import org.ballerinax.azurefunctions.Util;
 import org.wso2.ballerinalang.compiler.diagnostic.properties.BSymbolicProperty;
 
 import java.util.ArrayList;
@@ -79,7 +83,19 @@ public class HttpServiceValidator extends BaseHttpCodeAnalyzerTask {
         extractServiceAnnotationAndValidate(syntaxNodeAnalysisContext, serviceDeclarationNode);
         NodeList<Node> members = serviceDeclarationNode.members();
         for (Node member : members) {
-            if (member.kind() == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION) {
+            if (member.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION) {
+                FunctionDefinitionNode node = (FunctionDefinitionNode) member;
+                NodeList<Token> tokens = node.qualifierList();
+                if (tokens.isEmpty()) {
+                    // Object methods are allowed.
+                    continue;
+                }
+                if (tokens.stream().anyMatch(token -> token.text().equals(Constants.REMOTE_KEYWORD))) {
+                    Diagnostic
+                            diagnostic = Util.getDiagnostic(member.location(), AzureDiagnosticCodes.AF_015);
+                    syntaxNodeAnalysisContext.reportDiagnostic(diagnostic);
+                }
+            } else if (member.kind() == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION) {
                 validateResourceFunction(syntaxNodeAnalysisContext, (FunctionDefinitionNode) member);
             }
         }

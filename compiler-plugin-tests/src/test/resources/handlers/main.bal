@@ -186,3 +186,68 @@ service / on new http:Listener(9099) {
         return "Hello, World!";
     }
 }
+
+
+@af:HttpTrigger {authLevel: "function"}
+listener af:HttpListener ep123 = new ();
+
+service /hello123 on ep123 {
+    resource function default all(@af:BlobInput {
+                path: "path1",
+                connection: "TestConnection"
+            } byte[] image) returns @af:HttpOutput string {
+        return "Hello from all ";
+    }
+
+    resource function default twillio() returns @af:TwilioSmsOutput{accountSidSetting:"AzureWebJobsTwilioAccountSid1", authTokenSetting:"AzureWebJobsTwilioAuthToken1", 'from:"012345", to:"3456"} string {
+        return "Hello SMS";
+    }
+}
+
+@af:QueueTrigger {
+    queueName: "queue2",
+    connection : "TestConnection"
+}
+listener af:QueueListener queueListener123 = new af:QueueListener();
+
+service "queue123" on queueListener123 {
+    remote function onMessage(string inMsg) returns @af:QueueOutput {queueName: "queue3", connection: "TestConnection"} string|error {
+        return "helloo " + inMsg;
+    }
+}
+
+
+@af:CosmosDBTrigger {connectionStringSetting: "CosmosDBConnection", databaseName: "db1", collectionName: "c2", createLeaseCollectionIfNotExists: true, leasesCollectionThroughput:400}
+listener af:CosmosDBListener cosmosEp123 = new ();
+
+service "cosmos123" on cosmosEp123 {
+    remote function onUpdated(DBEntry[] inMsg, @af:CosmosDBInput{connectionStringSetting: "TestDBConn", databaseName: "testDB", collectionName: "TestCollection", sqlQuery: "SELECT * FROM ITEMS", partitionKey: "id",id: "1234"} DBEntry[] input) returns @af:CosmosDBOutput {connectionStringSetting: "CosmosDBConnection", databaseName: "db1", collectionName: "c2"} DBEntry[]|error {
+        return inMsg;
+    }
+}
+
+
+@af:TimerTrigger {schedule: "*/10 * * * * *", runOnStartup: true}
+listener af:TimerListener timerListener123 = new af:TimerListener();
+
+service "timer123" on timerListener123 {
+    remote function onTrigger(af:TimerMetadata inMsg) returns @af:QueueOutput {queueName: "queue3"} string|error {
+        return "helloo " + inMsg.IsPastDue.toString();
+    }
+}
+
+@af:BlobTrigger {
+    path: "bpath1/{name}",
+    connection: "TestConnection"
+}
+listener af:BlobListener blobListener123 = new af:BlobListener();
+
+service "blob123" on blobListener123 {
+    remote function onUpdated(byte[] blobIn, @af:BindingName string name) returns @af:BlobOutput {
+        path: "bpath1/newBlob",
+        connection: "TestConnection"
+    } byte[]|error {
+        return blobIn;
+    }
+}
+ 

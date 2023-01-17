@@ -167,8 +167,6 @@ public class HTTPTriggerBinding extends TriggerBinding {
             case "authLevel":
                 value.ifPresent(triggerBinding::setAuthLevel);
                 break;
-            default:
-                throw new RuntimeException("Unexpected property in the annotation");
         }
     }
 
@@ -247,7 +245,7 @@ public class HTTPTriggerBinding extends TriggerBinding {
     public JsonObject getJsonObject() {
         JsonObject inputTrigger = new JsonObject();
         inputTrigger.addProperty("type", this.getTriggerType());
-        inputTrigger.addProperty("authLevel", this.authLevel);
+        inputTrigger.addProperty("authLevel", this.getAuthLevel());
         inputTrigger.add("methods", generateMethods());
         inputTrigger.addProperty("direction", this.getDirection());
         inputTrigger.addProperty("name", this.getVarName());
@@ -265,7 +263,7 @@ public class HTTPTriggerBinding extends TriggerBinding {
             methods.add("POST");
             methods.add("PUT");
         } else {
-            methods.add(this.methods);
+            methods.add(this.getMethods());
         }
         return methods;
     }

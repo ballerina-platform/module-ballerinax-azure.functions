@@ -56,8 +56,6 @@ public class QueueOutputBinding extends OutputBinding {
             case "connection":
                 value.ifPresent(this::setConnection);
                 break;
-            default:
-                throw new RuntimeException("Unexpected property in the annotation");
         }
     }
 

@@ -46,16 +46,8 @@ public abstract class Binding {
         return direction;
     }
 
-    public void setTriggerType(String triggerType) {
-        this.triggerType = triggerType;
-    }
-
     public void setVarName(String varName) {
         this.varName = varName;
-    }
-
-    public void setDirection(String direction) {
-        this.direction = direction;
     }
 
     public abstract JsonObject getJsonObject();

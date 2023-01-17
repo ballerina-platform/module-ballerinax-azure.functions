@@ -37,7 +37,6 @@ public class BlobTriggerBinding extends RemoteTriggerBinding {
 
     private String path;
     private String connection = "AzureWebJobsStorage";
-    private String dataType = "string";
 
     public BlobTriggerBinding(ServiceDeclarationNode serviceDeclarationNode, SemanticModel semanticModel) {
         super("blobTrigger", "onUpdated", Constants.ANNOTATION_BLOB_TRIGGER, serviceDeclarationNode,
@@ -55,11 +54,6 @@ public class BlobTriggerBinding extends RemoteTriggerBinding {
             case "connection":
                 value.ifPresent(this::setConnection);
                 break;
-            case "dataType":
-                value.ifPresent(this::setDataType);
-                break;
-            default:
-                throw new RuntimeException("Unexpected property in the annotation");
         }
     }
 
@@ -78,23 +72,15 @@ public class BlobTriggerBinding extends RemoteTriggerBinding {
     public void setConnection(String connection) {
         this.connection = connection;
     }
-
-    public String getDataType() {
-        return dataType;
-    }
-
-    public void setDataType(String dataType) {
-        this.dataType = dataType;
-    }
-
+    
     @Override
     public JsonObject getJsonObject() {
         JsonObject inputTrigger = new JsonObject();
         inputTrigger.addProperty("type", this.getTriggerType());
         inputTrigger.addProperty("name", this.getVarName());
         inputTrigger.addProperty("direction", this.getDirection());
-        inputTrigger.addProperty("path", this.path);
-        inputTrigger.addProperty("connection", this.connection);
+        inputTrigger.addProperty("path", this.getPath());
+        inputTrigger.addProperty("connection", this.getConnection());
         return inputTrigger;
     }
 }

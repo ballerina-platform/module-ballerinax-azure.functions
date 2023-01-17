@@ -87,4 +87,6 @@ public class Constants {
     
     public static final String DOCKER_PLATFORM_FLAG = "--platform";
     public static final String AZURE_REMOTE_COMPATIBLE_ARCHITECTURE = "linux/amd64";
+    
+    public static final String REMOTE_KEYWORD = "remote";
 }

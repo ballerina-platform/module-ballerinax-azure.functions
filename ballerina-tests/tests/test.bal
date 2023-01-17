@@ -1156,3 +1156,45 @@ function testMultiOutRef() returns error? {
     };
     test:assertEquals(resp, expectedResp);
 }
+
+@test:Config {}
+function testSingleTuple() returns error? {
+    final http:Client clientEndpoint = check new ("http://localhost:3000");
+    string jsonFilePath = "./tests/resources/multi-out-single.json";
+    json readJson = check io:fileReadJson(jsonFilePath);
+    json resp = check clientEndpoint->post("/get-hello-singleout", readJson);
+    json expectedResp = {
+        "Outputs": {
+            "outResp": {
+                "statusCode": "200",
+                "headers": {"Content-Type": "text/plain"},
+                "body": "hello"
+            }
+        },
+        "Logs": [],
+        "ReturnValue": null
+    };
+    test:assertEquals(resp, expectedResp);
+}
+
+@test:Config {}
+function testThreeMultiOut() returns error? {
+    final http:Client clientEndpoint = check new ("http://localhost:3000");
+    string jsonFilePath = "./tests/resources/multi-out-three.json";
+    json readJson = check io:fileReadJson(jsonFilePath);
+    json resp = check clientEndpoint->post("/get-hello-multiout", readJson);
+    json expectedResp = {
+        "Outputs": {
+            "outResp": {
+                "statusCode": "200",
+                "headers": {"Content-Type": "text/plain"},
+                "body": "hello"
+            },
+            "outResp1": "world",
+            "outResp2": "YW5qYW5h"
+        },
+        "Logs": [],
+        "ReturnValue": null
+    };
+    test:assertEquals(resp, expectedResp);
+}

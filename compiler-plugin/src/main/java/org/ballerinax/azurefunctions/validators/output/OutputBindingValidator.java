@@ -17,10 +17,11 @@
  */
 package org.ballerinax.azurefunctions.validators.output;
 
+import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Annotatable;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
-import io.ballerina.compiler.api.symbols.MethodSymbol;
+import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
@@ -28,7 +29,10 @@ import io.ballerina.compiler.api.symbols.TupleMemberSymbol;
 import io.ballerina.compiler.api.symbols.TupleTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.plugins.AnalysisTask;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -56,40 +60,56 @@ public class OutputBindingValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         ReturnTypeDescriptorNode returnTypeDescriptorNode = (ReturnTypeDescriptorNode) syntaxNodeAnalysisContext.node();
         Location location = returnTypeDescriptorNode.type().location();
         List<Diagnostic> diagnostics = new ArrayList<>();
-        //TODO validate az func svc
-        Optional<Symbol> functionSymbol =
-                syntaxNodeAnalysisContext.semanticModel().symbol(returnTypeDescriptorNode.parent().parent());
+        NonTerminalNode functionNode = returnTypeDescriptorNode.parent().parent();
+        NonTerminalNode serviceNode = functionNode.parent();
+        if (serviceNode.kind() != SyntaxKind.SERVICE_DECLARATION) {
+            return;
+        }
+        SemanticModel semanticModel = syntaxNodeAnalysisContext.semanticModel();
+        if (!Util.isAzureFunctionsService(semanticModel, (ServiceDeclarationNode) serviceNode)) {
+            return;
+        }
+        if (!Util.isAnalyzableFunction(functionNode)) {
+            return;
+        }
+        Optional<Symbol> functionSymbol = semanticModel.symbol(functionNode);
         if (functionSymbol.isEmpty()) {
             return;
         }
         Symbol symbol = functionSymbol.get();
-        if (symbol.kind() == SymbolKind.RESOURCE_METHOD) { //TODO remote method
-            MethodSymbol methodSymbol = (MethodSymbol) symbol;
-            Optional<TypeSymbol> returnTypeDescriptor = methodSymbol.typeDescriptor().returnTypeDescriptor();
-            if (returnTypeDescriptor.isEmpty()) {
-                return;
+        SymbolKind functionKind = symbol.kind();
+        FunctionSymbol methodSymbol = (FunctionSymbol) symbol;
+        Optional<TypeSymbol> returnTypeDescriptor = methodSymbol.typeDescriptor().returnTypeDescriptor();
+        if (returnTypeDescriptor.isEmpty()) {
+            return;
+        }
+        TypeSymbol typeSymbol = returnTypeDescriptor.get();
+        if (typeSymbol.typeKind() == TypeDescKind.TUPLE) {
+            TupleTypeSymbol tupleType = (TupleTypeSymbol) typeSymbol;
+            List<TupleMemberSymbol> members = tupleType.members();
+            for (TupleMemberSymbol member : members) {
+                List<AnnotationSymbol> annotations = member.annotations();
+                TypeSymbol memberType = member.typeDescriptor();
+                Optional<Diagnostic> diagnostic =
+                        validateOutputBindings(annotations, memberType, functionKind, true, location);
+                diagnostic.ifPresent(diagnostics::add);
             }
-            TypeSymbol typeSymbol = returnTypeDescriptor.get();
-            if (typeSymbol.typeKind() == TypeDescKind.TUPLE) {
-                TupleTypeSymbol tupleType = (TupleTypeSymbol) typeSymbol;
-                List<TupleMemberSymbol> members = tupleType.members();
-                for (TupleMemberSymbol member : members) {
-                    List<AnnotationSymbol> annotations = member.annotations();
-                    TypeSymbol memberType = member.typeDescriptor();
-                    Optional<Diagnostic> diagnostic = validateOutputBindings(annotations, memberType,
-                            SymbolKind.RESOURCE_METHOD, true, location);
-                    diagnostic.ifPresent(diagnostics::add);
+        } else {
+            Optional<Annotatable> returnTypeAnnotations = methodSymbol.typeDescriptor().returnTypeAnnotations();
+            if (returnTypeAnnotations.isEmpty()) {
+                if (Util.isRemoteFunction(methodSymbol)) {
+                    Diagnostic diagnostic = Util.getDiagnostic(location, AzureDiagnosticCodes.AF_014);
+                    diagnostics.add(diagnostic);
+                } else {
+                    return;
                 }
             } else {
-                Optional<Annotatable> returnTypeAnnotations = methodSymbol.typeDescriptor().returnTypeAnnotations();
-                if (returnTypeAnnotations.isEmpty()) {
-                    return; //TODO Should this be ignored?
-                }
                 Optional<Diagnostic> diagnostic = validateOutputBindings(returnTypeAnnotations.get().annotations(),
-                        typeSymbol, SymbolKind.RESOURCE_METHOD, false, location);
+                        typeSymbol, functionKind, false, location);
                 diagnostic.ifPresent(diagnostics::add);
             }
         }
+
         for (Diagnostic diagnostic : diagnostics) {
             syntaxNodeAnalysisContext.reportDiagnostic(diagnostic);
         }
@@ -162,6 +182,10 @@ public class OutputBindingValidator implements AnalysisTask<SyntaxNodeAnalysisCo
             return Optional.empty();
         }
         if (name.get().equals(Constants.BLOB_OUTPUT_BINDING)) {
+            if (typeSymbol.typeKind() == TypeDescKind.UNION) {
+                //TODO extend support for union types
+                return Optional.empty();
+            }
             if (typeSymbol.typeKind() != TypeDescKind.ARRAY ||
                     ((ArrayTypeSymbol) typeSymbol).memberTypeDescriptor().typeKind() != TypeDescKind.BYTE) {
                 Diagnostic diagnostic = Util.getDiagnostic(location, AzureDiagnosticCodes.AF_009,

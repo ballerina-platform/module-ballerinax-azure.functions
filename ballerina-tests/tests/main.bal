@@ -435,6 +435,15 @@ service /hello on ep {
     resource function get multiout/ref() returns AzureReturn {
         return ["hello1", "world1"];
     }
+    
+    resource function get singleout() returns [@af:HttpOutput string] {
+        return ["hello"];
+    }
+    
+    resource function get threeout() returns [@af:HttpOutput string, @af:QueueOutput{queueName: "queue3"} string, 
+    @af:BlobOutput {path: "bpath1/newBlob"} byte[]] {
+        return ["hello", "world", "anjana".toBytes()];
+    }
 }
 
 @af:QueueTrigger {

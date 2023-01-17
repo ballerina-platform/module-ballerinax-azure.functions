@@ -48,7 +48,11 @@ public enum AzureDiagnosticCodes {
             "'decimal', 'map<json>' type or the array types of them can only be union with '()'. Eg: string? or int[]?",
             ERROR),
     AF_012("AF_012", "binding annotation not found for the parameter '%s'", ERROR),
-    AF_013("AF_013", "multiple bindings not allowed for the parameter '%s'", ERROR);
+    AF_013("AF_013", "multiple bindings not allowed for the parameter '%s'", ERROR),
+    AF_014("AF_014", "missing output binding annotation for the remote function", ERROR),
+    AF_015("AF_015", "remote methods are not allowed in HttpListener", ERROR),
+    ;
+    
     private final String code;
     private final String message;
     private final DiagnosticSeverity severity;

@@ -66,8 +66,6 @@ public class CosmosDBTriggerBinding extends RemoteTriggerBinding {
             case "leasesCollectionThroughput":
                 value.ifPresent(s -> this.setLeasesCollectionThroughput(Integer.parseInt(s)));
                 break;
-            default:
-                throw new RuntimeException("Unexpected property in the annotation");
         }
     }
 
@@ -95,10 +93,6 @@ public class CosmosDBTriggerBinding extends RemoteTriggerBinding {
         this.collectionName = collectionName;
     }
 
-    public boolean getCreateLeaseCollectionIfNotExists() {
-        return createLeaseCollectionIfNotExists;
-    }
-
     public void setCreateLeaseCollectionIfNotExists(boolean createLeaseCollectionIfNotExists) {
         this.createLeaseCollectionIfNotExists = createLeaseCollectionIfNotExists;
     }
@@ -107,25 +101,25 @@ public class CosmosDBTriggerBinding extends RemoteTriggerBinding {
         return createLeaseCollectionIfNotExists;
     }
 
-    public int getLeasesCollectionThroughput() {
-        return leasesCollectionThroughput;
-    }
-
     public void setLeasesCollectionThroughput(int leasesCollectionThroughput) {
         this.leasesCollectionThroughput = leasesCollectionThroughput;
+    }
+
+    public int getLeasesCollectionThroughput() {
+        return leasesCollectionThroughput;
     }
 
     @Override
     public JsonObject getJsonObject() {
         JsonObject inputTrigger = new JsonObject();
         inputTrigger.addProperty("type", this.getTriggerType());
-        inputTrigger.addProperty("connectionStringSetting", this.connectionStringSetting);
-        inputTrigger.addProperty("databaseName", databaseName);
-        inputTrigger.addProperty("collectionName", this.collectionName);
+        inputTrigger.addProperty("connectionStringSetting", this.getConnectionStringSetting());
+        inputTrigger.addProperty("databaseName", this.getDatabaseName());
+        inputTrigger.addProperty("collectionName", this.getCollectionName());
         inputTrigger.addProperty("name", this.getVarName());
         inputTrigger.addProperty("direction", this.getDirection());
-        inputTrigger.addProperty("createLeaseCollectionIfNotExists", this.createLeaseCollectionIfNotExists);
-        inputTrigger.addProperty("leasesCollectionThroughput", this.leasesCollectionThroughput);
+        inputTrigger.addProperty("createLeaseCollectionIfNotExists", this.isCreateLeaseCollectionIfNotExists());
+        inputTrigger.addProperty("leasesCollectionThroughput", this.getLeasesCollectionThroughput());
         return inputTrigger;
     }
 }

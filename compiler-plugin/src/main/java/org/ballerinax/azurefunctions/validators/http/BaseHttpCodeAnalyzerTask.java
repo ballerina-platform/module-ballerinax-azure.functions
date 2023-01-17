@@ -17,25 +17,19 @@
  */
 package org.ballerinax.azurefunctions.validators.http;
 
-import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ServiceDeclarationSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
-import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.projects.plugins.AnalysisTask;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
-import io.ballerina.tools.diagnostics.Diagnostic;
-import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinax.azurefunctions.Constants;
+import org.ballerinax.azurefunctions.Util;
 
 import java.util.List;
 import java.util.Optional;
-
-import static org.ballerinax.azurefunctions.Constants.AZURE_FUNCTIONS_MODULE_NAME;
-import static org.ballerinax.azurefunctions.Constants.AZURE_FUNCTIONS_PACKAGE_ORG;
 
 /***
  * Code analyzer for azure function specific validations.
@@ -45,13 +39,6 @@ import static org.ballerinax.azurefunctions.Constants.AZURE_FUNCTIONS_PACKAGE_OR
 public abstract class BaseHttpCodeAnalyzerTask implements AnalysisTask<SyntaxNodeAnalysisContext> {
 
     protected boolean isHttpListener(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext) {
-        List<Diagnostic> diagnostics = syntaxNodeAnalysisContext.semanticModel().diagnostics();
-        boolean erroneousCompilation = diagnostics.stream()
-                .anyMatch(d -> DiagnosticSeverity.ERROR.equals(d.diagnosticInfo().severity()));
-        if (erroneousCompilation) {
-            return false;
-        }
-
         ServiceDeclarationNode serviceDeclarationNode = (ServiceDeclarationNode) syntaxNodeAnalysisContext.node();
         Optional<Symbol> serviceSymOptional = syntaxNodeAnalysisContext.semanticModel().symbol(serviceDeclarationNode);
 
@@ -59,7 +46,8 @@ public abstract class BaseHttpCodeAnalyzerTask implements AnalysisTask<SyntaxNod
             return false;
         }
         List<TypeSymbol> listenerTypes = ((ServiceDeclarationSymbol) serviceSymOptional.get()).listenerTypes();
-        if (listenerTypes.stream().noneMatch(this::isListenerBelongsToAzureFuncModule)) {
+
+        if (!Util.isAzureFunctionsService(syntaxNodeAnalysisContext.semanticModel(), serviceDeclarationNode)) {
             return false;
         }
         return listenerTypes.stream().anyMatch(this::isHTTPListener);
@@ -81,24 +69,4 @@ public abstract class BaseHttpCodeAnalyzerTask implements AnalysisTask<SyntaxNod
         }
         return false;
     }
-
-    private boolean isListenerBelongsToAzureFuncModule(TypeSymbol listenerType) {
-        if (TypeDescKind.UNION == listenerType.typeKind()) {
-            return ((UnionTypeSymbol) listenerType).memberTypeDescriptors().stream()
-                    .filter(typeDescriptor -> typeDescriptor instanceof TypeReferenceTypeSymbol)
-                    .map(typeReferenceTypeSymbol -> (TypeReferenceTypeSymbol) typeReferenceTypeSymbol)
-                    .anyMatch(typeReferenceTypeSymbol -> isAzureFuncModule(typeReferenceTypeSymbol.getModule().get()));
-        }
-
-        if (TypeDescKind.TYPE_REFERENCE == listenerType.typeKind()) {
-            return isAzureFuncModule(((TypeReferenceTypeSymbol) listenerType).typeDescriptor().getModule().get());
-        }
-        return false;
-    }
-
-    private boolean isAzureFuncModule(ModuleSymbol moduleSymbol) {
-        return AZURE_FUNCTIONS_MODULE_NAME.equals(moduleSymbol.getName().get()) &&
-                AZURE_FUNCTIONS_PACKAGE_ORG.equals(moduleSymbol.id().orgName());
-    }
-
 }

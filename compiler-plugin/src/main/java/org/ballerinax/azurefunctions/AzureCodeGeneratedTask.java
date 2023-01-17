@@ -42,6 +42,10 @@ public class AzureCodeGeneratedTask implements CompilerLifecycleTask<CompilerLif
 
     @Override
     public void perform(CompilerLifecycleEventContext compilerLifecycleEventContext) {
+        boolean erroneousCompilation = compilerLifecycleEventContext.compilation().diagnosticResult().hasErrors();
+        if (erroneousCompilation) {
+            return;
+        }
 
         AzureFunctionServiceExtractor azureFunctionServiceExtractor =
                 new AzureFunctionServiceExtractor(compilerLifecycleEventContext.currentPackage());
