@@ -54,20 +54,28 @@ public class NativeFunctionsArtifact extends FunctionsArtifact {
         Path destination = targetDir.resolve(Constants.LOCAL_FUNCTION_DIRECTORY);
         Util.deleteDirectory(destination);
         Util.copyFolder(from, destination);
-        String executableName = getExecutableFileName();
+        String executableName = getLocalExecutableFileName();
         Path executablePath = destination.resolve(executableName);
         Files.deleteIfExists(executablePath);
+        Files.deleteIfExists(destination.resolve(getExecutableFileName()));
         Path originalExecutable = targetDir.resolve("bin").resolve(executableName);
         Files.copy(originalExecutable, destination.resolve(executableName));
+        Files.copy(this.jtos(this.generateHostJson(true)), destination.resolve(Constants.HOST_JSON_NAME),
+                StandardCopyOption.REPLACE_EXISTING);
     }
 
-    private String getExecutableFileName() {
+    private String getLocalExecutableFileName() {
         Path fileName = this.jarPath.getFileName();
         return fileName.toString().replaceFirst(".jar", Util.getExecutableExtension());
     }
 
+    private String getExecutableFileName() {
+        Path fileName = this.jarPath.getFileName();
+        return fileName.toString().replaceFirst(".jar", "");
+    }
+
     @Override
-    protected JsonObject generateHostJson() throws IOException {
+    protected JsonObject generateHostJson(boolean isLocal) throws IOException {
         JsonObject hostJson = readExistingHostJson();
         if (hostJson == null) {
             hostJson = new JsonObject();
@@ -82,7 +90,13 @@ public class NativeFunctionsArtifact extends FunctionsArtifact {
         hostJson.add("customHandler", httpWorker);
         JsonObject httpWorkerDesc = new JsonObject();
         httpWorker.add("description", httpWorkerDesc);
-        httpWorkerDesc.add("defaultExecutablePath", new JsonPrimitive(getExecutableFileName()));
+        String execName = "";
+        if (isLocal) {
+            execName = getLocalExecutableFileName();
+        } else {
+            execName = getExecutableFileName();
+        }
+        httpWorkerDesc.add("defaultExecutablePath", new JsonPrimitive(execName));
         httpWorkerDesc.add("workingDirectory", new JsonPrimitive(""));
         JsonArray workerArgs = new JsonArray();
         httpWorkerDesc.add("arguments", workerArgs);
