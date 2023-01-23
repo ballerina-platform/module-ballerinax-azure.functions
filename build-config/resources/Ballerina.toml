@@ -11,4 +11,7 @@ keywords = ["azure", "functions", "serverless", "cloud"]
 path = "../native/build/libs/azure_functions-native-@project.version@.jar"
 
 [[platform.java11.dependency]]
+groupId = "io.ballerina.stdlib"
+artifactId = "mime-native"
+version = "@stdlib.mimenative.version@"
 path = "./lib/mime-native-@stdlib.mimenative.version@.jar"

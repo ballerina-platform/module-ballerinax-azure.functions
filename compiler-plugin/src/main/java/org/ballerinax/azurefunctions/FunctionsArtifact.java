@@ -76,7 +76,7 @@ public class FunctionsArtifact {
         }
     }
 
-    protected JsonObject generateHostJson() throws IOException {
+    protected JsonObject generateHostJson(boolean isLocal) throws IOException {
         JsonObject hostJson = readExistingHostJson();
         if (hostJson == null) {
             hostJson = new JsonObject();
@@ -149,7 +149,7 @@ public class FunctionsArtifact {
         Util.deleteDirectory(functionsDir);
         Files.createDirectories(functionsDir);
         generateExecutable(functionsDir);
-        Files.copy(this.jtos(this.generateHostJson()), functionsDir.resolve(Constants.HOST_JSON_NAME),
+        Files.copy(this.jtos(this.generateHostJson(false)), functionsDir.resolve(Constants.HOST_JSON_NAME),
                 StandardCopyOption.REPLACE_EXISTING);
         if (cachedLocalSettings.isEmpty()) {
             generateLocalSettings(functionsDir);
