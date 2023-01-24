@@ -22,10 +22,10 @@ import io.ballerina.compiler.api.symbols.Annotatable;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.MemberTypeSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.symbols.TupleMemberSymbol;
 import io.ballerina.compiler.api.symbols.TupleTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -86,8 +86,8 @@ public class OutputBindingValidator implements AnalysisTask<SyntaxNodeAnalysisCo
         TypeSymbol typeSymbol = returnTypeDescriptor.get();
         if (typeSymbol.typeKind() == TypeDescKind.TUPLE) {
             TupleTypeSymbol tupleType = (TupleTypeSymbol) typeSymbol;
-            List<TupleMemberSymbol> members = tupleType.members();
-            for (TupleMemberSymbol member : members) {
+            List<MemberTypeSymbol> members = tupleType.members();
+            for (MemberTypeSymbol member : members) {
                 List<AnnotationSymbol> annotations = member.annotations();
                 TypeSymbol memberType = member.typeDescriptor();
                 Optional<Diagnostic> diagnostic =

@@ -130,7 +130,8 @@ public class FunctionCallback implements Callback {
                 BValue bValue = (BValue) result;
                 if (bValue.getType().getTag() == TypeTags.TUPLE_TAG) {
                     BArray tupleValues = (BArray) result;
-                    BMap<BString, Object> tupleAnnotations = tupleValues.getTypedesc().getAnnotations();
+                    BMap<BString, Object> tupleAnnotations =
+                            ((AnnotatableType) tupleValues.getTypedesc().getDescribingType()).getAnnotations();
                     List<String> annotations = parseTupleAnnotations(tupleAnnotations);
                     handleTuples(mapValue, tupleValues, annotations);
                     future.complete(mapValue);
