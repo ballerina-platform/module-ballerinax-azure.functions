@@ -148,7 +148,7 @@ public class NativeFunctionsArtifact extends FunctionsArtifact {
             }
 
         } catch (IOException | InterruptedException | RuntimeException e) {
-            throw new RuntimeException();
+            throw new RuntimeException(); //TODO handle
         }
     }
 }

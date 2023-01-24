@@ -25,6 +25,7 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
+import io.ballerina.runtime.api.types.Parameter;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.utils.StringUtils;
@@ -59,6 +60,17 @@ public class Utils {
     public static BError createError(Module module, String message, String type) {
         BString errorMessage = fromString(message);
         return ErrorCreator.createError(module, type, errorMessage, ErrorCreator.createError(errorMessage), null);
+    }
+
+    public static Object createPathValue(Parameter parameter, BString param) {
+        if (param == null && isNilType(parameter.type)) {
+            return null;
+        }
+        Object value = Utils.createValue(parameter.type, param);
+        if (value instanceof BError) {
+            throw new InvalidPayloadException(((BError) value).getMessage());
+        }
+        return value;
     }
 
     public static Object createValue(Type type, BString strValue) {
