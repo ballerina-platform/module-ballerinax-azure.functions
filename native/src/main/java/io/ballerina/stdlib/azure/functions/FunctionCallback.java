@@ -210,6 +210,9 @@ public class FunctionCallback implements Callback {
                     }
 
                 }
+            } else {
+                headers.put(StringUtils.fromString(Constants.CONTENT_TYPE),
+                        StringUtils.fromString(Constants.APPLICATION_JSON));
             }
 
         } else if (result instanceof BTable) {

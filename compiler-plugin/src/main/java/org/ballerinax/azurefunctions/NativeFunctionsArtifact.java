@@ -142,13 +142,11 @@ public class NativeFunctionsArtifact extends FunctionsArtifact {
 
         try {
             Process process = pb.start();
-            int exitCode = process.waitFor();
-            if (exitCode != 0) {
-                throw new RuntimeException("docker build failed. refer to the build log");
-            }
-
+            process.waitFor();
         } catch (IOException | InterruptedException | RuntimeException e) {
-            throw new RuntimeException(); //TODO handle
+            throw new DockerBuildException(
+                    "Native executable generation for cloud using docker failed. Refer to the above build log for " +
+                            "information");
         }
     }
 }
