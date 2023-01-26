@@ -23,3 +23,5 @@ public type PayloadNotFoundError distinct Error;
 public type InvalidPayloadError distinct Error;
 
 public type HeaderNotFoundError distinct Error;
+
+public type UnsupportedTypeError distinct Error;

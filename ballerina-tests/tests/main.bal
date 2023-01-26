@@ -38,6 +38,8 @@ public type NoHeaderVal record {|
     string Content\-Type1;
 |};
 
+public type AzureReturn [@af:HttpOutput string,@af:QueueOutput{queueName: "queue3"} string];
+
 listener af:HttpListener ep1 = new ();
 
 service /hello\- on ep1 {
@@ -416,6 +418,31 @@ service /hello on ep {
         mime:Entity bodyPart = bodyParts[0];
         byte[] byteArray = check bodyPart.getByteArray();
         return byteArray.length();
+    }
+    
+    resource function get products(map<json> name) returns string|error {
+        return (check name.name).toString() + (check name.value).toString();
+    }
+    
+    resource function get catalog(int[] name) returns string|error {
+        return name.toString();
+    }
+    
+    resource function get multiout() returns [@af:HttpOutput string, @af:QueueOutput{queueName: "queue3"} string] {
+        return ["hello", "world"];
+    }
+    
+    resource function get multiout/ref() returns AzureReturn {
+        return ["hello1", "world1"];
+    }
+    
+    resource function get singleout() returns [@af:HttpOutput string] {
+        return ["hello"];
+    }
+    
+    resource function get threeout() returns [@af:HttpOutput string, @af:QueueOutput{queueName: "queue3"} string, 
+    @af:BlobOutput {path: "bpath1/newBlob"} byte[]] {
+        return ["hello", "world", "anjana".toBytes()];
     }
 }
 

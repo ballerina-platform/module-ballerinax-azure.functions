@@ -18,10 +18,19 @@
 package org.ballerinax.azurefunctions;
 
 import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
+import io.ballerina.compiler.api.symbols.Qualifier;
+import io.ballerina.compiler.api.symbols.ServiceDeclarationSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
+import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
@@ -33,9 +42,11 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
+import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticFactory;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticProperty;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextDocument;
@@ -52,6 +63,9 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+
+import static org.ballerinax.azurefunctions.Constants.AZURE_FUNCTIONS_MODULE_NAME;
+import static org.ballerinax.azurefunctions.Constants.AZURE_FUNCTIONS_PACKAGE_ORG;
 
 /**
  * Contains the utilities required for the compiler extension.
@@ -114,6 +128,11 @@ public class Util {
         return finalPath;
     }
 
+    public static Diagnostic getDiagnostic(Location location, AzureDiagnosticCodes diagnosticCode, Object... argName) {
+        DiagnosticInfo diagnosticInfo = getDiagnosticInfo(diagnosticCode, argName);
+        return DiagnosticFactory.createDiagnostic(diagnosticInfo, location);
+    }
+
     public static void updateDiagnostic(SyntaxNodeAnalysisContext ctx, Location location,
                                         AzureDiagnosticCodes httpDiagnosticCodes) {
         DiagnosticInfo diagnosticInfo = getDiagnosticInfo(httpDiagnosticCodes);
@@ -148,7 +167,6 @@ public class Util {
                 moduleID.packageName().equals(Constants.AZURE_FUNCTIONS_MODULE_NAME);
     }
 
-
     public static void copyFolder(Path source, Path target, CopyOption... options)
             throws IOException {
         Files.walkFileTree(source, new SimpleFileVisitor<Path>() {
@@ -178,12 +196,76 @@ public class Util {
         }
     }
 
-    public static String getExecutableExtension () {
+    public static String getExecutableExtension() {
         String os = System.getProperty("os.name");
         if (os.startsWith("Windows")) {
             return ".exe";
         } else {
             return "";
         }
+    }
+
+    public static boolean isRemoteFunction(FunctionSymbol methodSymbol) {
+        for (Qualifier qualifier : methodSymbol.qualifiers()) {
+            if (qualifier.getValue().equals(Constants.REMOTE_KEYWORD)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean isAnalyzableFunction(Node member) {
+        if (member.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION) {
+            FunctionDefinitionNode node = (FunctionDefinitionNode) member;
+            NodeList<Token> tokens = node.qualifierList();
+            if (tokens.isEmpty()) {
+                // Object methods are allowed.
+                return false;
+            }
+            return tokens.stream().anyMatch(token -> token.text().equals(Constants.REMOTE_KEYWORD));
+        } else {
+            return member.kind() == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION;
+        }
+    }
+
+    public static boolean isAzureFunctionsService(SemanticModel semanticModel, ServiceDeclarationNode serviceNode) {
+        List<Diagnostic> diagnostics = semanticModel.diagnostics();
+        boolean erroneousCompilation = diagnostics.stream()
+                .anyMatch(d -> DiagnosticSeverity.ERROR.equals(d.diagnosticInfo().severity()));
+        if (erroneousCompilation) {
+            return false;
+        }
+
+        Optional<Symbol> serviceSymOptional = semanticModel.symbol(serviceNode);
+
+        if (serviceSymOptional.isEmpty()) {
+            return false;
+        }
+        List<TypeSymbol> listenerTypes = ((ServiceDeclarationSymbol) serviceSymOptional.get()).listenerTypes();
+        for (TypeSymbol typeSymbol : listenerTypes) {
+            if (isListenerBelongsToAzureFuncModule(typeSymbol)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean isListenerBelongsToAzureFuncModule(TypeSymbol listenerType) {
+        if (TypeDescKind.UNION == listenerType.typeKind()) {
+            return ((UnionTypeSymbol) listenerType).memberTypeDescriptors().stream()
+                    .filter(typeDescriptor -> typeDescriptor instanceof TypeReferenceTypeSymbol)
+                    .map(typeReferenceTypeSymbol -> (TypeReferenceTypeSymbol) typeReferenceTypeSymbol)
+                    .anyMatch(typeReferenceTypeSymbol -> isAzureFuncModule(typeReferenceTypeSymbol.getModule().get()));
+        }
+
+        if (TypeDescKind.TYPE_REFERENCE == listenerType.typeKind()) {
+            return isAzureFuncModule(((TypeReferenceTypeSymbol) listenerType).typeDescriptor().getModule().get());
+        }
+        return false;
+    }
+
+    private static boolean isAzureFuncModule(ModuleSymbol moduleSymbol) {
+        return AZURE_FUNCTIONS_MODULE_NAME.equals(moduleSymbol.getName().get()) &&
+                AZURE_FUNCTIONS_PACKAGE_ORG.equals(moduleSymbol.id().orgName());
     }
 }

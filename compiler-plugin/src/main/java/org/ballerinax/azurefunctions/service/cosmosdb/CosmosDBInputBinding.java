@@ -71,8 +71,6 @@ public class CosmosDBInputBinding extends InputBinding {
             case "partitionKey":
                 value.ifPresent(this::setPartitionKey);
                 break;
-            default:
-                throw new RuntimeException("Unexpected property in the annotation");
         }
     }
 
@@ -130,17 +128,17 @@ public class CosmosDBInputBinding extends InputBinding {
         inputTrigger.addProperty("type", this.getTriggerType());
         inputTrigger.addProperty("direction", this.getDirection());
         inputTrigger.addProperty("name", this.getVarName());
-        inputTrigger.addProperty("connectionStringSetting", this.connectionStringSetting);
-        inputTrigger.addProperty("databaseName", databaseName);
-        inputTrigger.addProperty("collectionName", this.collectionName);
+        inputTrigger.addProperty("connectionStringSetting", this.getConnectionStringSetting());
+        inputTrigger.addProperty("databaseName", this.getDatabaseName());
+        inputTrigger.addProperty("collectionName", this.getCollectionName());
         if (this.partitionKey != null) {
-            inputTrigger.addProperty("partitionKey", this.partitionKey);
+            inputTrigger.addProperty("partitionKey", this.getPartitionKey());
         }
         if (this.id != null) {
-            inputTrigger.addProperty("id", this.id);
+            inputTrigger.addProperty("id", this.getId());
         }
         if (this.sqlQuery != null) {
-            inputTrigger.addProperty("sqlQuery", this.sqlQuery);
+            inputTrigger.addProperty("sqlQuery", this.getSqlQuery());
         }
         return inputTrigger;
     }

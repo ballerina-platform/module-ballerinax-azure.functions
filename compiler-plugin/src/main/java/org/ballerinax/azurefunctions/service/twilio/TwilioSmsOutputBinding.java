@@ -23,7 +23,6 @@ import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.MappingFieldNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
-import org.ballerinax.azurefunctions.Constants;
 import org.ballerinax.azurefunctions.Util;
 import org.ballerinax.azurefunctions.service.OutputBinding;
 
@@ -41,9 +40,8 @@ public class TwilioSmsOutputBinding extends OutputBinding {
     private String from;
     private String to;
 
-    public TwilioSmsOutputBinding(AnnotationNode annotationNode) {
-        super("twilioSms");
-        this.setVarName(Constants.RETURN_VAR_NAME);
+    public TwilioSmsOutputBinding(AnnotationNode annotationNode, int index) {
+        super("twilioSms", index);
         SeparatedNodeList<MappingFieldNode> fields = annotationNode.annotValue().orElseThrow().fields();
         for (MappingFieldNode fieldNode : fields) {
             extractValueFromAnnotation((SpecificFieldNode) fieldNode);
@@ -66,8 +64,6 @@ public class TwilioSmsOutputBinding extends OutputBinding {
             case "to":
                 value.ifPresent(this::setTo);
                 break;
-            default:
-                throw new RuntimeException("Unexpected property in the annotation");
         }
     }
 
@@ -107,10 +103,10 @@ public class TwilioSmsOutputBinding extends OutputBinding {
     public JsonObject getJsonObject() {
         JsonObject output = new JsonObject();
         output.addProperty("type", this.getTriggerType());
-        output.addProperty("accountSidSetting", this.accountSidSetting);
-        output.addProperty("authTokenSetting", this.authTokenSetting);
-        output.addProperty("from", this.from);
-        output.addProperty("to", this.to);
+        output.addProperty("accountSidSetting", this.getAccountSidSetting());
+        output.addProperty("authTokenSetting", this.getAuthTokenSetting());
+        output.addProperty("from", this.getFrom());
+        output.addProperty("to", this.getTo());
         output.addProperty("direction", this.getDirection());
         output.addProperty("name", this.getVarName());
         return output;

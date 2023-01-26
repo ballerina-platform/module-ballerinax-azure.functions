@@ -28,9 +28,8 @@ import org.ballerinax.azurefunctions.service.OutputBinding;
  */
 public class HTTPOutputBinding extends OutputBinding {
 
-    public HTTPOutputBinding(AnnotationNode annotationNode) {
-        super("http");
-        this.setVarName("resp");
+    public HTTPOutputBinding(AnnotationNode annotationNode, int index) {
+        super("http", index);
     }
 
     @Override

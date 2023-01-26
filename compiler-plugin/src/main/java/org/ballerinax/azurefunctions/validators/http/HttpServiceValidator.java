@@ -16,11 +16,12 @@
  * under the License.
  */
 
-package org.ballerinax.azurefunctions.validators;
+package org.ballerinax.azurefunctions.validators.http;
 
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.IntersectionTypeSymbol;
+import io.ballerina.compiler.api.symbols.MapTypeSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
@@ -41,11 +42,15 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
+import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticFactory;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinax.azurefunctions.AzureDiagnosticCodes;
+import org.ballerinax.azurefunctions.Constants;
+import org.ballerinax.azurefunctions.Util;
 import org.wso2.ballerinalang.compiler.diagnostic.properties.BSymbolicProperty;
 
 import java.util.ArrayList;
@@ -66,18 +71,34 @@ import static org.ballerinax.azurefunctions.Util.updateDiagnostic;
 /**
  * Validates azure-function service on a HTTPListener .
  */
-class HttpListenerValidator {
+public class HttpServiceValidator extends BaseHttpCodeAnalyzerTask {
 
-    static void validate(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext,
-                         ServiceDeclarationNode serviceDeclarationNode) {
+    @Override
+    public void perform(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext) {
+        if (!isHttpListener(syntaxNodeAnalysisContext)) {
+            return;
+        }
+        
+        ServiceDeclarationNode serviceDeclarationNode = (ServiceDeclarationNode) syntaxNodeAnalysisContext.node();
         extractServiceAnnotationAndValidate(syntaxNodeAnalysisContext, serviceDeclarationNode);
         NodeList<Node> members = serviceDeclarationNode.members();
         for (Node member : members) {
-            if (member.kind() == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION) {
+            if (member.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION) {
+                FunctionDefinitionNode node = (FunctionDefinitionNode) member;
+                NodeList<Token> tokens = node.qualifierList();
+                if (tokens.isEmpty()) {
+                    // Object methods are allowed.
+                    continue;
+                }
+                if (tokens.stream().anyMatch(token -> token.text().equals(Constants.REMOTE_KEYWORD))) {
+                    Diagnostic
+                            diagnostic = Util.getDiagnostic(member.location(), AzureDiagnosticCodes.AF_015);
+                    syntaxNodeAnalysisContext.reportDiagnostic(diagnostic);
+                }
+            } else if (member.kind() == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION) {
                 validateResourceFunction(syntaxNodeAnalysisContext, (FunctionDefinitionNode) member);
             }
         }
-
     }
 
     private static void validateResourceFunction(SyntaxNodeAnalysisContext ctx, FunctionDefinitionNode member) {
@@ -138,16 +159,107 @@ class HttpListenerValidator {
             }
             Optional<String> nameOptional = param.getName();
             String paramName = nameOptional.isEmpty() ? "" : nameOptional.get();
-
+            
+            //TODO filter only azure and http annotations
             List<AnnotationSymbol> annotations = param.annotations().stream()
                     .filter(annotationSymbol -> annotationSymbol.typeDescriptor().isPresent())
                     .collect(Collectors.toList());
 
             if (!annotations.isEmpty()) {
                 validateAnnotatedInputParam(ctx, paramLocation, param, paramName, annotations);
+            } else {
+                //Query params
+                TypeSymbol typeSymbol = param.typeDescriptor();
+                TypeDescKind kind = typeSymbol.typeKind();
+                if (isAllowedQueryParamType(kind, typeSymbol)) {
+                    continue;
+                }
+                if (kind == TypeDescKind.MAP) {
+                    TypeSymbol constrainedTypeSymbol = ((MapTypeSymbol) typeSymbol).typeParam();
+                    TypeDescKind constrainedType = getReferencedTypeDescKind(constrainedTypeSymbol);
+                    if (constrainedType != TypeDescKind.JSON) {
+                        updateDiagnostic(ctx, paramLocation, AzureDiagnosticCodes.AF_010, paramName);
+                        continue;
+                    }
+                } else if (kind == TypeDescKind.ARRAY) {
+                    // Allowed query param array types
+                    TypeSymbol arrTypeSymbol = ((ArrayTypeSymbol) typeSymbol).memberTypeDescriptor();
+                    TypeDescKind elementKind = getReferencedTypeDescKind(arrTypeSymbol);
+                    if (elementKind == TypeDescKind.MAP) {
+                        TypeSymbol constrainedTypeSymbol = ((MapTypeSymbol) arrTypeSymbol).typeParam();
+                        TypeDescKind constrainedType = constrainedTypeSymbol.typeKind();
+                        if (constrainedType != TypeDescKind.JSON) {
+                            updateDiagnostic(ctx, paramLocation, AzureDiagnosticCodes.AF_010, paramName);
+                        }
+                        continue;
+                    }
+                    if (!isAllowedQueryParamType(elementKind, arrTypeSymbol)) {
+                        updateDiagnostic(ctx, paramLocation, AzureDiagnosticCodes.AF_010, paramName);
+                        continue;
+                    }
+                } else if (kind == TypeDescKind.UNION) {
+                    // Allowed query param union types
+                    List<TypeSymbol> symbolList = ((UnionTypeSymbol) typeSymbol).memberTypeDescriptors();
+                    int size = symbolList.size();
+                    if (size > 2) {
+                        updateDiagnostic(ctx, paramLocation, AzureDiagnosticCodes.AF_011, paramName);
+                        continue;
+                    }
+                    if (symbolList.stream().noneMatch(type -> type.typeKind() == TypeDescKind.NIL)) {
+                        updateDiagnostic(ctx, paramLocation, AzureDiagnosticCodes.AF_011, paramName);
+                        continue;
+                    }
+                    for (TypeSymbol type : symbolList) {
+                        TypeDescKind elementKind = getReferencedTypeDescKind(type);
+                        if (elementKind == TypeDescKind.ARRAY) {
+                            TypeSymbol arrTypeSymbol = ((ArrayTypeSymbol) type).memberTypeDescriptor();
+                            TypeDescKind arrElementKind = getReferencedTypeDescKind(arrTypeSymbol);
+                            if (arrElementKind == TypeDescKind.MAP) {
+                                TypeSymbol constrainedTypeSymbol = ((MapTypeSymbol) arrTypeSymbol).typeParam();
+                                TypeDescKind constrainedType = constrainedTypeSymbol.typeKind();
+                                if (constrainedType == TypeDescKind.JSON) {
+                                    continue;
+                                }
+                            }
+                            if (isAllowedQueryParamType(arrElementKind, arrTypeSymbol)) {
+                                continue;
+                            }
+                        } else if (elementKind == TypeDescKind.MAP) {
+                            TypeSymbol constrainedTypeSymbol = ((MapTypeSymbol) type).typeParam();
+                            TypeDescKind constrainedType = constrainedTypeSymbol.typeKind();
+                            if (constrainedType == TypeDescKind.JSON) {
+                                continue;
+                            }
+                        } else {
+                            if (elementKind == TypeDescKind.NIL || isAllowedQueryParamType(elementKind, type)) {
+                                continue;
+                            }
+                        }
+                        updateDiagnostic(ctx, paramLocation, AzureDiagnosticCodes.AF_010, paramName);
+                    }
+                }  else {
+                    updateDiagnostic(ctx, paramLocation, AzureDiagnosticCodes.AF_010, paramName);
+                }
             }
-
         }
+    }
+
+    private static boolean isAllowedQueryParamType(TypeDescKind kind, TypeSymbol typeSymbol) {
+        if (kind == TypeDescKind.TYPE_REFERENCE) {
+            TypeSymbol typeDescriptor = ((TypeReferenceTypeSymbol) typeSymbol).typeDescriptor();
+            kind =  getReferencedTypeDescKind(typeDescriptor);
+        }
+        return kind == TypeDescKind.STRING || kind == TypeDescKind.INT || kind == TypeDescKind.FLOAT ||
+                kind == TypeDescKind.DECIMAL || kind == TypeDescKind.BOOLEAN;
+    }
+
+    private static TypeDescKind getReferencedTypeDescKind(TypeSymbol typeSymbol) {
+        TypeDescKind kind = typeSymbol.typeKind();
+        if (kind == TypeDescKind.TYPE_REFERENCE) {
+            TypeSymbol typeDescriptor = ((TypeReferenceTypeSymbol) typeSymbol).typeDescriptor();
+            kind = getReferencedTypeDescKind(typeDescriptor);
+        }
+        return kind;
     }
 
     private static void validateAnnotatedInputParam(SyntaxNodeAnalysisContext ctx, Location paramLocation,

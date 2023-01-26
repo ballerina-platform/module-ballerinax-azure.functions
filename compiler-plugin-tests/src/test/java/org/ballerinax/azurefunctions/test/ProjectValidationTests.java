@@ -27,7 +27,6 @@ import org.testng.annotations.Test;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-
 /**
  * Contains the project related validations of azure functions.
  *
@@ -39,10 +38,10 @@ public class ProjectValidationTests {
 
     @Test
     public void headerAnnotationTest() {
-        BuildProject project = BuildProject.load(RESOURCE_DIRECTORY.resolve("http-header-annotation"));
+        BuildProject project = BuildProject.load(RESOURCE_DIRECTORY.resolve("http").resolve("header-annotation"));
         PackageCompilation compilation = project.currentPackage().getCompilation();
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-        Object [] diagnostics =  diagnosticResult.errors().toArray();
+        Object[] diagnostics = diagnosticResult.errors().toArray();
         Assert.assertEquals(diagnosticResult.errorCount(), 13);
         String diagnosticMessage0 = "invalid annotation type on param 'a'";
         String diagnosticMessage1 = "invalid union type of header param 'xRate': one of the 'string','int','float'," +
@@ -103,5 +102,78 @@ public class ProjectValidationTests {
                 "field supported by Azure Function at the moment";
         Assert.assertEquals(((Diagnostic) diagnostics[0]).diagnosticInfo().messageFormat(), diagnosticMessage);
         Assert.assertEquals(((Diagnostic) diagnostics[1]).diagnosticInfo().messageFormat(), diagnosticMessage);
+    }
+
+    @Test
+    public void httpQueryRecordParamValidationTest() {
+        BuildProject project = BuildProject.load(RESOURCE_DIRECTORY.resolve("http").resolve("query")
+                .resolve("record-param"));
+        PackageCompilation compilation = project.currentPackage().getCompilation();
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        Object[] diagnostics = diagnosticResult.errors().toArray();
+        Assert.assertEquals(diagnosticResult.errorCount(), 1);
+        String diagnosticMessage = "invalid type of query param 'name': expected one of the 'string', 'int', 'float'," +
+                " 'boolean', 'decimal', 'map<json>' types or the array types of them";
+        Assert.assertEquals(((Diagnostic) diagnostics[0]).diagnosticInfo().messageFormat(), diagnosticMessage);
+    }
+
+
+    @Test
+    public void httpQueryMapNonJsonParamValidationTest() {
+        BuildProject project = BuildProject.load(RESOURCE_DIRECTORY.resolve("http").resolve("query")
+                .resolve("map-non-json-param"));
+        PackageCompilation compilation = project.currentPackage().getCompilation();
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        Object[] diagnostics = diagnosticResult.errors().toArray();
+        Assert.assertEquals(diagnosticResult.errorCount(), 1);
+        String diagnosticMessage = "invalid type of query param 'name': expected one of the 'string', 'int', 'float'," +
+                " 'boolean', 'decimal', 'map<json>' types or the array types of them";
+        Assert.assertEquals(((Diagnostic) diagnostics[0]).diagnosticInfo().messageFormat(), diagnosticMessage);
+    }
+
+
+    @Test
+    public void httpQueryArrayNonBasicParamValidationTest() {
+        BuildProject project = BuildProject.load(RESOURCE_DIRECTORY.resolve("http").resolve("query")
+                .resolve("array-non-basic-param"));
+        PackageCompilation compilation = project.currentPackage().getCompilation();
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        Object[] diagnostics = diagnosticResult.errors().toArray();
+        Assert.assertEquals(diagnosticResult.errorCount(), 1);
+        String diagnosticMessage = "invalid type of query param 'name': expected one of the 'string', 'int', 'float'," +
+                " 'boolean', 'decimal', 'map<json>' types or the array types of them";
+        Assert.assertEquals(((Diagnostic) diagnostics[0]).diagnosticInfo().messageFormat(), diagnosticMessage);
+    }
+
+    @Test
+    public void httpQueryArrayMapNonJsonParamValidationTest() {
+        BuildProject project = BuildProject.load(RESOURCE_DIRECTORY.resolve("http").resolve("query")
+                .resolve("array-map-non-json-param"));
+        PackageCompilation compilation = project.currentPackage().getCompilation();
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        Object[] diagnostics = diagnosticResult.errors().toArray();
+        Assert.assertEquals(diagnosticResult.errorCount(), 1);
+        String diagnosticMessage = "invalid type of query param 'name': expected one of the 'string', 'int', 'float'," +
+                " 'boolean', 'decimal', 'map<json>' types or the array types of them";
+        Assert.assertEquals(((Diagnostic) diagnostics[0]).diagnosticInfo().messageFormat(), diagnosticMessage);
+    }
+
+    @Test
+    public void httpQueryUnionParamValidationTest() {
+        BuildProject project = BuildProject.load(RESOURCE_DIRECTORY.resolve("http").resolve("query")
+                .resolve("union-param"));
+        PackageCompilation compilation = project.currentPackage().getCompilation();
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+//        Object[] diagnostics = diagnosticResult.errors().toArray();
+        Assert.assertEquals(diagnosticResult.errorCount(), 6);
+    }
+
+    @Test
+    public void httpAllowedFunctionTypesValidationTest() {
+        BuildProject project = BuildProject.load(RESOURCE_DIRECTORY.resolve("http").resolve("function-types"));
+        PackageCompilation compilation = project.currentPackage().getCompilation();
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+//        Object[] diagnostics = diagnosticResult.errors().toArray();
+        Assert.assertEquals(diagnosticResult.errorCount(), 1);
     }
 }

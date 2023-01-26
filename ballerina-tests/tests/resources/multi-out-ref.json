@@ -1,0 +1,98 @@
+{
+    "Data": {
+        "httpPayload": {
+            "Url": "http://localhost:7071/hello/multiout/ref",
+            "Method": "GET",
+            "Query": {
+            },
+            "Headers": {
+                "Accept": [
+                    "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9"
+                ],
+                "Connection": [
+                    "keep-alive"
+                ],
+                "Host": [
+                    "localhost:7071"
+                ],
+                "User-Agent": [
+                    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36"
+                ],
+                "Accept-Encoding": [
+                    "gzip, deflate, br"
+                ],
+                "Accept-Language": [
+                    "en-US,en;q=0.9"
+                ],
+                "Cookie": [
+                    "_ga=GA1.1.720190479.1641539348; Idea-2474b141=7a691445-10e4-435d-b306-2b36a77b1d2e; Webstorm-fe5cf5e6=379eafe5-e706-45c1-92e8-6e424ab655f0"
+                ],
+                "Upgrade-Insecure-Requests": [
+                    "1"
+                ],
+                "sec-ch-ua": [
+                    "\"Not?A_Brand\";v=\"8\", \"Chromium\";v=\"108\", \"Google Chrome\";v=\"108\""
+                ],
+                "sec-ch-ua-mobile": [
+                    "?0"
+                ],
+                "sec-ch-ua-platform": [
+                    "\"Linux\""
+                ],
+                "Sec-Fetch-Site": [
+                    "none"
+                ],
+                "Sec-Fetch-Mode": [
+                    "navigate"
+                ],
+                "Sec-Fetch-User": [
+                    "?1"
+                ],
+                "Sec-Fetch-Dest": [
+                    "document"
+                ]
+            },
+            "Params": {},
+            "Identities": [
+                {
+                    "AuthenticationType": null,
+                    "IsAuthenticated": false,
+                    "Actor": null,
+                    "BootstrapContext": null,
+                    "Claims": [],
+                    "Label": null,
+                    "Name": null,
+                    "NameClaimType": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name",
+                    "RoleClaimType": "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+                }
+            ]
+        }
+    },
+    "Metadata": {
+        "name": "\"meow\"",
+        "Query": {
+        },
+        "Headers": {
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+            "Connection": "keep-alive",
+            "Host": "localhost:7071",
+            "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36",
+            "Accept-Encoding": "gzip, deflate, br",
+            "Accept-Language": "en-US,en;q=0.9",
+            "Cookie": "_ga=GA1.1.720190479.1641539348; Idea-2474b141=7a691445-10e4-435d-b306-2b36a77b1d2e; Webstorm-fe5cf5e6=379eafe5-e706-45c1-92e8-6e424ab655f0",
+            "Upgrade-Insecure-Requests": "1",
+            "sec-ch-ua": "\"Not?A_Brand\";v=\"8\", \"Chromium\";v=\"108\", \"Google Chrome\";v=\"108\"",
+            "sec-ch-ua-mobile": "?0",
+            "sec-ch-ua-platform": "\"Linux\"",
+            "Sec-Fetch-Site": "none",
+            "Sec-Fetch-Mode": "navigate",
+            "Sec-Fetch-User": "?1",
+            "Sec-Fetch-Dest": "document"
+        },
+        "sys": {
+            "MethodName": "get-hello-multiout-ref",
+            "UtcNow": "2023-01-11T09:38:31.8085731Z",
+            "RandGuid": "21516b2a-f417-4230-b8cc-d237149e436d"
+        }
+    }
+}

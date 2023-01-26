@@ -23,7 +23,6 @@ import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.MappingFieldNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
-import org.ballerinax.azurefunctions.Constants;
 import org.ballerinax.azurefunctions.Util;
 import org.ballerinax.azurefunctions.service.OutputBinding;
 
@@ -40,9 +39,8 @@ public class CosmosDBOutputBinding extends OutputBinding {
     private String databaseName;
     private String collectionName;
 
-    public CosmosDBOutputBinding(AnnotationNode annotationNode) {
-        super("cosmosDB");
-        this.setVarName(Constants.RETURN_VAR_NAME);
+    public CosmosDBOutputBinding(AnnotationNode annotationNode, int index) {
+        super("cosmosDB", index);
         SeparatedNodeList<MappingFieldNode> fields = annotationNode.annotValue().orElseThrow().fields();
         for (MappingFieldNode fieldNode : fields) {
             extractValueFromAnnotation((SpecificFieldNode) fieldNode);
@@ -62,8 +60,6 @@ public class CosmosDBOutputBinding extends OutputBinding {
             case "collectionName":
                 value.ifPresent(this::setCollectionName);
                 break;
-            default:
-                throw new RuntimeException("Unexpected property in the annotation");
         }
     }
 
@@ -95,9 +91,9 @@ public class CosmosDBOutputBinding extends OutputBinding {
     public JsonObject getJsonObject() {
         JsonObject output = new JsonObject();
         output.addProperty("type", this.getTriggerType());
-        output.addProperty("connectionStringSetting", this.connectionStringSetting);
-        output.addProperty("databaseName", this.databaseName);
-        output.addProperty("collectionName", this.collectionName);
+        output.addProperty("connectionStringSetting", this.getConnectionStringSetting());
+        output.addProperty("databaseName", this.getDatabaseName());
+        output.addProperty("collectionName", this.getCollectionName());
         output.addProperty("direction", this.getDirection());
         output.addProperty("name", this.getVarName());
         return output;

@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public const annotation FunctionConfiguration Function on function;
+public const annotation FunctionConfiguration Function on function, return;
 
 public type FunctionConfiguration record {|
     string name;
@@ -43,7 +43,7 @@ public type HttpHeader record {|
 public annotation HttpHeader Header on parameter;
 
 # @azurefunctions:HttpOutput annotation
-public const annotation HttpOutput on return;
+public const annotation HttpOutput on field, return;
 
 # Queue annotation configuration.
 # 
@@ -55,7 +55,7 @@ public type QueueConfiguration record {|
 |};
 
 # @azurefunctions:QueueOutput annotation.
-public const annotation QueueConfiguration QueueOutput on return;
+public const annotation QueueConfiguration QueueOutput on field, return;
 
 # @azurefunctions:QueueOutput annotation.
 public const annotation QueueConfiguration QueueTrigger on source listener, service;
@@ -88,45 +88,45 @@ public const annotation BlobConfiguration BlobTrigger on source listener, servic
 public const annotation BlobConfiguration BlobInput on parameter;
 
 # @azurefunctions:BlobOutput annotation.
-public const annotation BlobConfiguration BlobOutput on return;
+public const annotation BlobConfiguration BlobOutput on field, return;
 
 # CosmosDB trigger annotation configuration.
 # 
 # + connectionStringSetting -  The name of the app setting which contains the connection string for CosmosDB account
 # + databaseName - The database name
 # + collectionName - The collection name
-# + leaseConnectionStringSetting - The name of the app setting which contains the lease connection string
-# + leaseDatabaseName - The name of the lease database
-# + leaseCollectionName - The name of the collection used to store leases
+//# + leaseConnectionStringSetting - The name of the app setting which contains the lease connection string
+//# + leaseDatabaseName - The name of the lease database
+//# + leaseCollectionName - The name of the collection used to store leases
 # + createLeaseCollectionIfNotExists - The lease collection is automatically created when this is set to true
 # + leasesCollectionThroughput - The request throughput of the lease collection
-# + leaseCollectionPrefix - The prefix of the leases created
-# + feedPollDelay - The time delay (in milliseconds) in polling a partition for new changes in the feed
-# + leaseAcquireInterval - The time (in milliseconds) the interval to create a task to check if partitions are distributed evenly
-# + leaseExpirationInterval - The lease expiration interval in milliseconds
-# + leaseRenewInterval - The lease renewal interval in milliseconds
-# + checkpointFrequency - The interval (in milliseconds) between lease checkpoints
-# + maxItemsPerInvocation - The maximum number of items received per function call
-# + startFromBeginning - Tells the trigger to read changes from the beginning of the collection's change history
-# + preferredLocations - A comma-seperated list of regions as preferred locations for geo-replicated database accounts
+//# + leaseCollectionPrefix - The prefix of the leases created
+//# + feedPollDelay - The time delay (in milliseconds) in polling a partition for new changes in the feed
+//# + leaseAcquireInterval - The time (in milliseconds) the interval to create a task to check if partitions are distributed evenly
+//# + leaseExpirationInterval - The lease expiration interval in milliseconds
+//# + leaseRenewInterval - The lease renewal interval in milliseconds
+//# + checkpointFrequency - The interval (in milliseconds) between lease checkpoints
+//# + maxItemsPerInvocation - The maximum number of items received per function call
+//# + startFromBeginning - Tells the trigger to read changes from the beginning of the collection's change history
+//# + preferredLocations - A comma-seperated list of regions as preferred locations for geo-replicated database accounts
 public type CosmosDBTriggerConfiguration record {|
     string connectionStringSetting;
     string databaseName;
     string collectionName;
-    string leaseConnectionStringSetting?;
-    string leaseDatabaseName?;
-    string leaseCollectionName?;
+    //string leaseConnectionStringSetting?;
+    //string leaseDatabaseName?;
+    //string leaseCollectionName?;
     boolean createLeaseCollectionIfNotExists = true;
     int leasesCollectionThroughput?;
-    string leaseCollectionPrefix?;
-    int feedPollDelay?;
-    int leaseAcquireInterval?;
-    int leaseExpirationInterval?;
-    int leaseRenewInterval?;
-    int checkpointFrequency?;
-    int maxItemsPerInvocation?;
-    boolean startFromBeginning?;
-    string preferredLocations?;    
+    //string leaseCollectionPrefix?;
+    //int feedPollDelay?;
+    //int leaseAcquireInterval?;
+    //int leaseExpirationInterval?;
+    //int leaseRenewInterval?;
+    //int checkpointFrequency?;
+    //int maxItemsPerInvocation?;
+    //boolean startFromBeginning?;
+    //string preferredLocations?;    
 |};
 
 # @azurefunctions:CosmosDBTrigger annotation.
@@ -140,7 +140,7 @@ public const annotation CosmosDBTriggerConfiguration CosmosDBTrigger on source l
 # + id - The id of the document to retrieve
 # + sqlQuery - An Azure Cosmos DB SQL query used to retrieve multiple documents
 # + partitionKey - The partition key value for lookups
-# + preferredLocations - A comma-seperated list of regions as preferred locations for geo-replicated database accounts
+//# + preferredLocations - A comma-seperated list of regions as preferred locations for geo-replicated database accounts
 public type CosmosDBInputConfiguration record {|
     string connectionStringSetting;
     string databaseName;
@@ -148,7 +148,7 @@ public type CosmosDBInputConfiguration record {|
     string id?;
     string sqlQuery?;
     string|int|float partitionKey?;
-    string preferredLocations?;
+    //string preferredLocations?;
 |};
 
 # @azurefunctions:CosmosDBInput annotation.
@@ -159,24 +159,24 @@ public const annotation CosmosDBInputConfiguration CosmosDBInput on parameter;
 # + connectionStringSetting -  The name of the app setting which contains the connection string for CosmosDB account
 # + databaseName - The database name
 # + collectionName - The collection name
-# + createIfNotExists - Creates the collection is it does not exist
-# + partitionKey - The partition key name
-# + collectionThroughput - The throughput of a newly created collection
-# + preferredLocations - A comma-seperated list of regions as preferred locations for geo-replicated database accounts
-# + useMultipleWriteLocations - If true, uses multi-region writes
+//# + createIfNotExists - Creates the collection is it does not exist
+//# + partitionKey - The partition key name
+//# + collectionThroughput - The throughput of a newly created collection
+//# + preferredLocations - A comma-seperated list of regions as preferred locations for geo-replicated database accounts
+//# + useMultipleWriteLocations - If true, uses multi-region writes
 public type CosmosDBOutputConfiguration record {|
     string connectionStringSetting;
     string databaseName;
     string collectionName;
-    boolean createIfNotExists?;
-    int collectionThroughput?;
-    string partitionKey?;
-    string preferredLocations?;
-    boolean useMultipleWriteLocations?;
+    //boolean createIfNotExists?;
+    //int collectionThroughput?;
+    //string partitionKey?;
+    //string preferredLocations?;
+    //boolean useMultipleWriteLocations?;
 |};
 
 # @azurefunctions:CosmosDBOutput annotation.
-public const annotation CosmosDBOutputConfiguration CosmosDBOutput on return;
+public const annotation CosmosDBOutputConfiguration CosmosDBOutput on field, return;
 
 # Twilio annotation configuration.
 # 
@@ -193,7 +193,7 @@ public type TwilioSmsConfiguration record {|
 |};
 
 # @azurefunctions:TwilioSmsOutput annotation.
-public const annotation TwilioSmsConfiguration TwilioSmsOutput on return;
+public const annotation TwilioSmsConfiguration TwilioSmsOutput on field, return;
 
 # BindingName annotation configuration.
 # 
@@ -204,4 +204,3 @@ public type BindingNameConfiguration record {|
 
 # @azurefunctions:BindingName annotation.
 public const annotation BindingNameConfiguration BindingName on parameter;
-

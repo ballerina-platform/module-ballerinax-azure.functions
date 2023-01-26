@@ -20,7 +20,8 @@ package org.ballerinax.azurefunctions;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.plugins.CodeAnalysisContext;
 import io.ballerina.projects.plugins.CodeAnalyzer;
-import org.ballerinax.azurefunctions.validators.AzureFunctionsCodeAnalyzerTask;
+import org.ballerinax.azurefunctions.validators.http.HttpServiceValidator;
+import org.ballerinax.azurefunctions.validators.output.OutputBindingValidator;
 
 /**
  * Contains the code analyzers for azure functions.
@@ -31,6 +32,7 @@ public class AzureFunctionsCodeAnalyzer extends CodeAnalyzer {
 
     @Override
     public void init(CodeAnalysisContext codeAnalysisCtx) {
-        codeAnalysisCtx.addSyntaxNodeAnalysisTask(new AzureFunctionsCodeAnalyzerTask(), SyntaxKind.SERVICE_DECLARATION);
+        codeAnalysisCtx.addSyntaxNodeAnalysisTask(new HttpServiceValidator(), SyntaxKind.SERVICE_DECLARATION);
+        codeAnalysisCtx.addSyntaxNodeAnalysisTask(new OutputBindingValidator(), SyntaxKind.RETURN_TYPE_DESCRIPTOR);
     }
 }

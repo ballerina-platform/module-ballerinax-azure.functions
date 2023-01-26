@@ -40,8 +40,19 @@ public enum AzureDiagnosticCodes {
             "all headers", ERROR),
     AF_007("AF_007", "invalid multiple resource parameter annotations for '%s'", ERROR),
     AF_008("AF_008", "'treatNilableAsOptional' is the only @http:serviceConfig field supported by Azure " +
-            "Function at the moment", WARNING);
-
+            "Function at the moment", WARNING),
+    AF_009("AF_009", "invalid return type for '%s'", ERROR),
+    AF_010("AF_010", "invalid type of query param '%s': expected one of the 'string', 'int', 'float', " +
+            "'boolean', 'decimal', 'map<json>' types or the array types of them", ERROR),
+    AF_011("AF_011", "invalid union type of query param '%s': 'string', 'int', 'float', 'boolean', " +
+            "'decimal', 'map<json>' type or the array types of them can only be union with '()'. Eg: string? or int[]?",
+            ERROR),
+    AF_012("AF_012", "binding annotation not found for the parameter '%s'", ERROR),
+    AF_013("AF_013", "multiple bindings not allowed for the parameter '%s'", ERROR),
+    AF_014("AF_014", "missing output binding annotation for the remote function", ERROR),
+    AF_015("AF_015", "remote methods are not allowed in HttpListener", ERROR),
+    ;
+    
     private final String code;
     private final String message;
     private final DiagnosticSeverity severity;

@@ -116,6 +116,8 @@ public class HttpResource {
                 queryParameters.add(new QueryParameter(i, parameter, bValue));
             } catch (BError bError) {
                 throw new InvalidPayloadException(bError.getMessage());
+            } catch (Exception e) {
+                throw new InvalidPayloadException("Query param value parsing failed for '" + name + "'");
             }
         }
         return queryParameters.toArray(QueryParameter[]::new);

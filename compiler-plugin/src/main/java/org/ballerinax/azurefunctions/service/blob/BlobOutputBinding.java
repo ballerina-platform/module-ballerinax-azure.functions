@@ -23,7 +23,6 @@ import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.MappingFieldNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
-import org.ballerinax.azurefunctions.Constants;
 import org.ballerinax.azurefunctions.Util;
 import org.ballerinax.azurefunctions.service.OutputBinding;
 
@@ -38,11 +37,9 @@ public class BlobOutputBinding extends OutputBinding {
 
     private String path;
     private String connection = "AzureWebJobsStorage";
-    private String dataType = "string";
 
-    public BlobOutputBinding(AnnotationNode annotationNode) {
-        super("blob");
-        this.setVarName(Constants.RETURN_VAR_NAME);
+    public BlobOutputBinding(AnnotationNode annotationNode, int index) {
+        super("blob", index);
         SeparatedNodeList<MappingFieldNode> fields = annotationNode.annotValue().orElseThrow().fields();
         for (MappingFieldNode fieldNode : fields) {
             extractValueFromAnnotation((SpecificFieldNode) fieldNode);
@@ -65,14 +62,6 @@ public class BlobOutputBinding extends OutputBinding {
         this.connection = connection;
     }
 
-    public String getDataType() {
-        return dataType;
-    }
-
-    public void setDataType(String dataType) {
-        this.dataType = dataType;
-    }
-
     private void extractValueFromAnnotation(SpecificFieldNode fieldNode) {
         String text = ((IdentifierToken) fieldNode.fieldName()).text();
         Optional<String> value = Util.extractValueFromAnnotationField(fieldNode);
@@ -83,11 +72,6 @@ public class BlobOutputBinding extends OutputBinding {
             case "connection":
                 value.ifPresent(this::setConnection);
                 break;
-            case "dataType":
-                value.ifPresent(this::setDataType);
-                break;
-            default:
-                throw new RuntimeException("Unexpected property in the annotation");
         }
     }
 
@@ -97,9 +81,9 @@ public class BlobOutputBinding extends OutputBinding {
         output.addProperty("type", this.getTriggerType());
         output.addProperty("direction", this.getDirection());
         output.addProperty("name", this.getVarName());
-        output.addProperty("path", this.path);
-        output.addProperty("connection", this.connection);
-        output.addProperty("dataType", this.dataType);
+        output.addProperty("path", this.getPath());
+        output.addProperty("connection", this.getConnection());
+        output.addProperty("dataType", "string");
         return output;
     }
 }

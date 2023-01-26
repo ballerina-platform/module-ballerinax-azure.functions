@@ -53,8 +53,6 @@ public class TimerTriggerBinding extends RemoteTriggerBinding {
             case "runOnStartup":
                 value.ifPresent(runOnStartup1 -> setRunOnStartup(Boolean.parseBoolean(runOnStartup1)));
                 break;
-            default:
-                throw new RuntimeException("Unexpected property in the annotation");
         }
     }
 
@@ -78,8 +76,8 @@ public class TimerTriggerBinding extends RemoteTriggerBinding {
     public JsonObject getJsonObject() {
         JsonObject inputTrigger = new JsonObject();
         inputTrigger.addProperty("type", this.getTriggerType());
-        inputTrigger.addProperty("schedule", this.schedule);
-        inputTrigger.addProperty("runOnStartup", this.runOnStartup);
+        inputTrigger.addProperty("schedule", this.getSchedule());
+        inputTrigger.addProperty("runOnStartup", this.isRunOnStartup());
         inputTrigger.addProperty("direction", this.getDirection());
         inputTrigger.addProperty("name", this.getVarName());
         return inputTrigger;

@@ -35,7 +35,6 @@ public class BlobInputBinding extends InputBinding {
 
     private String path;
     private String connection = "AzureWebJobsStorage";
-    private String dataType = "string";
 
     public BlobInputBinding(AnnotationNode queueTrigger, String varName) {
         super("blob");
@@ -56,11 +55,6 @@ public class BlobInputBinding extends InputBinding {
             case "connection":
                 value.ifPresent(this::setConnection);
                 break;
-            case "dataType":
-                value.ifPresent(this::setDataType);
-                break;
-            default:
-                throw new RuntimeException("Unexpected property in the annotation");
         }
     }
 
@@ -80,23 +74,15 @@ public class BlobInputBinding extends InputBinding {
         this.connection = connection;
     }
 
-    public String getDataType() {
-        return dataType;
-    }
-
-    public void setDataType(String dataType) {
-        this.dataType = dataType;
-    }
-
     @Override
     public JsonObject getJsonObject() {
         JsonObject inputTrigger = new JsonObject();
         inputTrigger.addProperty("type", this.getTriggerType());
         inputTrigger.addProperty("direction", this.getDirection());
         inputTrigger.addProperty("name", this.getVarName());
-        inputTrigger.addProperty("path", this.path);
-        inputTrigger.addProperty("connection", this.connection);
-        inputTrigger.addProperty("dataType", this.dataType);
+        inputTrigger.addProperty("path", this.getPath());
+        inputTrigger.addProperty("connection", this.getConnection());
+        inputTrigger.addProperty("dataType", "string");
         return inputTrigger;
     }
 }
