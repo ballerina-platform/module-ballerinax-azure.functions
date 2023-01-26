@@ -70,7 +70,7 @@ public class AzureCodeGeneratedTask implements CompilerLifecycleTask<CompilerLif
                 this.generateFunctionsArtifact(generatedFunctions, path, isNative);
             } catch (IOException | DockerBuildException e) {
                 OUT.println("Error generating Azure Functions: " + e.getMessage());
-                return;
+                throw new DockerBuildException(e.getMessage());
             }
             OUT.println("\n\t@azure_functions:Function: " + String.join(", ", generatedFunctions.keySet()));
             OUT.println("\n\tExecute the command below to deploy the function locally:");
