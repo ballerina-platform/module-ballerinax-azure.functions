@@ -57,16 +57,9 @@ public interface Constants {
     String MEDIA_TYPE = "mediaType";
     String RESPONSE_FIELD = "resp";
     String POST = "post";
-    String CREATED_201 = "201";
-    String GET = "get";
-    String PUT = "put";
-    String PATCH = "patch";
-    String DELETE = "delete";
-    String HEAD = "head";
-    String OPTIONS = "options";
-    String DEFAULT = "default";
-    String OK_200 = "200";
-    String ACCEPTED = "202";
+    int CREATED_201 = 201;
+    int OK_200 = 200;
+    int ACCEPTED = 202;
     String TEXT_PLAIN = "text/plain";
     String APPLICATION_XML = "application/xml";
     String APPLICATION_OCTET_STREAM = "application/octet-stream";
@@ -79,6 +72,7 @@ public interface Constants {
     String FUNCTION_NOT_FOUND_ERROR = "FunctionNotFoundError";
     String INVALID_PAYLOAD_ERROR = "InvalidPayloadError";
     String HEADER_NOT_FOUND_ERROR = "HeaderNotFoundError";
+    String INTERNAL_SERVER_ERROR = "Error";
     String HTTP_PACKAGE_VERSION = "2";
     String PATH_PARAM = "^";
     String REST_PATH_PARAM = "^^";

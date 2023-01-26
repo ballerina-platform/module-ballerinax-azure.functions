@@ -72,7 +72,7 @@ public class TestUtils {
      * @throws InterruptedException if an error occurs while compiling
      * @throws IOException          if an error occurs while writing file
      */
-    public static ProcessOutput compileBallerinaProject(Path sourceDirectory, boolean isNative)
+    public static ProcessOutput compileBallerinaProject(Path sourceDirectory, boolean isNative, boolean failDocker)
             throws InterruptedException, IOException {
 
         Path ballerinaInternalLog = Paths.get(sourceDirectory.toAbsolutePath().toString(), "ballerina-internal.log");
@@ -90,6 +90,9 @@ public class TestUtils {
 
         Map<String, String> environment = pb.environment();
         addJavaAgents(environment);
+        if (failDocker) {
+            environment.put("DOCKER_HOST", "tcp://192.168.59.103:2300");
+        }
         log.info(COMPILING + sourceDirectory.normalize());
         log.debug(EXECUTING_COMMAND + pb.command());
         pb.directory(sourceDirectory.toFile());

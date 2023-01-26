@@ -38,7 +38,7 @@ public class NativeTest {
         Path handlers = SOURCE_DIR.resolve("handlers");
         Path depedenciesToml = handlers.resolve("Dependencies.toml");
         Files.deleteIfExists(depedenciesToml);
-        ProcessOutput processOutput = TestUtils.compileBallerinaProject(handlers, true);
+        ProcessOutput processOutput = TestUtils.compileBallerinaProject(handlers, true, false);
         Assert.assertEquals(processOutput.getExitCode(), 0);
         Assert.assertTrue(processOutput.getStdOutput().contains("@azure_functions"));
 
@@ -55,6 +55,20 @@ public class NativeTest {
 
         Assert.assertTrue(Files.exists(azureFunctionsLocalDir.resolve("azure_functions_tests")));
         Assert.assertTrue(Files.exists(azureFunctionsLocalDir.resolve("host.json")));
+        Files.deleteIfExists(depedenciesToml);
+    }
+
+    @Test
+    public void testNativeAzureFunctionsBuildFail() throws Exception {
+        Path handlers = SOURCE_DIR.resolve("handlers");
+        Path depedenciesToml = handlers.resolve("Dependencies.toml");
+        Files.deleteIfExists(depedenciesToml);
+        ProcessOutput processOutput = TestUtils.compileBallerinaProject(handlers, true, true);
+        Assert.assertEquals(processOutput.getExitCode(), 1);
+        String stdOutput = processOutput.getStdOutput();
+        String stdErr = processOutput.getErrOutput();
+        Assert.assertTrue(stdOutput.contains("@azure_functions"));
+        Assert.assertTrue(stdErr.contains("Native executable generation for cloud using docker failed"));
         Files.deleteIfExists(depedenciesToml);
     }
 }

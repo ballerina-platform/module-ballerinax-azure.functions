@@ -1,0 +1,74 @@
+{
+    "Data": {
+        "httpPayload": {
+            "Url": "http://localhost:7071/http/payload?name=anjana",
+            "Method": "POST",
+            "Query": {
+                "name": "anjana"
+            },
+            "Headers": {
+                "Accept": [
+                    "*/*"
+                ],
+                "Connection": [
+                    "keep-alive"
+                ],
+                "Host": [
+                    "localhost:7071"
+                ],
+                "User-Agent": [
+                    "PostmanRuntime/7.29.2"
+                ],
+                "Accept-Encoding": [
+                    "gzip, deflate, br"
+                ],
+                "Content-Type": [
+                    "application/json"
+                ],
+                "Content-Length": [
+                    "24"
+                ],
+                "Postman-Token": [
+                    "95264cf0-21e3-4abd-9284-d73623f19b08"
+                ]
+            },
+            "Params": {},
+            "Identities": [
+                {
+                    "AuthenticationType": null,
+                    "IsAuthenticated": false,
+                    "Actor": null,
+                    "BootstrapContext": null,
+                    "Claims": [],
+                    "Label": null,
+                    "Name": null,
+                    "NameClaimType": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name",
+                    "RoleClaimType": "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+                }
+            ],
+            "Body": "{\n    \"test1\":\"Test 1\"\n}"
+        }
+    },
+    "Metadata": {
+        "test1": "\"Test 1\"",
+        "name": "\"anjana\"",
+        "Query": {
+            "name": "anjana"
+        },
+        "Headers": {
+            "Accept": "*/*",
+            "Connection": "keep-alive",
+            "Host": "localhost:7071",
+            "User-Agent": "PostmanRuntime/7.29.2",
+            "Accept-Encoding": "gzip, deflate, br",
+            "Content-Type": "application/json",
+            "Content-Length": "24",
+            "Postman-Token": "95264cf0-21e3-4abd-9284-d73623f19b08"
+        },
+        "sys": {
+            "MethodName": "post-http-payload",
+            "UtcNow": "2023-01-24T07:33:38.8898196Z",
+            "RandGuid": "4dd24eb4-88e9-4574-8d29-412dca033593"
+        }
+    }
+}

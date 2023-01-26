@@ -1,0 +1,69 @@
+{
+    "Data": {
+        "httpPayload": {
+            "Url": "http://localhost:7071/http/payload/optionals",
+            "Method": "POST",
+            "Query": {},
+            "Headers": {
+                "Accept": [
+                    "*/*"
+                ],
+                "Connection": [
+                    "keep-alive"
+                ],
+                "Host": [
+                    "localhost:7071"
+                ],
+                "User-Agent": [
+                    "PostmanRuntime/7.29.2"
+                ],
+                "Accept-Encoding": [
+                    "gzip, deflate, br"
+                ],
+                "Content-Type": [
+                    "application/json"
+                ],
+                "Content-Length": [
+                    "24"
+                ],
+                "Postman-Token": [
+                    "e3d774e2-f031-48b9-bf09-86ed6aec6747"
+                ]
+            },
+            "Params": {},
+            "Identities": [
+                {
+                    "AuthenticationType": null,
+                    "IsAuthenticated": false,
+                    "Actor": null,
+                    "BootstrapContext": null,
+                    "Claims": [],
+                    "Label": null,
+                    "Name": null,
+                    "NameClaimType": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name",
+                    "RoleClaimType": "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+                }
+            ],
+            "Body": "{\n    \"test1\":\"Test 1\"\n}"
+        }
+    },
+    "Metadata": {
+        "test1": "\"Test 1\"",
+        "Query": {},
+        "Headers": {
+            "Accept": "*/*",
+            "Connection": "keep-alive",
+            "Host": "localhost:7071",
+            "User-Agent": "PostmanRuntime/7.29.2",
+            "Accept-Encoding": "gzip, deflate, br",
+            "Content-Type": "application/json",
+            "Content-Length": "24",
+            "Postman-Token": "e3d774e2-f031-48b9-bf09-86ed6aec6747"
+        },
+        "sys": {
+            "MethodName": "post-http-payload-optionals",
+            "UtcNow": "2023-01-24T07:46:26.0082338Z",
+            "RandGuid": "c1266239-e573-4077-8337-da5a69cd2bb6"
+        }
+    }
+}

@@ -22,7 +22,6 @@ import io.ballerina.runtime.api.Future;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.async.Callback;
-import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.MapType;
@@ -125,20 +124,16 @@ public class FunctionCallback implements Callback {
     }
 
     private void handleNilReturnType(BMap<BString, Object> mapValue) {
-        BString statusCode = StringUtils.fromString(Constants.ACCEPTED);
         BMap<BString, Object> respMap =
                 ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_ANYDATA));
-        respMap.put(StringUtils.fromString(Constants.STATUS_CODE), statusCode);
+        respMap.put(StringUtils.fromString(Constants.STATUS_CODE), Constants.ACCEPTED);
         mapValue.put(StringUtils.fromString(Constants.RESPONSE_FIELD), respMap);
     }
 
     @Override
     public void notifyFailure(BError bError) {
         bError.printStackTrace();
-        BString errorMessage = fromString("service method invocation failed: " + bError.getErrorMessage());
-        BError invocationError = ErrorCreator.createError(module, "ServiceExecutionError",
-                errorMessage, bError, null);
-        future.complete(invocationError);
+        future.complete(Utils.createError(module, "internal server error", Constants.INTERNAL_SERVER_ERROR));
     }
 
     private boolean isModuleDefinedError(BError error) {
@@ -166,16 +161,12 @@ public class FunctionCallback implements Callback {
 
     private void addStatusCodeImplicitly(BMap<BString, Object> respMap) {
         String accessor = ((ResourceMethodType) this.methodType).getAccessor();
-        Object statusCode = "";
+        int statusCode;
         if (Constants.POST.equals(accessor)) {
             statusCode = Constants.CREATED_201;
-        } else if (Constants.GET.equals(accessor) || Constants.PUT.equals(accessor) ||
-                Constants.PATCH.equals(accessor) || Constants.DELETE.equals(accessor) ||
-                Constants.HEAD.equals(accessor) || Constants.OPTIONS.equals(accessor) ||
-                Constants.DEFAULT.equals(accessor)) {
+        } else {
             statusCode = Constants.OK_200;
         }
-        statusCode = StringUtils.fromString((String) statusCode);
         respMap.put(StringUtils.fromString(Constants.STATUS_CODE), statusCode);
     }
 
@@ -210,6 +201,9 @@ public class FunctionCallback implements Callback {
                     }
 
                 }
+            } else {
+                headers.put(StringUtils.fromString(Constants.CONTENT_TYPE),
+                        StringUtils.fromString(Constants.APPLICATION_JSON));
             }
 
         } else if (result instanceof BTable) {
@@ -261,8 +255,7 @@ public class FunctionCallback implements Callback {
 
         // Extract status code
         BObject status = (BObject) (resultMap.get(StringUtils.fromString(Constants.STATUS)));
-        Object statusCode = Long.toString(status.getIntValue(StringUtils.fromString(Constants.CODE)));
-        statusCode = StringUtils.fromString((String) statusCode);
+        long statusCode = status.getIntValue(StringUtils.fromString(Constants.CODE));
 
         // Create a BMap for response field
         BMap<BString, Object> respMap =
@@ -292,7 +285,7 @@ public class FunctionCallback implements Callback {
             ((BMap) headers).put(StringUtils.fromString(Constants.CONTENT_TYPE),
                     StringUtils.fromString(Constants.APPLICATION_JSON));
             respMap.put(StringUtils.fromString(Constants.HEADERS), headers);
-
+            //TODO https://github.com/ballerina-platform/module-ballerinax-azure.functions/issues/601
         }
 
         // If there is mediaType replace content-type in headers

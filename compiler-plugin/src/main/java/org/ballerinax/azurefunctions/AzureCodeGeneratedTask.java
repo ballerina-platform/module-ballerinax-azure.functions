@@ -64,14 +64,12 @@ public class AzureCodeGeneratedTask implements CompilerLifecycleTask<CompilerLif
         generatedArtifactPath.ifPresent(path -> {
             try {
                 if (isNative) {
-                    OUT.println("\n\t@azure_functions: Building native image compatible for the Cloud. This may take " +
-                            "a while\n");
+                    OUT.println("\n\t@azure_functions: Building native image compatible for the Cloud using Docker. " +
+                            "This may take a while\n");
                 }
                 this.generateFunctionsArtifact(generatedFunctions, path, isNative);
-            } catch (IOException e) {
-                String msg = "Error generating Azure Functions: " + e.getMessage();
-                OUT.println(msg);
-                throw new RuntimeException(msg, e);
+            } catch (IOException | DockerBuildException e) {
+                throw new DockerBuildException(e.getMessage());
             }
             OUT.println("\n\t@azure_functions:Function: " + String.join(", ", generatedFunctions.keySet()));
             OUT.println("\n\tExecute the command below to deploy the function locally:");

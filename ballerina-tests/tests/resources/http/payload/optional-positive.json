@@ -1,0 +1,70 @@
+{
+    "Data": {
+        "httpPayload": {
+            "Url": "http://localhost:7071/http/payload/optionals",
+            "Method": "POST",
+            "Query": {},
+            "Headers": {
+                "Accept": [
+                    "*/*"
+                ],
+                "Connection": [
+                    "keep-alive"
+                ],
+                "Host": [
+                    "localhost:7071"
+                ],
+                "User-Agent": [
+                    "PostmanRuntime/7.29.2"
+                ],
+                "Accept-Encoding": [
+                    "gzip, deflate, br"
+                ],
+                "Content-Type": [
+                    "application/json"
+                ],
+                "Content-Length": [
+                    "47"
+                ],
+                "Postman-Token": [
+                    "52af06a1-1ae7-4a93-9398-180ad5ba3c06"
+                ]
+            },
+            "Params": {},
+            "Identities": [
+                {
+                    "AuthenticationType": null,
+                    "IsAuthenticated": false,
+                    "Actor": null,
+                    "BootstrapContext": null,
+                    "Claims": [],
+                    "Label": null,
+                    "Name": null,
+                    "NameClaimType": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name",
+                    "RoleClaimType": "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+                }
+            ],
+            "Body": "{\n    \"test1\":\"Test 1\",\n    \"test2\": \"Test 2\"\n}"
+        }
+    },
+    "Metadata": {
+        "test1": "\"Test 1\"",
+        "test2": "\"Test 2\"",
+        "Query": {},
+        "Headers": {
+            "Accept": "*/*",
+            "Connection": "keep-alive",
+            "Host": "localhost:7071",
+            "User-Agent": "PostmanRuntime/7.29.2",
+            "Accept-Encoding": "gzip, deflate, br",
+            "Content-Type": "application/json",
+            "Content-Length": "47",
+            "Postman-Token": "52af06a1-1ae7-4a93-9398-180ad5ba3c06"
+        },
+        "sys": {
+            "MethodName": "post-http-payload-optionals",
+            "UtcNow": "2023-01-24T07:45:28.3483118Z",
+            "RandGuid": "b64ceb3a-5f60-47e9-a24e-ed18de6d13d9"
+        }
+    }
+}
