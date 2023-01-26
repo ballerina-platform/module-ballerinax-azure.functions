@@ -811,7 +811,7 @@ function testSimpleQueue() returns error? {
     string jsonFilePath = "./tests/resources/queue-string.json";
     json readJson = check io:fileReadJson(jsonFilePath);
     json resp = check clientEndpoint->post("/queue", readJson);
-    json expectedResp = {"Outputs": {"outMsg": "helloo aaaaa"}, "Logs": [], "ReturnValue": null};
+    json expectedResp = {"Outputs": {"outResp": "helloo aaaaa"}, "Logs": [], "ReturnValue": null};
     test:assertEquals(resp, expectedResp);
 }
 
@@ -892,7 +892,7 @@ function testCosmosTrigger() returns error? {
     string jsonFilePath = "./tests/resources/trigger-cosmos-base.json";
     json readJson = check io:fileReadJson(jsonFilePath);
     json resp = check clientEndpoint->post("/cosmos", readJson);
-    json expectedResp = {"Outputs": {"outMsg": "helloo ehee"}, "Logs": [], "ReturnValue": null};
+    json expectedResp = {"Outputs": {"outResp": "helloo ehee"}, "Logs": [], "ReturnValue": null};
     test:assertEquals(resp, expectedResp);
 }
 
@@ -902,7 +902,7 @@ function testTimerTrigger() returns error? {
     string jsonFilePath = "./tests/resources/timer.json";
     json readJson = check io:fileReadJson(jsonFilePath);
     json resp = check clientEndpoint->post("/timer", readJson);
-    json expectedResp = {"Outputs": {"outMsg": "helloo false"}, "Logs": [], "ReturnValue": null};
+    json expectedResp = {"Outputs": {"outResp": "helloo false"}, "Logs": [], "ReturnValue": null};
     test:assertEquals(resp, expectedResp);
 }
 
@@ -912,7 +912,7 @@ function testQueueInput() returns error? {
     string jsonFilePath = "./tests/resources/queue-input.json";
     json readJson = check io:fileReadJson(jsonFilePath);
     json resp = check clientEndpoint->post("/queue-input", readJson);
-    json expectedResp = {"Outputs": {"outMsg": "helloo qqeeewwww hello1"}, "Logs": [], "ReturnValue": null};
+    json expectedResp = {"Outputs": {"outResp": "helloo qqeeewwww hello1"}, "Logs": [], "ReturnValue": null};
     test:assertEquals(resp, expectedResp);
 }
 
@@ -1084,7 +1084,7 @@ function testQueryMapJson() returns error? {
     json expectedResp = {
         "Outputs": {
             "outResp": {
-                "statusCode": "200",
+                "statusCode": 200,
                 "headers": {"Content-Type": "text/plain"},
                 "body": "testjson"
             }
@@ -1124,7 +1124,7 @@ function testMultiOut() returns error? {
     json expectedResp = {
         "Outputs": {
             "outResp": {
-                "statusCode": "200",
+                "statusCode": 200,
                 "headers": {"Content-Type": "text/plain"},
                 "body": "hello"
             },
@@ -1145,7 +1145,7 @@ function testMultiOutRef() returns error? {
     json expectedResp = {
         "Outputs": {
             "outResp": {
-                "statusCode": "200",
+                "statusCode": 200,
                 "headers": {"Content-Type": "text/plain"},
                 "body": "hello1"
             },
@@ -1166,7 +1166,7 @@ function testSingleTuple() returns error? {
     json expectedResp = {
         "Outputs": {
             "outResp": {
-                "statusCode": "200",
+                "statusCode": 200,
                 "headers": {"Content-Type": "text/plain"},
                 "body": "hello"
             }
@@ -1186,7 +1186,7 @@ function testThreeMultiOut() returns error? {
     json expectedResp = {
         "Outputs": {
             "outResp": {
-                "statusCode": "200",
+                "statusCode": 200,
                 "headers": {"Content-Type": "text/plain"},
                 "body": "hello"
             },
