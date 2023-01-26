@@ -112,7 +112,7 @@ public class HttpResource {
                 throw new InvalidPayloadException("Error : no query param value found for '" + name + "'");
             }
             try {
-                Object bValue = Utils.createPathValue(parameter, queryValue);
+                Object bValue = Utils.createValue(parameter, queryValue);
                 queryParameters.add(new QueryParameter(i, parameter, bValue));
             } catch (BError bError) {
                 throw new InvalidPayloadException(bError.getMessage());
@@ -132,7 +132,7 @@ public class HttpResource {
                 BMap<?, ?> payload = body.getMapValue(StringUtils.fromString(Constants.HTTP_TRIGGER_IDENTIFIER));
                 BMap<?, ?> params = payload.getMapValue(StringUtils.fromString(Constants.AZURE_PAYLOAD_PARAMS));
                 BString param = params.getStringValue(StringUtils.fromString(parameter.name));
-                Object value = Utils.createPathValue(parameter, param);
+                Object value = Utils.createValue(parameter, param);
                 pathParams.add(new PathParameter(count, parameter, value));
                 count++;
             } else if (path.equals(Constants.REST_PATH_PARAM)) {
@@ -142,7 +142,7 @@ public class HttpResource {
                 String param = params.getStringValue(StringUtils.fromString(parameter.name)).getValue();
                 BString modParamValue = StringUtils.fromString(param.replace(Constants.SLASH,
                         Constants.ELEMENT_SEPARATOR));
-                Object arrValue = Utils.createPathValue(parameter, modParamValue);
+                Object arrValue = Utils.createValue(parameter, modParamValue);
                 pathParams.add(new PathParameter(count, parameter, arrValue));
                 count++;
             }

@@ -62,7 +62,7 @@ public class Utils {
         return ErrorCreator.createError(module, type, errorMessage, ErrorCreator.createError(errorMessage), null);
     }
 
-    public static Object createPathValue(Parameter parameter, BString param) {
+    public static Object createValue(Parameter parameter, BString param) {
         if (param == null && isNilType(parameter.type)) {
             return null;
         }

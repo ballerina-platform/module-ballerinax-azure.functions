@@ -107,7 +107,6 @@ public class HTTPTriggerBinding extends TriggerBinding {
                         resourcePath.append("/" + "{**").append(pathParamNode.paramName().get().text()).append("}");
                     }
                 }
-                //TODO add wildcard
             }
             httpTriggerBinding.setPath(getFunctionPath(resourcePath.toString()));
             bindings.add(httpTriggerBinding);
