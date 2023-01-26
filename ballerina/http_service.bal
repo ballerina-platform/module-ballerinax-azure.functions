@@ -16,7 +16,6 @@
 
 import ballerina/http;
 import ballerina/log;
-import ballerina/io;
 
 isolated service class ResourceService {
     *http:Service;
@@ -30,7 +29,6 @@ isolated service class ResourceService {
     isolated resource function post .(http:Caller caller, http:Request request) returns error? {
         http:Response response = new;
         json message = check request.getJsonPayload();
-        io:println(message.toJsonString());
         Payload payload = check message.cloneWithType(Payload);
         string functionName = payload.Metadata.sys.MethodName;
         map<anydata>|error callRegisterMethod = self.adaptor.callNativeMethod(payload.Data, functionName);

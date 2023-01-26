@@ -66,10 +66,9 @@ public class NativeTest {
         ProcessOutput processOutput = TestUtils.compileBallerinaProject(handlers, true, true);
         Assert.assertEquals(processOutput.getExitCode(), 1);
         String stdOutput = processOutput.getStdOutput();
+        String stdErr = processOutput.getErrOutput();
         Assert.assertTrue(stdOutput.contains("@azure_functions"));
-        Assert.assertTrue(stdOutput.contains(
-                "Native executable generation for cloud using docker failed. Refer to the above build log for " +
-                        "information"));
+        Assert.assertTrue(stdErr.contains("Native executable generation for cloud using docker failed"));
         Files.deleteIfExists(depedenciesToml);
     }
 }
