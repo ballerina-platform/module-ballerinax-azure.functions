@@ -345,7 +345,7 @@ function httpResTest2() returns error? {
             "outResp": {
                 "statusCode": 200,
                 "body": "Helloworld.....",
-                "headers": {"Content-Type": "application/json"}
+                "headers": {"Content-Type": "text/plain"}
             }
         },
         "Logs": [],
@@ -384,7 +384,7 @@ function httpResTest4() returns error? {
         "Outputs": {
             "outResp": {
                 "statusCode": 500,
-                "headers": {"Content-Type": "application/json"}
+                "headers": {}
             }
         },
         "Logs": [],

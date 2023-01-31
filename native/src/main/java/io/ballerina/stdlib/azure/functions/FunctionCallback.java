@@ -49,6 +49,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 
 import static io.ballerina.runtime.api.utils.StringUtils.fromString;
 
@@ -89,7 +90,7 @@ public class FunctionCallback implements Callback {
         }
         return returnAnnotations.get(0);
     }
-    
+
     public List<String> parseTupleAnnotations(BMap<BString, Object> annotations) {
         List<String> returnAnnotations = new ArrayList<>();
         for (int i = 0; i < annotations.size(); i++) {
@@ -239,25 +240,22 @@ public class FunctionCallback implements Callback {
         respMap.put(StringUtils.fromString(Constants.STATUS_CODE), statusCode);
     }
 
-    private void addContentTypeImplicitly(Object result, BMap<BString, Object> headers) {
-        if (result instanceof BString) {
-            headers.put(StringUtils.fromString(Constants.CONTENT_TYPE), StringUtils.fromString(Constants.TEXT_PLAIN));
+    private Optional<String> addContentTypeImplicitly(Object value) {
+        if (value instanceof BString) {
+            return Optional.of(Constants.TEXT_PLAIN);
 
-        } else if (result instanceof BXmlItem) {
-            headers.put(StringUtils.fromString(Constants.CONTENT_TYPE),
-                    StringUtils.fromString(Constants.APPLICATION_XML));
+        } else if (value instanceof BXmlItem) {
+            return Optional.of(Constants.APPLICATION_XML);
 
-        } else if (result instanceof BArray) {
-            BArray arrayResult = (BArray) result;
+        } else if (value instanceof BArray) {
+            BArray arrayResult = (BArray) value;
             if (Constants.BYTE_TYPE.equals(arrayResult.getElementType().getName())) {
-                headers.put(StringUtils.fromString(Constants.CONTENT_TYPE),
-                        StringUtils.fromString(Constants.APPLICATION_OCTET_STREAM));
+                return Optional.of(Constants.APPLICATION_OCTET_STREAM);
 
             } else if (Constants.MAP_TYPE.equals(arrayResult.getElementType().getName())) {
                 MapType mapContent = (MapType) arrayResult.getElementType();
                 if (Constants.JSON_TYPE.equals(mapContent.getConstrainedType().getName())) {
-                    headers.put(StringUtils.fromString(Constants.CONTENT_TYPE),
-                            StringUtils.fromString(Constants.APPLICATION_JSON));
+                    return Optional.of(Constants.APPLICATION_JSON);
                 }
 
             } else if (Constants.TABLE_TYPE.equals(arrayResult.getElementType().getName())) {
@@ -265,34 +263,30 @@ public class FunctionCallback implements Callback {
                 if (Constants.MAP_TYPE.equals(tableContent.getConstrainedType().getName())) {
                     MapType mapContent = (MapType) tableContent.getConstrainedType();
                     if (Constants.JSON_TYPE.equals(mapContent.getConstrainedType().getName())) {
-                        headers.put(StringUtils.fromString(Constants.CONTENT_TYPE),
-                                StringUtils.fromString(Constants.APPLICATION_JSON));
+                        return Optional.of(Constants.APPLICATION_JSON);
                     }
                 }
             } else {
-                headers.put(StringUtils.fromString(Constants.CONTENT_TYPE),
-                        StringUtils.fromString(Constants.APPLICATION_JSON));
+                return Optional.of(Constants.APPLICATION_JSON);
             }
 
-        } else if (result instanceof BTable) {
-            BTable tableResult = (BTable) result;
+        } else if (value instanceof BTable) {
+            BTable tableResult = (BTable) value;
             TableType tableContent = (TableType) tableResult.getType();
             if (Constants.MAP_TYPE.equals(tableContent.getConstrainedType().getName())) {
                 MapType mapContent = (MapType) tableContent.getConstrainedType();
                 if (Constants.JSON_TYPE.equals(mapContent.getConstrainedType().getName())) {
-                    headers.put(StringUtils.fromString(Constants.CONTENT_TYPE),
-                            StringUtils.fromString(Constants.APPLICATION_JSON));
+                    return Optional.of(Constants.APPLICATION_JSON);
                 }
 
             }
-        } else if (result instanceof BDecimal || result instanceof Long || result instanceof Double ||
-                result instanceof Boolean) {
-            headers.put(StringUtils.fromString(Constants.CONTENT_TYPE),
-                    StringUtils.fromString(Constants.APPLICATION_JSON));
-        } else if (result instanceof BMap) {
-            headers.put(StringUtils.fromString(Constants.CONTENT_TYPE),
-                    StringUtils.fromString(Constants.APPLICATION_JSON));
+        } else if (value instanceof BDecimal || value instanceof Long || value instanceof Double ||
+                value instanceof Boolean) {
+            return Optional.of(Constants.APPLICATION_JSON);
+        } else if (value instanceof BMap) {
+            return Optional.of(Constants.APPLICATION_JSON);
         }
+        return Optional.empty();
     }
 
     private Map.Entry<BString, Object> handleNonStatusCodeResponse(Object result, int index) {
@@ -302,7 +296,9 @@ public class FunctionCallback implements Callback {
                 ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_ANYDATA));
 
         addStatusCodeImplicitly(respMap);
-        addContentTypeImplicitly(result, headers);
+        Optional<String> contentType = addContentTypeImplicitly(result);
+        contentType
+                .ifPresent(s -> headers.put(StringUtils.fromString(Constants.CONTENT_TYPE), StringUtils.fromString(s)));
 
         respMap.put(StringUtils.fromString(Constants.HEADERS), headers);
         if (result instanceof BArray) {
@@ -338,23 +334,23 @@ public class FunctionCallback implements Callback {
 
         // Create header field in the response Map
         if (resultMap.containsKey(StringUtils.fromString(Constants.HEADERS))) {
-            Object headers = resultMap.get(StringUtils.fromString(Constants.HEADERS));
-            BMap headersMap = (BMap) headers;
+            Object headers = resultMap.getMapValue(StringUtils.fromString(Constants.HEADERS));
+            BMap<BString, Object> headersMap = (BMap) headers;
             // Add Content-type field in headers if there is not
             if (!isContentTypeExist(headersMap)) {
-                headersMap.put(StringUtils.fromString(Constants.CONTENT_TYPE),
-                        StringUtils.fromString(Constants.APPLICATION_JSON));
+                Optional<String> contentType = getContentType(resultMap);
+                contentType.ifPresent(s -> headersMap.put(StringUtils.fromString(Constants.CONTENT_TYPE),
+                        StringUtils.fromString(s)));
             }
             respMap.put(StringUtils.fromString(Constants.HEADERS), headers);
         } else {
             // If there is no headers add one with default content-type
-            Object headers =
+            BMap<BString, Object> headers =
                     ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_ANYDATA));
-            ((BMap) headers).put(StringUtils.fromString(Constants.CONTENT_TYPE),
-                    StringUtils.fromString(Constants.APPLICATION_JSON));
+            Optional<String> contentType = getContentType(resultMap);
+            contentType.ifPresent(s -> headers.put(StringUtils.fromString(Constants.CONTENT_TYPE),
+                    StringUtils.fromString(s)));
             respMap.put(StringUtils.fromString(Constants.HEADERS), headers);
-            //TODO https://github.com/ballerina-platform/module-ballerinax-azure.functions/issues/601
-
         }
 
         // If there is mediaType replace content-type in headers
@@ -366,6 +362,15 @@ public class FunctionCallback implements Callback {
             }
         }
         return Map.entry(StringUtils.fromString(getBindingIdentifier(index)), respMap);
+    }
+
+    private Optional<String> getContentType(BMap<?, ?> resultMap) {
+        if (resultMap.containsKey(StringUtils.fromString(Constants.BODY))) {
+            Object body = resultMap.get(StringUtils.fromString(Constants.BODY));
+            return addContentTypeImplicitly(body);
+        } else {
+            return Optional.empty();
+        }
     }
 
     private String getBindingIdentifier(int index) {
