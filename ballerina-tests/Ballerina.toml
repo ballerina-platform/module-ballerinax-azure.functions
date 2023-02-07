@@ -2,3 +2,7 @@
 org = "ballerinax"
 name = "azure_functions_tests"
 version = "3.1.1"
+
+[build-options]
+observabilityIncluded = true
+cloud = "azure_functions"
