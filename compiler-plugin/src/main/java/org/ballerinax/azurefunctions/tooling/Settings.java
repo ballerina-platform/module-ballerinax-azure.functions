@@ -47,10 +47,6 @@ public class Settings {
         this.projectLanguage = "Custom";
         this.projectRuntime = "~4";
         this.internalConsoleOptions = "neverOpen";
-        if (isNative) {
-            this.projectSubpath = Constants.LOCAL_ARTIFACT_PATH;
-        } else {
-            this.projectSubpath = Constants.ARTIFACT_PATH;
-        }
+        this.projectSubpath = Constants.ARTIFACT_PATH;
     }
 }

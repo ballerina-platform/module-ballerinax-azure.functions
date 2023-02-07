@@ -57,12 +57,10 @@ public class Constants {
     public static final String RETURN_VAR_NAME = "outResp";
 
     public static final String FUNCTION_DIRECTORY = "azure_functions";
-    public static final String LOCAL_FUNCTION_DIRECTORY = FUNCTION_DIRECTORY + "_local";
 
     public static final String TARGET_DIRECTORY = "target/";
 
     public static final String ARTIFACT_PATH = TARGET_DIRECTORY + FUNCTION_DIRECTORY;
-    public static final String LOCAL_ARTIFACT_PATH = TARGET_DIRECTORY + LOCAL_FUNCTION_DIRECTORY;
 
     public static final String SETTINGS_LOCAL_FILE_NAME = "local.settings.json";
     public static final String EXTENSIONS_FILE_NAME = "extensions.json";
@@ -89,4 +87,8 @@ public class Constants {
     public static final String AZURE_REMOTE_COMPATIBLE_ARCHITECTURE = "linux/amd64";
     
     public static final String REMOTE_KEYWORD = "remote";
+    
+    public static final String AZURE_FUNCTIONS_BUILD_OPTION = AZURE_FUNCTIONS_MODULE_NAME;
+    public static final String AZURE_FUNCTIONS_LOCAL_BUILD_OPTION = AZURE_FUNCTIONS_MODULE_NAME + "_local";
+
 }

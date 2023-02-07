@@ -51,8 +51,14 @@ public enum AzureDiagnosticCodes {
     AF_013("AF_013", "multiple bindings not allowed for the parameter '%s'", ERROR),
     AF_014("AF_014", "missing output binding annotation for the remote function", ERROR),
     AF_015("AF_015", "remote methods are not allowed in HttpListener", ERROR),
+
+    AF_016("AF_016", "cloud build option is not specified. invoke bal build --cloud=\"azure_functions\" or bal build " +
+            "--cloud=\"azure_functions_local\" to build azure functions", ERROR),
+    AF_017("AF_017",
+            "invalid cloud build option specified. found '%s'. expected \"azure_functions\"|\"azure_functions_local\"",
+            ERROR),
     ;
-    
+
     private final String code;
     private final String message;
     private final DiagnosticSeverity severity;

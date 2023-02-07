@@ -52,11 +52,7 @@ public class Tasks {
             this.problemMatcher = "$func-watch";
             this.isBackground = true;
             this.options = new HashMap<>();
-            if (isNative) {
-                this.options.put("cwd", "${workspaceFolder}/" + Constants.LOCAL_ARTIFACT_PATH);
-            } else {
-                this.options.put("cwd", "${workspaceFolder}/" + Constants.ARTIFACT_PATH);
-            }
+            this.options.put("cwd", "${workspaceFolder}/" + Constants.ARTIFACT_PATH);
         }
     }
 }

@@ -35,7 +35,6 @@ ext.puppycrawlCheckstyleVersion = "8.18"
 ext.projectBuildSourceEncoding = "UTF-8"
 ext.projectReportingOutputEncoding = "UTF-8"
 
-
 allprojects {
     group = project.group
     version = project.version
