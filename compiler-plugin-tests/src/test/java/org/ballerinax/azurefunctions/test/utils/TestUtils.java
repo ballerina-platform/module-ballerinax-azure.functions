@@ -21,6 +21,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.ballerinax.azurefunctions.Constants;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -31,6 +32,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -72,7 +76,8 @@ public class TestUtils {
      * @throws InterruptedException if an error occurs while compiling
      * @throws IOException          if an error occurs while writing file
      */
-    public static ProcessOutput compileBallerinaProject(Path sourceDirectory, boolean isNative, boolean failDocker)
+    public static ProcessOutput compileProject(Path sourceDirectory, boolean isNative, boolean failDocker,
+                                               boolean isLocal)
             throws InterruptedException, IOException {
 
         Path ballerinaInternalLog = Paths.get(sourceDirectory.toAbsolutePath().toString(), "ballerina-internal.log");
@@ -81,12 +86,16 @@ public class TestUtils {
             FileUtils.deleteQuietly(ballerinaInternalLog.toFile());
         }
 
-        ProcessBuilder pb;
+        List<String> commands = new ArrayList<>(Arrays.asList(BALLERINA_COMMAND.toString(), BUILD, "--offline"));
         if (isNative) {
-            pb = new ProcessBuilder(BALLERINA_COMMAND.toString(), BUILD, "--offline", "--native");
-        } else {
-            pb = new ProcessBuilder(BALLERINA_COMMAND.toString(), BUILD, "--offline");
+            commands.add("--native");
         }
+
+        if (isLocal) {
+            commands.add("--cloud=" + Constants.AZURE_FUNCTIONS_LOCAL_BUILD_OPTION);
+        }
+
+        ProcessBuilder pb = new ProcessBuilder(commands);
 
         Map<String, String> environment = pb.environment();
         addJavaAgents(environment);
@@ -94,7 +103,7 @@ public class TestUtils {
             environment.put("DOCKER_HOST", "tcp://192.168.59.103:2300");
         }
         log.info(COMPILING + sourceDirectory.normalize());
-        log.debug(EXECUTING_COMMAND + pb.command());
+        log.debug(EXECUTING_COMMAND + commands);
         pb.directory(sourceDirectory.toFile());
         Process process = pb.start();
         int exitCode = process.waitFor();

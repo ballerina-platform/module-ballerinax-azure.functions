@@ -34,11 +34,11 @@ public class NativeTest {
     private static final Path SOURCE_DIR = Paths.get("src").resolve("test").resolve("resources");
 
     @Test
-    public void testNativeAzureFunctionsDeploymentProject() throws Exception {
+    public void testNativeAzureFunctionsLocal() throws Exception {
         Path handlers = SOURCE_DIR.resolve("handlers");
         Path depedenciesToml = handlers.resolve("Dependencies.toml");
         Files.deleteIfExists(depedenciesToml);
-        ProcessOutput processOutput = TestUtils.compileBallerinaProject(handlers, true, false);
+        ProcessOutput processOutput = TestUtils.compileProject(handlers, true, false, true);
         Assert.assertEquals(processOutput.getExitCode(), 0);
         Assert.assertTrue(processOutput.getStdOutput().contains("@azure_functions"));
 
@@ -49,12 +49,25 @@ public class NativeTest {
 
         Assert.assertTrue(Files.exists(azureFunctionsDir.resolve("azure_functions_tests")));
         Assert.assertTrue(Files.exists(azureFunctionsDir.resolve("host.json")));
+        Files.deleteIfExists(depedenciesToml);
+    }
 
-        Path azureFunctionsLocalDir = target.resolve("azure_functions_local");
-        Assert.assertTrue(Files.exists(azureFunctionsLocalDir));
+    @Test
+    public void testNativeAzureFunctionsRemote() throws Exception {
+        Path handlers = SOURCE_DIR.resolve("handlers");
+        Path depedenciesToml = handlers.resolve("Dependencies.toml");
+        Files.deleteIfExists(depedenciesToml);
+        ProcessOutput processOutput = TestUtils.compileProject(handlers, true, false, false);
+        Assert.assertEquals(processOutput.getExitCode(), 0);
+        Assert.assertTrue(processOutput.getStdOutput().contains("@azure_functions"));
 
-        Assert.assertTrue(Files.exists(azureFunctionsLocalDir.resolve("azure_functions_tests")));
-        Assert.assertTrue(Files.exists(azureFunctionsLocalDir.resolve("host.json")));
+        // check if the executable jar and the host.json files are in the generated zip file
+        Path target = handlers.resolve("target");
+        Path azureFunctionsDir = target.resolve("azure_functions");
+        Assert.assertTrue(Files.exists(azureFunctionsDir));
+
+        Assert.assertTrue(Files.exists(azureFunctionsDir.resolve("azure_functions_tests")));
+        Assert.assertTrue(Files.exists(azureFunctionsDir.resolve("host.json")));
         Files.deleteIfExists(depedenciesToml);
     }
 
@@ -63,7 +76,7 @@ public class NativeTest {
         Path handlers = SOURCE_DIR.resolve("handlers");
         Path depedenciesToml = handlers.resolve("Dependencies.toml");
         Files.deleteIfExists(depedenciesToml);
-        ProcessOutput processOutput = TestUtils.compileBallerinaProject(handlers, true, true);
+        ProcessOutput processOutput = TestUtils.compileProject(handlers, true, true, false);
         Assert.assertEquals(processOutput.getExitCode(), 1);
         String stdOutput = processOutput.getStdOutput();
         String stdErr = processOutput.getErrOutput();

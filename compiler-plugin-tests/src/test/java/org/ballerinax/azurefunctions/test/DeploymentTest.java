@@ -38,7 +38,7 @@ public class DeploymentTest {
         Path handlers = SOURCE_DIR.resolve("handlers");
         Path depedenciesToml = handlers.resolve("Dependencies.toml");
         Files.deleteIfExists(depedenciesToml);
-        ProcessOutput processOutput = TestUtils.compileBallerinaProject(handlers, false, false);
+        ProcessOutput processOutput = TestUtils.compileProject(handlers, false, false, false);
         Assert.assertEquals(processOutput.getExitCode(), 0);
         Assert.assertTrue(processOutput.getStdOutput().contains("@azure_functions"));
 
