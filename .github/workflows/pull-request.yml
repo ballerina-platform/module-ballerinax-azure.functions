@@ -35,7 +35,7 @@ jobs:
           packageUser: ${{ github.actor }}
           packagePAT: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          ./gradlew build -Pnative.test --no-daemon
+          ./gradlew build -PnativeTest --no-daemon
       - name: Generate Codecov Report
         uses: codecov/codecov-action@v2
   windows-build:
@@ -64,4 +64,4 @@ jobs:
           packageUser: ${{ github.actor }}
           packagePAT: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          ./gradlew.bat build -Pnative.test --no-daemon
+          ./gradlew.bat build -PnativeTest --no-daemon
