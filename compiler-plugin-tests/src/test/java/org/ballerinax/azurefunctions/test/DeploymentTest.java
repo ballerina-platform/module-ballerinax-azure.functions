@@ -47,7 +47,14 @@ public class DeploymentTest {
         Assert.assertTrue(Files.exists(zipFilePath));
 
         Assert.assertTrue(Files.exists(zipFilePath.resolve("azure_functions_tests.jar")));
-        Assert.assertTrue(Files.exists(zipFilePath.resolve("host.json")));
+        Path hostJsonPath = zipFilePath.resolve("host.json");
+        Assert.assertTrue(Files.exists(hostJsonPath));
+
+        TestUtils.HostJson hostJson = TestUtils.parseHostJson(hostJsonPath);
+        String defaultExecutablePath = hostJson.customHandler.description.defaultExecutablePath;
+        String defaultWorkerPath = hostJson.customHandler.description.defaultWorkerPath;
+        Assert.assertEquals(defaultExecutablePath, "java");
+        Assert.assertEquals(defaultWorkerPath, "azure_functions_tests.jar");
         Files.deleteIfExists(depedenciesToml);
     }
 }

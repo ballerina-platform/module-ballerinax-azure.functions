@@ -17,6 +17,7 @@
  */
 package org.ballerinax.azurefunctions.test.utils;
 
+import com.google.gson.Gson;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
@@ -141,5 +142,35 @@ public class TestUtils {
             return "";
         }
         return jacocoArgLine + " ";
+    }
+
+    public static HostJson parseHostJson(Path hostJson) throws IOException {
+        Gson gson = new Gson();
+        return gson.fromJson(Files.readString(hostJson), HostJson.class);
+    }
+
+    /**
+     * Represents Host.json file in tests.
+     */
+    public static class HostJson {
+
+        public CustomHandler customHandler;
+
+        /**
+         * Represents custom handler in host.json.
+         */
+        public static class CustomHandler {
+
+            public Description description;
+
+            /**
+             * Represents description in custom handler.
+             */
+            public static class Description {
+
+                public String defaultExecutablePath;
+                public String defaultWorkerPath;
+            }
+        }
     }
 }

@@ -48,7 +48,17 @@ public class NativeTest {
         Assert.assertTrue(Files.exists(azureFunctionsDir));
 
         Assert.assertTrue(Files.exists(azureFunctionsDir.resolve("azure_functions_tests")));
-        Assert.assertTrue(Files.exists(azureFunctionsDir.resolve("host.json")));
+        Path hostJsonPath = azureFunctionsDir.resolve("host.json");
+        Assert.assertTrue(Files.exists(hostJsonPath));
+
+        TestUtils.HostJson hostJson = TestUtils.parseHostJson(hostJsonPath);
+        String defaultExecutablePath = hostJson.customHandler.description.defaultExecutablePath;
+        if (System.getProperty("os.name").toLowerCase().contains("win")) {
+            Assert.assertEquals(defaultExecutablePath, "azure_functions_tests.exe");
+        } else {
+            Assert.assertEquals(defaultExecutablePath, "azure_functions_tests");
+        }
+
         Files.deleteIfExists(depedenciesToml);
     }
 
@@ -67,7 +77,13 @@ public class NativeTest {
         Assert.assertTrue(Files.exists(azureFunctionsDir));
 
         Assert.assertTrue(Files.exists(azureFunctionsDir.resolve("azure_functions_tests")));
-        Assert.assertTrue(Files.exists(azureFunctionsDir.resolve("host.json")));
+        Path hostJsonPath = azureFunctionsDir.resolve("host.json");
+        Assert.assertTrue(Files.exists(hostJsonPath));
+        
+        TestUtils.HostJson hostJson = TestUtils.parseHostJson(hostJsonPath);
+        String defaultExecutablePath = hostJson.customHandler.description.defaultExecutablePath;
+        Assert.assertEquals(defaultExecutablePath, "azure_functions_tests");
+        
         Files.deleteIfExists(depedenciesToml);
     }
 
