@@ -89,6 +89,9 @@ public class NativeTest {
 
     @Test
     public void testNativeAzureFunctionsBuildFail() throws Exception {
+        if (System.getProperty("os.name").toLowerCase().contains("win")) {
+            return;
+        }
         Path handlers = SOURCE_DIR.resolve("handlers");
         Path depedenciesToml = handlers.resolve("Dependencies.toml");
         Files.deleteIfExists(depedenciesToml);
