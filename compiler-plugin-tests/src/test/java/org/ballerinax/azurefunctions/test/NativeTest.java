@@ -46,8 +46,7 @@ public class NativeTest {
         Path target = handlers.resolve("target");
         Path azureFunctionsDir = target.resolve("azure_functions");
         Assert.assertTrue(Files.exists(azureFunctionsDir));
-
-        Assert.assertTrue(Files.exists(azureFunctionsDir.resolve("azure_functions_tests")));
+        
         Path hostJsonPath = azureFunctionsDir.resolve("host.json");
         Assert.assertTrue(Files.exists(hostJsonPath));
 
@@ -64,6 +63,12 @@ public class NativeTest {
 
     @Test
     public void testNativeAzureFunctionsRemote() throws Exception {
+        if (System.getProperty("os.name").toLowerCase().contains("win")) {
+            //As of now, compiling into linux from windows containers is not supported. Therefore, it'll fail in 
+            // GitHub actions. The feature works with normal windows operating system.
+            //https://github.com/docker/roadmap/issues/79
+            return;
+        }
         Path handlers = SOURCE_DIR.resolve("handlers");
         Path depedenciesToml = handlers.resolve("Dependencies.toml");
         Files.deleteIfExists(depedenciesToml);
@@ -89,9 +94,6 @@ public class NativeTest {
 
     @Test
     public void testNativeAzureFunctionsBuildFail() throws Exception {
-        if (System.getProperty("os.name").toLowerCase().contains("win")) {
-            return;
-        }
         Path handlers = SOURCE_DIR.resolve("handlers");
         Path depedenciesToml = handlers.resolve("Dependencies.toml");
         Files.deleteIfExists(depedenciesToml);

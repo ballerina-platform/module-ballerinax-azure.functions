@@ -107,6 +107,9 @@ public class TestUtils {
         log.debug(EXECUTING_COMMAND + commands);
         pb.directory(sourceDirectory.toFile());
         Process process = pb.start();
+        ProcessOutput po = new ProcessOutput();
+        po.setStdOutput(logOutput(process.getInputStream()));
+        po.setErrOutput(logOutput(process.getErrorStream()));
         int exitCode = process.waitFor();
 
         // log ballerina-internal.log content
@@ -115,11 +118,9 @@ public class TestUtils {
             log.info(FileUtils.readFileToString(ballerinaInternalLog.toFile(), Charset.defaultCharset()));
         }
 
-        ProcessOutput po = new ProcessOutput();
+
         log.info(EXIT_CODE + exitCode);
         po.setExitCode(exitCode);
-        po.setStdOutput(logOutput(process.getInputStream()));
-        po.setErrOutput(logOutput(process.getErrorStream()));
         return po;
     }
 
