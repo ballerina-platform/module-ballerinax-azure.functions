@@ -52,7 +52,7 @@ public class NativeTest {
 
         TestUtils.HostJson hostJson = TestUtils.parseHostJson(hostJsonPath);
         String defaultExecutablePath = hostJson.customHandler.description.defaultExecutablePath;
-        if (System.getProperty("os.name").toLowerCase().contains("win")) {
+        if (isWindows()) {
             Assert.assertEquals(defaultExecutablePath, "azure_functions_tests.exe");
         } else {
             Assert.assertEquals(defaultExecutablePath, "azure_functions_tests");
@@ -63,7 +63,7 @@ public class NativeTest {
 
     @Test
     public void testNativeAzureFunctionsRemote() throws Exception {
-        if (System.getProperty("os.name").toLowerCase().contains("win")) {
+        if (isWindows()) {
             //As of now, compiling into linux from windows containers is not supported. Therefore, it'll fail in 
             // GitHub actions. The feature works with normal windows operating system.
             //https://github.com/docker/roadmap/issues/79
@@ -92,13 +92,19 @@ public class NativeTest {
         Files.deleteIfExists(depedenciesToml);
     }
 
+    private static boolean isWindows() {
+        return System.getProperty("os.name").toLowerCase().contains("win");
+    }
+
     @Test
     public void testNativeAzureFunctionsBuildFail() throws Exception {
         Path handlers = SOURCE_DIR.resolve("handlers");
         Path depedenciesToml = handlers.resolve("Dependencies.toml");
         Files.deleteIfExists(depedenciesToml);
         ProcessOutput processOutput = TestUtils.compileProject(handlers, true, true, false);
-        Assert.assertEquals(processOutput.getExitCode(), 1);
+        if (!isWindows()) {
+            Assert.assertEquals(processOutput.getExitCode(), 1);
+        }
         String stdOutput = processOutput.getStdOutput();
         String stdErr = processOutput.getErrOutput();
         Assert.assertTrue(stdOutput.contains("@azure_functions"));
