@@ -26,11 +26,14 @@ import io.ballerina.compiler.syntax.tree.AbstractNodeFactory;
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
+import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
+import io.ballerina.compiler.syntax.tree.FunctionBodyNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ImportOrgNameNode;
 import io.ballerina.compiler.syntax.tree.ImportPrefixNode;
+import io.ballerina.compiler.syntax.tree.ListConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.LiteralValueToken;
 import io.ballerina.compiler.syntax.tree.MappingConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.MappingFieldNode;
@@ -39,12 +42,18 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeFactory;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.ReturnStatementNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
+import io.ballerina.compiler.syntax.tree.SpreadMemberNode;
+import io.ballerina.compiler.syntax.tree.StatementNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TreeModifier;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -116,21 +125,69 @@ public class AzureFunctionModifier extends TreeModifier {
         AzureFunctionNameGenerator nameGen = new AzureFunctionNameGenerator(serviceDeclarationNode);
         NodeList<Node> newMembersList = NodeFactory.createNodeList();
         for (Node node : members) {
-            Optional<Node> modifiedMember = getModifiedMember(node, servicePath, nameGen);
-            if (modifiedMember.isEmpty()) {
-                newMembersList = newMembersList.add(node);
-            } else {
-                newMembersList = newMembersList.add(modifiedMember.get());
-            }
+            Node modifiedMember = getModifiedMember(node, servicePath, nameGen);
+            newMembersList = newMembersList.add(modifiedMember);
         }
         return new ServiceDeclarationNode.ServiceDeclarationNodeModifier(serviceDeclarationNode)
                 .withMembers(newMembersList).apply();
     }
 
-    public Optional<Node> getModifiedMember(Node node, String servicePath, AzureFunctionNameGenerator nameGen) {
-        if (SyntaxKind.RESOURCE_ACCESSOR_DEFINITION != node.kind()) {
-            return Optional.empty();
+    public Node getModifiedMember(Node node, String servicePath, AzureFunctionNameGenerator nameGen) {
+        if (SyntaxKind.RESOURCE_ACCESSOR_DEFINITION == node.kind() || SyntaxKind.FUNCTION_DEFINITION == node.kind()) {
+            node = getReturnModifiedFunction((FunctionDefinitionNode) node);
         }
+        
+        if (SyntaxKind.RESOURCE_ACCESSOR_DEFINITION == node.kind()) {
+            node = getAnnotatedFunctionNode(node, servicePath, nameGen);
+        }
+        return node;
+    }
+
+    public Node getReturnModifiedFunction(FunctionDefinitionNode functionDefinitionNode) {
+        FunctionBodyNode functionBodyNode = functionDefinitionNode.functionBody();
+        if (functionBodyNode.kind() != SyntaxKind.FUNCTION_BODY_BLOCK) {
+            return functionDefinitionNode;
+        }
+        FunctionBodyBlockNode functionBodyBlockNode = (FunctionBodyBlockNode) functionBodyNode;
+        NodeList<StatementNode> statements = functionBodyBlockNode.statements();
+        List<StatementNode> newStatements = new ArrayList<>();
+        for (StatementNode statementNode : statements) {
+            if (statementNode.kind() == SyntaxKind.RETURN_STATEMENT) {
+                ReturnStatementNode returnStatementNode = (ReturnStatementNode) statementNode;
+                Optional<ExpressionNode> expression = returnStatementNode.expression();
+                if (expression.isEmpty()) {
+                    newStatements.add(statementNode);
+                    continue;
+                }
+                ExpressionNode expressionNode = expression.get();
+                Optional<TypeSymbol> typeSymbol = semanticModel.typeOf(expressionNode);
+                if (typeSymbol.isPresent()) {
+                    if (typeSymbol.get().typeKind() == TypeDescKind.TUPLE) {
+                        expressionNode = createSpreadOperator(expressionNode);
+                        returnStatementNode = returnStatementNode.modify().withExpression(expressionNode).apply();
+                        newStatements.add(returnStatementNode);
+                        continue;
+                    }
+                }
+            }
+            newStatements.add(statementNode);
+        }
+        functionBodyBlockNode = functionBodyBlockNode.modify().withStatements(NodeFactory.createNodeList(newStatements))
+                .apply();
+        functionDefinitionNode = functionDefinitionNode.modify().withFunctionBody(functionBodyBlockNode).apply();
+        return functionDefinitionNode;
+    }
+    
+    public ListConstructorExpressionNode createSpreadOperator(ExpressionNode expressionNode) {
+        Token openBracket = NodeFactory.createToken(SyntaxKind.OPEN_BRACKET_TOKEN);
+        Token closeBracket = NodeFactory.createToken(SyntaxKind.CLOSE_BRACKET_TOKEN);
+        Token ellipsis = NodeFactory.createToken(SyntaxKind.ELLIPSIS_TOKEN);
+        SpreadMemberNode spreadMemberNode = NodeFactory.createSpreadMemberNode(ellipsis, expressionNode);
+        SeparatedNodeList<Node> expressions = NodeFactory.createSeparatedNodeList(spreadMemberNode);
+        return NodeFactory.createListConstructorExpressionNode(openBracket, expressions, closeBracket);
+    }
+    public FunctionDefinitionNode getAnnotatedFunctionNode(Node node, String servicePath,
+                                                           AzureFunctionNameGenerator nameGen) {
         FunctionDefinitionNode functionDefinitionNode = (FunctionDefinitionNode) node;
         String uniqueFunctionName = nameGen.getUniqueFunctionName(servicePath, functionDefinitionNode);
         Optional<MetadataNode> metadata = functionDefinitionNode.metadata();
@@ -148,10 +205,8 @@ public class AzureFunctionModifier extends TreeModifier {
                 existingAnnotations.add(createFunctionAnnotation(uniqueFunctionName));
         MetadataNode modifiedMetadata =
                 new MetadataNode.MetadataNodeModifier(metadataNode).withAnnotations(modifiedAnnotations).apply();
-        FunctionDefinitionNode updatedFunctionNode =
-                new FunctionDefinitionNode.FunctionDefinitionNodeModifier(functionDefinitionNode)
+        return new FunctionDefinitionNode.FunctionDefinitionNodeModifier(functionDefinitionNode)
                         .withMetadata(modifiedMetadata).apply();
-        return Optional.of(updatedFunctionNode);
     }
 
     public AnnotationNode createFunctionAnnotation(String functionName) {

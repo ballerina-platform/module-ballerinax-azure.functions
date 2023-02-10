@@ -432,6 +432,20 @@ service /hello on ep {
         return ["hello", "world"];
     }
     
+    resource function get multiout/val() returns [@af:HttpOutput string, @af:QueueOutput{queueName: "queue3"} string] {
+        [string, string] x = ["hello", "world"];
+        return x;
+    }
+    
+    resource function get multiout/method() returns [@af:HttpOutput string, @af:QueueOutput{queueName: "queue3"} string]
+    {
+        return self.getTuple();
+    }
+    
+    function getTuple() returns [string, string] {
+        return ["hello", "world"];
+    }
+    
     resource function get multiout/ref() returns AzureReturn {
         return ["hello1", "world1"];
     }
