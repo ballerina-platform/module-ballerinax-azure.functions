@@ -17,18 +17,17 @@
  */
 package org.ballerinax.azurefunctions;
 
-import io.ballerina.compiler.syntax.tree.ModulePartNode;
-import io.ballerina.projects.Document;
+import io.ballerina.projects.BallerinaToml;
 import io.ballerina.projects.DocumentId;
-import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
+import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.plugins.AnalysisTask;
 import io.ballerina.projects.plugins.CompilationAnalysisContext;
+import io.ballerina.toml.api.Toml;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.Location;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -44,34 +43,30 @@ public class AzureFunctionsCloudValidator implements AnalysisTask<CompilationAna
         if (erroneousCompilation) {
             return;
         }
-        
+
         Package currentPackage = compilationAnalysisContext.currentPackage();
         String cloud = currentPackage.project().buildOptions().cloud();
-        List<Location> locations = new ArrayList<>();
-        Module module = currentPackage.getDefaultModule();
-        for (DocumentId documentId : module.documentIds()) {
-            Document document = module.document(documentId);
-            ModulePartNode rootNode = document.syntaxTree().rootNode();
-            AzureFunctionDocumentVisitor azureFunctionVisitor = new AzureFunctionDocumentVisitor();
-            azureFunctionVisitor.visit(rootNode);
-            locations.addAll(azureFunctionVisitor.getLocations());
-        }
-        
-        for (DocumentId documentId : module.testDocumentIds()) {
-            Document document = module.document(documentId);
-            ModulePartNode rootNode = document.syntaxTree().rootNode();
-            AzureFunctionDocumentVisitor azureFunctionVisitor = new AzureFunctionDocumentVisitor();
-            azureFunctionVisitor.visit(rootNode);
-            locations.addAll(azureFunctionVisitor.getLocations());
-        }
-        
-        Optional<Diagnostic> diagnostics = validateCloudOptions(cloud, locations.get(0));
+
+        Optional<Diagnostic> diagnostics = validateCloudOptions(cloud, currentPackage.project());
         diagnostics.ifPresent(compilationAnalysisContext::reportDiagnostic);
     }
-    
-    public Optional<Diagnostic> validateCloudOptions(String givenCloud, Location location) {
+
+    public Location getLocation(Project project) {
+        if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
+            DocumentId documentId =
+                    project.currentPackage().getDefaultModule().documentIds().stream().findFirst().orElseThrow();
+            return project.currentPackage().getDefaultModule().document(documentId).syntaxTree().rootNode().location();
+        } else if (project.kind() == ProjectKind.BUILD_PROJECT) {
+            BallerinaToml ballerinaToml = project.currentPackage().ballerinaToml().orElseThrow();
+            Toml toml = ballerinaToml.tomlDocument().toml();
+            return toml.get("build-options.cloud").orElseThrow().location();
+        }
+        return null;
+    }
+
+    public Optional<Diagnostic> validateCloudOptions(String givenCloud, Project project) {
         if (givenCloud == null || givenCloud.isEmpty()) {
-            return Optional.of(Util.getDiagnostic(location, AzureDiagnosticCodes.AF_016));
+            return Optional.empty();
         }
         if (givenCloud.equals(Constants.AZURE_FUNCTIONS_BUILD_OPTION)) {
             return Optional.empty();
@@ -79,7 +74,7 @@ public class AzureFunctionsCloudValidator implements AnalysisTask<CompilationAna
         if (givenCloud.equals(Constants.AZURE_FUNCTIONS_LOCAL_BUILD_OPTION)) {
             return Optional.empty();
         }
-        
-        return Optional.of(Util.getDiagnostic(location, AzureDiagnosticCodes.AF_017, givenCloud));
+        Location location = getLocation(project);
+        return Optional.of(Util.getDiagnostic(location, AzureDiagnosticCodes.AF_016, givenCloud));
     }
 }

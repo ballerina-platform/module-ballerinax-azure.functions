@@ -174,20 +174,7 @@ public class ProjectValidationTests {
 //        Object[] diagnostics = diagnosticResult.errors().toArray();
         Assert.assertEquals(diagnosticResult.errorCount(), 1);
     }
-
-    @Test
-    public void validateNoCloudOptionTest() {
-        BuildProject project = BuildProject.load(RESOURCE_DIRECTORY.resolve("build-options")
-                .resolve("no-cloud-option"));
-        PackageCompilation compilation = project.currentPackage().getCompilation();
-        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-        Object[] diagnostics = diagnosticResult.errors().toArray();
-        Assert.assertEquals(diagnosticResult.errorCount(), 1);
-        String diagnosticMessage =
-                "cloud build option is not specified. invoke bal build --cloud=\"azure_functions\" or bal build " +
-                        "--cloud=\"azure_functions_local\" to build azure functions";
-        Assert.assertEquals(((Diagnostic) diagnostics[0]).diagnosticInfo().messageFormat(), diagnosticMessage);
-    }
+    
     @Test
     public void validateInvalidCloudOptionTest() {
         BuildProject project = BuildProject.load(RESOURCE_DIRECTORY.resolve("build-options")

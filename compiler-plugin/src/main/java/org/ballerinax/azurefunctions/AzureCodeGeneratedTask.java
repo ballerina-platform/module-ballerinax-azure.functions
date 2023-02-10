@@ -68,6 +68,11 @@ public class AzureCodeGeneratedTask implements CompilerLifecycleTask<CompilerLif
         Optional<Path> generatedArtifactPath = compilerLifecycleEventContext.getGeneratedArtifactPath();
         Project project = compilerLifecycleEventContext.currentPackage().project();
         BuildOptions buildOptions = project.buildOptions();
+        String cloud = buildOptions.cloud();
+        if (cloud == null || cloud.isEmpty()) {
+            OUT.println("\n\tWarning: build option 'cloud' is not set. --cloud=\"azure_functions\" is " +
+                    "used by default.");
+        }
         boolean isNative = buildOptions.nativeImage();
         generatedArtifactPath.ifPresent(path -> {
             try {

@@ -41,6 +41,7 @@ import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.projects.Project;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticFactory;
@@ -267,5 +268,13 @@ public class Util {
     private static boolean isAzureFuncModule(ModuleSymbol moduleSymbol) {
         return AZURE_FUNCTIONS_MODULE_NAME.equals(moduleSymbol.getName().get()) &&
                 AZURE_FUNCTIONS_PACKAGE_ORG.equals(moduleSymbol.id().orgName());
+    }
+    
+    public static String getCloudBuildOption(Project project) {
+        String cloud = project.buildOptions().cloud();
+        if (cloud == null || cloud.isEmpty()) {
+            return Constants.AZURE_FUNCTIONS_BUILD_OPTION;
+        }
+        return cloud;
     }
 }

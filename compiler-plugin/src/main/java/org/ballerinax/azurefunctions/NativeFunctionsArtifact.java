@@ -80,7 +80,7 @@ public class NativeFunctionsArtifact extends FunctionsArtifact {
         JsonObject httpWorkerDesc = new JsonObject();
         httpWorker.add("description", httpWorkerDesc);
         String execName = "";
-        String cloudBuildOption = project.buildOptions().cloud();
+        String cloudBuildOption = Util.getCloudBuildOption(project);
         if (!cloudBuildOption.equals(Constants.AZURE_FUNCTIONS_BUILD_OPTION)) {
             execName = getLocalExecutableFileName();
         } else {
@@ -104,7 +104,7 @@ public class NativeFunctionsArtifact extends FunctionsArtifact {
         Path azureFunctionsJar = functionsDir.resolve(jarFileName);
         Files.copy(this.jarPath, azureFunctionsJar, StandardCopyOption.REPLACE_EXISTING);
         String jarFileNameString = jarFileName.toString();
-        String cloudBuildOption = project.buildOptions().cloud();
+        String cloudBuildOption = Util.getCloudBuildOption(project);
         if (cloudBuildOption.equals(Constants.AZURE_FUNCTIONS_BUILD_OPTION)) {
             buildRemoteArtifacts(functionsDir, jarFileNameString);
         } else {
