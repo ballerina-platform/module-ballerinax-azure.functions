@@ -44,13 +44,10 @@ import static io.ballerina.projects.util.ProjectConstants.DOT;
  * Responsible for generating artifacts for native executables.
  */
 public class NativeFunctionsArtifact extends FunctionsArtifact {
-    private Project project;
-
     private static final PrintStream OUT = System.out;
 
     public NativeFunctionsArtifact(Map<String, JsonObject> functions, Path jarPath, Project project) {
-        super(functions, jarPath);
-        this.project = project;
+        super(functions, jarPath, project);
     }
 
     private String getLocalExecutableFileName() {
@@ -119,9 +116,9 @@ public class NativeFunctionsArtifact extends FunctionsArtifact {
         Files.createDirectories(vsCodeDir);
         Files.copy(jtos(new Extensions()), vsCodeDir.resolve(Constants.EXTENSIONS_FILE_NAME),
                 StandardCopyOption.REPLACE_EXISTING);
-        Files.copy(jtos(new Settings(true)), vsCodeDir.resolve(Constants.SETTINGS_FILE_NAME),
+        Files.copy(jtos(new Settings(project)), vsCodeDir.resolve(Constants.SETTINGS_FILE_NAME),
                 StandardCopyOption.REPLACE_EXISTING);
-        Files.copy(jtos(new Tasks(true)), vsCodeDir.resolve(Constants.TASKS_FILE_NAME),
+        Files.copy(jtos(new Tasks(project)), vsCodeDir.resolve(Constants.TASKS_FILE_NAME),
                 StandardCopyOption.REPLACE_EXISTING);
 
         addToGitIgnore(projectDir);

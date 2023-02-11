@@ -17,7 +17,8 @@
  */
 package org.ballerinax.azurefunctions.tooling;
 
-import org.ballerinax.azurefunctions.Constants;
+import io.ballerina.projects.Project;
+import org.ballerinax.azurefunctions.Util;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,10 +33,10 @@ public class Tasks {
     private String version;
     private Tasks.Task[] tasks;
 
-    public Tasks(boolean isNative) {
+    public Tasks(Project project) {
         this.version = "2.0.0";
         this.tasks = new Tasks.Task[1];
-        this.tasks[0] = new Tasks.Task(isNative);
+        this.tasks[0] = new Tasks.Task(project);
     }
 
     static class Task {
@@ -46,13 +47,13 @@ public class Tasks {
         private boolean isBackground;
         private Map<String, String> options;
 
-        public Task(boolean isNative) {
+        public Task(Project project) {
             this.type = "func";
             this.command = "host start";
             this.problemMatcher = "$func-watch";
             this.isBackground = true;
             this.options = new HashMap<>();
-            this.options.put("cwd", "${workspaceFolder}/" + Constants.ARTIFACT_PATH);
+            this.options.put("cwd", "${workspaceFolder}/" + Util.getAzureFunctionsRelative(project));
         }
     }
 }

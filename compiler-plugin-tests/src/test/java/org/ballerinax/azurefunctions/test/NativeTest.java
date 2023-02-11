@@ -17,6 +17,7 @@
  */
 package org.ballerinax.azurefunctions.test;
 
+import org.apache.commons.io.FileUtils;
 import org.ballerinax.azurefunctions.test.utils.ProcessOutput;
 import org.ballerinax.azurefunctions.test.utils.TestUtils;
 import org.testng.Assert;
@@ -38,7 +39,7 @@ public class NativeTest {
         Path handlers = SOURCE_DIR.resolve("handlers");
         Path depedenciesToml = handlers.resolve("Dependencies.toml");
         Files.deleteIfExists(depedenciesToml);
-        ProcessOutput processOutput = TestUtils.compileProject(handlers, true, false, true);
+        ProcessOutput processOutput = TestUtils.compileProject(handlers, true, false, true, null);
         Assert.assertEquals(processOutput.getExitCode(), 0);
         Assert.assertTrue(processOutput.getStdOutput().contains("@azure_functions"));
 
@@ -72,7 +73,7 @@ public class NativeTest {
         Path handlers = SOURCE_DIR.resolve("handlers");
         Path depedenciesToml = handlers.resolve("Dependencies.toml");
         Files.deleteIfExists(depedenciesToml);
-        ProcessOutput processOutput = TestUtils.compileProject(handlers, true, false, false);
+        ProcessOutput processOutput = TestUtils.compileProject(handlers, true, false, false, null);
         Assert.assertEquals(processOutput.getExitCode(), 0);
         Assert.assertTrue(processOutput.getStdOutput().contains("@azure_functions"));
 
@@ -101,7 +102,7 @@ public class NativeTest {
         Path handlers = SOURCE_DIR.resolve("handlers");
         Path depedenciesToml = handlers.resolve("Dependencies.toml");
         Files.deleteIfExists(depedenciesToml);
-        ProcessOutput processOutput = TestUtils.compileProject(handlers, true, true, false);
+        ProcessOutput processOutput = TestUtils.compileProject(handlers, true, true, false, null);
         if (!isWindows()) {
             Assert.assertEquals(processOutput.getExitCode(), 1);
         }
@@ -110,6 +111,37 @@ public class NativeTest {
         Assert.assertTrue(stdOutput.contains("@azure_functions"));
         Assert.assertTrue(stdErr.contains("Native executable generation for cloud using docker failed"));
         Files.deleteIfExists(depedenciesToml);
+    }
+
+    @Test
+    public void testNativeAzureFunctionsLocalSingle() throws Exception {
+        Path handlers = SOURCE_DIR.resolve("single-native");
+        Path depedenciesToml = handlers.resolve("Dependencies.toml");
+        Files.deleteIfExists(depedenciesToml);
+        ProcessOutput processOutput = TestUtils.compileProject(handlers, true, false, true, "main.bal");
+        Assert.assertEquals(processOutput.getExitCode(), 0);
+        Assert.assertTrue(processOutput.getStdOutput().contains("@azure_functions"));
+        Assert.assertFalse(processOutput.getStdOutput().contains("Warning:"));
+        Assert.assertTrue(processOutput.getStdOutput().contains("--script-root azure_functions"));
+        // check if the executable jar and the host.json files are in the generated zip file
+        Path azureFunctionsDir = handlers.resolve("azure_functions");
+        Assert.assertTrue(Files.exists(azureFunctionsDir));
+
+        Path hostJsonPath = azureFunctionsDir.resolve("host.json");
+        Assert.assertTrue(Files.exists(hostJsonPath));
+
+        TestUtils.HostJson hostJson = TestUtils.parseHostJson(hostJsonPath);
+        String defaultExecutablePath = hostJson.customHandler.description.defaultExecutablePath;
+        if (isWindows()) {
+            Assert.assertEquals(defaultExecutablePath, "main.exe");
+        } else {
+            Assert.assertEquals(defaultExecutablePath, "main");
+        }
+
+        Files.deleteIfExists(depedenciesToml);
+        Files.deleteIfExists(handlers.resolve("main.jar"));
+        FileUtils.deleteDirectory(handlers.resolve(".vscode").toFile());
+        FileUtils.deleteDirectory(handlers.resolve("azure_functions").toFile());
     }
 }
 

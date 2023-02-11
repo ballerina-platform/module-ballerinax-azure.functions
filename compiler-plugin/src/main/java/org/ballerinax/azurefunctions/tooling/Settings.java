@@ -18,7 +18,8 @@
 package org.ballerinax.azurefunctions.tooling;
 
 import com.google.gson.annotations.SerializedName;
-import org.ballerinax.azurefunctions.Constants;
+import io.ballerina.projects.Project;
+import org.ballerinax.azurefunctions.Util;
 
 /**
  * Represents settings.json in the .vscode directory.
@@ -42,11 +43,11 @@ public class Settings {
     @SerializedName("azureFunctions.projectSubpath")
     private String projectSubpath;
 
-    public Settings(boolean isNative) {
-        this.deploySubpath = Constants.ARTIFACT_PATH;
+    public Settings(Project project) {
+        this.deploySubpath = Util.getAzureFunctionsRelative(project);
         this.projectLanguage = "Custom";
         this.projectRuntime = "~4";
         this.internalConsoleOptions = "neverOpen";
-        this.projectSubpath = Constants.ARTIFACT_PATH;
+        this.projectSubpath = Util.getAzureFunctionsRelative(project);
     }
 }

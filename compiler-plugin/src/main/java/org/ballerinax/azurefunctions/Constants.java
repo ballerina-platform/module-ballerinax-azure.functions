@@ -59,8 +59,8 @@ public class Constants {
     public static final String FUNCTION_DIRECTORY = "azure_functions";
 
     public static final String TARGET_DIRECTORY = "target/";
-
-    public static final String ARTIFACT_PATH = TARGET_DIRECTORY + FUNCTION_DIRECTORY;
+//
+//    public static final String ARTIFACT_PATH = TARGET_DIRECTORY + FUNCTION_DIRECTORY;
 
     public static final String SETTINGS_LOCAL_FILE_NAME = "local.settings.json";
     public static final String EXTENSIONS_FILE_NAME = "extensions.json";

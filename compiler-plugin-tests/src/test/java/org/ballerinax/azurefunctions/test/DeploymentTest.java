@@ -17,6 +17,7 @@
  */
 package org.ballerinax.azurefunctions.test;
 
+import org.apache.commons.io.FileUtils;
 import org.ballerinax.azurefunctions.test.utils.ProcessOutput;
 import org.ballerinax.azurefunctions.test.utils.TestUtils;
 import org.testng.Assert;
@@ -38,7 +39,7 @@ public class DeploymentTest {
         Path handlers = SOURCE_DIR.resolve("handlers");
         Path depedenciesToml = handlers.resolve("Dependencies.toml");
         Files.deleteIfExists(depedenciesToml);
-        ProcessOutput processOutput = TestUtils.compileProject(handlers, false, false, false);
+        ProcessOutput processOutput = TestUtils.compileProject(handlers, false, false, false, null);
         Assert.assertEquals(processOutput.getExitCode(), 0);
         Assert.assertTrue(processOutput.getStdOutput().contains("@azure_functions"));
 
@@ -56,6 +57,35 @@ public class DeploymentTest {
         Assert.assertEquals(defaultExecutablePath, "java");
         Assert.assertEquals(defaultWorkerPath, "azure_functions_tests.jar");
         Files.deleteIfExists(depedenciesToml);
+    }
+
+    @Test
+    public void testAzureFunctionsSingleFilePackage() throws Exception {
+        Path handlers = SOURCE_DIR.resolve("single");
+        Path depedenciesToml = handlers.resolve("Dependencies.toml");
+        Files.deleteIfExists(depedenciesToml);
+        ProcessOutput processOutput = TestUtils.compileProject(handlers, false, false, false, "main.bal");
+        Assert.assertEquals(processOutput.getExitCode(), 0);
+        Assert.assertTrue(processOutput.getStdOutput().contains("@azure_functions"));
+        Assert.assertTrue(processOutput.getStdOutput().contains("Warning:"));
+        Assert.assertTrue(processOutput.getStdOutput().contains("--script-root azure_functions"));
+        // check if the executable jar and the host.json files are in the generated zip file
+        Path zipFilePath = handlers.resolve("azure_functions");
+        Assert.assertTrue(Files.exists(zipFilePath));
+
+        Assert.assertTrue(Files.exists(zipFilePath.resolve("main.jar")));
+        Path hostJsonPath = zipFilePath.resolve("host.json");
+        Assert.assertTrue(Files.exists(hostJsonPath));
+
+        TestUtils.HostJson hostJson = TestUtils.parseHostJson(hostJsonPath);
+        String defaultExecutablePath = hostJson.customHandler.description.defaultExecutablePath;
+        String defaultWorkerPath = hostJson.customHandler.description.defaultWorkerPath;
+        Assert.assertEquals(defaultExecutablePath, "java");
+        Assert.assertEquals(defaultWorkerPath, "main.jar");
+        Files.deleteIfExists(depedenciesToml);
+        Files.deleteIfExists(handlers.resolve("main.jar"));
+        FileUtils.deleteDirectory(handlers.resolve(".vscode").toFile());
+        FileUtils.deleteDirectory(handlers.resolve("azure_functions").toFile());
     }
 }
 

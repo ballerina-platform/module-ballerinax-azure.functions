@@ -78,8 +78,9 @@ public class TestUtils {
      * @throws IOException          if an error occurs while writing file
      */
     public static ProcessOutput compileProject(Path sourceDirectory, boolean isNative, boolean failDocker,
-                                               boolean isLocal)
+                                               boolean isLocal, String fileName)
             throws InterruptedException, IOException {
+        
 
         Path ballerinaInternalLog = Paths.get(sourceDirectory.toAbsolutePath().toString(), "ballerina-internal.log");
         if (ballerinaInternalLog.toFile().exists()) {
@@ -94,6 +95,10 @@ public class TestUtils {
 
         if (isLocal) {
             commands.add("--cloud=" + Constants.AZURE_FUNCTIONS_LOCAL_BUILD_OPTION);
+        }
+        
+        if (fileName != null) {
+            commands.add(fileName);
         }
 
         ProcessBuilder pb = new ProcessBuilder(commands);

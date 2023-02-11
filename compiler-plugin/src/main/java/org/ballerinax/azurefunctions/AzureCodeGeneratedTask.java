@@ -85,14 +85,14 @@ public class AzureCodeGeneratedTask implements CompilerLifecycleTask<CompilerLif
             if (isNative) {
                 OUT.println("\t$ bal build --native --cloud=\"" + Constants.AZURE_FUNCTIONS_LOCAL_BUILD_OPTION + "\"");
             }
-            OUT.println(
-                    "\t$ func start --script-root " + getLocalArtifactPath() + getLocalRuntimeFlag(isNative));
+            OUT.println("\t$ func start --script-root " + Util.getAzureFunctionsRelative(project) +
+                            getLocalRuntimeFlag(isNative));
             OUT.println("\n\tExecute the command below to deploy Ballerina Azure Functions:");
             if (isNative) {
                 OUT.println("\t$ bal build --native --cloud=\"" + Constants.AZURE_FUNCTIONS_BUILD_OPTION + "\"");
             }
             OUT.println("\t$ func azure functionapp publish <function_app_name> --script-root " +
-                    Constants.ARTIFACT_PATH + " \n");
+                    Util.getAzureFunctionsRelative(project) + " \n");
 
         });
     }
@@ -103,12 +103,8 @@ public class AzureCodeGeneratedTask implements CompilerLifecycleTask<CompilerLif
         if (isNative) {
             new NativeFunctionsArtifact(functions, binaryPath, project).generate();
         } else {
-            new FunctionsArtifact(functions, binaryPath).generate();
+            new FunctionsArtifact(functions, binaryPath, project).generate();
         }
-    }
-
-    private String getLocalArtifactPath() {
-        return Constants.ARTIFACT_PATH;
     }
 
     private String getLocalRuntimeFlag(boolean isNative) {
