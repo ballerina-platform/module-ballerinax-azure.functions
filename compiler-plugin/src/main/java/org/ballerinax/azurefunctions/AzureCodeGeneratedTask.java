@@ -70,7 +70,7 @@ public class AzureCodeGeneratedTask implements CompilerLifecycleTask<CompilerLif
         BuildOptions buildOptions = project.buildOptions();
         String cloud = buildOptions.cloud();
         if (cloud == null || cloud.isEmpty()) {
-            OUT.println("\n\tWarning: build option 'cloud' is not set. --cloud=\"azure_functions\" is " +
+            OUT.println("\n\tWarning: 'cloud' build option is not set. --cloud='azure_functions' is " +
                     "used by default.");
         }
         boolean isNative = buildOptions.nativeImage();

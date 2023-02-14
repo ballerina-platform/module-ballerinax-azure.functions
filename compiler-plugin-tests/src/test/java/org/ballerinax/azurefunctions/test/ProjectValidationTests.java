@@ -183,9 +183,8 @@ public class ProjectValidationTests {
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
         Object[] diagnostics = diagnosticResult.errors().toArray();
         Assert.assertEquals(diagnosticResult.errorCount(), 1);
-        String diagnosticMessage =
-                "invalid cloud build option specified. found 'azure_functions_test'. " +
-                        "expected \"azure_functions\"|\"azure_functions_local\"";
+        String diagnosticMessage = "invalid 'cloud' build option specified. found 'azure_functions_test', expected " +
+                "'azure_functions' or 'azure_functions_local'";
         Assert.assertEquals(((Diagnostic) diagnostics[0]).diagnosticInfo().messageFormat(), diagnosticMessage);
     }
 }

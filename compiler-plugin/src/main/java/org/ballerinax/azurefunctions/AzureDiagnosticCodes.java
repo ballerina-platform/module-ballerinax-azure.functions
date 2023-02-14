@@ -51,9 +51,8 @@ public enum AzureDiagnosticCodes {
     AF_013("AF_013", "multiple bindings not allowed for the parameter '%s'", ERROR),
     AF_014("AF_014", "missing output binding annotation for the remote function", ERROR),
     AF_015("AF_015", "remote methods are not allowed in HttpListener", ERROR),
-    AF_016("AF_016",
-            "invalid cloud build option specified. found '%s'. expected \"azure_functions\"|\"azure_functions_local\"",
-            ERROR),
+    AF_016("AF_016", "invalid 'cloud' build option specified. found '%s', expected " +
+                    "'azure_functions' or 'azure_functions_local'", ERROR),
     ;
 
     private final String code;
