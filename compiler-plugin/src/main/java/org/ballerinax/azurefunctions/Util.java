@@ -282,17 +282,15 @@ public class Util {
     public static Path getTargetDir(Project project, Path jarPath) {
         if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
             return jarPath.getParent();
-        } else {
-            return project.targetDir();
         }
+        return project.targetDir();
     }
 
     public static Path getProjectDir(Project project, Path jarPath) {
         if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
             return jarPath.getParent();
-        } else {
-            return project.targetDir().getParent();
         }
+        return project.targetDir().getParent();
     }
     
     public static Path getAzureFunctionsDir(Project project, Path jarPath) {
@@ -302,8 +300,7 @@ public class Util {
     public static String getAzureFunctionsRelative(Project project) {
         if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
             return Constants.FUNCTION_DIRECTORY;
-        } else {
-            return Constants.TARGET_DIRECTORY + Constants.FUNCTION_DIRECTORY;
         }
+        return Constants.TARGET_DIRECTORY + Constants.FUNCTION_DIRECTORY;
     }
 }

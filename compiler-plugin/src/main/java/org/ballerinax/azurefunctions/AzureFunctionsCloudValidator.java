@@ -65,13 +65,8 @@ public class AzureFunctionsCloudValidator implements AnalysisTask<CompilationAna
     }
 
     public Optional<Diagnostic> validateCloudOptions(String givenCloud, Project project) {
-        if (givenCloud == null || givenCloud.isEmpty()) {
-            return Optional.empty();
-        }
-        if (givenCloud.equals(Constants.AZURE_FUNCTIONS_BUILD_OPTION)) {
-            return Optional.empty();
-        }
-        if (givenCloud.equals(Constants.AZURE_FUNCTIONS_LOCAL_BUILD_OPTION)) {
+        if (givenCloud == null || givenCloud.isEmpty() || givenCloud.equals(Constants.AZURE_FUNCTIONS_BUILD_OPTION) ||
+                givenCloud.equals(Constants.AZURE_FUNCTIONS_LOCAL_BUILD_OPTION)) {
             return Optional.empty();
         }
         Location location = getLocation(project);
