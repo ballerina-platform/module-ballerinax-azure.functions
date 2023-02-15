@@ -20,12 +20,14 @@ package org.ballerinax.azurefunctions.service.queue;
 import com.google.gson.JsonObject;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import org.ballerinax.azurefunctions.Constants;
 import org.ballerinax.azurefunctions.Util;
 import org.ballerinax.azurefunctions.service.RemoteTriggerBinding;
 
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -38,8 +40,10 @@ public class QueueTriggerBinding extends RemoteTriggerBinding {
     private String connection = "AzureWebJobsStorage";
     private String queueName;
 
-    public QueueTriggerBinding(ServiceDeclarationNode serviceDeclarationNode, SemanticModel semanticModel) {
-        super("queueTrigger", "onMessage", Constants.ANNOTATION_QUEUE_TRIGGER, serviceDeclarationNode, semanticModel);
+    public QueueTriggerBinding(ServiceDeclarationNode serviceDeclarationNode, SemanticModel semanticModel,
+                               Map<String, Node> types) {
+        super("queueTrigger", "onMessage", Constants.ANNOTATION_QUEUE_TRIGGER, 
+                serviceDeclarationNode, semanticModel, types);
     }
 
     @Override

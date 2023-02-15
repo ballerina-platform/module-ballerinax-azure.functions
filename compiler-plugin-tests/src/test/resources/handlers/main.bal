@@ -12,6 +12,8 @@ public type Person record {
     int age;
 };
 
+type Return [@af:HttpOutput http:Created, @af:QueueOutput {queueName: "people"} string];
+
 listener af:HttpListener ep1 = new ();
 
 service /hello\- on ep1 {
@@ -95,6 +97,13 @@ service /hello on ep {
     
     resource function get tuples(string name) returns [@af:HttpOutput string,@af:QueueOutput{queueName: "queue3"} string] {
         return ["Hello, " + name + "!","To Queue"];
+    }
+    
+    resource function post queue(@http:Payload Person person) returns Return {
+        http:Created httpRes = {
+            body: person.name + " Added to the Queue!"
+        };
+        return [httpRes, person.name + " is " + person.age.toString() + " years old."];
     }
 }
 

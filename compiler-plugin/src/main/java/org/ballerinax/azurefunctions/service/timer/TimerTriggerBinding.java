@@ -20,12 +20,14 @@ package org.ballerinax.azurefunctions.service.timer;
 import com.google.gson.JsonObject;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import org.ballerinax.azurefunctions.Constants;
 import org.ballerinax.azurefunctions.Util;
 import org.ballerinax.azurefunctions.service.RemoteTriggerBinding;
 
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -38,8 +40,10 @@ public class TimerTriggerBinding extends RemoteTriggerBinding {
     private String schedule;
     private boolean runOnStartup = true;
 
-    public TimerTriggerBinding(ServiceDeclarationNode serviceDeclarationNode, SemanticModel semanticModel) {
-        super("timerTrigger", "onTrigger", Constants.ANNOTATION_TIMER_TRIGGER, serviceDeclarationNode, semanticModel);
+    public TimerTriggerBinding(ServiceDeclarationNode serviceDeclarationNode, SemanticModel semanticModel,
+                               Map<String, Node> types) {
+        super("timerTrigger", "onTrigger", Constants.ANNOTATION_TIMER_TRIGGER, 
+                serviceDeclarationNode, semanticModel, types);
     }
 
     @Override

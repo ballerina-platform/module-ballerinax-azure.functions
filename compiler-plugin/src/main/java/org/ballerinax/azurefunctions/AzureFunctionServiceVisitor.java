@@ -18,6 +18,7 @@
 package org.ballerinax.azurefunctions;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import org.ballerinax.azurefunctions.service.ServiceHandler;
@@ -25,6 +26,7 @@ import org.ballerinax.azurefunctions.service.TriggerBinding;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -36,15 +38,17 @@ public class AzureFunctionServiceVisitor extends NodeVisitor {
     
     private List<FunctionContext> functionContexts;
     private SemanticModel semanticModel;
+    private Map<String, Node> types;
 
-    public AzureFunctionServiceVisitor(SemanticModel semanticModel) {
+    public AzureFunctionServiceVisitor(SemanticModel semanticModel, Map<String, Node> types) {
         this.functionContexts = new ArrayList<>();
         this.semanticModel = semanticModel;
+        this.types = types;
     }
 
     @Override
     public void visit(ServiceDeclarationNode serviceDeclarationNode) {
-        Optional<TriggerBinding> builder = ServiceHandler.getBuilder(serviceDeclarationNode, semanticModel);
+        Optional<TriggerBinding> builder = ServiceHandler.getBuilder(serviceDeclarationNode, semanticModel, types);
         builder.ifPresent(triggerBinding -> {
             List<FunctionContext> contexts = triggerBinding.getBindings();
             functionContexts.addAll(contexts);
