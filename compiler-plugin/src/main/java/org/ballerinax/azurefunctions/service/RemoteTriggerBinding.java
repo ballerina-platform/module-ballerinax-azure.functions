@@ -35,6 +35,7 @@ import org.ballerinax.azurefunctions.Util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -45,15 +46,17 @@ import java.util.Optional;
 public abstract class RemoteTriggerBinding extends TriggerBinding {
     private String methodName;
     private String annotationName;
+    protected Map<String, Node> types;
 
     public RemoteTriggerBinding(String triggerType, String methodName,
                                 String annotationName, ServiceDeclarationNode serviceDeclarationNode,
-                                SemanticModel semanticModel) {
+                                SemanticModel semanticModel, Map<String, Node> types) {
         super(triggerType);
         this.serviceDeclarationNode = serviceDeclarationNode;
         this.semanticModel = semanticModel;
         this.methodName = methodName;
         this.annotationName = annotationName;
+        this.types = types;
     }
 
     @Override
@@ -99,7 +102,7 @@ public abstract class RemoteTriggerBinding extends TriggerBinding {
             ReturnTypeDescriptorNode returnTypeDescriptorNode =
                     functionDefinitionNode.functionSignature().returnTypeDesc().get(); //TODO recheck if return is must
             OutputBindingBuilder outputBuilder = new OutputBindingBuilder();
-            List<Binding> returnBinding  = outputBuilder.getOutputBinding(returnTypeDescriptorNode);
+            List<Binding> returnBinding  = outputBuilder.getOutputBinding(returnTypeDescriptorNode, types);
             bindings.addAll(returnBinding); //TODO handle in code analyzer
             functionContexts.add(new FunctionContext(servicePath.replace("/", ""), bindings));
         }

@@ -25,7 +25,10 @@ import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Responsible for Extracting azure functions from a ballerina project.
@@ -43,14 +46,25 @@ public class AzureFunctionServiceExtractor {
     public List<FunctionContext> extractFunctions() {
         Module module = this.currentPackage.getDefaultModule();
         List<FunctionContext> moduleFunctions = new ArrayList<>();
-        for (DocumentId documentId : module.documentIds()) {
+        Collection<DocumentId> documentIds = module.documentIds();
+        Map<String, Node> types = new HashMap<>();
+        for (DocumentId doc : documentIds) {
+            Document document = module.document(doc);
+            Node node = document.syntaxTree().rootNode();
+            AzureFunctionTypeVisitor visitor = new AzureFunctionTypeVisitor();
+            node.accept(visitor);
+            types.putAll(visitor.getTypes());
+        }
+        
+        for (DocumentId documentId : documentIds) {
             Document document = module.document(documentId);
             Node node = document.syntaxTree().rootNode();
             SemanticModel semanticModel = module.getCompilation().getSemanticModel();
-            AzureFunctionServiceVisitor azureFunctionVisitor = new AzureFunctionServiceVisitor(semanticModel);
+            AzureFunctionServiceVisitor azureFunctionVisitor = new AzureFunctionServiceVisitor(semanticModel, types);
             node.accept(azureFunctionVisitor);
             moduleFunctions.addAll(azureFunctionVisitor.getFunctionContexts());
         }
+        
         return moduleFunctions;
     }
 }

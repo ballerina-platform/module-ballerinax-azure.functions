@@ -49,6 +49,7 @@ import org.ballerinax.azurefunctions.service.TriggerBinding;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -61,12 +62,15 @@ public class HTTPTriggerBinding extends TriggerBinding {
     private String path;
     private String authLevel = "anonymous";
     private String methods;
+    private Map<String, Node> types;
 
-    public HTTPTriggerBinding(ServiceDeclarationNode serviceDeclarationNode, SemanticModel semanticModel) {
+    public HTTPTriggerBinding(ServiceDeclarationNode serviceDeclarationNode, SemanticModel semanticModel,
+                              Map<String, Node> types) {
         super("httpTrigger");
         this.setVarName("httpPayload");
         this.serviceDeclarationNode = serviceDeclarationNode;
         this.semanticModel = semanticModel;
+        this.types = types;
     }
 
     @Override
@@ -79,7 +83,7 @@ public class HTTPTriggerBinding extends TriggerBinding {
         NodeList<Node> members = this.serviceDeclarationNode.members();
         for (Node node : members) {
             HTTPTriggerBinding httpTriggerBinding =
-                    new HTTPTriggerBinding(this.serviceDeclarationNode, this.semanticModel);
+                    new HTTPTriggerBinding(this.serviceDeclarationNode, this.semanticModel, types);
             httpTriggerAnnot.ifPresent(trigger -> getAnnotation(httpTriggerBinding, trigger));
             List<Binding> bindings = new ArrayList<>();
             if (SyntaxKind.RESOURCE_ACCESSOR_DEFINITION != node.kind()) {
@@ -132,7 +136,7 @@ public class HTTPTriggerBinding extends TriggerBinding {
             } else {
                 ReturnTypeDescriptorNode returnTypeNode = returnTypeDescriptor.get();
                 OutputBindingBuilder outputBuilder = new OutputBindingBuilder();
-                List<Binding> returnBinding = outputBuilder.getOutputBinding(returnTypeNode);
+                List<Binding> returnBinding = outputBuilder.getOutputBinding(returnTypeNode, types);
                 if (returnBinding.isEmpty()) {
                     bindings.add(new HTTPOutputBinding(null, 0));
                 } else {

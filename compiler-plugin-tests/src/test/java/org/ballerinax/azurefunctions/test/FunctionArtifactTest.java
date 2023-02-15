@@ -75,7 +75,7 @@ public class FunctionArtifactTest {
 
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
         Assert.assertFalse(diagnosticResult.hasErrors());
-        Assert.assertEquals(generatedFunctions.size(), 32);
+        Assert.assertEquals(generatedFunctions.size(), 33);
     }
 
     @Test
@@ -350,6 +350,17 @@ public class FunctionArtifactTest {
                 "\"path\":\"bpath1/{name}\",\"connection\":\"TestConnection\"},{\"type\":\"blob\",\"direction\":" +
                 "\"out\",\"name\":\"outResp\",\"path\":\"bpath1/newBlob\",\"connection\":\"TestConnection\"," +
                 "\"dataType\":\"string\"}]}";
+        JsonElement parse = jsonParser.parse(str);
+        Assert.assertEquals(actual, parse);
+    }
+
+    @Test
+    public void testReturnTypeDescRef() {
+        JsonObject actual = generatedFunctions.get("post-hello-queue");
+        String str = "{\"bindings\":[{\"type\":\"httpTrigger\",\"authLevel\":\"anonymous\",\"methods\":[\"post\"],\"direction\":" +
+                "\"in\",\"name\":\"httpPayload\",\"route\":\"hello/queue\"},{\"type\":\"http\",\"direction\":" +
+                "\"out\",\"name\":\"outResp\"},{\"type\":\"queue\",\"connection\":\"AzureWebJobsStorage\"," +
+                "\"queueName\":\"people\",\"direction\":\"out\",\"name\":\"outResp1\"}]}";
         JsonElement parse = jsonParser.parse(str);
         Assert.assertEquals(actual, parse);
     }

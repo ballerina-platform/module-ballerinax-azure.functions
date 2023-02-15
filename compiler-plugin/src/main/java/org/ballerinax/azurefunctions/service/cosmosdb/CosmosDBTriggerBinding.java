@@ -20,12 +20,14 @@ package org.ballerinax.azurefunctions.service.cosmosdb;
 import com.google.gson.JsonObject;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import org.ballerinax.azurefunctions.Constants;
 import org.ballerinax.azurefunctions.Util;
 import org.ballerinax.azurefunctions.service.RemoteTriggerBinding;
 
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -41,9 +43,10 @@ public class CosmosDBTriggerBinding extends RemoteTriggerBinding {
     private boolean createLeaseCollectionIfNotExists = true;
     private int leasesCollectionThroughput = 400;
 
-    public CosmosDBTriggerBinding(ServiceDeclarationNode serviceDeclarationNode, SemanticModel semanticModel) {
-        super("cosmosDBTrigger", "onUpdated", Constants.ANNOTATION_COSMOS_TRIGGER, serviceDeclarationNode,
-                semanticModel);
+    public CosmosDBTriggerBinding(ServiceDeclarationNode serviceDeclarationNode, SemanticModel semanticModel,
+                                  Map<String, Node> types) {
+        super("cosmosDBTrigger", "onUpdated", Constants.ANNOTATION_COSMOS_TRIGGER, 
+                serviceDeclarationNode, semanticModel, types);
     }
 
     @Override

@@ -24,6 +24,7 @@ import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import org.ballerinax.azurefunctions.Constants;
@@ -34,6 +35,7 @@ import org.ballerinax.azurefunctions.service.http.HTTPTriggerBinding;
 import org.ballerinax.azurefunctions.service.queue.QueueTriggerBinding;
 import org.ballerinax.azurefunctions.service.timer.TimerTriggerBinding;
 
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -44,7 +46,7 @@ import java.util.Optional;
 public abstract class ServiceHandler {
 
     public static Optional<TriggerBinding> getBuilder(ServiceDeclarationNode svcDeclarationNode,
-                                                SemanticModel semanticModel) {
+                                                SemanticModel semanticModel, Map<String, Node> types) {
         SeparatedNodeList<ExpressionNode> expressions = svcDeclarationNode.expressions();
         for (ExpressionNode expressionNode : expressions) {
             Optional<TypeSymbol> typeSymbol = semanticModel.typeOf(expressionNode);
@@ -71,15 +73,15 @@ public abstract class ServiceHandler {
             String serviceTypeName = name.get();
             switch (serviceTypeName) {
                 case Constants.AZURE_HTTP_LISTENER:
-                    return Optional.of(new HTTPTriggerBinding(svcDeclarationNode, semanticModel));
+                    return Optional.of(new HTTPTriggerBinding(svcDeclarationNode, semanticModel, types));
                 case Constants.AZURE_QUEUE_LISTENER:
-                    return Optional.of(new QueueTriggerBinding(svcDeclarationNode, semanticModel));
+                    return Optional.of(new QueueTriggerBinding(svcDeclarationNode, semanticModel, types));
                 case Constants.AZURE_COSMOS_LISTENER:
-                    return Optional.of(new CosmosDBTriggerBinding(svcDeclarationNode, semanticModel));
+                    return Optional.of(new CosmosDBTriggerBinding(svcDeclarationNode, semanticModel, types));
                 case Constants.AZURE_TIMER_LISTENER:
-                    return Optional.of(new TimerTriggerBinding(svcDeclarationNode, semanticModel));
+                    return Optional.of(new TimerTriggerBinding(svcDeclarationNode, semanticModel, types));
                 case Constants.AZURE_BLOB_LISTENER: 
-                    return Optional.of(new BlobTriggerBinding(svcDeclarationNode, semanticModel));
+                    return Optional.of(new BlobTriggerBinding(svcDeclarationNode, semanticModel, types));
                 default:
                     throw new RuntimeException("Unsupported Listener type");
             }

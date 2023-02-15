@@ -20,12 +20,14 @@ package org.ballerinax.azurefunctions.service.blob;
 import com.google.gson.JsonObject;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import org.ballerinax.azurefunctions.Constants;
 import org.ballerinax.azurefunctions.Util;
 import org.ballerinax.azurefunctions.service.RemoteTriggerBinding;
 
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -38,9 +40,10 @@ public class BlobTriggerBinding extends RemoteTriggerBinding {
     private String path;
     private String connection = "AzureWebJobsStorage";
 
-    public BlobTriggerBinding(ServiceDeclarationNode serviceDeclarationNode, SemanticModel semanticModel) {
+    public BlobTriggerBinding(ServiceDeclarationNode serviceDeclarationNode, SemanticModel semanticModel,
+                              Map<String, Node> types) {
         super("blobTrigger", "onUpdated", Constants.ANNOTATION_BLOB_TRIGGER, serviceDeclarationNode,
-                semanticModel);
+                semanticModel, types);
     }
 
     @Override
@@ -72,7 +75,7 @@ public class BlobTriggerBinding extends RemoteTriggerBinding {
     public void setConnection(String connection) {
         this.connection = connection;
     }
-    
+
     @Override
     public JsonObject getJsonObject() {
         JsonObject inputTrigger = new JsonObject();

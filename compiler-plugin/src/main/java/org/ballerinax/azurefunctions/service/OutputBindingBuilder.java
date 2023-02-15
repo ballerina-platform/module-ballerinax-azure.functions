@@ -24,6 +24,7 @@ import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
+import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TupleTypeDescriptorNode;
 import org.ballerinax.azurefunctions.Constants;
@@ -35,6 +36,7 @@ import org.ballerinax.azurefunctions.service.twilio.TwilioSmsOutputBinding;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -70,9 +72,13 @@ public class OutputBindingBuilder {
         return Optional.empty();
     }
 
-    public List<Binding> getOutputBinding(ReturnTypeDescriptorNode returnTypeDescriptorNode) {
+    public List<Binding> getOutputBinding(ReturnTypeDescriptorNode returnTypeDescriptorNode, Map<String, Node> types) {
         List<Binding> outputBindings = new ArrayList<>();
         Node type = returnTypeDescriptorNode.type();
+        if (type.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+            type = types.get(((SimpleNameReferenceNode) type).name().text());
+        }
+        
         if (type.kind() == SyntaxKind.TUPLE_TYPE_DESC) {
             TupleTypeDescriptorNode tupleTypeDesc = (TupleTypeDescriptorNode) type;
             SeparatedNodeList<Node> tupleMembers = tupleTypeDesc.memberTypeDesc();
