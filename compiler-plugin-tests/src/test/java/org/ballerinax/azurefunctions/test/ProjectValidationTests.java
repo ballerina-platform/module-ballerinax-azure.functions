@@ -117,7 +117,6 @@ public class ProjectValidationTests {
         Assert.assertEquals(((Diagnostic) diagnostics[0]).diagnosticInfo().messageFormat(), diagnosticMessage);
     }
 
-
     @Test
     public void httpQueryMapNonJsonParamValidationTest() {
         BuildProject project = BuildProject.load(RESOURCE_DIRECTORY.resolve("http").resolve("query")
@@ -130,7 +129,6 @@ public class ProjectValidationTests {
                 " 'boolean', 'decimal', 'map<json>' types or the array types of them";
         Assert.assertEquals(((Diagnostic) diagnostics[0]).diagnosticInfo().messageFormat(), diagnosticMessage);
     }
-
 
     @Test
     public void httpQueryArrayNonBasicParamValidationTest() {
@@ -175,5 +173,18 @@ public class ProjectValidationTests {
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
 //        Object[] diagnostics = diagnosticResult.errors().toArray();
         Assert.assertEquals(diagnosticResult.errorCount(), 1);
+    }
+    
+    @Test
+    public void validateInvalidCloudOptionTest() {
+        BuildProject project = BuildProject.load(RESOURCE_DIRECTORY.resolve("build-options")
+                .resolve("invalid-cloud-option"));
+        PackageCompilation compilation = project.currentPackage().getCompilation();
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        Object[] diagnostics = diagnosticResult.errors().toArray();
+        Assert.assertEquals(diagnosticResult.errorCount(), 1);
+        String diagnosticMessage = "invalid 'cloud' build option specified. found 'azure_functions_test', expected " +
+                "'azure_functions' or 'azure_functions_local'";
+        Assert.assertEquals(((Diagnostic) diagnostics[0]).diagnosticInfo().messageFormat(), diagnosticMessage);
     }
 }

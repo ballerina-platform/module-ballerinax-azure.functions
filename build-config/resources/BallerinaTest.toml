@@ -2,3 +2,7 @@
 org = "ballerinax"
 name = "azure_functions_tests"
 version = "@toml.version@"
+
+[build-options]
+observabilityIncluded = true
+cloud = "azure_functions"

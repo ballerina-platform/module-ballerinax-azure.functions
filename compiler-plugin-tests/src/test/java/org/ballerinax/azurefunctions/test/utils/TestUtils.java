@@ -17,10 +17,12 @@
  */
 package org.ballerinax.azurefunctions.test.utils;
 
+import com.google.gson.Gson;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.ballerinax.azurefunctions.Constants;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -31,6 +33,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -72,8 +77,10 @@ public class TestUtils {
      * @throws InterruptedException if an error occurs while compiling
      * @throws IOException          if an error occurs while writing file
      */
-    public static ProcessOutput compileBallerinaProject(Path sourceDirectory, boolean isNative, boolean failDocker)
+    public static ProcessOutput compileProject(Path sourceDirectory, boolean isNative, boolean failDocker,
+                                               boolean isLocal, String fileName)
             throws InterruptedException, IOException {
+        
 
         Path ballerinaInternalLog = Paths.get(sourceDirectory.toAbsolutePath().toString(), "ballerina-internal.log");
         if (ballerinaInternalLog.toFile().exists()) {
@@ -81,12 +88,20 @@ public class TestUtils {
             FileUtils.deleteQuietly(ballerinaInternalLog.toFile());
         }
 
-        ProcessBuilder pb;
+        List<String> commands = new ArrayList<>(Arrays.asList(BALLERINA_COMMAND.toString(), BUILD, "--offline"));
         if (isNative) {
-            pb = new ProcessBuilder(BALLERINA_COMMAND.toString(), BUILD, "--offline", "--native");
-        } else {
-            pb = new ProcessBuilder(BALLERINA_COMMAND.toString(), BUILD, "--offline");
+            commands.add("--native");
         }
+
+        if (isLocal) {
+            commands.add("--cloud=" + Constants.AZURE_FUNCTIONS_LOCAL_BUILD_OPTION);
+        }
+        
+        if (fileName != null) {
+            commands.add(fileName);
+        }
+
+        ProcessBuilder pb = new ProcessBuilder(commands);
 
         Map<String, String> environment = pb.environment();
         addJavaAgents(environment);
@@ -94,9 +109,12 @@ public class TestUtils {
             environment.put("DOCKER_HOST", "tcp://192.168.59.103:2300");
         }
         log.info(COMPILING + sourceDirectory.normalize());
-        log.debug(EXECUTING_COMMAND + pb.command());
+        log.debug(EXECUTING_COMMAND + commands);
         pb.directory(sourceDirectory.toFile());
         Process process = pb.start();
+        ProcessOutput po = new ProcessOutput();
+        po.setStdOutput(logOutput(process.getInputStream()));
+        po.setErrOutput(logOutput(process.getErrorStream()));
         int exitCode = process.waitFor();
 
         // log ballerina-internal.log content
@@ -104,12 +122,9 @@ public class TestUtils {
             log.info("ballerina-internal.log file found. content: ");
             log.info(FileUtils.readFileToString(ballerinaInternalLog.toFile(), Charset.defaultCharset()));
         }
-
-        ProcessOutput po = new ProcessOutput();
+        
         log.info(EXIT_CODE + exitCode);
         po.setExitCode(exitCode);
-        po.setStdOutput(logOutput(process.getInputStream()));
-        po.setErrOutput(logOutput(process.getErrorStream()));
         return po;
     }
 
@@ -132,5 +147,35 @@ public class TestUtils {
             return "";
         }
         return jacocoArgLine + " ";
+    }
+
+    public static HostJson parseHostJson(Path hostJson) throws IOException {
+        Gson gson = new Gson();
+        return gson.fromJson(Files.readString(hostJson), HostJson.class);
+    }
+
+    /**
+     * Represents Host.json file in tests.
+     */
+    public static class HostJson {
+
+        public CustomHandler customHandler;
+
+        /**
+         * Represents custom handler in host.json.
+         */
+        public static class CustomHandler {
+
+            public Description description;
+
+            /**
+             * Represents description in custom handler.
+             */
+            public static class Description {
+
+                public String defaultExecutablePath;
+                public String defaultWorkerPath;
+            }
+        }
     }
 }

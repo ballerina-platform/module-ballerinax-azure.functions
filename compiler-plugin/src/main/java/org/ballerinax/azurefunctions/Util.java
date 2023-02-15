@@ -41,6 +41,8 @@ import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticFactory;
@@ -267,5 +269,38 @@ public class Util {
     private static boolean isAzureFuncModule(ModuleSymbol moduleSymbol) {
         return AZURE_FUNCTIONS_MODULE_NAME.equals(moduleSymbol.getName().get()) &&
                 AZURE_FUNCTIONS_PACKAGE_ORG.equals(moduleSymbol.id().orgName());
+    }
+    
+    public static String getCloudBuildOption(Project project) {
+        String cloud = project.buildOptions().cloud();
+        if (cloud == null || cloud.isEmpty()) {
+            return Constants.AZURE_FUNCTIONS_BUILD_OPTION;
+        }
+        return cloud;
+    }
+
+    public static Path getTargetDir(Project project, Path jarPath) {
+        if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
+            return jarPath.getParent();
+        }
+        return project.targetDir();
+    }
+
+    public static Path getProjectDir(Project project, Path jarPath) {
+        if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
+            return jarPath.getParent();
+        }
+        return project.targetDir().getParent();
+    }
+    
+    public static Path getAzureFunctionsDir(Project project, Path jarPath) {
+        return getTargetDir(project, jarPath).resolve(Constants.FUNCTION_DIRECTORY);
+    }
+
+    public static String getAzureFunctionsRelative(Project project) {
+        if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
+            return Constants.FUNCTION_DIRECTORY;
+        }
+        return Constants.TARGET_DIRECTORY + Constants.FUNCTION_DIRECTORY;
     }
 }

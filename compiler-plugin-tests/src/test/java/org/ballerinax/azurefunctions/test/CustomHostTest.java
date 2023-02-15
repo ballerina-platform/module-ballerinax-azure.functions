@@ -38,7 +38,7 @@ public class CustomHostTest {
         Path handlers = SOURCE_DIR.resolve("custom-host");
         Path depedenciesToml = handlers.resolve("Dependencies.toml");
         Files.deleteIfExists(depedenciesToml);
-        ProcessOutput processOutput = TestUtils.compileBallerinaProject(handlers, false, false);
+        ProcessOutput processOutput = TestUtils.compileProject(handlers, false, false, false, null);
         Assert.assertEquals(processOutput.getExitCode(), 0);
         Assert.assertTrue(processOutput.getStdOutput().contains("@azure_functions"));
 
@@ -48,7 +48,7 @@ public class CustomHostTest {
 
         Assert.assertTrue(Files.exists(zipFilePath.resolve("custom_host.jar")));
         Assert.assertTrue(Files.exists(zipFilePath.resolve("host.json")));
-        
+
         String hostContent = new String(Files.readAllBytes(zipFilePath.resolve("host.json")));
         if (!hostContent.contains("logging")) {
             Assert.fail("Custom host has not updated");

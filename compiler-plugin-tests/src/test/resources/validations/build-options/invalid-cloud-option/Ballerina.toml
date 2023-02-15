@@ -1,8 +1,8 @@
 [package]
-org = "anjanas"
-name = "query_param_validation"
+org = "anjana"
+name = "no_cloud"
 version = "0.1.0"
 
 [build-options]
 observabilityIncluded = true
-cloud = "azure_functions"
+cloud = "azure_functions_test"

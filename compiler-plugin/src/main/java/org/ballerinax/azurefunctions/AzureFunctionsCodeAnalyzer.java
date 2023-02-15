@@ -32,6 +32,7 @@ public class AzureFunctionsCodeAnalyzer extends CodeAnalyzer {
 
     @Override
     public void init(CodeAnalysisContext codeAnalysisCtx) {
+        codeAnalysisCtx.addCompilationAnalysisTask(new AzureFunctionsCloudValidator());
         codeAnalysisCtx.addSyntaxNodeAnalysisTask(new HttpServiceValidator(), SyntaxKind.SERVICE_DECLARATION);
         codeAnalysisCtx.addSyntaxNodeAnalysisTask(new OutputBindingValidator(), SyntaxKind.RETURN_TYPE_DESCRIPTOR);
     }

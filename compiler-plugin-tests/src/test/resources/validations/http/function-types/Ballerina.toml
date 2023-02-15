@@ -6,3 +6,4 @@ distribution = "2201.1.0"
 
 [build-options]
 observabilityIncluded = true
+cloud = "azure_functions"

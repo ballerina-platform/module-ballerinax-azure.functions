@@ -20,48 +20,34 @@ package org.ballerinax.azurefunctions;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.ProjectKind;
 import org.ballerinax.azurefunctions.tooling.Extensions;
 import org.ballerinax.azurefunctions.tooling.Settings;
 import org.ballerinax.azurefunctions.tooling.Tasks;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
+
+import static io.ballerina.projects.util.ProjectConstants.BIN_DIR_NAME;
+import static io.ballerina.projects.util.ProjectConstants.DOT;
 
 /**
  * Responsible for generating artifacts for native executables.
  */
 public class NativeFunctionsArtifact extends FunctionsArtifact {
+    private static final PrintStream OUT = System.out;
 
-    public NativeFunctionsArtifact(Map<String, JsonObject> functions, Path jarPath) {
-        super(functions, jarPath);
-    }
-
-    @Override
-    public void generate() throws IOException {
-        super.generate();
-        Optional<Path> targetDir = getTargetDir();
-        if (targetDir.isPresent()) {
-            createLocalArtifactDirectory(targetDir.get());
-        }
-    }
-
-    private void createLocalArtifactDirectory(Path targetDir) throws IOException {
-        Path from = targetDir.resolve(Constants.FUNCTION_DIRECTORY);
-        Path destination = targetDir.resolve(Constants.LOCAL_FUNCTION_DIRECTORY);
-        Util.deleteDirectory(destination);
-        Util.copyFolder(from, destination);
-        String executableName = getLocalExecutableFileName();
-        Path executablePath = destination.resolve(executableName);
-        Files.deleteIfExists(executablePath);
-        Files.deleteIfExists(destination.resolve(getExecutableFileName()));
-        Path originalExecutable = targetDir.resolve("bin").resolve(executableName);
-        Files.copy(originalExecutable, destination.resolve(executableName));
-        Files.copy(this.jtos(this.generateHostJson(true)), destination.resolve(Constants.HOST_JSON_NAME),
-                StandardCopyOption.REPLACE_EXISTING);
+    public NativeFunctionsArtifact(Map<String, JsonObject> functions, Path jarPath, Project project) {
+        super(functions, jarPath, project);
     }
 
     private String getLocalExecutableFileName() {
@@ -75,7 +61,7 @@ public class NativeFunctionsArtifact extends FunctionsArtifact {
     }
 
     @Override
-    protected JsonObject generateHostJson(boolean isLocal) throws IOException {
+    protected JsonObject generateHostJson() throws IOException {
         JsonObject hostJson = readExistingHostJson();
         if (hostJson == null) {
             hostJson = new JsonObject();
@@ -91,7 +77,8 @@ public class NativeFunctionsArtifact extends FunctionsArtifact {
         JsonObject httpWorkerDesc = new JsonObject();
         httpWorker.add("description", httpWorkerDesc);
         String execName = "";
-        if (isLocal) {
+        String cloudBuildOption = Util.getCloudBuildOption(project);
+        if (!cloudBuildOption.equals(Constants.AZURE_FUNCTIONS_BUILD_OPTION)) {
             execName = getLocalExecutableFileName();
         } else {
             execName = getExecutableFileName();
@@ -114,7 +101,12 @@ public class NativeFunctionsArtifact extends FunctionsArtifact {
         Path azureFunctionsJar = functionsDir.resolve(jarFileName);
         Files.copy(this.jarPath, azureFunctionsJar, StandardCopyOption.REPLACE_EXISTING);
         String jarFileNameString = jarFileName.toString();
-        buildImage(functionsDir, jarFileNameString);
+        String cloudBuildOption = Util.getCloudBuildOption(project);
+        if (cloudBuildOption.equals(Constants.AZURE_FUNCTIONS_BUILD_OPTION)) {
+            buildRemoteArtifacts(functionsDir, jarFileNameString);
+        } else {
+            buildLocalArtifacts(functionsDir, jarFileNameString);
+        }
         Files.deleteIfExists(functionsDir.resolve(azureFunctionsJar));
     }
 
@@ -124,15 +116,78 @@ public class NativeFunctionsArtifact extends FunctionsArtifact {
         Files.createDirectories(vsCodeDir);
         Files.copy(jtos(new Extensions()), vsCodeDir.resolve(Constants.EXTENSIONS_FILE_NAME),
                 StandardCopyOption.REPLACE_EXISTING);
-        Files.copy(jtos(new Settings(true)), vsCodeDir.resolve(Constants.SETTINGS_FILE_NAME),
+        Files.copy(jtos(new Settings(project)), vsCodeDir.resolve(Constants.SETTINGS_FILE_NAME),
                 StandardCopyOption.REPLACE_EXISTING);
-        Files.copy(jtos(new Tasks(true)), vsCodeDir.resolve(Constants.TASKS_FILE_NAME),
+        Files.copy(jtos(new Tasks(project)), vsCodeDir.resolve(Constants.TASKS_FILE_NAME),
                 StandardCopyOption.REPLACE_EXISTING);
 
         addToGitIgnore(projectDir);
     }
+    public void buildLocalArtifacts(Path azureFunctionsDir, String jarFileName) {
+        OUT.println("\n\t@azure_functions: Building native executable compatible for the local operating system." +
+                "This may take a while.\n");
+        Path jarPath = azureFunctionsDir.resolve(jarFileName);
+        String nativeImageName;
+        String[] command;
+        String nativeImageCommand = System.getenv("GRAALVM_HOME");
 
-    public void buildImage(Path azureFunctionsDir, String jarFileName) {
+        if (nativeImageCommand == null) {
+            throw new ProjectException("GraalVM installation directory not found. Set GRAALVM_HOME as an " +
+                    "environment variable\nHINT: To install GraalVM, follow the link: " +
+                    "https://ballerina.io/learn/build-a-native-executable/#configure-graalvm");
+        }
+        String os = System.getProperty("os.name").toLowerCase(Locale.getDefault());
+        nativeImageCommand += File.separator + BIN_DIR_NAME + File.separator
+                + (os.contains("win") ? "native-image.cmd" : "native-image");
+
+        File commandExecutable = Paths.get(nativeImageCommand).toFile();
+        if (!commandExecutable.exists()) {
+            throw new ProjectException("cannot find '" + commandExecutable.getName() + "' in the GRAALVM_HOME. " +
+                    "Install it using: gu install native-image");
+        }
+
+        if (project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT)) {
+            String fileName = project.sourceRoot().toFile().getName();
+            nativeImageName = fileName.substring(0, fileName.lastIndexOf(DOT));
+            command = new String[] {
+                    nativeImageCommand,
+                    "-jar",
+                    jarPath.toString(),
+                    "-H:Path=" + azureFunctionsDir,
+                    "-H:Name=" + nativeImageName,
+                    "--no-fallback"
+            };
+        } else {
+            nativeImageName = project.currentPackage().packageName().toString();
+            command = new String[]{
+                    nativeImageCommand,
+                    "-jar",
+                    jarPath.toString(),
+                    "-H:Name=" + nativeImageName,
+                    "-H:Path=" + azureFunctionsDir,
+                    "--no-fallback"
+            };
+        }
+
+        try {
+            ProcessBuilder builder = new ProcessBuilder();
+            builder.command(command);
+            builder.inheritIO();
+            Process process = builder.start();
+
+            if (process.waitFor() != 0) {
+                throw new ProjectException("unable to create native image");
+            }
+        } catch (IOException e) {
+            throw new ProjectException("unable to create native image : " + e.getMessage());
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    public void buildRemoteArtifacts(Path azureFunctionsDir, String jarFileName) {
+        OUT.println("\n\t@azure_functions: Building native image compatible for the Cloud using Docker. " +
+                "This may take a while.\n");
         String executableName = getExecutableFileName();
         String volumeMount = azureFunctionsDir.toAbsolutePath() + Constants.CONTAINER_OUTPUT_PATH;
         ProcessBuilder pb = new ProcessBuilder("docker", "run", "--rm", Constants.DOCKER_PLATFORM_FLAG,
@@ -155,4 +210,3 @@ public class NativeFunctionsArtifact extends FunctionsArtifact {
         }
     }
 }
-

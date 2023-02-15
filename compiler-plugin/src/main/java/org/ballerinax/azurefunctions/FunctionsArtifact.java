@@ -23,6 +23,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
+import io.ballerina.projects.Project;
 import org.ballerinax.azurefunctions.tooling.Extensions;
 import org.ballerinax.azurefunctions.tooling.LocalSettings;
 import org.ballerinax.azurefunctions.tooling.Settings;
@@ -51,12 +52,14 @@ public class FunctionsArtifact {
 
     protected Map<String, JsonObject> functions;
     protected Path jarPath;
+    protected Project project;
 
     protected Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-    public FunctionsArtifact(Map<String, JsonObject> functions, Path jarPath) {
+    public FunctionsArtifact(Map<String, JsonObject> functions, Path jarPath, Project project) {
         this.functions = functions;
         this.jarPath = jarPath;
+        this.project = project;
     }
 
     public Map<String, JsonObject> getFunctions() {
@@ -76,7 +79,7 @@ public class FunctionsArtifact {
         }
     }
 
-    protected JsonObject generateHostJson(boolean isLocal) throws IOException {
+    protected JsonObject generateHostJson() throws IOException {
         JsonObject hostJson = readExistingHostJson();
         if (hostJson == null) {
             hostJson = new JsonObject();
@@ -114,42 +117,21 @@ public class FunctionsArtifact {
             throw new IllegalStateException(e);
         }
     }
-    
-    protected Optional<Path> getTargetDir() {
-        if (this.jarPath == null) {
-            return Optional.empty();
-        }
-        Path parent = this.jarPath.toAbsolutePath().getParent();
-        if (parent == null) {
-            return Optional.empty();
-        }
-        Path targetDir = parent.getParent();
-        if (targetDir == null) {
-            return Optional.empty();
-        }
-        
-        return Optional.of(targetDir);
-    }
 
     public void generate() throws IOException {
-        Optional<Path> targetDir = getTargetDir();
-        if (targetDir.isEmpty()) {
-            return;
-        }
-
-        Path projectDir = targetDir.get().getParent();
+        Path projectDir = Util.getProjectDir(project, jarPath);
         if (projectDir == null) {
             return;
         }
-        
+
         generateVsCodeConfigs(projectDir);
 
-        Path functionsDir = targetDir.get().resolve(Constants.FUNCTION_DIRECTORY);
+        Path functionsDir = Util.getAzureFunctionsDir(project, jarPath);
         Optional<String> cachedLocalSettings = cacheLocalSettings(functionsDir);
         Util.deleteDirectory(functionsDir);
         Files.createDirectories(functionsDir);
         generateExecutable(functionsDir);
-        Files.copy(this.jtos(this.generateHostJson(false)), functionsDir.resolve(Constants.HOST_JSON_NAME),
+        Files.copy(this.jtos(this.generateHostJson()), functionsDir.resolve(Constants.HOST_JSON_NAME),
                 StandardCopyOption.REPLACE_EXISTING);
         if (cachedLocalSettings.isEmpty()) {
             generateLocalSettings(functionsDir);
@@ -199,9 +181,9 @@ public class FunctionsArtifact {
         Files.createDirectories(vsCodeDir);
         Files.copy(jtos(new Extensions()), vsCodeDir.resolve(Constants.EXTENSIONS_FILE_NAME),
                 StandardCopyOption.REPLACE_EXISTING);
-        Files.copy(jtos(new Settings(false)), vsCodeDir.resolve(Constants.SETTINGS_FILE_NAME),
+        Files.copy(jtos(new Settings(project)), vsCodeDir.resolve(Constants.SETTINGS_FILE_NAME),
                 StandardCopyOption.REPLACE_EXISTING);
-        Files.copy(jtos(new Tasks(false)), vsCodeDir.resolve(Constants.TASKS_FILE_NAME),
+        Files.copy(jtos(new Tasks(project)), vsCodeDir.resolve(Constants.TASKS_FILE_NAME),
                 StandardCopyOption.REPLACE_EXISTING);
 
         addToGitIgnore(projectDir);

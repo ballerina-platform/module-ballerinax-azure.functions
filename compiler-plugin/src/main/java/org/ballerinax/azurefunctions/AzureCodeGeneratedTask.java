@@ -19,6 +19,8 @@ package org.ballerinax.azurefunctions;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.Project;
 import io.ballerina.projects.plugins.CompilerLifecycleEventContext;
 import io.ballerina.projects.plugins.CompilerLifecycleTask;
 import org.ballerinax.azurefunctions.service.Binding;
@@ -64,45 +66,44 @@ public class AzureCodeGeneratedTask implements CompilerLifecycleTask<CompilerLif
         }
 
         Optional<Path> generatedArtifactPath = compilerLifecycleEventContext.getGeneratedArtifactPath();
-        boolean isNative = compilerLifecycleEventContext.currentPackage().project().buildOptions().nativeImage();
+        Project project = compilerLifecycleEventContext.currentPackage().project();
+        BuildOptions buildOptions = project.buildOptions();
+        String cloud = buildOptions.cloud();
+        if (cloud == null || cloud.isEmpty()) {
+            OUT.println("\n\tWarning: 'cloud' build option is not set. --cloud='azure_functions' is " +
+                    "used by default.");
+        }
+        boolean isNative = buildOptions.nativeImage();
         generatedArtifactPath.ifPresent(path -> {
             try {
-                if (isNative) {
-                    OUT.println("\n\t@azure_functions: Building native image compatible for the Cloud using Docker. " +
-                            "This may take a while\n");
-                }
-                this.generateFunctionsArtifact(generatedFunctions, path, isNative);
+                this.generateFunctionsArtifact(generatedFunctions, path, isNative, project);
             } catch (IOException | DockerBuildException e) {
                 throw new DockerBuildException(e.getMessage());
             }
             OUT.println("\n\t@azure_functions:Function: " + String.join(", ", generatedFunctions.keySet()));
             OUT.println("\n\tExecute the command below to deploy the function locally:");
-            OUT.println(
-                    "\tfunc start --script-root " + getLocalArtifactPath(isNative) + getLocalRuntimeFlag(isNative));
-            OUT.println("\n\tExecute the command below to deploy Ballerina Azure Functions:");
-            Path parent = path.getParent();
-            if (parent != null) {
-                OUT.println(
-                        "\tfunc azure functionapp publish <function_app_name> --script-root " +
-                                Constants.ARTIFACT_PATH + " \n");
+            if (isNative) {
+                OUT.println("\t$ bal build --native --cloud=\"" + Constants.AZURE_FUNCTIONS_LOCAL_BUILD_OPTION + "\"");
             }
+            OUT.println("\t$ func start --script-root " + Util.getAzureFunctionsRelative(project) +
+                            getLocalRuntimeFlag(isNative));
+            OUT.println("\n\tExecute the command below to deploy Ballerina Azure Functions:");
+            if (isNative) {
+                OUT.println("\t$ bal build --native --cloud=\"" + Constants.AZURE_FUNCTIONS_BUILD_OPTION + "\"");
+            }
+            OUT.println("\t$ func azure functionapp publish <function_app_name> --script-root " +
+                    Util.getAzureFunctionsRelative(project) + " \n");
+
         });
     }
 
-    private void generateFunctionsArtifact(Map<String, JsonObject> functions, Path binaryPath, boolean isNative)
+    private void generateFunctionsArtifact(Map<String, JsonObject> functions, Path binaryPath, boolean isNative,
+                                           Project project)
             throws IOException {
         if (isNative) {
-            new NativeFunctionsArtifact(functions, binaryPath).generate();
+            new NativeFunctionsArtifact(functions, binaryPath, project).generate();
         } else {
-            new FunctionsArtifact(functions, binaryPath).generate();
-        }
-    }
-
-    private String getLocalArtifactPath(boolean isNative) {
-        if (isNative) {
-            return Constants.LOCAL_ARTIFACT_PATH;
-        } else {
-            return Constants.ARTIFACT_PATH;
+            new FunctionsArtifact(functions, binaryPath, project).generate();
         }
     }
 

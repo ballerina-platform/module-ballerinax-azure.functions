@@ -68,6 +68,5 @@ public class FunctionUpdaterTask implements ModifierTask<SourceModifierContext> 
                 context.modifyTestSourceFile(updatedSyntaxTree.textDocument(), docId);
             }
         }
-
     }
 }
