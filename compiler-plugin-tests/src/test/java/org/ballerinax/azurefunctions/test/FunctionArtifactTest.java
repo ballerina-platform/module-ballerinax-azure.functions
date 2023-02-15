@@ -357,7 +357,8 @@ public class FunctionArtifactTest {
     @Test
     public void testReturnTypeDescRef() {
         JsonObject actual = generatedFunctions.get("post-hello-queue");
-        String str = "{\"bindings\":[{\"type\":\"httpTrigger\",\"authLevel\":\"anonymous\",\"methods\":[\"post\"],\"direction\":" +
+        String str = "{\"bindings\":[{\"type\":\"httpTrigger\",\"authLevel\":\"anonymous\",\"methods\":[\"post\"]," +
+                "\"direction\":" +
                 "\"in\",\"name\":\"httpPayload\",\"route\":\"hello/queue\"},{\"type\":\"http\",\"direction\":" +
                 "\"out\",\"name\":\"outResp\"},{\"type\":\"queue\",\"connection\":\"AzureWebJobsStorage\"," +
                 "\"queueName\":\"people\",\"direction\":\"out\",\"name\":\"outResp1\"}]}";
