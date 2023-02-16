@@ -45,7 +45,7 @@ public class CosmosDBTriggerBinding extends RemoteTriggerBinding {
 
     public CosmosDBTriggerBinding(ServiceDeclarationNode serviceDeclarationNode, SemanticModel semanticModel,
                                   Map<String, Node> types) {
-        super("cosmosDBTrigger", "onUpdated", Constants.ANNOTATION_COSMOS_TRIGGER, 
+        super("cosmosDBTrigger", "onUpdate", Constants.ANNOTATION_COSMOS_TRIGGER, 
                 serviceDeclarationNode, semanticModel, types);
     }
 

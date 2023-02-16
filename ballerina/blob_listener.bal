@@ -22,7 +22,7 @@ public class BlobListener {
     
     public function attach(BlobService svc, string[]|string? name = ()) returns error? {
         AzureRemoteAdapter adaptor = new(svc);
-        self.httpService = new (adaptor, "onUpdated");
+        self.httpService = new (adaptor, "onUpdate");
         check httpListener.attach(<DispatcherService>self.httpService, name);
     }
 

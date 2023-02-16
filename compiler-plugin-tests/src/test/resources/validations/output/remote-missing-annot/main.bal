@@ -22,7 +22,7 @@ import ballerinax/azure_functions as af;
 listener af:BlobListener blobListener = new af:BlobListener();
 
 service "blob" on blobListener {
-    remote function onUpdated (byte[] blobIn, @af:BindingName { } string name) returns byte[]|error {
+    remote function onUpdate (byte[] blobIn, @af:BindingName { } string name) returns byte[]|error {
         return blobIn;
     }
 }

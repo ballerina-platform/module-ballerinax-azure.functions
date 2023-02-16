@@ -740,8 +740,8 @@ For each of the above listeners a remote functions needs to be defined with a pr
 | Listener           | method name |
 |--------------------|-------------|
 | QueueListener      | onMessage   |
-| BlobListener       | onUpdated   |
-| CosmosDBListener   | onUpdated   |
+| BlobListener       | onUpdate   |
+| CosmosDBListener   | onUpdate   |
 | TimerListener      | onTrigger   |
 
 These method bodies are executed during the trigger operation(Eg: Queue is updated).
@@ -864,7 +864,7 @@ This function (function with [CosmosDBTrigger](https://learn.microsoft.com/en-us
 listener af:CosmosDBListener cosmosEp = new ();
  
 service "cosmos" on cosmosEp {
-   remote function onUpdated (DBEntry[] inMsg) returns @af:QueueOutput {queueName: "queue3"} string|error {
+   remote function onUpdate (DBEntry[] inMsg) returns @af:QueueOutput {queueName: "queue3"} string|error {
        string id = inMsg[0].id;
        return "helloo "+ id;
    }
@@ -878,7 +878,7 @@ A [timer trigger](https://learn.microsoft.com/en-us/azure/azure-functions/functi
 listener af:TimerListener timerEp = new ();
  
 service "timer" on timerEp {
-   remote function onTriggered (json inMsg) returns @af:QueueOutput {queueName: "queue3"} string|error {
+   remote function onTrigger (json inMsg) returns @af:QueueOutput {queueName: "queue3"} string|error {
        string id = inMsg[0].id;
        return "helloo "+ id;
    }
@@ -894,7 +894,7 @@ The [BlobTrigger](https://learn.microsoft.com/en-us/azure/azure-functions/functi
 listener af:BlobListener blobListener = new af:BlobListener();
 
 service "blob" on blobListener {
-    remote function onUpdated(byte[] blobIn, @af:BindingName {} string name) returns @af:BlobOutput {
+    remote function onUpdate(byte[] blobIn, @af:BindingName {} string name) returns @af:BlobOutput {
         path: "bpath1/newBlob"
     } byte[]|error {
         return blobIn;
@@ -932,7 +932,7 @@ service "queue" on queueListener {
 [BlobOutput bindings](https://learn.microsoft.com/en-us/azure/azure-functions/functions-bindings-storage-blob-output?tabs=in-process%2Cextensionv5&pivots=programming-language-java) allows to modify the specified blob.
 ```ballerina
 service "blob" on blobListener {
-    remote function onUpdated (byte[] blobIn, @af:BindingName { } string name) returns @af:BlobOutput { 
+    remote function onUpdate (byte[] blobIn, @af:BindingName { } string name) returns @af:BlobOutput { 
         path: "bpath1/newBlob" } byte[]|error {
         return blobIn;
     }
@@ -944,7 +944,7 @@ service "blob" on blobListener {
 @af:CosmosDBTrigger {connectionStringSetting: "CosmosDBConnection", databaseName: "db1", collectionName: "c1"}
 listener af:CosmosDBListener cosmosEp = new ();
 service "cosmos" on cosmosEp {
-  remote function onUpdated (@http:Payload DBEntry[] inMsg) returns @af:CosmosDBOutput {connectionStringSetting: "CosmosDBConnection", databaseName: "db1", collectionName: "c2"} DBEntry[]|error {
+  remote function onUpdate (@http:Payload DBEntry[] inMsg) returns @af:CosmosDBOutput {connectionStringSetting: "CosmosDBConnection", databaseName: "db1", collectionName: "c2"} DBEntry[]|error {
     return inMsg;
   }
 }
@@ -956,7 +956,7 @@ service "cosmos" on cosmosEp {
 listener af:TimerListener timerEp = new ();
 
 service "timer" on timerEp {
-  remote function onTriggered (@http:Payload json inMsg) returns @af:QueueOutput @af:TwilioSmsOutput { fromNumber: "+12069845840" }  string|error {
+  remote function onTrigger (@http:Payload json inMsg) returns @af:QueueOutput @af:TwilioSmsOutput { fromNumber: "+12069845840" }  string|error {
       string id = inMsg[0].id;
       return "helloo "+ id;
   }
