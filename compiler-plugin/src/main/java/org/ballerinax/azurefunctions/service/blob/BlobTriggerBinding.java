@@ -42,7 +42,7 @@ public class BlobTriggerBinding extends RemoteTriggerBinding {
 
     public BlobTriggerBinding(ServiceDeclarationNode serviceDeclarationNode, SemanticModel semanticModel,
                               Map<String, Node> types) {
-        super("blobTrigger", "onUpdated", Constants.ANNOTATION_BLOB_TRIGGER, serviceDeclarationNode,
+        super("blobTrigger", "onUpdate", Constants.ANNOTATION_BLOB_TRIGGER, serviceDeclarationNode,
                 semanticModel, types);
     }
 

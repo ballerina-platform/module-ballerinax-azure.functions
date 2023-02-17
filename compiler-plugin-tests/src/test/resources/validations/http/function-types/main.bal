@@ -21,7 +21,7 @@ service / on new af:HttpListener() {
         return "hello";
     }
     
-    remote function onUpdated (byte[] blobIn, @af:BindingName { } string name) returns @af:BlobOutput { path: "bpath1/newBlob" } byte[]|error {
+    remote function onUpdate (byte[] blobIn, @af:BindingName { } string name) returns @af:BlobOutput { path: "bpath1/newBlob" } byte[]|error {
         return blobIn;
     }
      

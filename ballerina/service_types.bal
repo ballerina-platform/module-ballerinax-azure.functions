@@ -30,7 +30,7 @@ public type QueueService distinct service object {
 
 
 public type CosmosService distinct service object {
-    // remote function onUpdated(anydata payload) returns anydata|error?;
+    // remote function onUpdate(anydata payload) returns anydata|error?;
 };
 
 

@@ -133,7 +133,7 @@ service "queue1" on new af:QueueListener() {
 listener af:CosmosDBListener cosmosEp = new ();
 
 service "cosmos" on cosmosEp {
-    remote function onUpdated (DBEntry[] inMsg) returns @af:QueueOutput {queueName: "queue3"} string|error {
+    remote function onUpdate (DBEntry[] inMsg) returns @af:QueueOutput {queueName: "queue3"} string|error {
         string id = inMsg[0].id;
         return "helloo "+ id;
     }
@@ -142,7 +142,7 @@ service "cosmos" on cosmosEp {
 
 @af:CosmosDBTrigger {connectionStringSetting: "CosmosDBConnection", databaseName: "db1", collectionName: "c2"}
 service "cosmos1" on new af:CosmosDBListener() {
-    remote function onUpdated (DBEntry[] inMsg) returns @af:QueueOutput {queueName: "queue3"} string|error {
+    remote function onUpdate (DBEntry[] inMsg) returns @af:QueueOutput {queueName: "queue3"} string|error {
         string id = inMsg[0].id;
         return "helloo "+ id;
     }
@@ -171,7 +171,7 @@ service "timer1" on new af:TimerListener() {
 listener af:BlobListener blobListener = new af:BlobListener();
 
 service "blob" on blobListener {
-    remote function onUpdated (byte[] blobIn, @af:BindingName { } string name) returns @af:BlobOutput { 
+    remote function onUpdate (byte[] blobIn, @af:BindingName { } string name) returns @af:BlobOutput { 
         path: "bpath1/newBlob" } byte[]|error {
         return blobIn;
     }
@@ -182,7 +182,7 @@ service "blob" on blobListener {
 }
 
 service "blob1" on new af:BlobListener() {
-    remote function onUpdated (byte[] blobIn, @af:BindingName { } string name) returns @af:BlobOutput { 
+    remote function onUpdate (byte[] blobIn, @af:BindingName { } string name) returns @af:BlobOutput { 
         path: "bpath1/newBlob" } byte[]|error {
         return blobIn;
     }
@@ -230,7 +230,7 @@ service "queue123" on queueListener123 {
 listener af:CosmosDBListener cosmosEp123 = new ();
 
 service "cosmos123" on cosmosEp123 {
-    remote function onUpdated(DBEntry[] inMsg, @af:CosmosDBInput{connectionStringSetting: "TestDBConn", databaseName: "testDB", collectionName: "TestCollection", sqlQuery: "SELECT * FROM ITEMS", partitionKey: "id",id: "1234"} DBEntry[] input) returns @af:CosmosDBOutput {connectionStringSetting: "CosmosDBConnection", databaseName: "db1", collectionName: "c2"} DBEntry[]|error {
+    remote function onUpdate(DBEntry[] inMsg, @af:CosmosDBInput{connectionStringSetting: "TestDBConn", databaseName: "testDB", collectionName: "TestCollection", sqlQuery: "SELECT * FROM ITEMS", partitionKey: "id",id: "1234"} DBEntry[] input) returns @af:CosmosDBOutput {connectionStringSetting: "CosmosDBConnection", databaseName: "db1", collectionName: "c2"} DBEntry[]|error {
         return inMsg;
     }
 }
@@ -252,7 +252,7 @@ service "timer123" on timerListener123 {
 listener af:BlobListener blobListener123 = new af:BlobListener();
 
 service "blob123" on blobListener123 {
-    remote function onUpdated(byte[] blobIn, @af:BindingName string name) returns @af:BlobOutput {
+    remote function onUpdate(byte[] blobIn, @af:BindingName string name) returns @af:BlobOutput {
         path: "bpath1/newBlob",
         connection: "TestConnection"
     } byte[]|error {

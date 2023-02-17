@@ -99,8 +99,13 @@ public abstract class RemoteTriggerBinding extends TriggerBinding {
                 inputBinding.ifPresent(bindings::add);
             }
             bindings.add(this);
-            ReturnTypeDescriptorNode returnTypeDescriptorNode =
-                    functionDefinitionNode.functionSignature().returnTypeDesc().get(); //TODO recheck if return is must
+            Optional<ReturnTypeDescriptorNode> returnTypeDesc =
+                    functionDefinitionNode.functionSignature().returnTypeDesc();
+            if (returnTypeDesc.isEmpty()) {
+                functionContexts.add(new FunctionContext(servicePath.replace("/", ""), bindings));
+                continue;
+            }
+            ReturnTypeDescriptorNode returnTypeDescriptorNode = returnTypeDesc.get();
             OutputBindingBuilder outputBuilder = new OutputBindingBuilder();
             List<Binding> returnBinding  = outputBuilder.getOutputBinding(returnTypeDescriptorNode, types);
             bindings.addAll(returnBinding); //TODO handle in code analyzer

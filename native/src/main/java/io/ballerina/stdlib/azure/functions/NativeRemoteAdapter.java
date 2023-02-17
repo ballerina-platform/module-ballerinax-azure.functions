@@ -29,6 +29,7 @@ import io.ballerina.runtime.api.types.ServiceType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeId;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
@@ -68,45 +69,49 @@ public class NativeRemoteAdapter {
         List<Object> argList = new ArrayList<>();
         RemoteMethodType methodType = getRemoteMethod(serviceType, remoteFuncName).orElseThrow();
         Parameter[] parameters = methodType.getParameters();
-        for (Parameter parameter : parameters) {
-            String name = parameter.name;
-            Object annotation = methodType.getAnnotation(StringUtils.fromString(Constants.PARAMETER_ANNOTATION + name));
-            if (!ParamHandler.isAzureAnnotationExist(annotation)) {
-                Object bValue = getDataboundValue(data, parameter, serviceType);
-                argList.add(bValue);
-                argList.add(true);
-            } else if (ParamHandler.isBindingNameParam(annotation)) {
-                BString nameParam =
-                        body.getMapValue(StringUtils.fromString("Metadata")).getStringValue(StringUtils.fromString(
-                                "name"));
-                Type type = parameter.type;
-                JsonPayloadBuilder jsonPayloadBuilder = new JsonPayloadBuilder(type);
-                Object bValue = jsonPayloadBuilder.getValue(nameParam, false);
-                argList.add(bValue);
-                argList.add(true);
-            } else {
-                Optional<InputBinding> inputBindingHandler = ParamHandler.getInputBindingHandler(annotation);
-                if (inputBindingHandler.isPresent()) {
-                    BString bodyValue = data.getStringValue(StringUtils.fromString(name));
-                    Type type = parameter.type;
-                    AbstractPayloadBuilder payloadBuilder = inputBindingHandler.get().getPayloadBuilder(type);
-                    Object bValue = payloadBuilder.getValue(bodyValue, false);
+        try {
+            for (Parameter parameter : parameters) {
+                String name = parameter.name;
+                BString parameterAnnotation = StringUtils.fromString(Constants.PARAMETER_ANNOTATION + name);
+                Object annotation =  methodType.getAnnotation(parameterAnnotation);
+                if (!ParamHandler.isAzureAnnotationExist(annotation)) {
+                    Object bValue = getDataboundValue(data, parameter, serviceType);
                     argList.add(bValue);
                     argList.add(true);
+                } else if (ParamHandler.isBindingNameParam(annotation)) {
+                    BString nameParam = body.getMapValue(StringUtils.fromString("Metadata"))
+                            .getStringValue(StringUtils.fromString("name"));
+                    Type type = parameter.type;
+                    JsonPayloadBuilder jsonPayloadBuilder = new JsonPayloadBuilder(type);
+                    Object bValue = jsonPayloadBuilder.getValue(nameParam, false);
+                    argList.add(bValue);
+                    argList.add(true);
+                } else {
+                    Optional<InputBinding> inputBindingHandler = ParamHandler.getInputBindingHandler(annotation);
+                    if (inputBindingHandler.isPresent()) {
+                        BString bodyValue = data.getStringValue(StringUtils.fromString(name));
+                        Type type = parameter.type;
+                        AbstractPayloadBuilder payloadBuilder = inputBindingHandler.get().getPayloadBuilder(type);
+                        Object bValue = payloadBuilder.getValue(bodyValue, false);
+                        argList.add(bValue);
+                        argList.add(true);
+                    }
                 }
             }
-        }
-        Object[] args = argList.toArray();
-        if (serviceType.isIsolated()) {
-            env.getRuntime().invokeMethodAsyncConcurrently(
-                    bHubService, remoteFuncName.getValue(), null, metadata,
-                    new FunctionCallback(balFuture, module, methodType), null, PredefinedTypes.TYPE_NULL,
-                    args);
-        } else {
-            env.getRuntime().invokeMethodAsyncSequentially(
-                    bHubService, remoteFuncName.getValue(), null, metadata,
-                    new FunctionCallback(balFuture, module, methodType), null, PredefinedTypes.TYPE_NULL,
-                    args);
+            Object[] args = argList.toArray();
+            if (serviceType.isIsolated()) {
+                env.getRuntime().invokeMethodAsyncConcurrently(
+                        bHubService, remoteFuncName.getValue(), null, metadata,
+                        new FunctionCallback(balFuture, module, methodType), null, PredefinedTypes.TYPE_NULL,
+                        args);
+            } else {
+                env.getRuntime().invokeMethodAsyncSequentially(
+                        bHubService, remoteFuncName.getValue(), null, metadata,
+                        new FunctionCallback(balFuture, module, methodType), null, PredefinedTypes.TYPE_NULL,
+                        args);
+            }
+        } catch (BError e) {
+            balFuture.complete(Utils.createError(module, e.getMessage(), Constants.INTERNAL_SERVER_ERROR));
         }
         return null;
     }
