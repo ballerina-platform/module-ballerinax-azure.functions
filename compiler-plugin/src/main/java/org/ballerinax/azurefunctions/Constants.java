@@ -74,9 +74,6 @@ public class Constants {
     public static final String HOST_JSON_NAME = "host.json";
     public static final String FUNCTION_JSON_NAME = "function.json";
 
-    public static final String VSCODE_DIRECTORY = ".vscode";
-    public static final String GITIGNORE = ".gitignore";
-
     public static final String BALLERINA_DOCKER_ORG = "ballerina";
     public static final String NATIVE_BUILDER_IMAGE_NAME = "azure_native_builder";
     public static final String NATIVE_BUILDER_IMAGE = BALLERINA_DOCKER_ORG + "/" + NATIVE_BUILDER_IMAGE_NAME;

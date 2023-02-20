@@ -15,19 +15,30 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinax.azurefunctions.tooling;
+package org.ballerinax.azurefunctions;
+
+import com.google.gson.annotations.SerializedName;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * Represents extensions.json in the .vscode directory.
- * 
+ * Represents local.settings.json in the target directory.
+ *
  * @since 2201.3.0
  */
-public class Extensions {
+public class LocalSettings {
 
-    private String[] recommendations;
+    @SerializedName("IsEncrypted")
+    private boolean isEncrypted;
 
-    public Extensions() {
-        this.recommendations = new String[1];
-        this.recommendations[0] = "ms-azuretools.vscode-azurefunctions";
+    @SerializedName("Values")
+    private Map<String, String> values;
+
+    public LocalSettings() {
+        this.isEncrypted = false;
+        this.values = new HashMap<>();
+        this.values.put("AzureWebJobsStorage", "");
+        this.values.put("FUNCTIONS_WORKER_RUNTIME", "java");
     }
 }

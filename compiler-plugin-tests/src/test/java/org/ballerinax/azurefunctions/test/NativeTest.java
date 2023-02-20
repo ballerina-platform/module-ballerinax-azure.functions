@@ -140,7 +140,6 @@ public class NativeTest {
 
         Files.deleteIfExists(depedenciesToml);
         Files.deleteIfExists(handlers.resolve("main.jar"));
-        FileUtils.deleteDirectory(handlers.resolve(".vscode").toFile());
         FileUtils.deleteDirectory(handlers.resolve("azure_functions").toFile());
     }
 }

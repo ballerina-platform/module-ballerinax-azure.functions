@@ -23,9 +23,6 @@ import com.google.gson.JsonPrimitive;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
-import org.ballerinax.azurefunctions.tooling.Extensions;
-import org.ballerinax.azurefunctions.tooling.Settings;
-import org.ballerinax.azurefunctions.tooling.Tasks;
 
 import java.io.File;
 import java.io.IOException;
@@ -109,20 +106,7 @@ public class NativeFunctionsArtifact extends FunctionsArtifact {
         }
         Files.deleteIfExists(functionsDir.resolve(azureFunctionsJar));
     }
-
-    @Override
-    protected void generateVsCodeConfigs(Path projectDir) throws IOException {
-        Path vsCodeDir = projectDir.resolve(Constants.VSCODE_DIRECTORY);
-        Files.createDirectories(vsCodeDir);
-        Files.copy(jtos(new Extensions()), vsCodeDir.resolve(Constants.EXTENSIONS_FILE_NAME),
-                StandardCopyOption.REPLACE_EXISTING);
-        Files.copy(jtos(new Settings(project)), vsCodeDir.resolve(Constants.SETTINGS_FILE_NAME),
-                StandardCopyOption.REPLACE_EXISTING);
-        Files.copy(jtos(new Tasks(project)), vsCodeDir.resolve(Constants.TASKS_FILE_NAME),
-                StandardCopyOption.REPLACE_EXISTING);
-
-        addToGitIgnore(projectDir);
-    }
+    
     public void buildLocalArtifacts(Path azureFunctionsDir, String jarFileName) {
         OUT.println("\n\t@azure_functions: Building native executable compatible for the local operating system." +
                 "This may take a while.\n");
