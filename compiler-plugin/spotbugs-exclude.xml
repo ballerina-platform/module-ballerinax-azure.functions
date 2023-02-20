@@ -25,7 +25,7 @@
     
     <!--POJOs for GSON-->
     <Match>
-        <Package name="org.ballerinax.azurefunctions.tooling"/>
+        <Class name="org.ballerinax.azurefunctions.LocalSettings"/>
         <Bug pattern="URF_UNREAD_FIELD"/>
     </Match>
 

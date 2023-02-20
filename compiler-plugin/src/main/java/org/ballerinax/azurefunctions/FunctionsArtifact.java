@@ -24,10 +24,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 import io.ballerina.projects.Project;
-import org.ballerinax.azurefunctions.tooling.Extensions;
-import org.ballerinax.azurefunctions.tooling.LocalSettings;
-import org.ballerinax.azurefunctions.tooling.Settings;
-import org.ballerinax.azurefunctions.tooling.Tasks;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -41,7 +37,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.nio.file.StandardOpenOption;
 import java.util.Map;
 import java.util.Optional;
 
@@ -124,8 +119,6 @@ public class FunctionsArtifact {
             return;
         }
 
-        generateVsCodeConfigs(projectDir);
-
         Path functionsDir = Util.getAzureFunctionsDir(project, jarPath);
         Optional<String> cachedLocalSettings = cacheLocalSettings(functionsDir);
         Util.deleteDirectory(functionsDir);
@@ -174,32 +167,6 @@ public class FunctionsArtifact {
             return Optional.of(Files.readString(localSettingsPath));
         }
         return Optional.empty();
-    }
-
-    protected void generateVsCodeConfigs(Path projectDir) throws IOException {
-        Path vsCodeDir = projectDir.resolve(Constants.VSCODE_DIRECTORY);
-        Files.createDirectories(vsCodeDir);
-        Files.copy(jtos(new Extensions()), vsCodeDir.resolve(Constants.EXTENSIONS_FILE_NAME),
-                StandardCopyOption.REPLACE_EXISTING);
-        Files.copy(jtos(new Settings(project)), vsCodeDir.resolve(Constants.SETTINGS_FILE_NAME),
-                StandardCopyOption.REPLACE_EXISTING);
-        Files.copy(jtos(new Tasks(project)), vsCodeDir.resolve(Constants.TASKS_FILE_NAME),
-                StandardCopyOption.REPLACE_EXISTING);
-
-        addToGitIgnore(projectDir);
-    }
-
-    protected void addToGitIgnore(Path projectDir) throws IOException {
-        Path gitIgnore = projectDir.resolve(Constants.GITIGNORE);
-        if (!Files.exists(gitIgnore)) {
-            return;
-        }
-        String gitIgnoreContent = Files.readString(gitIgnore);
-        if (gitIgnoreContent.contains(Constants.VSCODE_DIRECTORY)) {
-            return;
-        }
-
-        Files.write(gitIgnore, Constants.VSCODE_DIRECTORY.getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);
     }
 }
 
