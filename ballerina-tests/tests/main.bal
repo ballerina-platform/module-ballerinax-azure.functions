@@ -458,6 +458,13 @@ service /hello on ep {
     @af:BlobOutput {path: "bpath1/newBlob"} byte[]] {
         return ["hello", "world", "anjana".toBytes()];
     }
+    
+    @af:Function {
+        name: "customAnnotFunc"
+    }
+    resource function get custom() returns string {
+        return "Hello World!";
+    }
 }
 
 @af:QueueTrigger {

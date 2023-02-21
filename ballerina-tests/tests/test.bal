@@ -1240,3 +1240,23 @@ function testMultiOutDiffMethod() returns error? {
     };
     test:assertEquals(resp, expectedResp);
 }
+
+@test:Config {}
+function testCustomFunctionName() returns error? {
+    final http:Client clientEndpoint = check new ("http://localhost:3000");
+    string jsonFilePath = "./tests/resources/custom-func-name.json";
+    json readJson = check io:fileReadJson(jsonFilePath);
+    json resp = check clientEndpoint->post("/customAnnotFunc", readJson);
+    json expectedResp = {
+        "Outputs": {
+            "outResp": {
+                "statusCode": 200,
+                "headers": {"Content-Type": "text/plain"},
+                "body": "Hello World!"
+            }
+        },
+        "Logs": [],
+        "ReturnValue": null
+    };
+    test:assertEquals(resp, expectedResp);
+}
