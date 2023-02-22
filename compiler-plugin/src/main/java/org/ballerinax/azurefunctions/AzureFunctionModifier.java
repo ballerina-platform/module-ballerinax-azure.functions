@@ -186,6 +186,22 @@ public class AzureFunctionModifier extends TreeModifier {
         SeparatedNodeList<Node> expressions = NodeFactory.createSeparatedNodeList(spreadMemberNode);
         return NodeFactory.createListConstructorExpressionNode(openBracket, expressions, closeBracket);
     }
+
+    //TODO : Need to do this using semantic API. However this cannot be done at the moment as we modify the 
+    // syntax tree and the semantic api becomes inconsistent. We need to explore alternative ways to do this.
+    public boolean isFunctionAnnotationExist(MetadataNode metadataNode) {
+        for (AnnotationNode annotationNode : metadataNode.annotations()) {
+            Node annotReference = annotationNode.annotReference();
+            if (annotReference.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+                QualifiedNameReferenceNode simpleNameReferenceNode = (QualifiedNameReferenceNode) annotReference;
+                if (simpleNameReferenceNode.identifier().text().equals(Constants.FUNCTION_ANNOTATION) && 
+                        simpleNameReferenceNode.modulePrefix().text().equals(modulePrefix)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
     public FunctionDefinitionNode getAnnotatedFunctionNode(Node node, String servicePath,
                                                            AzureFunctionNameGenerator nameGen) {
         FunctionDefinitionNode functionDefinitionNode = (FunctionDefinitionNode) node;
@@ -195,6 +211,9 @@ public class AzureFunctionModifier extends TreeModifier {
         MetadataNode metadataNode;
         if (metadata.isPresent()) {
             metadataNode = metadata.get();
+            if (isFunctionAnnotationExist(metadataNode)) {
+                return functionDefinitionNode;
+            }
             existingAnnotations = metadataNode.annotations();
         } else {
             metadataNode = NodeFactory.createMetadataNode(null, existingAnnotations);
