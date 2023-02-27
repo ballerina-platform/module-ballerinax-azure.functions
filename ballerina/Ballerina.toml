@@ -8,10 +8,10 @@ license = ["Apache-2.0"]
 keywords = ["azure", "functions", "serverless", "cloud"]
 
 [[platform.java11.dependency]]
-path = "../native/build/libs/azure_functions-native-3.2.0-SNAPSHOT.jar"
+path = "../native/build/libs/azure_functions-native-3.2.0.jar"
 
 [[platform.java11.dependency]]
 groupId = "io.ballerina.stdlib"
 artifactId = "mime-native"
-version = "2.6.0-20230213-220600-7f21343"
-path = "./lib/mime-native-2.6.0-20230213-220600-7f21343.jar"
+version = "2.6.0"
+path = "./lib/mime-native-2.6.0.jar"
