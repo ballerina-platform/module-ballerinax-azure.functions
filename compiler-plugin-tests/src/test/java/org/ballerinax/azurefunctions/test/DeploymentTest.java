@@ -41,7 +41,7 @@ public class DeploymentTest {
         Files.deleteIfExists(depedenciesToml);
         ProcessOutput processOutput = TestUtils.compileProject(handlers, false, false, false, null);
         Assert.assertEquals(processOutput.getExitCode(), 0);
-        Assert.assertTrue(processOutput.getStdOutput().contains("@azure_functions"));
+        Assert.assertTrue(processOutput.getStdOutput().contains("@azure.functions"));
 
         // check if the executable jar and the host.json files are in the generated zip file
         Path zipFilePath = handlers.resolve("target").resolve("azure_functions");
@@ -66,7 +66,7 @@ public class DeploymentTest {
         Files.deleteIfExists(depedenciesToml);
         ProcessOutput processOutput = TestUtils.compileProject(handlers, false, false, false, "main.bal");
         Assert.assertEquals(processOutput.getExitCode(), 0);
-        Assert.assertTrue(processOutput.getStdOutput().contains("@azure_functions"));
+        Assert.assertTrue(processOutput.getStdOutput().contains("@azure.functions"));
         Assert.assertTrue(processOutput.getStdOutput().contains("Warning:"));
         Assert.assertTrue(processOutput.getStdOutput().contains("--script-root azure_functions"));
         // check if the executable jar and the host.json files are in the generated zip file

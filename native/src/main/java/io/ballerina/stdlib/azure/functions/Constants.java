@@ -26,12 +26,12 @@ public interface Constants {
     String SLASH = "/";
     String ELEMENT_SEPARATOR = ",";
     String PACKAGE_ORG = "ballerinax";
-    String PACKAGE_NAME = "azure_functions";
+    String PACKAGE_NAME = "azure.functions";
     //TODO restrict "httpPayload" from the param names.
     String HTTP_TRIGGER_IDENTIFIER = "httpPayload";
     String PARAMETER_ANNOTATION = "$param$.";
     String RETURN_ANNOTATION = "$returns$";
-    String PACKAGE_COMPLETE = PACKAGE_ORG + "/" + PACKAGE_NAME + ":3";
+    String PACKAGE_COMPLETE = PACKAGE_ORG + "/" + PACKAGE_NAME + ":4";
     String FUNCTION_ANNOTATION_COMPLETE = PACKAGE_COMPLETE + ":Function";
     String FUNCTION_ANNOTATION_NAME_FIELD = "name";
     String BALLERINA_PACKAGE = "ballerina";

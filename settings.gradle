@@ -19,22 +19,22 @@ plugins {
     id "com.gradle.enterprise" version "3.2"
 }
 
-rootProject.name = 'azure_functions'
+rootProject.name = 'azure.functions'
 
 include(':native')
 include ':checkstyle'
-include ':azure_functions-native'
-include ':azure_functions-ballerina'
-include ':azure_functions-compiler-plugin'
-include ':azure_functions-ballerina-tests'
-include ':azure_functions-compiler-plugin-tests'
+include ':azure.functions-native'
+include ':azure.functions-ballerina'
+include ':azure.functions-compiler-plugin'
+include ':azure.functions-ballerina-tests'
+include ':azure.functions-compiler-plugin-tests'
 
 project(':checkstyle').projectDir = file("build-config${File.separator}checkstyle")
-project(':azure_functions-native').projectDir = file('native')
-project(':azure_functions-ballerina').projectDir = file('ballerina')
-project(':azure_functions-compiler-plugin').projectDir = file('compiler-plugin')
-project(':azure_functions-ballerina-tests').projectDir = file('ballerina-tests')
-project(':azure_functions-compiler-plugin-tests').projectDir = file('compiler-plugin-tests')
+project(':azure.functions-native').projectDir = file('native')
+project(':azure.functions-ballerina').projectDir = file('ballerina')
+project(':azure.functions-compiler-plugin').projectDir = file('compiler-plugin')
+project(':azure.functions-ballerina-tests').projectDir = file('ballerina-tests')
+project(':azure.functions-compiler-plugin-tests').projectDir = file('compiler-plugin-tests')
 
 gradleEnterprise {
     buildScan {

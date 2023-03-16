@@ -41,7 +41,7 @@ public class NativeTest {
         Files.deleteIfExists(depedenciesToml);
         ProcessOutput processOutput = TestUtils.compileProject(handlers, true, false, true, null);
         Assert.assertEquals(processOutput.getExitCode(), 0);
-        Assert.assertTrue(processOutput.getStdOutput().contains("@azure_functions"));
+        Assert.assertTrue(processOutput.getStdOutput().contains("@azure.functions"));
 
         // check if the executable jar and the host.json files are in the generated zip file
         Path target = handlers.resolve("target");
@@ -75,7 +75,7 @@ public class NativeTest {
         Files.deleteIfExists(depedenciesToml);
         ProcessOutput processOutput = TestUtils.compileProject(handlers, true, false, false, null);
         Assert.assertEquals(processOutput.getExitCode(), 0);
-        Assert.assertTrue(processOutput.getStdOutput().contains("@azure_functions"));
+        Assert.assertTrue(processOutput.getStdOutput().contains("@azure.functions"));
 
         // check if the executable jar and the host.json files are in the generated zip file
         Path target = handlers.resolve("target");
@@ -108,7 +108,7 @@ public class NativeTest {
         }
         String stdOutput = processOutput.getStdOutput();
         String stdErr = processOutput.getErrOutput();
-        Assert.assertTrue(stdOutput.contains("@azure_functions"));
+        Assert.assertTrue(stdOutput.contains("@azure.functions"));
         Assert.assertTrue(stdErr.contains("Native executable generation for cloud using docker failed"));
         Files.deleteIfExists(depedenciesToml);
     }
@@ -120,7 +120,7 @@ public class NativeTest {
         Files.deleteIfExists(depedenciesToml);
         ProcessOutput processOutput = TestUtils.compileProject(handlers, true, false, true, "main.bal");
         Assert.assertEquals(processOutput.getExitCode(), 0);
-        Assert.assertTrue(processOutput.getStdOutput().contains("@azure_functions"));
+        Assert.assertTrue(processOutput.getStdOutput().contains("@azure.functions"));
         Assert.assertFalse(processOutput.getStdOutput().contains("Warning:"));
         Assert.assertTrue(processOutput.getStdOutput().contains("--script-root azure_functions"));
         // check if the executable jar and the host.json files are in the generated zip file

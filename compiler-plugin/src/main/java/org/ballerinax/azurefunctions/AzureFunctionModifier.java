@@ -97,16 +97,18 @@ public class AzureFunctionModifier extends TreeModifier {
             return importDeclarationNode;
         }
         SeparatedNodeList<IdentifierToken> identifierTokens = importDeclarationNode.moduleName();
-        if (identifierTokens.size() != 1) {
+        if (identifierTokens.size() != 2) {
             return importDeclarationNode;
         }
-        if (!Constants.AZURE_FUNCTIONS_MODULE_NAME.equals(identifierTokens.get(0).text())) {
+        String[] expectedIdentifiers = Constants.AZURE_FUNCTIONS_MODULE_NAME.split("\\.");
+        if (!(expectedIdentifiers[0].equals(identifierTokens.get(0).text()) && expectedIdentifiers[1]
+                .equals(identifierTokens.get(1).text()))) {
             return importDeclarationNode;
         }
 
         Optional<ImportPrefixNode> prefix = importDeclarationNode.prefix();
         if (prefix.isEmpty()) {
-            this.modulePrefix = Constants.AZURE_FUNCTIONS_MODULE_NAME;
+            this.modulePrefix = expectedIdentifiers[1];
             return importDeclarationNode;
         }
         this.modulePrefix = prefix.get().prefix().text();

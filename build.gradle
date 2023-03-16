@@ -125,5 +125,5 @@ release {
 }
 
 task build {
-    dependsOn('azure_functions-ballerina:build')
+    dependsOn('azure.functions-ballerina:build')
 }

@@ -1,4 +1,4 @@
-import ballerinax/azure_functions as af;
+import ballerinax/azure.functions as af;
 import ballerina/http;
 
 listener af:HttpListener ep = new ();

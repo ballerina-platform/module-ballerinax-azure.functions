@@ -32,7 +32,7 @@ is the default Output binding. Of course, you can override the default behavior 
 return type.
 
 ```ballerina
-import ballerinax/azure_functions as af;
+import ballerinax/azure.functions as af;
 
 service / on new af:HttpListener() {
     resource function get hello(string name) returns string {
@@ -43,4 +43,4 @@ service / on new af:HttpListener() {
 
 In the code sample shown above, it has an empty service path and resource path named `hello`. The accessor is `get`. It
 expects a request with a query parameter for the field `name`. The required artifact generation and data binding will be
-handled by `ballerinax/azure_functions` package automatically.
+handled by `ballerinax/azure.functions` package automatically.

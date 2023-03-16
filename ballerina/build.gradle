@@ -35,7 +35,7 @@ buildscript {
 
 description = 'Ballerinax - Azure Functions Extension Annotations'
 
-def packageName = "azure_functions"
+def packageName = "azure.functions"
 def packageOrg = "ballerinax"
 
 def tomlVersion = stripBallerinaExtensionVersion("${project.version}")
