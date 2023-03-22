@@ -524,3 +524,10 @@ service "blob" on blobListener {
         return blobIn;
     }
 }
+
+service "blobspread" on blobListener {
+    remote function onUpdate(byte[] blobIn, @af:BindingName {} string name) returns [@af:BlobOutput {path: "bpath1/newBlob"} byte[], @af:QueueOutput{queueName: "queue3"} string] {
+        [byte[], string] x = [blobIn, "world"];
+        return x;
+    }
+}

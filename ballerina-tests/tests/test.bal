@@ -907,6 +907,16 @@ function testTimerTrigger() returns error? {
 }
 
 @test:Config {}
+function testQueueTrigger() returns error? {
+    final http:Client clientEndpoint = check new ("http://localhost:3000");
+    string jsonFilePath = "./tests/resources/blob-trigger.json";
+    json readJson = check io:fileReadJson(jsonFilePath);
+    json resp = check clientEndpoint->post("/blobspread", readJson);
+    json expectedResp = {"Outputs": {"outResp":"aGVsbG8gZnJvbSBieXRlCg==","outResp1":"world"}, "Logs": [], "ReturnValue": null};
+    test:assertEquals(resp, expectedResp);
+}
+
+@test:Config {}
 function testQueueInput() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/queue-input.json";
