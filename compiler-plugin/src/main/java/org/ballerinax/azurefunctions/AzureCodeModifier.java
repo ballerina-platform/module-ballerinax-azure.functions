@@ -18,15 +18,30 @@
 
 package org.ballerinax.azurefunctions;
 
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.plugins.CodeModifier;
 import io.ballerina.projects.plugins.CodeModifierContext;
+import org.ballerinax.azurefunctions.context.DocumentContext;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * {@code AzureCodeModifier} handles required code-modification for Azure Function Services.
  */
 public class AzureCodeModifier extends CodeModifier {
+
+    private final Map<DocumentId, DocumentContext> payloadParamContextMap;
+
+    public AzureCodeModifier() {
+        this.payloadParamContextMap = new HashMap<>();
+    }
     @Override
     public void init(CodeModifierContext codeModifierContext) {
-        codeModifierContext.addSourceModifierTask(new FunctionUpdaterTask());
+        codeModifierContext.addSyntaxNodeAnalysisTask(
+                new HttpPayloadParamIdentifier(this.payloadParamContextMap), List.of(SyntaxKind.SERVICE_DECLARATION));
+        codeModifierContext.addSourceModifierTask(new FunctionUpdaterTask(this.payloadParamContextMap));
     }
 }

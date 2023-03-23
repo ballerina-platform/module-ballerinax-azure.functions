@@ -53,6 +53,9 @@ public enum AzureDiagnosticCodes {
     AF_015("AF_015", "remote methods are not allowed in HttpListener", ERROR),
     AF_016("AF_016", "invalid 'cloud' build option specified. found '%s', expected " +
                     "'azure_functions' or 'azure_functions_local'", ERROR),
+
+    AF_017("AF_017", "ambiguous types for parameter '%s' and '%s'. Use annotations to avoid ambiguity", ERROR),
+    AF_018("AF_017", "invalid union type for default payload param: '%s'. Use basic structured types", ERROR),
     ;
 
     private final String code;

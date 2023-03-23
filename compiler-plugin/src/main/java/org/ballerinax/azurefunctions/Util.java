@@ -20,6 +20,7 @@ package org.ballerinax.azurefunctions;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.IntersectionTypeSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.ServiceDeclarationSymbol;
@@ -62,6 +63,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -77,6 +79,7 @@ import static org.ballerinax.azurefunctions.Constants.AZURE_FUNCTIONS_PACKAGE_OR
 public class Util {
 
     public static Optional<String> extractValueFromAnnotationField(SpecificFieldNode fieldNode) {
+
         Optional<ExpressionNode> expressionNode = fieldNode.valueExpr();
         if (expressionNode.isEmpty()) {
             return Optional.empty();
@@ -99,6 +102,7 @@ public class Util {
      * @return {@link NonTerminalNode}
      */
     public static NonTerminalNode findNode(ServiceDeclarationNode serviceDeclarationNode, Symbol symbol) {
+
         if (symbol.getLocation().isEmpty()) {
             return null;
         }
@@ -111,6 +115,7 @@ public class Util {
     }
 
     public static String resourcePathToString(NodeList<Node> nodes) {
+
         StringBuilder out = new StringBuilder();
         for (Node node : nodes) {
             if (node.kind() == SyntaxKind.STRING_LITERAL) {
@@ -131,18 +136,21 @@ public class Util {
     }
 
     public static Diagnostic getDiagnostic(Location location, AzureDiagnosticCodes diagnosticCode, Object... argName) {
+
         DiagnosticInfo diagnosticInfo = getDiagnosticInfo(diagnosticCode, argName);
         return DiagnosticFactory.createDiagnostic(diagnosticInfo, location);
     }
 
     public static void updateDiagnostic(SyntaxNodeAnalysisContext ctx, Location location,
                                         AzureDiagnosticCodes httpDiagnosticCodes) {
+
         DiagnosticInfo diagnosticInfo = getDiagnosticInfo(httpDiagnosticCodes);
         ctx.reportDiagnostic(DiagnosticFactory.createDiagnostic(diagnosticInfo, location));
     }
 
     public static void updateDiagnostic(SyntaxNodeAnalysisContext ctx, Location location,
                                         AzureDiagnosticCodes azureDiagnosticCodes, Object... argName) {
+
         DiagnosticInfo diagnosticInfo = getDiagnosticInfo(azureDiagnosticCodes, argName);
         ctx.reportDiagnostic(DiagnosticFactory.createDiagnostic(diagnosticInfo, location));
     }
@@ -150,16 +158,19 @@ public class Util {
     public static void updateDiagnostic(SyntaxNodeAnalysisContext ctx, Location location,
                                         AzureDiagnosticCodes azureDiagnosticCodes,
                                         List<DiagnosticProperty<?>> diagnosticProperties, String argName) {
+
         DiagnosticInfo diagnosticInfo = getDiagnosticInfo(azureDiagnosticCodes, argName);
         ctx.reportDiagnostic(DiagnosticFactory.createDiagnostic(diagnosticInfo, location, diagnosticProperties));
     }
 
     public static DiagnosticInfo getDiagnosticInfo(AzureDiagnosticCodes diagnostic, Object... args) {
+
         return new DiagnosticInfo(diagnostic.getCode(), String.format(diagnostic.getMessage(), args),
                 diagnostic.getSeverity());
     }
 
     public static boolean isSymbolAzureFunctions(Symbol definition) {
+
         Optional<ModuleSymbol> definitionModule = definition.getModule();
         if (definitionModule.isEmpty()) {
             return false;
@@ -171,11 +182,13 @@ public class Util {
 
     public static void copyFolder(Path source, Path target, CopyOption... options)
             throws IOException {
+
         Files.walkFileTree(source, new SimpleFileVisitor<Path>() {
 
             @Override
             public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
                     throws IOException {
+
                 Files.createDirectories(target.resolve(source.relativize(dir)));
                 return FileVisitResult.CONTINUE;
             }
@@ -183,6 +196,7 @@ public class Util {
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
                     throws IOException {
+
                 Files.copy(file, target.resolve(source.relativize(file)), options);
                 return FileVisitResult.CONTINUE;
             }
@@ -190,6 +204,7 @@ public class Util {
     }
 
     public static void deleteDirectory(Path azureFunctionsDir) throws IOException {
+
         if (azureFunctionsDir.toFile().exists()) {
             Files.walk(azureFunctionsDir)
                     .sorted(Comparator.reverseOrder())
@@ -199,6 +214,7 @@ public class Util {
     }
 
     public static String getExecutableExtension() {
+
         String os = System.getProperty("os.name");
         if (os.startsWith("Windows")) {
             return ".exe";
@@ -208,6 +224,7 @@ public class Util {
     }
 
     public static boolean isRemoteFunction(FunctionSymbol methodSymbol) {
+
         for (Qualifier qualifier : methodSymbol.qualifiers()) {
             if (qualifier.getValue().equals(Constants.REMOTE_KEYWORD)) {
                 return true;
@@ -217,6 +234,7 @@ public class Util {
     }
 
     public static boolean isAnalyzableFunction(Node member) {
+
         if (member.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION) {
             FunctionDefinitionNode node = (FunctionDefinitionNode) member;
             NodeList<Token> tokens = node.qualifierList();
@@ -231,6 +249,7 @@ public class Util {
     }
 
     public static boolean isAzureFunctionsService(SemanticModel semanticModel, ServiceDeclarationNode serviceNode) {
+
         List<Diagnostic> diagnostics = semanticModel.diagnostics();
         boolean erroneousCompilation = diagnostics.stream()
                 .anyMatch(d -> DiagnosticSeverity.ERROR.equals(d.diagnosticInfo().severity()));
@@ -253,6 +272,7 @@ public class Util {
     }
 
     private static boolean isListenerBelongsToAzureFuncModule(TypeSymbol listenerType) {
+
         if (TypeDescKind.UNION == listenerType.typeKind()) {
             return ((UnionTypeSymbol) listenerType).memberTypeDescriptors().stream()
                     .filter(typeDescriptor -> typeDescriptor instanceof TypeReferenceTypeSymbol)
@@ -267,11 +287,13 @@ public class Util {
     }
 
     private static boolean isAzureFuncModule(ModuleSymbol moduleSymbol) {
+
         return AZURE_FUNCTIONS_MODULE_NAME.equals(moduleSymbol.getName().get()) &&
                 AZURE_FUNCTIONS_PACKAGE_ORG.equals(moduleSymbol.id().orgName());
     }
-    
+
     public static String getCloudBuildOption(Project project) {
+
         String cloud = project.buildOptions().cloud();
         if (cloud == null || cloud.isEmpty()) {
             return Constants.AZURE_FUNCTIONS_BUILD_OPTION;
@@ -280,6 +302,7 @@ public class Util {
     }
 
     public static Path getTargetDir(Project project, Path jarPath) {
+
         if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
             return jarPath.getParent();
         }
@@ -287,20 +310,89 @@ public class Util {
     }
 
     public static Path getProjectDir(Project project, Path jarPath) {
+
         if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
             return jarPath.getParent();
         }
         return project.targetDir().getParent();
     }
-    
+
     public static Path getAzureFunctionsDir(Project project, Path jarPath) {
+
         return getTargetDir(project, jarPath).resolve(Constants.FUNCTION_DIRECTORY);
     }
 
     public static String getAzureFunctionsRelative(Project project) {
+
         if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
             return Constants.FUNCTION_DIRECTORY;
         }
         return Constants.TARGET_DIRECTORY + Constants.FUNCTION_DIRECTORY;
+    }
+
+    public static boolean diagnosticContainsErrors(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext) {
+
+        List<Diagnostic> diagnostics = syntaxNodeAnalysisContext.semanticModel().diagnostics();
+        return diagnostics.stream()
+                .anyMatch(d -> DiagnosticSeverity.ERROR.equals(d.diagnosticInfo().severity()));
+    }
+
+    public static ServiceDeclarationNode getServiceDeclarationNode(SyntaxNodeAnalysisContext context) {
+
+        ServiceDeclarationNode serviceDeclarationNode = (ServiceDeclarationNode) context.node();
+        Optional<Symbol> serviceSymOptional = context.semanticModel().symbol(serviceDeclarationNode);
+        if (serviceSymOptional.isPresent()) {
+            List<TypeSymbol> listenerTypes = ((ServiceDeclarationSymbol) serviceSymOptional.get()).listenerTypes();
+            if (listenerTypes.stream().noneMatch(Util::isListenerBelongsToAzfModule)) {
+                return null;
+            }
+        }
+        return serviceDeclarationNode;
+    }
+
+    private static boolean isListenerBelongsToAzfModule(TypeSymbol listenerType) {
+
+        if (listenerType.typeKind() == TypeDescKind.UNION) {
+            return ((UnionTypeSymbol) listenerType).memberTypeDescriptors().stream()
+                    .filter(typeDescriptor -> typeDescriptor instanceof TypeReferenceTypeSymbol)
+                    .map(typeReferenceTypeSymbol -> (TypeReferenceTypeSymbol) typeReferenceTypeSymbol)
+                    .anyMatch(typeReferenceTypeSymbol -> isAzfModule(typeReferenceTypeSymbol.getModule().get()));
+        }
+
+        if (listenerType.typeKind() == TypeDescKind.TYPE_REFERENCE) {
+            return isAzfModule(((TypeReferenceTypeSymbol) listenerType).typeDescriptor().getModule().get());
+        }
+        return false;
+    }
+
+    private static boolean isAzfModule(ModuleSymbol moduleSymbol) {
+
+        return Constants.AZURE_FUNCTIONS_MODULE_NAME.equals(moduleSymbol.getName().get())
+                && Constants.AZURE_FUNCTIONS_PACKAGE_ORG.equals(moduleSymbol.id().orgName());
+    }
+
+    public static TypeDescKind getReferencedTypeDescKind(TypeSymbol typeSymbol) {
+
+        TypeDescKind kind = typeSymbol.typeKind();
+        if (kind == TypeDescKind.TYPE_REFERENCE) {
+            TypeSymbol typeDescriptor = ((TypeReferenceTypeSymbol) typeSymbol).typeDescriptor();
+            kind = getReferencedTypeDescKind(typeDescriptor);
+        }
+        return kind;
+    }
+
+    public static TypeSymbol getEffectiveTypeFromReadonlyIntersection(IntersectionTypeSymbol intersectionTypeSymbol) {
+
+        List<TypeSymbol> effectiveTypes = new ArrayList<>();
+        for (TypeSymbol typeSymbol : intersectionTypeSymbol.memberTypeDescriptors()) {
+            if (typeSymbol.typeKind() == TypeDescKind.READONLY) {
+                continue;
+            }
+            effectiveTypes.add(typeSymbol);
+        }
+        if (effectiveTypes.size() == 1) {
+            return effectiveTypes.get(0);
+        }
+        return null;
     }
 }

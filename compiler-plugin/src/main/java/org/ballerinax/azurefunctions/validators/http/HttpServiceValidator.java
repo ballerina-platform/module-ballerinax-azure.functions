@@ -53,7 +53,6 @@ import org.ballerinax.azurefunctions.Constants;
 import org.ballerinax.azurefunctions.Util;
 import org.wso2.ballerinalang.compiler.diagnostic.properties.BSymbolicProperty;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -176,7 +175,7 @@ public class HttpServiceValidator extends BaseHttpCodeAnalyzerTask {
                 }
                 if (kind == TypeDescKind.MAP) {
                     TypeSymbol constrainedTypeSymbol = ((MapTypeSymbol) typeSymbol).typeParam();
-                    TypeDescKind constrainedType = getReferencedTypeDescKind(constrainedTypeSymbol);
+                    TypeDescKind constrainedType = Util.getReferencedTypeDescKind(constrainedTypeSymbol);
                     if (constrainedType != TypeDescKind.JSON) {
                         updateDiagnostic(ctx, paramLocation, AzureDiagnosticCodes.AF_010, paramName);
                         continue;
@@ -184,7 +183,7 @@ public class HttpServiceValidator extends BaseHttpCodeAnalyzerTask {
                 } else if (kind == TypeDescKind.ARRAY) {
                     // Allowed query param array types
                     TypeSymbol arrTypeSymbol = ((ArrayTypeSymbol) typeSymbol).memberTypeDescriptor();
-                    TypeDescKind elementKind = getReferencedTypeDescKind(arrTypeSymbol);
+                    TypeDescKind elementKind = Util.getReferencedTypeDescKind(arrTypeSymbol);
                     if (elementKind == TypeDescKind.MAP) {
                         TypeSymbol constrainedTypeSymbol = ((MapTypeSymbol) arrTypeSymbol).typeParam();
                         TypeDescKind constrainedType = constrainedTypeSymbol.typeKind();
@@ -210,10 +209,10 @@ public class HttpServiceValidator extends BaseHttpCodeAnalyzerTask {
                         continue;
                     }
                     for (TypeSymbol type : symbolList) {
-                        TypeDescKind elementKind = getReferencedTypeDescKind(type);
+                        TypeDescKind elementKind = Util.getReferencedTypeDescKind(type);
                         if (elementKind == TypeDescKind.ARRAY) {
                             TypeSymbol arrTypeSymbol = ((ArrayTypeSymbol) type).memberTypeDescriptor();
-                            TypeDescKind arrElementKind = getReferencedTypeDescKind(arrTypeSymbol);
+                            TypeDescKind arrElementKind = Util.getReferencedTypeDescKind(arrTypeSymbol);
                             if (arrElementKind == TypeDescKind.MAP) {
                                 TypeSymbol constrainedTypeSymbol = ((MapTypeSymbol) arrTypeSymbol).typeParam();
                                 TypeDescKind constrainedType = constrainedTypeSymbol.typeKind();
@@ -247,20 +246,13 @@ public class HttpServiceValidator extends BaseHttpCodeAnalyzerTask {
     private static boolean isAllowedQueryParamType(TypeDescKind kind, TypeSymbol typeSymbol) {
         if (kind == TypeDescKind.TYPE_REFERENCE) {
             TypeSymbol typeDescriptor = ((TypeReferenceTypeSymbol) typeSymbol).typeDescriptor();
-            kind =  getReferencedTypeDescKind(typeDescriptor);
+            kind =  Util.getReferencedTypeDescKind(typeDescriptor);
         }
         return kind == TypeDescKind.STRING || kind == TypeDescKind.INT || kind == TypeDescKind.FLOAT ||
                 kind == TypeDescKind.DECIMAL || kind == TypeDescKind.BOOLEAN;
     }
 
-    private static TypeDescKind getReferencedTypeDescKind(TypeSymbol typeSymbol) {
-        TypeDescKind kind = typeSymbol.typeKind();
-        if (kind == TypeDescKind.TYPE_REFERENCE) {
-            TypeSymbol typeDescriptor = ((TypeReferenceTypeSymbol) typeSymbol).typeDescriptor();
-            kind = getReferencedTypeDescKind(typeDescriptor);
-        }
-        return kind;
-    }
+
 
     private static void validateAnnotatedInputParam(SyntaxNodeAnalysisContext ctx, Location paramLocation,
                                                     ParameterSymbol param, String paramName,
@@ -298,7 +290,7 @@ public class HttpServiceValidator extends BaseHttpCodeAnalyzerTask {
             TypeSymbol typeDescriptor = param.typeDescriptor();
             if (typeDescriptor.typeKind() == TypeDescKind.INTERSECTION) {
                 typeDescriptor =
-                        getEffectiveTypeFromReadonlyIntersection((IntersectionTypeSymbol) typeDescriptor);
+                        Util.getEffectiveTypeFromReadonlyIntersection((IntersectionTypeSymbol) typeDescriptor);
                 if (typeDescriptor == null) {
                     reportInvalidIntersectionType(ctx, paramLocation, typeName);
                     continue;
@@ -402,7 +394,7 @@ public class HttpServiceValidator extends BaseHttpCodeAnalyzerTask {
             String typeName = typeDescriptor.signature();
             TypeDescKind typeDescKind = typeDescriptor.typeKind();
             if (typeDescKind == TypeDescKind.INTERSECTION) {
-                typeDescriptor = getEffectiveTypeFromReadonlyIntersection((IntersectionTypeSymbol) typeDescriptor);
+                typeDescriptor = Util.getEffectiveTypeFromReadonlyIntersection((IntersectionTypeSymbol) typeDescriptor);
                 if (typeDescriptor == null) {
                     reportInvalidIntersectionType(ctx, paramLocation, typeName);
                     continue;
@@ -414,20 +406,6 @@ public class HttpServiceValidator extends BaseHttpCodeAnalyzerTask {
         if (restTypeDescriptor.isPresent()) {
             reportInvalidHeaderRecordRestFieldType(ctx, paramLocation);
         }
-    }
-
-    private static TypeSymbol getEffectiveTypeFromReadonlyIntersection(IntersectionTypeSymbol intersectionTypeSymbol) {
-        List<TypeSymbol> effectiveTypes = new ArrayList<>();
-        for (TypeSymbol typeSymbol : intersectionTypeSymbol.memberTypeDescriptors()) {
-            if (typeSymbol.typeKind() == TypeDescKind.READONLY) {
-                continue;
-            }
-            effectiveTypes.add(typeSymbol);
-        }
-        if (effectiveTypes.size() == 1) {
-            return effectiveTypes.get(0);
-        }
-        return null;
     }
 
     private static void reportInvalidParameterAnnotation(SyntaxNodeAnalysisContext ctx, Location location,

@@ -74,9 +74,9 @@ public class Constants {
     public static final String HOST_JSON_NAME = "host.json";
     public static final String FUNCTION_JSON_NAME = "function.json";
 
-    public static final String BALLERINA_DOCKER_ORG = "ballerina";
+    public static final String BALLERINA_ORG = "ballerina";
     public static final String NATIVE_BUILDER_IMAGE_NAME = "azure_native_builder";
-    public static final String NATIVE_BUILDER_IMAGE = BALLERINA_DOCKER_ORG + "/" + NATIVE_BUILDER_IMAGE_NAME;
+    public static final String NATIVE_BUILDER_IMAGE = BALLERINA_ORG + "/" + NATIVE_BUILDER_IMAGE_NAME;
 
     public static final String CONTAINER_OUTPUT_PATH = ":/app/build/output";
     
@@ -87,5 +87,15 @@ public class Constants {
     
     public static final String AZURE_FUNCTIONS_BUILD_OPTION = AZURE_FUNCTIONS_MODULE_NAME;
     public static final String AZURE_FUNCTIONS_LOCAL_BUILD_OPTION = AZURE_FUNCTIONS_MODULE_NAME + "_local";
+    public static final String SERVICE_KEYWORD = "service";
+
+    public static final String AZF_SERVICE = AZURE_FUNCTIONS_MODULE_NAME + ":ResourceService";
+    public static final String DEFAULT = "default";
+    public static final String GET = "get";
+    public static final String HEAD = "head";
+    public static final String OPTIONS = "options";
+    public static final String PAYLOAD_ANNOTATION_TYPE = "HttpPayload";
+    public static final String PAYLOAD_ANNOTATION = "Payload";
+    public static final String SPACE = " ";
 
 }
