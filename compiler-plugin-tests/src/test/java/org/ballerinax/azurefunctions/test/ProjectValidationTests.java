@@ -18,6 +18,7 @@
 package org.ballerinax.azurefunctions.test;
 
 import io.ballerina.projects.DiagnosticResult;
+import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -26,6 +27,8 @@ import org.testng.annotations.Test;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
+import static org.ballerinax.azurefunctions.test.utils.TestUtils.loadPackage;
 
 /**
  * Contains the project related validations of azure functions.
@@ -186,5 +189,43 @@ public class ProjectValidationTests {
         String diagnosticMessage = "invalid 'cloud' build option specified. found 'azure_functions_test', expected " +
                 "'azure_functions' or 'azure_functions_local'";
         Assert.assertEquals(((Diagnostic) diagnostics[0]).diagnosticInfo().messageFormat(), diagnosticMessage);
+    }
+
+    @Test
+    public void testCodeModifierPayloadAnnotation() {
+        Package currentPackage = loadPackage(RESOURCE_DIRECTORY.resolve("http/modifier-payload"));
+        DiagnosticResult modifierDiagnosticResult = currentPackage.runCodeGenAndModifyPlugins();
+        Assert.assertEquals(modifierDiagnosticResult.errorCount(), 0);
+    }
+
+    @Test
+    public void testQueryAnnotation() {
+        Package currentPackage = loadPackage(RESOURCE_DIRECTORY.resolve("http/query-annotation"));
+        PackageCompilation compilation = currentPackage.getCompilation();
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        Assert.assertEquals(diagnosticResult.errorCount(), 12);
+    }
+
+    @Test
+    public void testCodeModifierErrorTest() {
+        Package currentPackage = loadPackage(RESOURCE_DIRECTORY.resolve("http/modifier-errors"));
+        DiagnosticResult modifierDiagnosticResult = currentPackage.runCodeGenAndModifyPlugins();
+        Assert.assertEquals(modifierDiagnosticResult.errorCount(), 5);
+        assertTrue(modifierDiagnosticResult, 0, "ambiguous types for parameter 'a' and 'b'. Use " +
+                "annotations to avoid ambiguity", "AF_017");
+        assertTrue(modifierDiagnosticResult, 1, "ambiguous types for parameter 'c' and 'd'. Use " +
+                "annotations to avoid ambiguity", "AF_017");
+        assertTrue(modifierDiagnosticResult, 2, "ambiguous types for parameter 'e' and 'f'. Use " +
+                "annotations to avoid ambiguity", "AF_017");
+        assertTrue(modifierDiagnosticResult, 3, "invalid union type for default payload param: 'g'. " +
+                "Use basic structured types", "AF_018");
+        assertTrue(modifierDiagnosticResult, 4, "ambiguous types for parameter 'q' and 'p'. Use " +
+                "annotations to avoid ambiguity", "AF_017");
+    }
+
+    private void assertTrue(DiagnosticResult diagnosticResult, int index, String message, String code) {
+        Diagnostic diagnostic = (Diagnostic) diagnosticResult.errors().toArray()[index];
+        Assert.assertTrue(diagnostic.diagnosticInfo().messageFormat().contains(message));
+        Assert.assertEquals(diagnostic.diagnosticInfo().code(), code);
     }
 }

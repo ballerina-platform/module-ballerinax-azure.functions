@@ -59,10 +59,15 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.ballerinax.azurefunctions.AzureDiagnosticCodes.AF_008;
+import static org.ballerinax.azurefunctions.Constants.ANYDATA;
 import static org.ballerinax.azurefunctions.Constants.AZURE_FUNCTIONS_MODULE_NAME;
 import static org.ballerinax.azurefunctions.Constants.COLON;
+import static org.ballerinax.azurefunctions.Constants.GET;
+import static org.ballerinax.azurefunctions.Constants.HEAD;
 import static org.ballerinax.azurefunctions.Constants.HEADER_ANNOTATION_TYPE;
 import static org.ballerinax.azurefunctions.Constants.HTTP;
+import static org.ballerinax.azurefunctions.Constants.OPTIONS;
+import static org.ballerinax.azurefunctions.Constants.PAYLOAD_ANNOTATION_TYPE;
 import static org.ballerinax.azurefunctions.Constants.SERVICE_CONFIG_ANNOTATION;
 import static org.ballerinax.azurefunctions.Constants.TREAT_NILABLE_AS_OPTIONAL;
 import static org.ballerinax.azurefunctions.Util.updateDiagnostic;
@@ -257,7 +262,8 @@ public class HttpServiceValidator extends BaseHttpCodeAnalyzerTask {
     private static void validateAnnotatedInputParam(SyntaxNodeAnalysisContext ctx, Location paramLocation,
                                                     ParameterSymbol param, String paramName,
                                                     List<AnnotationSymbol> annotations) {
-
+        boolean annotated = false;
+        label:
         for (AnnotationSymbol annotation : annotations) {
             Optional<TypeSymbol> typeSymbolOptional = annotation.typeDescriptor();
             if (typeSymbolOptional.isEmpty()) {
@@ -296,15 +302,76 @@ public class HttpServiceValidator extends BaseHttpCodeAnalyzerTask {
                     continue;
                 }
             }
-            if (HEADER_ANNOTATION_TYPE.equals(typeName)) {
-                if (annotations.size() == 2) {
-                    reportInvalidMultipleAnnotation(ctx, paramLocation, paramName);
-                    continue;
+            switch (typeName) {
+                case HEADER_ANNOTATION_TYPE:
+                    if (annotated) {
+                        reportInvalidMultipleAnnotation(ctx, paramLocation, paramName);
+                        continue;
+                    }
+                    validateHeaderParamType(ctx, paramLocation, param, paramName, typeDescriptor);
+                    annotated = true;
+                    break label;
+                case PAYLOAD_ANNOTATION_TYPE:
+                    if (annotated) { // multiple annotations
+                        reportInvalidMultipleAnnotation(ctx, paramLocation, paramName);
+                        continue;
+                    }
+                    validatePayloadParamType(ctx, typeSymbols, paramLocation, resourceMethodOptional.orElse(null),
+                            param, typeDescriptor);
+                    annotated = true;
+                    break label;
+                case QUERY_ANNOTATION_TYPE: {
+                    if (annotated) {
+                        reportInvalidMultipleAnnotation(ctx, paramLocation, paramName);
+                        continue;
+                    }
+                    annotated = true;
+                    validateQueryParamType(ctx, paramLocation, paramName, typeDescriptor, typeSymbols);
+                    break;
                 }
-                validateHeaderParamType(ctx, paramLocation, param, paramName, typeDescriptor);
-                break;
+                default:
+                    reportInvalidParameterAnnotation(ctx, paramLocation, paramName);
+                    break;
             }
         }
+    }
+
+    private static void validatePayloadParamType(SyntaxNodeAnalysisContext ctx, Map<String, TypeSymbol> typeSymbols,
+                                                 Location paramLocation, String resourceMethodOptional,
+                                                 ParameterSymbol param, TypeSymbol typeDescriptor) {
+        if (resourceMethodOptional != null) {
+            validatePayloadAnnotationUsage(ctx, paramLocation, resourceMethodOptional);
+        }
+        if (subtypeOf(typeSymbols, typeDescriptor, ANYDATA)) {
+            return;
+        }
+        reportInvalidPayloadParameterType(ctx, paramLocation, param.typeDescriptor().signature());
+    }
+
+    private static void validatePayloadAnnotationUsage(SyntaxNodeAnalysisContext ctx, Location location,
+                                                       String methodName) {
+        if (methodName.equals(GET) || methodName.equals(HEAD) || methodName.equals(OPTIONS)) {
+            reportInvalidUsageOfPayloadAnnotation(ctx, location, methodName, HttpDiagnosticCodes.HTTP_129);
+        }
+    }
+
+    private static void reportInvalidPayloadParameterType(SyntaxNodeAnalysisContext ctx, Location location,
+                                                          String typeName) {
+        updateDiagnostic(ctx, location, HttpDiagnosticCodes.HTTP_107, typeName);
+    }
+
+    private static void reportInvalidUsageOfPayloadAnnotation(SyntaxNodeAnalysisContext ctx, Location location,
+                                                              String name, AzureDiagnosticCodes code) {
+        updateDiagnostic(ctx, location, code, name);
+    }
+
+    public static boolean subtypeOf(Map<String, TypeSymbol> typeSymbols, TypeSymbol typeSymbol,
+                                    String targetTypeName) {
+        TypeSymbol targetTypeSymbol = typeSymbols.get(targetTypeName);
+        if (targetTypeSymbol != null) {
+            return typeSymbol.subtypeOf(targetTypeSymbol);
+        }
+        return false;
     }
 
     private static void validateHeaderParamType(SyntaxNodeAnalysisContext ctx, Location paramLocation, Symbol param,

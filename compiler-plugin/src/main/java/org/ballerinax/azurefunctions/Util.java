@@ -19,12 +19,14 @@ package org.ballerinax.azurefunctions;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.Types;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.IntersectionTypeSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.ServiceDeclarationSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -65,11 +67,14 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.ballerinax.azurefunctions.Constants.AZURE_FUNCTIONS_MODULE_NAME;
 import static org.ballerinax.azurefunctions.Constants.AZURE_FUNCTIONS_PACKAGE_ORG;
+import static org.ballerinax.azurefunctions.Constants.HTTP;
 
 /**
  * Contains the utilities required for the compiler extension.
@@ -394,5 +399,50 @@ public class Util {
             return effectiveTypes.get(0);
         }
         return null;
+    }
+
+    public static Map<String, TypeSymbol> getCtxTypes(SyntaxNodeAnalysisContext ctx) {
+        Map<String, TypeSymbol> typeSymbols = new HashMap<>();
+        populateBasicTypes(ctx, typeSymbols);
+        populateHttpModuleTypes(ctx, typeSymbols);
+        return typeSymbols;
+    }
+
+    private static void populateHttpModuleTypes(SyntaxNodeAnalysisContext ctx, Map<String, TypeSymbol> typeSymbols) {
+        String[] requiredTypeNames = {Constants.RESOURCE_RETURN_TYPE, Constants.HEADER_OBJ_NAME};
+        Optional<Map<String, Symbol>> optionalMap = ctx.semanticModel().types().typesInModule(Constants.BALLERINA_ORG, HTTP, Constants.EMPTY);
+        if (optionalMap.isPresent()) {
+            Map<String, Symbol> symbolMap = optionalMap.get();
+            for (String typeName : requiredTypeNames) {
+                Symbol symbol = symbolMap.get(typeName);
+                if (symbol instanceof TypeSymbol) {
+                    typeSymbols.put(typeName, (TypeSymbol) symbol);
+                } else if (symbol instanceof TypeDefinitionSymbol) {
+                    typeSymbols.put(typeName, ((TypeDefinitionSymbol) symbol).typeDescriptor());
+                }
+            }
+        }
+    }
+
+    private static void populateBasicTypes(SyntaxNodeAnalysisContext ctx, Map<String, TypeSymbol> typeSymbols) {
+        Types types = ctx.semanticModel().types();
+        typeSymbols.put(Constants.ANYDATA, types.ANYDATA);
+        typeSymbols.put(Constants.JSON, types.JSON);
+        typeSymbols.put(Constants.ERROR, types.ERROR);
+        typeSymbols.put(Constants.STRING, types.STRING);
+        typeSymbols.put(Constants.BOOLEAN, types.BOOLEAN);
+        typeSymbols.put(Constants.INT, types.INT);
+        typeSymbols.put(Constants.FLOAT, types.FLOAT);
+        typeSymbols.put(Constants.DECIMAL, types.DECIMAL);
+        typeSymbols.put(Constants.NIL, types.NIL);
+        typeSymbols.put(Constants.STRING_ARRAY, types.builder().ARRAY_TYPE.withType(types.STRING).build());
+        typeSymbols.put(Constants.BOOLEAN_ARRAY, types.builder().ARRAY_TYPE.withType(types.BOOLEAN).build());
+        typeSymbols.put(Constants.INT_ARRAY, types.builder().ARRAY_TYPE.withType(types.INT).build());
+        typeSymbols.put(Constants.FLOAT_ARRAY, types.builder().ARRAY_TYPE.withType(types.FLOAT).build());
+        typeSymbols.put(Constants.DECIMAL_ARRAY, types.builder().ARRAY_TYPE.withType(types.DECIMAL).build());
+        typeSymbols.put(Constants.OBJECT, types.builder().OBJECT_TYPE.build());
+        typeSymbols.put(Constants.MAP_OF_JSON, types.builder().MAP_TYPE.withTypeParam(types.JSON).build());
+        typeSymbols.put(Constants.ARRAY_OF_MAP_OF_JSON, types.builder().ARRAY_TYPE.withType(
+                types.builder().MAP_TYPE.withTypeParam(types.JSON).build()).build());
     }
 }

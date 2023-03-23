@@ -98,4 +98,28 @@ public class Constants {
     public static final String PAYLOAD_ANNOTATION = "Payload";
     public static final String SPACE = " ";
 
+    public static final String ANYDATA = "anydata";
+    public static final String JSON = "json";
+    public static final String ERROR = "error";
+    public static final String STRING = "string";
+    public static final String STRING_ARRAY = "string[]";
+    public static final String INT = "int";
+    public static final String INT_ARRAY = "int[]";
+    public static final String FLOAT = "float";
+    public static final String FLOAT_ARRAY = "float[]";
+    public static final String DECIMAL = "decimal";
+    public static final String DECIMAL_ARRAY = "decimal[]";
+    public static final String BOOLEAN = "boolean";
+    public static final String BOOLEAN_ARRAY = "boolean[]";
+    public static final String MAP_OF_JSON = "map<json>";
+    public static final String ARRAY_OF_MAP_OF_JSON = "map<json>[]";
+    public static final String NIL = "nil";
+    public static final String OBJECT = "object";
+    public static final String EMPTY = "";
+
+    public static final String RESOURCE_RETURN_TYPE = "ResourceReturnType";
+    public static final String HEADER_OBJ_NAME = "Headers";
+
+
+
 }

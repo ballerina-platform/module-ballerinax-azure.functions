@@ -55,7 +55,7 @@ public enum AzureDiagnosticCodes {
                     "'azure_functions' or 'azure_functions_local'", ERROR),
 
     AF_017("AF_017", "ambiguous types for parameter '%s' and '%s'. Use annotations to avoid ambiguity", ERROR),
-    AF_018("AF_017", "invalid union type for default payload param: '%s'. Use basic structured types", ERROR),
+    AF_018("AF_018", "invalid union type for default payload param: '%s'. Use basic structured types", ERROR),
     ;
 
     private final String code;
