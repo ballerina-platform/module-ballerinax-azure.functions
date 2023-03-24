@@ -56,6 +56,11 @@ public enum AzureDiagnosticCodes {
 
     AF_017("AF_017", "ambiguous types for parameter '%s' and '%s'. Use annotations to avoid ambiguity", ERROR),
     AF_018("AF_018", "invalid union type for default payload param: '%s'. Use basic structured types", ERROR),
+
+    AF_019("AF_019", "invalid usage of payload annotation for a non entity body resource : '%s'. " +
+            "Use an accessor that supports entity body", ERROR),
+
+    AF_020("AF_020", "invalid payload parameter type: '%s'", ERROR),
     ;
 
     private final String code;

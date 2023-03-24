@@ -410,7 +410,8 @@ public class Util {
 
     private static void populateHttpModuleTypes(SyntaxNodeAnalysisContext ctx, Map<String, TypeSymbol> typeSymbols) {
         String[] requiredTypeNames = {Constants.RESOURCE_RETURN_TYPE, Constants.HEADER_OBJ_NAME};
-        Optional<Map<String, Symbol>> optionalMap = ctx.semanticModel().types().typesInModule(Constants.BALLERINA_ORG, HTTP, Constants.EMPTY);
+        Optional<Map<String, Symbol>> optionalMap = ctx.semanticModel().types().typesInModule(Constants.BALLERINA_ORG,
+                HTTP, Constants.EMPTY);
         if (optionalMap.isPresent()) {
             Map<String, Symbol> symbolMap = optionalMap.get();
             for (String typeName : requiredTypeNames) {

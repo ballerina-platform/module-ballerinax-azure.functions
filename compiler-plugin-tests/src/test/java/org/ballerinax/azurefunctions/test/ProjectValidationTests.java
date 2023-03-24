@@ -45,7 +45,7 @@ public class ProjectValidationTests {
         PackageCompilation compilation = project.currentPackage().getCompilation();
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
         Object[] diagnostics = diagnosticResult.errors().toArray();
-        Assert.assertEquals(diagnosticResult.errorCount(), 13);
+        Assert.assertEquals(diagnosticResult.errorCount(), 14);
         String diagnosticMessage0 = "invalid annotation type on param 'a'";
         String diagnosticMessage1 = "invalid union type of header param 'xRate': one of the 'string','int','float'," +
                 "'decimal','boolean' types, an array of the above types or a record which consists of the above " +
@@ -53,9 +53,9 @@ public class ProjectValidationTests {
         String diagnosticMessage2 = "invalid type of header param 'abc': One of the following types is expected: " +
                 "'string','int','float','decimal','boolean', an array of the above types or a record which consists " +
                 "of the above types";
-        String diagnosticMessage3 = "invalid union type of header param 'abc': one of the 'string','int','float'," +
-                "'decimal','boolean' types, an array of the above types or a record which consists of the above types "
-                + "can only be union with '()'. Eg: string|() or string[]|()";
+        String diagnosticMessage3 = "invalid type of header param 'abc': One of the following types is expected: " +
+                "'string','int','float','decimal','boolean', an array of the above types or a record which consists " +
+                "of the above types";
         String diagnosticMessage4 = "invalid union type of header param 'abc': one of the 'string','int','float'," +
                 "'decimal','boolean' types, an array of the above types or a record which consists of the above " +
                 "types can only be union with '()'. Eg: string|() or string[]|()";
@@ -79,6 +79,9 @@ public class ProjectValidationTests {
         String diagnosticMessage12 = "invalid union type of header param 'abc': one of the 'string','int','float'," +
                 "'decimal','boolean' types, an array of the above types or a record which consists of " +
                 "the above types can only be union with '()'. Eg: string|() or string[]|()";
+        String diagnosticMessage13 = "invalid type of header param 'xRate': One of the following types is expected: " +
+                "'string','int','float','decimal','boolean', an array of the above types or a record which consists " +
+                "of the above types";
         Assert.assertEquals(((Diagnostic) diagnostics[0]).diagnosticInfo().messageFormat(), diagnosticMessage0);
         Assert.assertEquals(((Diagnostic) diagnostics[1]).diagnosticInfo().messageFormat(), diagnosticMessage1);
         Assert.assertEquals(((Diagnostic) diagnostics[2]).diagnosticInfo().messageFormat(), diagnosticMessage2);
@@ -92,6 +95,7 @@ public class ProjectValidationTests {
         Assert.assertEquals(((Diagnostic) diagnostics[10]).diagnosticInfo().messageFormat(), diagnosticMessage10);
         Assert.assertEquals(((Diagnostic) diagnostics[11]).diagnosticInfo().messageFormat(), diagnosticMessage11);
         Assert.assertEquals(((Diagnostic) diagnostics[12]).diagnosticInfo().messageFormat(), diagnosticMessage12);
+        Assert.assertEquals(((Diagnostic) diagnostics[13]).diagnosticInfo().messageFormat(), diagnosticMessage13);
     }
 
     @Test
@@ -126,11 +130,7 @@ public class ProjectValidationTests {
                 .resolve("map-non-json-param"));
         PackageCompilation compilation = project.currentPackage().getCompilation();
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-        Object[] diagnostics = diagnosticResult.errors().toArray();
-        Assert.assertEquals(diagnosticResult.errorCount(), 1);
-        String diagnosticMessage = "invalid type of query param 'name': expected one of the 'string', 'int', 'float'," +
-                " 'boolean', 'decimal', 'map<json>' types or the array types of them";
-        Assert.assertEquals(((Diagnostic) diagnostics[0]).diagnosticInfo().messageFormat(), diagnosticMessage);
+        Assert.assertEquals(diagnosticResult.errorCount(), 0);
     }
 
     @Test
@@ -152,11 +152,7 @@ public class ProjectValidationTests {
                 .resolve("array-map-non-json-param"));
         PackageCompilation compilation = project.currentPackage().getCompilation();
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-        Object[] diagnostics = diagnosticResult.errors().toArray();
-        Assert.assertEquals(diagnosticResult.errorCount(), 1);
-        String diagnosticMessage = "invalid type of query param 'name': expected one of the 'string', 'int', 'float'," +
-                " 'boolean', 'decimal', 'map<json>' types or the array types of them";
-        Assert.assertEquals(((Diagnostic) diagnostics[0]).diagnosticInfo().messageFormat(), diagnosticMessage);
+        Assert.assertEquals(diagnosticResult.errorCount(), 0);
     }
 
     @Test
@@ -165,8 +161,7 @@ public class ProjectValidationTests {
                 .resolve("union-param"));
         PackageCompilation compilation = project.currentPackage().getCompilation();
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-//        Object[] diagnostics = diagnosticResult.errors().toArray();
-        Assert.assertEquals(diagnosticResult.errorCount(), 6);
+        Assert.assertEquals(diagnosticResult.errorCount(), 3);
     }
 
     @Test
@@ -174,7 +169,6 @@ public class ProjectValidationTests {
         BuildProject project = BuildProject.load(RESOURCE_DIRECTORY.resolve("http").resolve("function-types"));
         PackageCompilation compilation = project.currentPackage().getCompilation();
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-//        Object[] diagnostics = diagnosticResult.errors().toArray();
         Assert.assertEquals(diagnosticResult.errorCount(), 1);
     }
     

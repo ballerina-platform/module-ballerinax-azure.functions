@@ -2,7 +2,7 @@
     "Data": {
         "httpPayload": {
             "Url": "http://localhost:7071/hello/err/empty/payload",
-            "Method": "GET",
+            "Method": "POST",
             "Query": {},
             "Headers": {
                 "Cache-Control": [
@@ -91,7 +91,7 @@
             "Sec-Fetch-Dest": "document"
         },
         "sys": {
-            "MethodName": "get-hello-err-empty-payload",
+            "MethodName": "post-hello-err-empty-payload",
             "UtcNow": "2022-08-04T16:06:50.5393863Z",
             "RandGuid": "0243c7ea-084a-4413-bd70-3cee25cbbd3c"
         }

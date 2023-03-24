@@ -2,7 +2,7 @@
     "Data": {
         "httpPayload": {
             "Url": "https://bal-dev.azurewebsites.net/hello/blobInput?name=hello1.txt",
-            "Method": "GET",
+            "Method": "POST",
             "Query": {
                 "name": "hello1.txt"
             },
@@ -114,7 +114,7 @@
             "DISGUISED-HOST": "bal-dev.azurewebsites.net"
         },
         "sys": {
-            "MethodName": "get-hello-blobInput",
+            "MethodName": "post-hello-blobInput",
             "UtcNow": "2022-08-15T08:50:15.0529418Z",
             "RandGuid": "8b11d3f8-ed35-4cbb-aeda-deeea3ef07c2"
         }

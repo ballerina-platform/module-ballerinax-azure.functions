@@ -249,7 +249,7 @@ service /hello on ep {
         return string:fromBytes(greeting);
     }
 
-    resource function get err/empty/payload(@http:Payload string greeting) returns @af:HttpOutput string {
+    resource function post err/empty/payload(@http:Payload string greeting) returns @af:HttpOutput string {
         return "Hello from get empty payload";
     }
 
@@ -358,7 +358,7 @@ service /hello on ep {
 
     }
 
-    resource function get blobInput(@http:Payload string greeting, string name, @af:BlobInput {path: "bpath1/{Query.name}"} byte[]? blobIn) returns string|error {
+    resource function post blobInput(@http:Payload string greeting, string name, @af:BlobInput {path: "bpath1/{Query.name}"} byte[]? blobIn) returns string|error {
         if blobIn is byte[] {
             string content = check string:fromBytes(blobIn);
             return "Blob from " + name + ", content is " + content;

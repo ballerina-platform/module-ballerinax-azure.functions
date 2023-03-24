@@ -120,6 +120,6 @@ public class Constants {
     public static final String RESOURCE_RETURN_TYPE = "ResourceReturnType";
     public static final String HEADER_OBJ_NAME = "Headers";
 
-
-
+    public static final String QUERY_ANNOTATION_TYPE = "HttpQuery";
+    public static final String MIME_ENTITY_OBJECT = "Entity";
 }

@@ -33,6 +33,7 @@ import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerina.compiler.syntax.tree.FunctionBodyNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ImportOrgNameNode;
@@ -45,16 +46,22 @@ import io.ballerina.compiler.syntax.tree.MetadataNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeFactory;
 import io.ballerina.compiler.syntax.tree.NodeList;
+import io.ballerina.compiler.syntax.tree.ParameterNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
 import io.ballerina.compiler.syntax.tree.ReturnStatementNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
+import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SpreadMemberNode;
 import io.ballerina.compiler.syntax.tree.StatementNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TreeModifier;
+import org.ballerinax.azurefunctions.context.DocumentContext;
+import org.ballerinax.azurefunctions.context.ResourceContext;
+import org.ballerinax.azurefunctions.context.ServiceContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,12 +76,14 @@ public class AzureFunctionModifier extends TreeModifier {
 
     private SemanticModel semanticModel;
     private String modulePrefix;
+    private DocumentContext documentContext;
 
-    public AzureFunctionModifier(SemanticModel semanticModel) {
+    public AzureFunctionModifier(SemanticModel semanticModel, DocumentContext documentContext) {
 
         super();
         this.semanticModel = semanticModel;
         this.modulePrefix = Constants.AZURE_FUNCTIONS_MODULE_NAME;
+        this.documentContext = documentContext;
     }
 
     @Override
@@ -140,7 +149,8 @@ public class AzureFunctionModifier extends TreeModifier {
             boolean isNetworkFunction = SyntaxKind.RESOURCE_ACCESSOR_DEFINITION == node.kind() ||
                     SyntaxKind.OBJECT_METHOD_DEFINITION == node.kind();
             if (isNetworkFunction) {
-                modifiedMember = getModifiedFunction((FunctionDefinitionNode) node, servicePath, nameGen);
+                modifiedMember = getModifiedFunction((FunctionDefinitionNode) node, servicePath,
+                        nameGen, getServiceContext(serviceDeclarationNode));
             } else {
                 modifiedMember = node;
             }
@@ -150,9 +160,16 @@ public class AzureFunctionModifier extends TreeModifier {
                 .withMembers(newMembersList).apply();
     }
 
-    public Node getModifiedFunction(FunctionDefinitionNode functionDefinitionNode, String servicePath,
-                                    AzureFunctionNameGenerator nameGen) {
+    private ServiceContext getServiceContext(ServiceDeclarationNode serviceDeclarationNode) {
+        if (documentContext == null) {
+            return null;
+        }
+        return documentContext.getServiceContext(serviceDeclarationNode.hashCode());
+    }
 
+    public FunctionDefinitionNode getModifiedFunction(FunctionDefinitionNode functionDefinitionNode, String servicePath,
+                                    AzureFunctionNameGenerator nameGen, ServiceContext serviceContext) {
+        //TODO refactor modifiers to multiple methods
         FunctionBodyNode functionBodyNode = functionDefinitionNode.functionBody();
         if (functionBodyNode.kind() != SyntaxKind.FUNCTION_BODY_BLOCK) {
             return functionDefinitionNode;
@@ -184,7 +201,13 @@ public class AzureFunctionModifier extends TreeModifier {
         functionBodyBlockNode = functionBodyBlockNode.modify().withStatements(NodeFactory.createNodeList(newStatements))
                 .apply();
 
+        FunctionDefinitionNode.FunctionDefinitionNodeModifier functionDefModifier = functionDefinitionNode.modify();
         if (SyntaxKind.RESOURCE_ACCESSOR_DEFINITION == functionDefinitionNode.kind()) {
+            Optional<FunctionSignatureNode> modifiedFunctionSignature = getModifiedFunctionSignature(serviceContext,
+                    functionDefinitionNode);
+            if (modifiedFunctionSignature.isPresent()) {
+                functionDefModifier = functionDefModifier.withFunctionSignature(modifiedFunctionSignature.get());
+            }
             String uniqueFunctionName = nameGen.getUniqueFunctionName(servicePath, functionDefinitionNode);
             Optional<MetadataNode> metadata = functionDefinitionNode.metadata();
             NodeList<AnnotationNode> existingAnnotations = NodeFactory.createNodeList();
@@ -192,7 +215,7 @@ public class AzureFunctionModifier extends TreeModifier {
             if (metadata.isPresent()) {
                 metadataNode = metadata.get();
                 if (isFunctionAnnotationExist(functionDefinitionNode)) {
-                    return functionDefinitionNode.modify().withFunctionBody(functionBodyBlockNode).apply();
+                    return functionDefModifier.withFunctionBody(functionBodyBlockNode).apply();
                 }
                 existingAnnotations = metadataNode.annotations();
             } else {
@@ -204,11 +227,62 @@ public class AzureFunctionModifier extends TreeModifier {
                     existingAnnotations.add(createFunctionAnnotation(uniqueFunctionName));
             MetadataNode modifiedMetadata =
                     new MetadataNode.MetadataNodeModifier(metadataNode).withAnnotations(modifiedAnnotations).apply();
-            return new FunctionDefinitionNode.FunctionDefinitionNodeModifier(functionDefinitionNode)
-                    .withMetadata(modifiedMetadata).withFunctionBody(functionBodyBlockNode).apply();
+            return functionDefModifier.withMetadata(modifiedMetadata).withFunctionBody(functionBodyBlockNode).apply();
         } else {
-            return functionDefinitionNode.modify().withFunctionBody(functionBodyBlockNode).apply();
+            return functionDefModifier.withFunctionBody(functionBodyBlockNode).apply();
         }
+    }
+
+    private Optional<FunctionSignatureNode> getModifiedFunctionSignature(ServiceContext serviceContext,
+                                                                         FunctionDefinitionNode functionDefNode) {
+        if (serviceContext == null) {
+            return Optional.empty();
+        }
+        int resourceId = functionDefNode.hashCode();
+        if (!serviceContext.containsResource(resourceId)) {
+            return Optional.empty();
+        }
+        ResourceContext resourceContext = serviceContext.getResourceContext(resourceId);
+        FunctionSignatureNode functionSignatureNode = functionDefNode.functionSignature();
+        SeparatedNodeList<ParameterNode> parameterNodes = functionSignatureNode.parameters();
+        List<Node> newParameterNodes = new ArrayList<>();
+        int index = 0;
+        for (ParameterNode parameterNode : parameterNodes) {
+            if (index++ != resourceContext.getIndex()) {
+                newParameterNodes.add(parameterNode);
+                newParameterNodes.add(AbstractNodeFactory.createToken(SyntaxKind.COMMA_TOKEN));
+                continue;
+            }
+            RequiredParameterNode param = (RequiredParameterNode) parameterNode;
+            //add the annotation
+            AnnotationNode payloadAnnotation = getHttpPayloadAnnotation();
+            NodeList<AnnotationNode> annotations = NodeFactory.createNodeList();
+            NodeList<AnnotationNode> updatedAnnotations = annotations.add(payloadAnnotation);
+            RequiredParameterNode.RequiredParameterNodeModifier paramModifier = param.modify();
+            paramModifier.withAnnotations(updatedAnnotations);
+            RequiredParameterNode updatedParam = paramModifier.apply();
+            newParameterNodes.add(updatedParam);
+            newParameterNodes.add(AbstractNodeFactory.createToken(SyntaxKind.COMMA_TOKEN));
+        }
+        if (newParameterNodes.size() > 1) {
+            newParameterNodes.remove(newParameterNodes.size() - 1);
+        }
+
+        FunctionSignatureNode.FunctionSignatureNodeModifier signatureModifier = functionSignatureNode.modify();
+        SeparatedNodeList<ParameterNode> separatedNodeList = AbstractNodeFactory.createSeparatedNodeList(
+                new ArrayList<>(newParameterNodes));
+        signatureModifier.withParameters(separatedNodeList);
+        return Optional.of(signatureModifier.apply());
+    }
+
+    private AnnotationNode getHttpPayloadAnnotation() {
+
+        String payloadIdentifierString = Constants.HTTP + SyntaxKind.COLON_TOKEN.stringValue() +
+                Constants.PAYLOAD_ANNOTATION + Constants.SPACE;
+        IdentifierToken identifierToken = NodeFactory.createIdentifierToken(payloadIdentifierString);
+        SimpleNameReferenceNode nameReferenceNode = NodeFactory.createSimpleNameReferenceNode(identifierToken);
+        Token atToken = NodeFactory.createToken(SyntaxKind.AT_TOKEN);
+        return NodeFactory.createAnnotationNode(atToken, nameReferenceNode, null);
     }
 
     public ListConstructorExpressionNode createSpreadOperator(ExpressionNode expressionNode) {
