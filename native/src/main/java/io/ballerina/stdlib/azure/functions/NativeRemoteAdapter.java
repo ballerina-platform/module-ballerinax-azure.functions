@@ -74,7 +74,7 @@ public class NativeRemoteAdapter {
                 String name = parameter.name;
                 BString parameterAnnotation = StringUtils.fromString(Constants.PARAMETER_ANNOTATION + name);
                 Object annotation =  methodType.getAnnotation(parameterAnnotation);
-                if (!ParamHandler.isQueryAnnotationParam(annotation)) {
+                if (!ParamHandler.isAzureAnnotationExist(annotation)) {
                     Object bValue = getDataboundValue(data, parameter, serviceType);
                     argList.add(bValue);
                     argList.add(true);

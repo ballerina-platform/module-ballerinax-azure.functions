@@ -136,14 +136,11 @@ public class ParamHandler {
     }
 
     public static boolean isQueryAnnotationParam(Object annotation) {
-        if (isAzureAnnotationExist(annotation)) {
+        if (annotation == null) {
             return true;
         }
 
-        if (annotation == null) {
-            return false;
-        }
-        if (!(annotation instanceof BMap)) {
+        if (isAzureAnnotationExist(annotation)) {
             return false;
         }
 

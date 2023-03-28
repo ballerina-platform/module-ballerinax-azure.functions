@@ -103,7 +103,7 @@ public class HttpResource {
             String name = parameter.name;
             Object annotation =
                     resourceMethod.getAnnotation(StringUtils.fromString(Constants.PARAMETER_ANNOTATION + name));
-            if (Utils.isAzAnnotationExist(annotation)) {
+            if (!ParamHandler.isQueryAnnotationParam(annotation)) {
                 continue;
             }
             BString queryValue = queryParams.getStringValue(StringUtils.fromString(name));

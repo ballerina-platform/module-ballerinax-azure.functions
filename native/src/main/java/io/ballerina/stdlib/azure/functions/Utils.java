@@ -196,11 +196,4 @@ public class Utils {
             return null;
         }
     }
-
-    public static boolean isAzAnnotationExist(Object annotation) {
-        if (annotation == null) {
-            return false;
-        }
-        return true;
-    }
 }
