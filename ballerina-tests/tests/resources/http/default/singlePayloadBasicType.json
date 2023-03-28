@@ -1,1 +1,77 @@
-{"Data":{"httpPayload":{"Url":"http://localhost:7071/http/default/data/singlePayloadBasicType?q=hello", "Method":"POST", "Query":{"q":"hello"}, "Headers":{"Accept":["*/*"], "Connection":["keep-alive"], "Host":["localhost:7071"], "User-Agent":["PostmanRuntime/7.31.3"], "Accept-Encoding":["gzip, deflate, br"], "Content-Type":["text/plain"], "Content-Length":["11"], "h":["this_is_header"], "Postman-Token":["890fc886-980c-46b1-9e8a-4651c4e204c3"]}, "Params":{}, "Identities":[{"AuthenticationType":null, "IsAuthenticated":false, "Actor":null, "BootstrapContext":null, "Claims":[], "Label":null, "Name":null, "NameClaimType":"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name", "RoleClaimType":"http://schemas.microsoft.com/ws/2008/06/identity/claims/role"}], "Body":"\"ballerina\""}}, "Metadata":{"q":"\"hello\"", "Query":{"q":"hello"}, "Headers":{"Accept":"*/*", "Connection":"keep-alive", "Host":"localhost:7071", "User-Agent":"PostmanRuntime/7.31.3", "Accept-Encoding":"gzip, deflate, br", "Content-Type":"text/plain", "Content-Length":"11", "h":"this_is_header", "Postman-Token":"890fc886-980c-46b1-9e8a-4651c4e204c3"}, "sys":{"MethodName":"post-http-default-data-singlePayloadBasicType", "UtcNow":"2023-03-28T05:37:58.8459412Z", "RandGuid":"4ec09bb0-8f2e-4a4c-b5ab-d4e08bfd17ba"}}}
+{
+  "Data": {
+    "httpPayload": {
+      "Url": "http://localhost:7071/http/default/data/singlePayloadBasicType?q=hello",
+      "Method": "POST",
+      "Query": {
+        "q": "hello"
+      },
+      "Headers": {
+        "Accept": [
+          "*/*"
+        ],
+        "Connection": [
+          "keep-alive"
+        ],
+        "Host": [
+          "localhost:7071"
+        ],
+        "User-Agent": [
+          "PostmanRuntime/7.31.3"
+        ],
+        "Accept-Encoding": [
+          "gzip, deflate, br"
+        ],
+        "Content-Type": [
+          "text/plain"
+        ],
+        "Content-Length": [
+          "11"
+        ],
+        "h": [
+          "this_is_header"
+        ],
+        "Postman-Token": [
+          "890fc886-980c-46b1-9e8a-4651c4e204c3"
+        ]
+      },
+      "Params": {},
+      "Identities": [
+        {
+          "AuthenticationType": null,
+          "IsAuthenticated": false,
+          "Actor": null,
+          "BootstrapContext": null,
+          "Claims": [],
+          "Label": null,
+          "Name": null,
+          "NameClaimType": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name",
+          "RoleClaimType": "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+        }
+      ],
+      "Body": "\"ballerina\""
+    }
+  },
+  "Metadata": {
+    "q": "\"hello\"",
+    "Query": {
+      "q": "hello"
+    },
+    "Headers": {
+      "Accept": "*/*",
+      "Connection": "keep-alive",
+      "Host": "localhost:7071",
+      "User-Agent": "PostmanRuntime/7.31.3",
+      "Accept-Encoding": "gzip, deflate, br",
+      "Content-Type": "text/plain",
+      "Content-Length": "11",
+      "h": "this_is_header",
+      "Postman-Token": "890fc886-980c-46b1-9e8a-4651c4e204c3"
+    },
+    "sys": {
+      "MethodName": "post-http-default-data-singlePayloadBasicType",
+      "UtcNow": "2023-03-28T05:37:58.8459412Z",
+      "RandGuid": "4ec09bb0-8f2e-4a4c-b5ab-d4e08bfd17ba"
+    }
+  }
+}
