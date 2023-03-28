@@ -47,31 +47,56 @@ import io.ballerina.tools.diagnostics.DiagnosticFactory;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinax.azurefunctions.AzureDiagnosticCodes;
-import org.ballerinax.azurefunctions.Constants;
 import org.ballerinax.azurefunctions.Util;
+import org.ballerinax.azurefunctions.context.ParamAvailability;
+import org.ballerinax.azurefunctions.context.ParamData;
 import org.wso2.ballerinalang.compiler.diagnostic.properties.BSymbolicProperty;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.ballerinax.azurefunctions.AzureDiagnosticCodes.AF_008;
 import static org.ballerinax.azurefunctions.Constants.ANYDATA;
 import static org.ballerinax.azurefunctions.Constants.ARRAY_OF_MAP_OF_JSON;
 import static org.ballerinax.azurefunctions.Constants.AZURE_FUNCTIONS_MODULE_NAME;
+import static org.ballerinax.azurefunctions.Constants.BALLERINA_ORG;
+import static org.ballerinax.azurefunctions.Constants.BOOLEAN;
+import static org.ballerinax.azurefunctions.Constants.BOOLEAN_ARRAY;
+import static org.ballerinax.azurefunctions.Constants.BYTE_ARRAY;
 import static org.ballerinax.azurefunctions.Constants.COLON;
+import static org.ballerinax.azurefunctions.Constants.DECIMAL;
+import static org.ballerinax.azurefunctions.Constants.DECIMAL_ARRAY;
+import static org.ballerinax.azurefunctions.Constants.FLOAT;
+import static org.ballerinax.azurefunctions.Constants.FLOAT_ARRAY;
 import static org.ballerinax.azurefunctions.Constants.GET;
 import static org.ballerinax.azurefunctions.Constants.HEAD;
 import static org.ballerinax.azurefunctions.Constants.HEADER_ANNOTATION_TYPE;
 import static org.ballerinax.azurefunctions.Constants.HTTP;
+import static org.ballerinax.azurefunctions.Constants.INT;
+import static org.ballerinax.azurefunctions.Constants.INT_ARRAY;
+import static org.ballerinax.azurefunctions.Constants.MAP_OF_ANYDATA;
 import static org.ballerinax.azurefunctions.Constants.MAP_OF_JSON;
+import static org.ballerinax.azurefunctions.Constants.MIME_ENTITY_OBJECT;
 import static org.ballerinax.azurefunctions.Constants.NIL;
 import static org.ballerinax.azurefunctions.Constants.OPTIONS;
 import static org.ballerinax.azurefunctions.Constants.PAYLOAD_ANNOTATION_TYPE;
+import static org.ballerinax.azurefunctions.Constants.QUERY_ANNOTATION_TYPE;
+import static org.ballerinax.azurefunctions.Constants.REMOTE_KEYWORD;
 import static org.ballerinax.azurefunctions.Constants.SERVICE_CONFIG_ANNOTATION;
+import static org.ballerinax.azurefunctions.Constants.STRING;
+import static org.ballerinax.azurefunctions.Constants.STRING_ARRAY;
+import static org.ballerinax.azurefunctions.Constants.STRUCTURED_ARRAY;
+import static org.ballerinax.azurefunctions.Constants.TABLE_OF_ANYDATA_MAP;
 import static org.ballerinax.azurefunctions.Constants.TREAT_NILABLE_AS_OPTIONAL;
+import static org.ballerinax.azurefunctions.Constants.TUPLE_OF_ANYDATA;
+import static org.ballerinax.azurefunctions.Constants.XML;
+import static org.ballerinax.azurefunctions.HttpPayloadParamIdentifier.validateAnnotatedParams;
+import static org.ballerinax.azurefunctions.HttpPayloadParamIdentifier.validateNonAnnotatedParams;
 import static org.ballerinax.azurefunctions.Util.getCtxTypes;
 import static org.ballerinax.azurefunctions.Util.getEffectiveTypeFromReadonlyIntersection;
 import static org.ballerinax.azurefunctions.Util.updateDiagnostic;
@@ -99,7 +124,7 @@ public class HttpServiceValidator extends BaseHttpCodeAnalyzerTask {
                     // Object methods are allowed.
                     continue;
                 }
-                if (tokens.stream().anyMatch(token -> token.text().equals(Constants.REMOTE_KEYWORD))) {
+                if (tokens.stream().anyMatch(token -> token.text().equals(REMOTE_KEYWORD))) {
                     Diagnostic
                             diagnostic = Util.getDiagnostic(member.location(), AzureDiagnosticCodes.AF_015);
                     syntaxNodeAnalysisContext.reportDiagnostic(diagnostic);
@@ -152,6 +177,47 @@ public class HttpServiceValidator extends BaseHttpCodeAnalyzerTask {
 
     }
 
+    public static List<Integer> mockCodeModifier(SyntaxNodeAnalysisContext ctx, Map<String, TypeSymbol> typeSymbols,
+                                                 Optional<List<ParameterSymbol>> parametersOptional) {
+        List<ParamData> nonAnnotatedParams = new ArrayList<>();
+        List<ParamData> annotatedParams = new ArrayList<>();
+        List<Integer> analyzedParams = new ArrayList<>();
+        ParamAvailability paramAvailability = new ParamAvailability();
+        int index = 0;
+        for (ParameterSymbol param : parametersOptional.get()) {
+            List<AnnotationSymbol> annotations = param.annotations().stream()
+                    .filter(annotationSymbol -> annotationSymbol.typeDescriptor().isPresent())
+                    .collect(Collectors.toList());
+            if (annotations.isEmpty()) {
+                nonAnnotatedParams.add(new ParamData(param, index++));
+            } else {
+                annotatedParams.add(new ParamData(param, index++));
+            }
+        }
+
+        for (ParamData annotatedParam : annotatedParams) {
+            validateAnnotatedParams(annotatedParam.getParameterSymbol(), paramAvailability);
+            if (paramAvailability.isAnnotatedPayloadParam()) {
+                return analyzedParams;
+            }
+        }
+
+        for (ParamData nonAnnotatedParam : nonAnnotatedParams) {
+            ParameterSymbol parameterSymbol = nonAnnotatedParam.getParameterSymbol();
+
+            if (validateNonAnnotatedParams(ctx, parameterSymbol.typeDescriptor(), paramAvailability,
+                    parameterSymbol, typeSymbols)) {
+                analyzedParams.add(parameterSymbol.hashCode());
+            }
+            if (paramAvailability.isErrorOccurred()) {
+                analyzedParams.add(parameterSymbol.hashCode());
+                break;
+            }
+        }
+
+        return analyzedParams;
+    }
+
     private static void validateInputParameters(SyntaxNodeAnalysisContext ctx, FunctionDefinitionNode member,
                                                 Map<String, TypeSymbol> typeSymbols) {
 
@@ -166,7 +232,15 @@ public class HttpServiceValidator extends BaseHttpCodeAnalyzerTask {
         if (parametersOptional.isEmpty()) {
             return;
         }
-
+        // Mocking code modifier here since LS does not run code modifiers
+        // Related issue: https://github.com/ballerina-platform/ballerina-lang/issues/39792
+        List<Integer> analyzedParams = new ArrayList<>();
+        if (resourceMethodOptional.isPresent()) {
+            String accessor = resourceMethodOptional.get();
+            if (Stream.of(GET, HEAD, OPTIONS).noneMatch(accessor::equals)) {
+                analyzedParams = mockCodeModifier(ctx, typeSymbols, parametersOptional);
+            }
+        }
         for (ParameterSymbol param : parametersOptional.get()) {
             Optional<Location> paramLocationOptional = param.getLocation();
             if (paramLocationOptional.isPresent()) {
@@ -242,7 +316,7 @@ public class HttpServiceValidator extends BaseHttpCodeAnalyzerTask {
                                     resourceMethodOptional.orElse(null), param, typeDescriptor);
                             annotated = true;
                             break;
-                        case Constants.QUERY_ANNOTATION_TYPE: {
+                        case QUERY_ANNOTATION_TYPE: {
                             if (annotated) {
                                 reportInvalidMultipleAnnotation(ctx, paramLocation, paramName);
                                 continue;
@@ -330,8 +404,9 @@ public class HttpServiceValidator extends BaseHttpCodeAnalyzerTask {
 //                    updateDiagnostic(ctx, paramLocation, AzureDiagnosticCodes.AF_010, paramName);
 //                }
                 TypeSymbol typeSymbol = param.typeDescriptor();
-                validateQueryParamType(ctx, paramLocation, paramName, typeSymbol, typeSymbols);
-
+                if (!analyzedParams.contains(param.hashCode())) {
+                    validateQueryParamType(ctx, paramLocation, paramName, typeSymbol, typeSymbols);
+                }
             }
         }
     }
@@ -405,7 +480,7 @@ public class HttpServiceValidator extends BaseHttpCodeAnalyzerTask {
         if (name.isEmpty()) {
             return false;
         }
-        if (!name.get().equals(Constants.MIME_ENTITY_OBJECT)) {
+        if (!name.get().equals(MIME_ENTITY_OBJECT)) {
             return false;
         }
         Optional<ModuleSymbol> module = typeDescriptor.getModule();
@@ -413,7 +488,7 @@ public class HttpServiceValidator extends BaseHttpCodeAnalyzerTask {
             return false;
         }
         String org = module.get().id().orgName();
-        return org.equals(Constants.BALLERINA_ORG);
+        return org.equals(BALLERINA_ORG);
 
     }
     private static void validatePayloadAnnotationUsage(SyntaxNodeAnalysisContext ctx, Location location,
@@ -424,7 +499,7 @@ public class HttpServiceValidator extends BaseHttpCodeAnalyzerTask {
         }
     }
 
-    private static void reportInvalidPayloadParameterType(SyntaxNodeAnalysisContext ctx, Location location,
+    public static void reportInvalidPayloadParameterType(SyntaxNodeAnalysisContext ctx, Location location,
                                                           String typeName) {
 
         updateDiagnostic(ctx, location, AzureDiagnosticCodes.AF_020, typeName);
@@ -503,9 +578,9 @@ public class HttpServiceValidator extends BaseHttpCodeAnalyzerTask {
             if (size > 2) {
                 return null;
             }
-            if (isNilableType(symbolList.get(0), typeSymbols)) {
+            if (isNilableType(typeSymbols, symbolList.get(0))) {
                 typeSymbol = symbolList.get(1);
-            } else if (isNilableType(symbolList.get(1), typeSymbols)) {
+            } else if (isNilableType(typeSymbols, symbolList.get(1))) {
                 typeSymbol = symbolList.get(0);
             } else {
                 return null;
@@ -516,21 +591,39 @@ public class HttpServiceValidator extends BaseHttpCodeAnalyzerTask {
 
     private static boolean isValidBasicParamType(TypeSymbol typeSymbol, Map<String, TypeSymbol> typeSymbols) {
 
-        return subtypeOf(typeSymbols, typeSymbol, Constants.STRING) ||
-                subtypeOf(typeSymbols, typeSymbol, Constants.INT) ||
-                subtypeOf(typeSymbols, typeSymbol, Constants.FLOAT) ||
-                subtypeOf(typeSymbols, typeSymbol, Constants.DECIMAL) ||
-                subtypeOf(typeSymbols, typeSymbol, Constants.BOOLEAN) ||
-                subtypeOf(typeSymbols, typeSymbol, Constants.STRING_ARRAY) ||
-                subtypeOf(typeSymbols, typeSymbol, Constants.INT_ARRAY) ||
-                subtypeOf(typeSymbols, typeSymbol, Constants.FLOAT_ARRAY) ||
-                subtypeOf(typeSymbols, typeSymbol, Constants.DECIMAL_ARRAY) ||
-                subtypeOf(typeSymbols, typeSymbol, Constants.BOOLEAN_ARRAY);
+        return subtypeOf(typeSymbols, typeSymbol, STRING) ||
+                subtypeOf(typeSymbols, typeSymbol, INT) ||
+                subtypeOf(typeSymbols, typeSymbol, FLOAT) ||
+                subtypeOf(typeSymbols, typeSymbol, DECIMAL) ||
+                subtypeOf(typeSymbols, typeSymbol, BOOLEAN) ||
+                subtypeOf(typeSymbols, typeSymbol, STRING_ARRAY) ||
+                subtypeOf(typeSymbols, typeSymbol, INT_ARRAY) ||
+                subtypeOf(typeSymbols, typeSymbol, FLOAT_ARRAY) ||
+                subtypeOf(typeSymbols, typeSymbol, DECIMAL_ARRAY) ||
+                subtypeOf(typeSymbols, typeSymbol, BOOLEAN_ARRAY);
     }
 
-    private static boolean isNilableType(TypeSymbol typeSymbol, Map<String, TypeSymbol> typeSymbols) {
+    public static boolean isNilableType(Map<String, TypeSymbol> typeSymbols, TypeSymbol typeSymbol) {
 
         return subtypeOf(typeSymbols, typeSymbol, NIL);
+    }
+
+    public static boolean isStructuredType(Map<String, TypeSymbol> typeSymbols, TypeSymbol typeSymbol) {
+        // Special cased byte[]
+        if (subtypeOf(typeSymbols, typeSymbol, BYTE_ARRAY)) {
+            return true;
+        }
+
+        // If the type is a basic type or basic array type, then it is not considered as a structured type
+        if (isValidBasicParamType(typeSymbol, typeSymbols)) {
+            return false;
+        }
+
+        return subtypeOf(typeSymbols, typeSymbol, MAP_OF_ANYDATA) ||
+                subtypeOf(typeSymbols, typeSymbol, TABLE_OF_ANYDATA_MAP) ||
+                subtypeOf(typeSymbols, typeSymbol, TUPLE_OF_ANYDATA) ||
+                subtypeOf(typeSymbols, typeSymbol, STRUCTURED_ARRAY) ||
+                subtypeOf(typeSymbols, typeSymbol, XML);
     }
 
     private static void reportInvalidParameterAnnotation(SyntaxNodeAnalysisContext ctx, Location location,

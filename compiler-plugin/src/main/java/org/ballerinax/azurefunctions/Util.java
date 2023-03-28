@@ -435,6 +435,7 @@ public class Util {
         typeSymbols.put(Constants.INT, types.INT);
         typeSymbols.put(Constants.FLOAT, types.FLOAT);
         typeSymbols.put(Constants.DECIMAL, types.DECIMAL);
+        typeSymbols.put(Constants.XML, types.XML);
         typeSymbols.put(Constants.NIL, types.NIL);
         typeSymbols.put(Constants.STRING_ARRAY, types.builder().ARRAY_TYPE.withType(types.STRING).build());
         typeSymbols.put(Constants.BOOLEAN_ARRAY, types.builder().ARRAY_TYPE.withType(types.BOOLEAN).build());
@@ -445,5 +446,17 @@ public class Util {
         typeSymbols.put(Constants.MAP_OF_JSON, types.builder().MAP_TYPE.withTypeParam(types.JSON).build());
         typeSymbols.put(Constants.ARRAY_OF_MAP_OF_JSON, types.builder().ARRAY_TYPE.withType(
                 types.builder().MAP_TYPE.withTypeParam(types.JSON).build()).build());
+        typeSymbols.put(Constants.MAP_OF_ANYDATA, types.builder().MAP_TYPE.withTypeParam(types.ANYDATA).build());
+        typeSymbols.put(Constants.TABLE_OF_ANYDATA_MAP, types.builder().TABLE_TYPE.withRowType(
+                typeSymbols.get(Constants.MAP_OF_ANYDATA)).build());
+        typeSymbols.put(Constants.TUPLE_OF_ANYDATA, types.builder().TUPLE_TYPE.withRestType(types.ANYDATA).build());
+        typeSymbols.put(Constants.STRUCTURED_ARRAY, types.builder().ARRAY_TYPE
+                .withType(
+                        types.builder().UNION_TYPE
+                                .withMemberTypes(
+                                        typeSymbols.get(Constants.MAP_OF_ANYDATA),
+                                        typeSymbols.get(Constants.TABLE_OF_ANYDATA_MAP),
+                                        typeSymbols.get(Constants.TUPLE_OF_ANYDATA)).build()).build());
+        typeSymbols.put(Constants.BYTE_ARRAY, types.builder().ARRAY_TYPE.withType(types.BYTE).build());
     }
 }

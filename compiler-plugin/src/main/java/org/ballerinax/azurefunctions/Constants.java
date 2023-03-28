@@ -114,6 +114,13 @@ public class Constants {
     public static final String MAP_OF_JSON = "map<json>";
     public static final String ARRAY_OF_MAP_OF_JSON = "map<json>[]";
     public static final String NIL = "nil";
+
+    public static final String BYTE_ARRAY = "byte[]";
+    public static final String XML = "xml";
+    public static final String MAP_OF_ANYDATA = "map<anydata>";
+    public static final String TABLE_OF_ANYDATA_MAP = "table<anydata>";
+    public static final String TUPLE_OF_ANYDATA = "[anydata...]";
+    public static final String STRUCTURED_ARRAY = "(map<anydata>|table<map<anydata>>|[anydata...])[]";
     public static final String OBJECT = "object";
     public static final String EMPTY = "";
 
@@ -122,4 +129,5 @@ public class Constants {
 
     public static final String QUERY_ANNOTATION_TYPE = "HttpQuery";
     public static final String MIME_ENTITY_OBJECT = "Entity";
+
 }

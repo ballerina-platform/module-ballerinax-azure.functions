@@ -50,4 +50,8 @@ public class ServiceContext {
     public ResourceContext getResourceContext(int resourceId) {
         return resourceContextMap.get(resourceId);
     }
+
+    public void removeResourceContext(int resourceId) {
+        this.resourceContextMap.remove(resourceId);
+    }
 }
