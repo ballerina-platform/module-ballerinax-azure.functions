@@ -87,33 +87,7 @@ public class FunctionUpdaterTask implements ModifierTask<SourceModifierContext> 
                 context.modifyTestSourceFile(updatedSyntaxTree.textDocument(), docId);
             }
         }
-//
-//        for (Map.Entry<DocumentId, DocumentContext> entry : documentContextMap.entrySet()) {
-//            DocumentId documentId = entry.getKey();
-//            DocumentContext documentContext = entry.getValue();
-//            modifyPayloadParam(context, documentId, documentContext);
-//        }
     }
-
-//    private void modifyPayloadParam(SourceModifierContext modifierContext, DocumentId documentId,
-//                                    DocumentContext documentContext) {
-//
-//        ModuleId moduleId = documentId.moduleId();
-//        Module currentModule = modifierContext.currentPackage().module(moduleId);
-//        Document currentDoc = currentModule.document(documentId);
-//        ModulePartNode rootNode = currentDoc.syntaxTree().rootNode();
-//        NodeList<ModuleMemberDeclarationNode> newMembers = updateMemberNodes(rootNode.members(), documentContext);
-//        NodeList<ImportDeclarationNode> updatedImports = addHttpImport(rootNode.imports());
-//        ModulePartNode newModulePart = rootNode.modify(updatedImports, newMembers, rootNode.eofToken());
-//        SyntaxTree updatedSyntaxTree = currentDoc.syntaxTree().modifyWith(newModulePart);
-//        TextDocument textDocument = updatedSyntaxTree.textDocument();
-//        if (currentModule.documentIds().contains(documentId)) {
-//            modifierContext.modifySourceFile(textDocument, documentId);
-//        } else {
-//            modifierContext.modifyTestSourceFile(textDocument, documentId);
-//        }
-//    }
-
     private NodeList<ImportDeclarationNode> addHttpImport(NodeList<ImportDeclarationNode> oldImports,
                                                           DocumentContext documentContext) {
 

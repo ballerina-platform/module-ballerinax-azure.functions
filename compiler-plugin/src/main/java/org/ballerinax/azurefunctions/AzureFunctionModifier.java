@@ -145,14 +145,12 @@ public class AzureFunctionModifier extends TreeModifier {
         AzureFunctionNameGenerator nameGen = new AzureFunctionNameGenerator(serviceDeclarationNode);
         NodeList<Node> newMembersList = NodeFactory.createNodeList();
         for (Node node : members) {
-            Node modifiedMember;
+            Node modifiedMember = node;
             boolean isNetworkFunction = SyntaxKind.RESOURCE_ACCESSOR_DEFINITION == node.kind() ||
                     SyntaxKind.OBJECT_METHOD_DEFINITION == node.kind();
             if (isNetworkFunction) {
                 modifiedMember = getModifiedFunction((FunctionDefinitionNode) node, servicePath,
                         nameGen, getServiceContext(serviceDeclarationNode));
-            } else {
-                modifiedMember = node;
             }
             newMembersList = newMembersList.add(modifiedMember);
         }
@@ -228,9 +226,8 @@ public class AzureFunctionModifier extends TreeModifier {
             MetadataNode modifiedMetadata =
                     new MetadataNode.MetadataNodeModifier(metadataNode).withAnnotations(modifiedAnnotations).apply();
             return functionDefModifier.withMetadata(modifiedMetadata).withFunctionBody(functionBodyBlockNode).apply();
-        } else {
-            return functionDefModifier.withFunctionBody(functionBodyBlockNode).apply();
         }
+        return functionDefModifier.withFunctionBody(functionBodyBlockNode).apply();
     }
 
     private Optional<FunctionSignatureNode> getModifiedFunctionSignature(ServiceContext serviceContext,
