@@ -165,14 +165,49 @@ public class AzureFunctionModifier extends TreeModifier {
         return documentContext.getServiceContext(serviceDeclarationNode.hashCode());
     }
 
-    public FunctionDefinitionNode getModifiedFunction(FunctionDefinitionNode functionDefinitionNode, String servicePath,
+    public FunctionDefinitionNode getModifiedFunction(FunctionDefinitionNode functionDefNode, String servicePath,
                                     AzureFunctionNameGenerator nameGen, ServiceContext serviceContext) {
-        //TODO refactor modifiers to multiple methods
-        FunctionBodyNode functionBodyNode = functionDefinitionNode.functionBody();
+        FunctionBodyNode functionBodyNode = functionDefNode.functionBody();
         if (functionBodyNode.kind() != SyntaxKind.FUNCTION_BODY_BLOCK) {
-            return functionDefinitionNode;
+            return functionDefNode;
         }
-        FunctionBodyBlockNode functionBodyBlockNode = (FunctionBodyBlockNode) functionBodyNode;
+
+        FunctionDefinitionNode.FunctionDefinitionNodeModifier functionDefModifier = functionDefNode.modify().
+                withFunctionBody(getSpreadModifiedFunctionBody((FunctionBodyBlockNode) functionBodyNode));
+
+        if (SyntaxKind.RESOURCE_ACCESSOR_DEFINITION == functionDefNode.kind()) {
+            getPayloadAnnotationFunctionSignature(serviceContext, functionDefNode)
+                    .ifPresent(functionDefModifier::withFunctionSignature);
+            getAnnotatedFunction(functionDefNode, servicePath, nameGen).ifPresent(functionDefModifier::withMetadata);
+        }
+        return functionDefModifier.apply();
+    }
+
+    private Optional<MetadataNode> getAnnotatedFunction(FunctionDefinitionNode functionDefinitionNode,
+                                                        String servicePath, AzureFunctionNameGenerator nameGen) {
+        String uniqueFunctionName = nameGen.getUniqueFunctionName(servicePath, functionDefinitionNode);
+        Optional<MetadataNode> metadata = functionDefinitionNode.metadata();
+        NodeList<AnnotationNode> existingAnnotations = NodeFactory.createNodeList();
+        MetadataNode metadataNode;
+        if (metadata.isPresent()) {
+            metadataNode = metadata.get();
+            if (isFunctionAnnotationExist(functionDefinitionNode)) {
+                return Optional.empty();
+            }
+            existingAnnotations = metadataNode.annotations();
+        } else {
+            metadataNode = NodeFactory.createMetadataNode(null, existingAnnotations);
+        }
+
+        //Create and add annotation
+        NodeList<AnnotationNode> modifiedAnnotations =
+                existingAnnotations.add(createFunctionAnnotation(uniqueFunctionName));
+        return Optional.of(new MetadataNode.MetadataNodeModifier(metadataNode).withAnnotations(modifiedAnnotations)
+                .apply());
+    }
+
+    private FunctionBodyBlockNode getSpreadModifiedFunctionBody(FunctionBodyBlockNode functionBodyBlockNode) {
+
         NodeList<StatementNode> statements = functionBodyBlockNode.statements();
         List<StatementNode> newStatements = new ArrayList<>();
         for (StatementNode statementNode : statements) {
@@ -198,40 +233,11 @@ public class AzureFunctionModifier extends TreeModifier {
         }
         functionBodyBlockNode = functionBodyBlockNode.modify().withStatements(NodeFactory.createNodeList(newStatements))
                 .apply();
-
-        FunctionDefinitionNode.FunctionDefinitionNodeModifier functionDefModifier = functionDefinitionNode.modify();
-        if (SyntaxKind.RESOURCE_ACCESSOR_DEFINITION == functionDefinitionNode.kind()) {
-            Optional<FunctionSignatureNode> modifiedFunctionSignature = getModifiedFunctionSignature(serviceContext,
-                    functionDefinitionNode);
-            if (modifiedFunctionSignature.isPresent()) {
-                functionDefModifier = functionDefModifier.withFunctionSignature(modifiedFunctionSignature.get());
-            }
-            String uniqueFunctionName = nameGen.getUniqueFunctionName(servicePath, functionDefinitionNode);
-            Optional<MetadataNode> metadata = functionDefinitionNode.metadata();
-            NodeList<AnnotationNode> existingAnnotations = NodeFactory.createNodeList();
-            MetadataNode metadataNode;
-            if (metadata.isPresent()) {
-                metadataNode = metadata.get();
-                if (isFunctionAnnotationExist(functionDefinitionNode)) {
-                    return functionDefModifier.withFunctionBody(functionBodyBlockNode).apply();
-                }
-                existingAnnotations = metadataNode.annotations();
-            } else {
-                metadataNode = NodeFactory.createMetadataNode(null, existingAnnotations);
-            }
-
-            //Create and add annotation
-            NodeList<AnnotationNode> modifiedAnnotations =
-                    existingAnnotations.add(createFunctionAnnotation(uniqueFunctionName));
-            MetadataNode modifiedMetadata =
-                    new MetadataNode.MetadataNodeModifier(metadataNode).withAnnotations(modifiedAnnotations).apply();
-            return functionDefModifier.withMetadata(modifiedMetadata).withFunctionBody(functionBodyBlockNode).apply();
-        }
-        return functionDefModifier.withFunctionBody(functionBodyBlockNode).apply();
+        return functionBodyBlockNode;
     }
 
-    private Optional<FunctionSignatureNode> getModifiedFunctionSignature(ServiceContext serviceContext,
-                                                                         FunctionDefinitionNode functionDefNode) {
+    private Optional<FunctionSignatureNode> getPayloadAnnotationFunctionSignature(ServiceContext serviceContext,
+                                                                              FunctionDefinitionNode functionDefNode) {
         if (serviceContext == null) {
             return Optional.empty();
         }
