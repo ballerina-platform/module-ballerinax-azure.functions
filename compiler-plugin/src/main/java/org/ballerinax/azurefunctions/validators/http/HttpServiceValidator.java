@@ -393,10 +393,7 @@ public class HttpServiceValidator extends BaseHttpCodeAnalyzerTask {
         if (resourceMethodOptional != null) {
             validatePayloadAnnotationUsage(ctx, paramLocation, resourceMethodOptional);
         }
-        if (subtypeOf(typeSymbols, typeDescriptor, ANYDATA)) {
-            return;
-        }
-        if (isMimeEntity(typeDescriptor)) {
+        if (subtypeOf(typeSymbols, typeDescriptor, ANYDATA) || isMimeEntity(typeDescriptor)) {
             return;
         }
         reportInvalidPayloadParameterType(ctx, paramLocation, param.typeDescriptor().signature());
@@ -405,10 +402,7 @@ public class HttpServiceValidator extends BaseHttpCodeAnalyzerTask {
     private static boolean isMimeEntity(TypeSymbol typeDescriptor) {
 
         Optional<String> name = typeDescriptor.getName();
-        if (name.isEmpty()) {
-            return false;
-        }
-        if (!name.get().equals(MIME_ENTITY_OBJECT)) {
+        if (name.isEmpty() || !name.get().equals(MIME_ENTITY_OBJECT)) {
             return false;
         }
         Optional<ModuleSymbol> module = typeDescriptor.getModule();
