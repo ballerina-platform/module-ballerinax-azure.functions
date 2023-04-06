@@ -1,0 +1,68 @@
+{
+  "Data": {
+    "httpPayload": {
+      "Url": "http://localhost:7071/http/default/data/imp/prime?data=hello",
+      "Method": "POST",
+      "Query": {
+        "data": "hello"
+      },
+      "Headers": {
+        "Accept": [
+          "*/*"
+        ],
+        "Connection": [
+          "keep-alive"
+        ],
+        "Host": [
+          "localhost:7071"
+        ],
+        "User-Agent": [
+          "PostmanRuntime/7.31.3"
+        ],
+        "Accept-Encoding": [
+          "gzip, deflate, br"
+        ],
+        "Content-Length": [
+          "0"
+        ],
+        "Postman-Token": [
+          "04e2066a-f4f0-444a-ac18-90cdeb2af93f"
+        ]
+      },
+      "Params": {},
+      "Identities": [
+        {
+          "AuthenticationType": null,
+          "IsAuthenticated": false,
+          "Actor": null,
+          "BootstrapContext": null,
+          "Claims": [],
+          "Label": null,
+          "Name": null,
+          "NameClaimType": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name",
+          "RoleClaimType": "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+        }
+      ]
+    }
+  },
+  "Metadata": {
+    "data": "\"hello\"",
+    "Query": {
+      "data": "hello"
+    },
+    "Headers": {
+      "Accept": "*/*",
+      "Connection": "keep-alive",
+      "Host": "localhost:7071",
+      "User-Agent": "PostmanRuntime/7.31.3",
+      "Accept-Encoding": "gzip, deflate, br",
+      "Content-Length": "0",
+      "Postman-Token": "04e2066a-f4f0-444a-ac18-90cdeb2af93f"
+    },
+    "sys": {
+      "MethodName": "post-http-default-data-imp-prime",
+      "UtcNow": "2023-03-27T06:36:41.5421659Z",
+      "RandGuid": "5098a218-8481-4b0d-b41f-9a18585a5fec"
+    }
+  }
+}

@@ -135,6 +135,25 @@ public class ParamHandler {
         return Optional.empty();
     }
 
+    public static boolean isQueryAnnotationParam(Object annotation) {
+        if (annotation == null) {
+            return true;
+        }
+
+        if (isAzureAnnotationExist(annotation)) {
+            return false;
+        }
+
+        for (BString bKey : ((BMap<BString, ?>) annotation).getKeys()) {
+            String key = bKey.getValue();
+            if (key.startsWith(HTTP_PACKAGE_ORG + Constants.SLASH + Constants.HTTP_PACKAGE_NAME) &&
+                    key.endsWith(Constants.AZURE_QUERY_HEADERS)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static boolean isBindingNameParam(Object annotation) {
         if (annotation == null) {
             return false;

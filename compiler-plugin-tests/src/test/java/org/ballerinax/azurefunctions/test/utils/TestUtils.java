@@ -18,8 +18,12 @@
 package org.ballerinax.azurefunctions.test.utils;
 
 import com.google.gson.Gson;
+import io.ballerina.projects.Package;
+import io.ballerina.projects.ProjectEnvironmentBuilder;
+import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.environment.Environment;
+import io.ballerina.projects.environment.EnvironmentBuilder;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.ballerinax.azurefunctions.Constants;
@@ -45,9 +49,9 @@ import java.util.Map;
 public class TestUtils {
 
     private static final Log log = LogFactory.getLog(TestUtils.class);
-    private static final Path DISTRIBUTION_PATH = Paths.get(FilenameUtils.separatorsToSystem(
-            System.getProperty("ballerina.home"))).resolve("bin");
-    private static final Path BALLERINA_COMMAND = DISTRIBUTION_PATH
+    private static final Path DISTRIBUTION_PATH = Paths.get("../", "target", "ballerina-runtime")
+            .toAbsolutePath();
+    private static final Path BALLERINA_COMMAND = DISTRIBUTION_PATH.resolve("bin")
             .resolve((System.getProperty("os.name").toLowerCase(Locale.getDefault()).contains("win") ?
                     "bal.bat" : "bal"));
     private static final String BUILD = "build";
@@ -177,5 +181,13 @@ public class TestUtils {
                 public String defaultWorkerPath;
             }
         }
+    }
+    public static Package loadPackage(Path projectDirPath) {
+        BuildProject project = BuildProject.load(getEnvironmentBuilder(), projectDirPath);
+        return project.currentPackage();
+    }
+    private static ProjectEnvironmentBuilder getEnvironmentBuilder() {
+        Environment environment = EnvironmentBuilder.getBuilder().setBallerinaHome(DISTRIBUTION_PATH).build();
+        return ProjectEnvironmentBuilder.getBuilder(environment);
     }
 }

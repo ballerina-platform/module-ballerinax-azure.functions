@@ -1,0 +1,79 @@
+{
+  "Data": {
+    "httpPayload": {
+      "Url": "http://localhost:7071/http/default/data/queryLikeMapJson?q={name:%20%22test%22,%20value:%20%22json%22}",
+      "Method": "POST",
+      "Query": {
+        "q": "{name: \"test\", value: \"json\"}"
+      },
+      "Headers": {
+        "Accept": [
+          "*/*"
+        ],
+        "Connection": [
+          "keep-alive"
+        ],
+        "Host": [
+          "localhost:7071"
+        ],
+        "User-Agent": [
+          "PostmanRuntime/7.31.3"
+        ],
+        "Accept-Encoding": [
+          "gzip, deflate, br"
+        ],
+        "Content-Type": [
+          "application/json"
+        ],
+        "Content-Length": [
+          "39"
+        ],
+        "h": [
+          "this_is_header"
+        ],
+        "Postman-Token": [
+          "f807fc41-62ec-4269-a200-f53b844a6f29"
+        ]
+      },
+      "Params": {},
+      "Identities": [
+        {
+          "AuthenticationType": null,
+          "IsAuthenticated": false,
+          "Actor": null,
+          "BootstrapContext": null,
+          "Claims": [],
+          "Label": null,
+          "Name": null,
+          "NameClaimType": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name",
+          "RoleClaimType": "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+        }
+      ],
+      "Body": "{\"name\": \"Payload\", \"value\": \"MapJson\"}"
+    }
+  },
+  "Metadata": {
+    "name": "\"Payload\"",
+    "value": "\"MapJson\"",
+    "q": "\"{name: \\\"test\\\", value: \\\"json\\\"}\"",
+    "Query": {
+      "q": "{name: \"test\", value: \"json\"}"
+    },
+    "Headers": {
+      "Accept": "*/*",
+      "Connection": "keep-alive",
+      "Host": "localhost:7071",
+      "User-Agent": "PostmanRuntime/7.31.3",
+      "Accept-Encoding": "gzip, deflate, br",
+      "Content-Type": "application/json",
+      "Content-Length": "39",
+      "h": "this_is_header",
+      "Postman-Token": "f807fc41-62ec-4269-a200-f53b844a6f29"
+    },
+    "sys": {
+      "MethodName": "post-http-default-data-queryLikeMapJson",
+      "UtcNow": "2023-03-28T05:46:48.5728877Z",
+      "RandGuid": "3cbd86b6-77c1-415f-af10-bf876deab855"
+    }
+  }
+}

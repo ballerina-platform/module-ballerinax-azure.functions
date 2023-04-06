@@ -18,8 +18,11 @@
 package org.ballerinax.azurefunctions;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
-import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeFactory;
+import io.ballerina.compiler.syntax.tree.NodeList;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
@@ -28,6 +31,9 @@ import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.plugins.ModifierTask;
 import io.ballerina.projects.plugins.SourceModifierContext;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+import org.ballerinax.azurefunctions.context.DocumentContext;
+
+import java.util.Map;
 
 /**
  * {@code FunctionUpdaterTask} modifies the source by adding required meta-info for the azure function service
@@ -35,8 +41,15 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
  */
 public class FunctionUpdaterTask implements ModifierTask<SourceModifierContext> {
 
+    private final Map<DocumentId, DocumentContext> documentContextMap;
+
+    public FunctionUpdaterTask(Map<DocumentId, DocumentContext> documentContextMap) {
+        this.documentContextMap = documentContextMap;
+    }
+
     @Override
     public void modify(SourceModifierContext context) {
+
         boolean erroneousCompilation = context.compilation().diagnosticResult()
                 .diagnostics().stream()
                 .anyMatch(d -> DiagnosticSeverity.ERROR.equals(d.diagnosticInfo().severity()));
@@ -50,9 +63,12 @@ public class FunctionUpdaterTask implements ModifierTask<SourceModifierContext> 
         for (DocumentId documentId : module.documentIds()) {
             Document document = module.document(documentId);
             ModulePartNode rootNode = document.syntaxTree().rootNode();
-            AzureFunctionModifier azureFunctionVisitor = new AzureFunctionModifier(semanticModel);
-            Node newNode = rootNode.apply(azureFunctionVisitor);
-            SyntaxTree updatedSyntaxTree = document.syntaxTree().modifyWith(newNode);
+            DocumentContext documentContext = documentContextMap.get(documentId);
+            AzureFunctionModifier azureFunctionVisitor = new AzureFunctionModifier(semanticModel, documentContext);
+            rootNode = (ModulePartNode) rootNode.apply(azureFunctionVisitor);
+            NodeList<ImportDeclarationNode> updatedImports = addHttpImport(rootNode.imports(), documentContext);
+            ModulePartNode newModulePart = rootNode.modify(updatedImports, rootNode.members(), rootNode.eofToken());
+            SyntaxTree updatedSyntaxTree = document.syntaxTree().modifyWith(newModulePart);
             context.modifySourceFile(updatedSyntaxTree.textDocument(), documentId);
         }
 
@@ -62,11 +78,46 @@ public class FunctionUpdaterTask implements ModifierTask<SourceModifierContext> 
             for (DocumentId docId : currentModule.testDocumentIds()) {
                 Document document = module.document(docId);
                 ModulePartNode rootNode = document.syntaxTree().rootNode();
-                AzureFunctionModifier azureFunctionVisitor = new AzureFunctionModifier(semanticModel);
-                Node newNode = rootNode.apply(azureFunctionVisitor);
-                SyntaxTree updatedSyntaxTree = document.syntaxTree().modifyWith(newNode);
+                DocumentContext documentContext = documentContextMap.get(docId);
+                AzureFunctionModifier azureFunctionVisitor = new AzureFunctionModifier(semanticModel, documentContext);
+                rootNode = (ModulePartNode) rootNode.apply(azureFunctionVisitor);
+                NodeList<ImportDeclarationNode> updatedImports = addHttpImport(rootNode.imports(), documentContext);
+                ModulePartNode newModulePart = rootNode.modify(updatedImports, rootNode.members(), rootNode.eofToken());
+                SyntaxTree updatedSyntaxTree = document.syntaxTree().modifyWith(newModulePart);
                 context.modifyTestSourceFile(updatedSyntaxTree.textDocument(), docId);
             }
         }
+    }
+    private NodeList<ImportDeclarationNode> addHttpImport(NodeList<ImportDeclarationNode> oldImports,
+                                                          DocumentContext documentContext) {
+
+        if (documentContext == null) {
+            return oldImports;
+        }
+        boolean isHttpImportExists = false;
+        for (ImportDeclarationNode importNode : oldImports) {
+            if (importNode.orgName().isPresent()) {
+                if (importNode.orgName().get().orgName().text().equals(Constants.BALLERINA_ORG)) {
+                    if (importNode.moduleName().size() != 1) {
+                        continue;
+                    }
+                    if (importNode.moduleName().get(0).text().equals(Constants.HTTP)) {
+                        isHttpImportExists = true;
+                        break;
+                    }
+                }
+            }
+        }
+        if (isHttpImportExists) {
+            return oldImports;
+        }
+        ImportDeclarationNode importNode = NodeFactory.createImportDeclarationNode(
+                NodeFactory.createToken(SyntaxKind.IMPORT_KEYWORD, NodeFactory.createEmptyMinutiaeList(),
+                        NodeFactory.createMinutiaeList(NodeFactory.createWhitespaceMinutiae(Constants.SPACE))),
+                NodeFactory.createImportOrgNameNode(NodeFactory.createIdentifierToken(Constants.BALLERINA_ORG),
+                        NodeFactory.createToken(SyntaxKind.SLASH_TOKEN)),
+                NodeFactory.createSeparatedNodeList(NodeFactory.createIdentifierToken(Constants.HTTP)), null,
+                NodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN));
+        return oldImports.add(importNode);
     }
 }

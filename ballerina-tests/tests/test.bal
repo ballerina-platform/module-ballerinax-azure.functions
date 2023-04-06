@@ -907,6 +907,16 @@ function testTimerTrigger() returns error? {
 }
 
 @test:Config {}
+function testQueueTrigger() returns error? {
+    final http:Client clientEndpoint = check new ("http://localhost:3000");
+    string jsonFilePath = "./tests/resources/blob-trigger.json";
+    json readJson = check io:fileReadJson(jsonFilePath);
+    json resp = check clientEndpoint->post("/blobspread", readJson);
+    json expectedResp = {"Outputs": {"outResp":"aGVsbG8gZnJvbSBieXRlCg==","outResp1":"world"}, "Logs": [], "ReturnValue": null};
+    test:assertEquals(resp, expectedResp);
+}
+
+@test:Config {}
 function testQueueInput() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/queue-input.json";
@@ -939,7 +949,7 @@ function testErrorPayloadNotFound() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/error-missing-payload.json";
     json readJson = check io:fileReadJson(jsonFilePath);
-    json resp = check clientEndpoint->post("/get-hello-err-empty-payload", readJson);
+    json resp = check clientEndpoint->post("/post-hello-err-empty-payload", readJson);
     json expectedResp = {
         "Outputs": {
             "outResp": {
@@ -999,11 +1009,11 @@ function testHttpBlobInput() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/http-query-blob-input.json";
     json readJson = check io:fileReadJson(jsonFilePath);
-    json resp = check clientEndpoint->post("/get-hello-blobInput", readJson);
+    json resp = check clientEndpoint->post("/post-hello-blobInput", readJson);
     json expectedResp = {
         "Outputs": {
             "outResp": {
-                "statusCode": 200,
+                "statusCode": 201,
                 "headers": {"Content-Type": "text/plain"},
                 "body": "Blob from hello.txt, content is hello from byte\n"
             }
@@ -1019,11 +1029,11 @@ function testHttpBlobInputOptional() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/http-query-blob-optional-input.json";
     json readJson = check io:fileReadJson(jsonFilePath);
-    json resp = check clientEndpoint->post("/get-hello-blobInput", readJson);
+    json resp = check clientEndpoint->post("/post-hello-blobInput", readJson);
     json expectedResp = {
         "Outputs": {
             "outResp": {
-                "statusCode": 200,
+                "statusCode": 201,
                 "headers": {"Content-Type": "text/plain"},
                 "body": "Blob from hello1.txt not found"
             }

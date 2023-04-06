@@ -19,9 +19,7 @@
 package org.ballerinax.azurefunctions.validators.http;
 
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
-import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.IntersectionTypeSymbol;
-import io.ballerina.compiler.api.symbols.MapTypeSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
@@ -49,23 +47,58 @@ import io.ballerina.tools.diagnostics.DiagnosticFactory;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinax.azurefunctions.AzureDiagnosticCodes;
-import org.ballerinax.azurefunctions.Constants;
 import org.ballerinax.azurefunctions.Util;
+import org.ballerinax.azurefunctions.context.ParamAvailability;
+import org.ballerinax.azurefunctions.context.ParamData;
 import org.wso2.ballerinalang.compiler.diagnostic.properties.BSymbolicProperty;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.ballerinax.azurefunctions.AzureDiagnosticCodes.AF_008;
+import static org.ballerinax.azurefunctions.Constants.ANYDATA;
+import static org.ballerinax.azurefunctions.Constants.ARRAY_OF_MAP_OF_JSON;
 import static org.ballerinax.azurefunctions.Constants.AZURE_FUNCTIONS_MODULE_NAME;
+import static org.ballerinax.azurefunctions.Constants.BALLERINA_ORG;
+import static org.ballerinax.azurefunctions.Constants.BOOLEAN;
+import static org.ballerinax.azurefunctions.Constants.BOOLEAN_ARRAY;
+import static org.ballerinax.azurefunctions.Constants.BYTE_ARRAY;
 import static org.ballerinax.azurefunctions.Constants.COLON;
+import static org.ballerinax.azurefunctions.Constants.DECIMAL;
+import static org.ballerinax.azurefunctions.Constants.DECIMAL_ARRAY;
+import static org.ballerinax.azurefunctions.Constants.FLOAT;
+import static org.ballerinax.azurefunctions.Constants.FLOAT_ARRAY;
+import static org.ballerinax.azurefunctions.Constants.GET;
+import static org.ballerinax.azurefunctions.Constants.HEAD;
 import static org.ballerinax.azurefunctions.Constants.HEADER_ANNOTATION_TYPE;
 import static org.ballerinax.azurefunctions.Constants.HTTP;
+import static org.ballerinax.azurefunctions.Constants.INT;
+import static org.ballerinax.azurefunctions.Constants.INT_ARRAY;
+import static org.ballerinax.azurefunctions.Constants.MAP_OF_ANYDATA;
+import static org.ballerinax.azurefunctions.Constants.MAP_OF_JSON;
+import static org.ballerinax.azurefunctions.Constants.MIME_ENTITY_OBJECT;
+import static org.ballerinax.azurefunctions.Constants.NIL;
+import static org.ballerinax.azurefunctions.Constants.OPTIONS;
+import static org.ballerinax.azurefunctions.Constants.PAYLOAD_ANNOTATION_TYPE;
+import static org.ballerinax.azurefunctions.Constants.QUERY_ANNOTATION_TYPE;
+import static org.ballerinax.azurefunctions.Constants.REMOTE_KEYWORD;
 import static org.ballerinax.azurefunctions.Constants.SERVICE_CONFIG_ANNOTATION;
+import static org.ballerinax.azurefunctions.Constants.STRING;
+import static org.ballerinax.azurefunctions.Constants.STRING_ARRAY;
+import static org.ballerinax.azurefunctions.Constants.STRUCTURED_ARRAY;
+import static org.ballerinax.azurefunctions.Constants.TABLE_OF_ANYDATA_MAP;
 import static org.ballerinax.azurefunctions.Constants.TREAT_NILABLE_AS_OPTIONAL;
+import static org.ballerinax.azurefunctions.Constants.TUPLE_OF_ANYDATA;
+import static org.ballerinax.azurefunctions.Constants.XML;
+import static org.ballerinax.azurefunctions.HttpPayloadParamIdentifier.validateAnnotatedParams;
+import static org.ballerinax.azurefunctions.HttpPayloadParamIdentifier.validateNonAnnotatedParams;
+import static org.ballerinax.azurefunctions.Util.getCtxTypes;
+import static org.ballerinax.azurefunctions.Util.getEffectiveTypeFromReadonlyIntersection;
 import static org.ballerinax.azurefunctions.Util.updateDiagnostic;
 
 /**
@@ -75,10 +108,11 @@ public class HttpServiceValidator extends BaseHttpCodeAnalyzerTask {
 
     @Override
     public void perform(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext) {
+
         if (!isHttpListener(syntaxNodeAnalysisContext)) {
             return;
         }
-        
+
         ServiceDeclarationNode serviceDeclarationNode = (ServiceDeclarationNode) syntaxNodeAnalysisContext.node();
         extractServiceAnnotationAndValidate(syntaxNodeAnalysisContext, serviceDeclarationNode);
         NodeList<Node> members = serviceDeclarationNode.members();
@@ -90,19 +124,22 @@ public class HttpServiceValidator extends BaseHttpCodeAnalyzerTask {
                     // Object methods are allowed.
                     continue;
                 }
-                if (tokens.stream().anyMatch(token -> token.text().equals(Constants.REMOTE_KEYWORD))) {
+                if (tokens.stream().anyMatch(token -> token.text().equals(REMOTE_KEYWORD))) {
                     Diagnostic
                             diagnostic = Util.getDiagnostic(member.location(), AzureDiagnosticCodes.AF_015);
                     syntaxNodeAnalysisContext.reportDiagnostic(diagnostic);
                 }
             } else if (member.kind() == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION) {
-                validateResourceFunction(syntaxNodeAnalysisContext, (FunctionDefinitionNode) member);
+                validateResourceFunction(syntaxNodeAnalysisContext, (FunctionDefinitionNode) member,
+                        getCtxTypes(syntaxNodeAnalysisContext));
             }
         }
     }
 
-    private static void validateResourceFunction(SyntaxNodeAnalysisContext ctx, FunctionDefinitionNode member) {
-        validateInputParameters(ctx, member);
+    private static void validateResourceFunction(SyntaxNodeAnalysisContext ctx, FunctionDefinitionNode member,
+                                                 Map<String, TypeSymbol> typeSymbols) {
+
+        validateInputParameters(ctx, member, typeSymbols);
         //TODO : Other necessary validation for a resource function
     }
 
@@ -140,18 +177,70 @@ public class HttpServiceValidator extends BaseHttpCodeAnalyzerTask {
 
     }
 
-    private static void validateInputParameters(SyntaxNodeAnalysisContext ctx, FunctionDefinitionNode member) {
+    public static List<Integer> mockCodeModifier(SyntaxNodeAnalysisContext ctx, Map<String, TypeSymbol> typeSymbols,
+                                                 Optional<List<ParameterSymbol>> parametersOptional) {
+        List<ParamData> nonAnnotatedParams = new ArrayList<>();
+        List<ParamData> annotatedParams = new ArrayList<>();
+        List<Integer> analyzedParams = new ArrayList<>();
+        ParamAvailability paramAvailability = new ParamAvailability();
+        int index = 0;
+        for (ParameterSymbol param : parametersOptional.get()) {
+            List<AnnotationSymbol> annotations = param.annotations().stream()
+                    .filter(annotationSymbol -> annotationSymbol.typeDescriptor().isPresent())
+                    .collect(Collectors.toList());
+            if (annotations.isEmpty()) {
+                nonAnnotatedParams.add(new ParamData(param, index++));
+            } else {
+                annotatedParams.add(new ParamData(param, index++));
+            }
+        }
+
+        for (ParamData annotatedParam : annotatedParams) {
+            validateAnnotatedParams(annotatedParam.getParameterSymbol(), paramAvailability);
+            if (paramAvailability.isAnnotatedPayloadParam()) {
+                return analyzedParams;
+            }
+        }
+
+        for (ParamData nonAnnotatedParam : nonAnnotatedParams) {
+            ParameterSymbol parameterSymbol = nonAnnotatedParam.getParameterSymbol();
+
+            if (validateNonAnnotatedParams(ctx, parameterSymbol.typeDescriptor(), paramAvailability,
+                    parameterSymbol, typeSymbols)) {
+                analyzedParams.add(parameterSymbol.hashCode());
+            }
+            if (paramAvailability.isErrorOccurred()) {
+                analyzedParams.add(parameterSymbol.hashCode());
+                break;
+            }
+        }
+
+        return analyzedParams;
+    }
+
+    private static void validateInputParameters(SyntaxNodeAnalysisContext ctx, FunctionDefinitionNode member,
+                                                Map<String, TypeSymbol> typeSymbols) {
+
         Optional<Symbol> resourceMethodSymbolOptional = ctx.semanticModel().symbol(member);
         Location paramLocation = member.location();
         if (resourceMethodSymbolOptional.isEmpty()) {
             return;
         }
+        Optional<String> resourceMethodOptional = resourceMethodSymbolOptional.get().getName();
         Optional<List<ParameterSymbol>> parametersOptional =
                 ((ResourceMethodSymbol) resourceMethodSymbolOptional.get()).typeDescriptor().params();
         if (parametersOptional.isEmpty()) {
             return;
         }
-
+        // Mocking code modifier here since LS does not run code modifiers
+        // Related issue: https://github.com/ballerina-platform/ballerina-lang/issues/39792
+        List<Integer> analyzedParams = new ArrayList<>();
+        if (resourceMethodOptional.isPresent()) {
+            String accessor = resourceMethodOptional.get();
+            if (Stream.of(GET, HEAD, OPTIONS).noneMatch(accessor::equals)) {
+                analyzedParams = mockCodeModifier(ctx, typeSymbols, parametersOptional);
+            }
+        }
         for (ParameterSymbol param : parametersOptional.get()) {
             Optional<Location> paramLocationOptional = param.getLocation();
             if (paramLocationOptional.isPresent()) {
@@ -159,275 +248,304 @@ public class HttpServiceValidator extends BaseHttpCodeAnalyzerTask {
             }
             Optional<String> nameOptional = param.getName();
             String paramName = nameOptional.isEmpty() ? "" : nameOptional.get();
-            
+
             //TODO filter only azure and http annotations
             List<AnnotationSymbol> annotations = param.annotations().stream()
                     .filter(annotationSymbol -> annotationSymbol.typeDescriptor().isPresent())
                     .collect(Collectors.toList());
 
             if (!annotations.isEmpty()) {
-                validateAnnotatedInputParam(ctx, paramLocation, param, paramName, annotations);
+                boolean annotated = false;
+                for (AnnotationSymbol annotation : annotations) {
+                    Optional<TypeSymbol> typeSymbolOptional = annotation.typeDescriptor();
+                    if (typeSymbolOptional.isEmpty()) {
+                        reportInvalidParameter(ctx, paramLocation, paramName);
+                        continue;
+                    }
+                    // validate annotation module
+                    Optional<ModuleSymbol> moduleSymbolOptional = typeSymbolOptional.get().getModule();
+                    if (moduleSymbolOptional.isEmpty()) {
+                        reportInvalidParameter(ctx, paramLocation, paramName);
+                        continue;
+                    }
+                    Optional<String> nameSymbolOptional = moduleSymbolOptional.get().getName();
+                    if (nameSymbolOptional.isEmpty()) {
+                        reportInvalidParameter(ctx, paramLocation, paramName);
+                        continue;
+                    }
+                    if (!HTTP.equals(nameSymbolOptional.get()) &&
+                            !AZURE_FUNCTIONS_MODULE_NAME.equals(nameSymbolOptional.get())) {
+                        reportInvalidParameterAnnotation(ctx, paramLocation, paramName);
+                        continue;
+                    }
+                    if (AZURE_FUNCTIONS_MODULE_NAME.equals(nameSymbolOptional.get())) {
+                        continue;
+                    }
+
+                    Optional<String> annotationTypeNameOptional = typeSymbolOptional.get().getName();
+                    if (annotationTypeNameOptional.isEmpty()) {
+                        reportInvalidParameter(ctx, paramLocation, paramName);
+                        continue;
+                    }
+                    String typeName = annotationTypeNameOptional.get();
+                    TypeSymbol typeDescriptor = param.typeDescriptor();
+                    if (typeDescriptor.typeKind() == TypeDescKind.INTERSECTION) {
+                        typeDescriptor =
+                                getEffectiveTypeFromReadonlyIntersection((IntersectionTypeSymbol) typeDescriptor);
+                        if (typeDescriptor == null) {
+                            reportInvalidIntersectionType(ctx, paramLocation, typeName);
+                            continue;
+                        }
+                    }
+                    switch (typeName) {
+                        case HEADER_ANNOTATION_TYPE:
+                            if (annotated) {
+                                reportInvalidMultipleAnnotation(ctx, paramLocation, paramName);
+                                continue;
+                            }
+                            validateHeaderParamType(ctx, param, paramLocation, paramName, typeDescriptor,
+                                    typeSymbols, false);
+                            annotated = true;
+                            break;
+                        case PAYLOAD_ANNOTATION_TYPE:
+                            if (annotated) { // multiple annotations
+                                reportInvalidMultipleAnnotation(ctx, paramLocation, paramName);
+                                continue;
+                            }
+                            validatePayloadParamType(ctx, typeSymbols, paramLocation,
+                                    resourceMethodOptional.orElse(null), param, typeDescriptor);
+                            annotated = true;
+                            break;
+                        case QUERY_ANNOTATION_TYPE: {
+                            if (annotated) {
+                                reportInvalidMultipleAnnotation(ctx, paramLocation, paramName);
+                                continue;
+                            }
+                            annotated = true;
+                            validateQueryParamType(ctx, paramLocation, paramName, typeDescriptor, typeSymbols);
+                            break;
+                        }
+                        default:
+                            reportInvalidParameterAnnotation(ctx, paramLocation, paramName);
+                            break;
+                    }
+                }
             } else {
-                //Query params
                 TypeSymbol typeSymbol = param.typeDescriptor();
-                TypeDescKind kind = typeSymbol.typeKind();
-                if (isAllowedQueryParamType(kind, typeSymbol)) {
-                    continue;
-                }
-                if (kind == TypeDescKind.MAP) {
-                    TypeSymbol constrainedTypeSymbol = ((MapTypeSymbol) typeSymbol).typeParam();
-                    TypeDescKind constrainedType = getReferencedTypeDescKind(constrainedTypeSymbol);
-                    if (constrainedType != TypeDescKind.JSON) {
-                        updateDiagnostic(ctx, paramLocation, AzureDiagnosticCodes.AF_010, paramName);
-                        continue;
-                    }
-                } else if (kind == TypeDescKind.ARRAY) {
-                    // Allowed query param array types
-                    TypeSymbol arrTypeSymbol = ((ArrayTypeSymbol) typeSymbol).memberTypeDescriptor();
-                    TypeDescKind elementKind = getReferencedTypeDescKind(arrTypeSymbol);
-                    if (elementKind == TypeDescKind.MAP) {
-                        TypeSymbol constrainedTypeSymbol = ((MapTypeSymbol) arrTypeSymbol).typeParam();
-                        TypeDescKind constrainedType = constrainedTypeSymbol.typeKind();
-                        if (constrainedType != TypeDescKind.JSON) {
-                            updateDiagnostic(ctx, paramLocation, AzureDiagnosticCodes.AF_010, paramName);
-                        }
-                        continue;
-                    }
-                    if (!isAllowedQueryParamType(elementKind, arrTypeSymbol)) {
-                        updateDiagnostic(ctx, paramLocation, AzureDiagnosticCodes.AF_010, paramName);
-                        continue;
-                    }
-                } else if (kind == TypeDescKind.UNION) {
-                    // Allowed query param union types
-                    List<TypeSymbol> symbolList = ((UnionTypeSymbol) typeSymbol).memberTypeDescriptors();
-                    int size = symbolList.size();
-                    if (size > 2) {
-                        updateDiagnostic(ctx, paramLocation, AzureDiagnosticCodes.AF_011, paramName);
-                        continue;
-                    }
-                    if (symbolList.stream().noneMatch(type -> type.typeKind() == TypeDescKind.NIL)) {
-                        updateDiagnostic(ctx, paramLocation, AzureDiagnosticCodes.AF_011, paramName);
-                        continue;
-                    }
-                    for (TypeSymbol type : symbolList) {
-                        TypeDescKind elementKind = getReferencedTypeDescKind(type);
-                        if (elementKind == TypeDescKind.ARRAY) {
-                            TypeSymbol arrTypeSymbol = ((ArrayTypeSymbol) type).memberTypeDescriptor();
-                            TypeDescKind arrElementKind = getReferencedTypeDescKind(arrTypeSymbol);
-                            if (arrElementKind == TypeDescKind.MAP) {
-                                TypeSymbol constrainedTypeSymbol = ((MapTypeSymbol) arrTypeSymbol).typeParam();
-                                TypeDescKind constrainedType = constrainedTypeSymbol.typeKind();
-                                if (constrainedType == TypeDescKind.JSON) {
-                                    continue;
-                                }
-                            }
-                            if (isAllowedQueryParamType(arrElementKind, arrTypeSymbol)) {
-                                continue;
-                            }
-                        } else if (elementKind == TypeDescKind.MAP) {
-                            TypeSymbol constrainedTypeSymbol = ((MapTypeSymbol) type).typeParam();
-                            TypeDescKind constrainedType = constrainedTypeSymbol.typeKind();
-                            if (constrainedType == TypeDescKind.JSON) {
-                                continue;
-                            }
-                        } else {
-                            if (elementKind == TypeDescKind.NIL || isAllowedQueryParamType(elementKind, type)) {
-                                continue;
-                            }
-                        }
-                        updateDiagnostic(ctx, paramLocation, AzureDiagnosticCodes.AF_010, paramName);
-                    }
-                }  else {
-                    updateDiagnostic(ctx, paramLocation, AzureDiagnosticCodes.AF_010, paramName);
+                if (!analyzedParams.contains(param.hashCode())) {
+                    validateQueryParamType(ctx, paramLocation, paramName, typeSymbol, typeSymbols);
                 }
             }
         }
     }
 
-    private static boolean isAllowedQueryParamType(TypeDescKind kind, TypeSymbol typeSymbol) {
-        if (kind == TypeDescKind.TYPE_REFERENCE) {
-            TypeSymbol typeDescriptor = ((TypeReferenceTypeSymbol) typeSymbol).typeDescriptor();
-            kind =  getReferencedTypeDescKind(typeDescriptor);
+    public static void validateQueryParamType(SyntaxNodeAnalysisContext ctx, Location paramLocation, String paramName,
+                                              TypeSymbol typeSymbol, Map<String, TypeSymbol> typeSymbols) {
+
+        typeSymbol = getEffectiveTypeFromNilableSingletonType(typeSymbol, typeSymbols);
+        if (typeSymbol == null) {
+            reportInvalidUnionQueryType(ctx, paramLocation, paramName);
+            return;
         }
-        return kind == TypeDescKind.STRING || kind == TypeDescKind.INT || kind == TypeDescKind.FLOAT ||
-                kind == TypeDescKind.DECIMAL || kind == TypeDescKind.BOOLEAN;
+        if (isValidBasicQueryParameterType(typeSymbol, typeSymbols)) {
+            return;
+        }
+        TypeDescKind typeDescKind = typeSymbol.typeKind();
+        if (typeDescKind == TypeDescKind.INTERSECTION) {
+            reportInvalidIntersectionType(ctx, paramLocation, paramName);
+            return;
+        }
+        reportInvalidQueryParameterType(ctx, paramLocation, paramName);
     }
 
-    private static TypeDescKind getReferencedTypeDescKind(TypeSymbol typeSymbol) {
-        TypeDescKind kind = typeSymbol.typeKind();
-        if (kind == TypeDescKind.TYPE_REFERENCE) {
-            TypeSymbol typeDescriptor = ((TypeReferenceTypeSymbol) typeSymbol).typeDescriptor();
-            kind = getReferencedTypeDescKind(typeDescriptor);
-        }
-        return kind;
+    private static void reportInvalidQueryParameterType(SyntaxNodeAnalysisContext ctx, Location location,
+                                                        String paramName) {
+
+        updateDiagnostic(ctx, location, AzureDiagnosticCodes.AF_010, paramName);
     }
 
-    private static void validateAnnotatedInputParam(SyntaxNodeAnalysisContext ctx, Location paramLocation,
-                                                    ParameterSymbol param, String paramName,
-                                                    List<AnnotationSymbol> annotations) {
+    private static boolean isValidBasicQueryParameterType(TypeSymbol typeSymbol, Map<String, TypeSymbol> typeSymbols) {
 
-        for (AnnotationSymbol annotation : annotations) {
-            Optional<TypeSymbol> typeSymbolOptional = annotation.typeDescriptor();
-            if (typeSymbolOptional.isEmpty()) {
-                reportInvalidParameter(ctx, paramLocation, paramName);
-                continue;
-            }
-            // validate annotation module
-            Optional<ModuleSymbol> moduleSymbolOptional = typeSymbolOptional.get().getModule();
-            if (moduleSymbolOptional.isEmpty()) {
-                reportInvalidParameter(ctx, paramLocation, paramName);
-                continue;
-            }
-            Optional<String> nameSymbolOptional = moduleSymbolOptional.get().getName();
-            if (nameSymbolOptional.isEmpty()) {
-                reportInvalidParameter(ctx, paramLocation, paramName);
-                continue;
-            }
-            if (!HTTP.equals(nameSymbolOptional.get()) &&
-                    !AZURE_FUNCTIONS_MODULE_NAME.equals(nameSymbolOptional.get())) {
-                reportInvalidParameterAnnotation(ctx, paramLocation, paramName);
-                continue;
-            }
-
-            Optional<String> annotationTypeNameOptional = typeSymbolOptional.get().getName();
-            if (annotationTypeNameOptional.isEmpty()) {
-                reportInvalidParameter(ctx, paramLocation, paramName);
-                continue;
-            }
-            String typeName = annotationTypeNameOptional.get();
-            TypeSymbol typeDescriptor = param.typeDescriptor();
-            if (typeDescriptor.typeKind() == TypeDescKind.INTERSECTION) {
-                typeDescriptor =
-                        getEffectiveTypeFromReadonlyIntersection((IntersectionTypeSymbol) typeDescriptor);
-                if (typeDescriptor == null) {
-                    reportInvalidIntersectionType(ctx, paramLocation, typeName);
-                    continue;
-                }
-            }
-            if (HEADER_ANNOTATION_TYPE.equals(typeName)) {
-                if (annotations.size() == 2) {
-                    reportInvalidMultipleAnnotation(ctx, paramLocation, paramName);
-                    continue;
-                }
-                validateHeaderParamType(ctx, paramLocation, param, paramName, typeDescriptor);
-                break;
-            }
-        }
+        return isValidBasicParamType(typeSymbol, typeSymbols) || isMapOfJsonType(typeSymbol, typeSymbols) ||
+                isArrayOfMapOfJsonType(typeSymbol, typeSymbols);
     }
 
-    private static void validateHeaderParamType(SyntaxNodeAnalysisContext ctx, Location paramLocation, Symbol param,
-                                                String paramName, TypeSymbol paramTypeDescriptor) {
-        switch (paramTypeDescriptor.typeKind()) {
-            case STRING:
-            case INT:
-            case DECIMAL:
-            case FLOAT:
-            case BOOLEAN:
-                break;
-            case ARRAY:
-                TypeSymbol arrTypeSymbol = ((ArrayTypeSymbol) paramTypeDescriptor).memberTypeDescriptor();
-                TypeDescKind arrElementKind = arrTypeSymbol.typeKind();
-                checkAllowedHeaderParamTypes(ctx, paramLocation, param, paramName, arrElementKind);
-                break;
-            case UNION:
-                List<TypeSymbol> symbolList = ((UnionTypeSymbol) paramTypeDescriptor).memberTypeDescriptors();
-                int size = symbolList.size();
-                if (size > 2) {
-                    reportInvalidUnionHeaderType(ctx, paramLocation, paramName);
-                    return;
-                }
-                if (symbolList.stream().noneMatch(type -> type.typeKind() == TypeDescKind.NIL)) {
-                    reportInvalidUnionHeaderType(ctx, paramLocation, paramName);
-                    return;
-                }
-                for (TypeSymbol type : symbolList) {
-                    TypeDescKind elementKind = type.typeKind();
-                    if (elementKind == TypeDescKind.ARRAY) {
-                        elementKind = ((ArrayTypeSymbol) type).memberTypeDescriptor().typeKind();
-                        checkAllowedHeaderParamUnionType(ctx, paramLocation, param, paramName, elementKind);
-                        continue;
-                    }
-                    if (elementKind == TypeDescKind.TYPE_REFERENCE) {
-                        validateHeaderParamType(ctx, paramLocation, param, paramName, type);
-                        return;
-                    }
-                    checkAllowedHeaderParamTypes(ctx, paramLocation, param, paramName, elementKind);
-                }
-                break;
-            case TYPE_REFERENCE:
-                TypeSymbol typeDescriptor = ((TypeReferenceTypeSymbol) paramTypeDescriptor).typeDescriptor();
-                TypeDescKind typeDescKind = typeDescriptor.typeKind();
-                if (typeDescKind == TypeDescKind.RECORD) {
-                    validateHeaderRecordFields(ctx, paramLocation, typeDescriptor);
-                } else {
-                    reportInvalidHeaderParameterType(ctx, paramLocation, paramName, param);
-                }
-                break;
-            case RECORD:
-                validateHeaderRecordFields(ctx, paramLocation, paramTypeDescriptor);
-                break;
-            default:
-                reportInvalidHeaderParameterType(ctx, paramLocation, paramName, param);
-                break;
+    private static boolean isMapOfJsonType(TypeSymbol typeSymbol, Map<String, TypeSymbol> typeSymbols) {
+
+        return subtypeOf(typeSymbols, typeSymbol, MAP_OF_JSON);
+    }
+
+    private static boolean isArrayOfMapOfJsonType(TypeSymbol typeSymbol, Map<String, TypeSymbol> typeSymbols) {
+
+        return subtypeOf(typeSymbols, typeSymbol, ARRAY_OF_MAP_OF_JSON);
+    }
+
+    private static void reportInvalidUnionQueryType(SyntaxNodeAnalysisContext ctx, Location location,
+                                                    String paramName) {
+
+        updateDiagnostic(ctx, location, AzureDiagnosticCodes.AF_011, paramName);
+    }
+
+    private static void validatePayloadParamType(SyntaxNodeAnalysisContext ctx, Map<String, TypeSymbol> typeSymbols,
+                                                 Location paramLocation, String resourceMethodOptional,
+                                                 ParameterSymbol param, TypeSymbol typeDescriptor) {
+
+        if (resourceMethodOptional != null) {
+            validatePayloadAnnotationUsage(ctx, paramLocation, resourceMethodOptional);
+        }
+        if (subtypeOf(typeSymbols, typeDescriptor, ANYDATA) || isMimeEntity(typeDescriptor)) {
+            return;
+        }
+        reportInvalidPayloadParameterType(ctx, paramLocation, param.typeDescriptor().signature());
+    }
+
+    private static boolean isMimeEntity(TypeSymbol typeDescriptor) {
+
+        Optional<String> name = typeDescriptor.getName();
+        if (name.isEmpty() || !name.get().equals(MIME_ENTITY_OBJECT)) {
+            return false;
+        }
+        Optional<ModuleSymbol> module = typeDescriptor.getModule();
+        if (module.isEmpty()) {
+            return false;
+        }
+        String org = module.get().id().orgName();
+        return org.equals(BALLERINA_ORG);
+
+    }
+    private static void validatePayloadAnnotationUsage(SyntaxNodeAnalysisContext ctx, Location location,
+                                                       String methodName) {
+
+        if (methodName.equals(GET) || methodName.equals(HEAD) || methodName.equals(OPTIONS)) {
+            reportInvalidUsageOfPayloadAnnotation(ctx, location, methodName, AzureDiagnosticCodes.AF_019);
         }
     }
 
-    private static void checkAllowedHeaderParamTypes(SyntaxNodeAnalysisContext ctx, Location paramLocation,
-                                                     Symbol param, String paramName, TypeDescKind elementKind) {
-        if (!isAllowedHeaderParamPureType(elementKind)) {
-            reportInvalidHeaderParameterType(ctx, paramLocation, paramName, param);
-        }
+    public static void reportInvalidPayloadParameterType(SyntaxNodeAnalysisContext ctx, Location location,
+                                                          String typeName) {
+
+        updateDiagnostic(ctx, location, AzureDiagnosticCodes.AF_020, typeName);
     }
 
-    private static void checkAllowedHeaderParamUnionType(SyntaxNodeAnalysisContext ctx, Location paramLocation,
-                                                         Symbol param, String paramName, TypeDescKind elementKind) {
-        if (!isAllowedHeaderParamPureType(elementKind)) {
+    private static void reportInvalidUsageOfPayloadAnnotation(SyntaxNodeAnalysisContext ctx, Location location,
+                                                              String name, AzureDiagnosticCodes code) {
+
+        updateDiagnostic(ctx, location, code, name);
+    }
+
+    public static boolean subtypeOf(Map<String, TypeSymbol> typeSymbols, TypeSymbol typeSymbol,
+                                    String targetTypeName) {
+
+        TypeSymbol targetTypeSymbol = typeSymbols.get(targetTypeName);
+        if (targetTypeSymbol != null) {
+            return typeSymbol.subtypeOf(targetTypeSymbol);
+        }
+        return false;
+    }
+
+    public static void validateHeaderParamType(SyntaxNodeAnalysisContext ctx, ParameterSymbol param,
+                                               Location paramLocation, String paramName, TypeSymbol typeSymbol,
+                                               Map<String, TypeSymbol> typeSymbols, boolean isRecordField) {
+
+        typeSymbol = getEffectiveTypeFromNilableSingletonType(typeSymbol, typeSymbols);
+        if (typeSymbol == null) {
             reportInvalidUnionHeaderType(ctx, paramLocation, paramName);
+            return;
         }
+        if (isValidBasicParamType(typeSymbol, typeSymbols)) {
+            return;
+        }
+        typeSymbol = getEffectiveTypeFromTypeReference(typeSymbol);
+        TypeDescKind typeDescKind = typeSymbol.typeKind();
+        if (!isRecordField && typeDescKind == TypeDescKind.RECORD) {
+            validateRecordFieldsOfHeaderParam(ctx, param, paramLocation, paramName, typeSymbol, typeSymbols);
+            return;
+        }
+        reportInvalidHeaderParameterType(ctx, paramLocation, paramName, param);
     }
 
-    private static boolean isAllowedHeaderParamPureType(TypeDescKind elementKind) {
-        return elementKind == TypeDescKind.NIL || elementKind == TypeDescKind.STRING ||
-                elementKind == TypeDescKind.INT || elementKind == TypeDescKind.FLOAT ||
-                elementKind == TypeDescKind.DECIMAL || elementKind == TypeDescKind.BOOLEAN;
-    }
+    private static void validateRecordFieldsOfHeaderParam(SyntaxNodeAnalysisContext ctx, ParameterSymbol param,
+                                                          Location paramLocation, String paramName,
+                                                          TypeSymbol typeSymbol, Map<String, TypeSymbol> typeSymbols) {
 
-    private static void validateHeaderRecordFields(SyntaxNodeAnalysisContext ctx, Location paramLocation,
-                                                   TypeSymbol typeDescriptor) {
-        RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) typeDescriptor;
-        Map<String, RecordFieldSymbol> recordFieldSymbolMap = recordTypeSymbol.fieldDescriptors();
-        for (Map.Entry<String, RecordFieldSymbol> entry : recordFieldSymbolMap.entrySet()) {
-            RecordFieldSymbol value = entry.getValue();
-            typeDescriptor = value.typeDescriptor();
-            String typeName = typeDescriptor.signature();
-            TypeDescKind typeDescKind = typeDescriptor.typeKind();
-            if (typeDescKind == TypeDescKind.INTERSECTION) {
-                typeDescriptor = getEffectiveTypeFromReadonlyIntersection((IntersectionTypeSymbol) typeDescriptor);
-                if (typeDescriptor == null) {
-                    reportInvalidIntersectionType(ctx, paramLocation, typeName);
-                    continue;
-                }
-            }
-            validateHeaderParamType(ctx, paramLocation, value, entry.getKey(), typeDescriptor);
-        }
-        Optional<TypeSymbol> restTypeDescriptor = recordTypeSymbol.restTypeDescriptor();
-        if (restTypeDescriptor.isPresent()) {
+        Optional<TypeSymbol> restTypeSymbol = ((RecordTypeSymbol) typeSymbol).restTypeDescriptor();
+        if (restTypeSymbol.isPresent()) {
             reportInvalidHeaderRecordRestFieldType(ctx, paramLocation);
         }
+        Collection<RecordFieldSymbol> recordFields = ((RecordTypeSymbol) typeSymbol).fieldDescriptors().values();
+        for (RecordFieldSymbol recordField : recordFields) {
+            validateHeaderParamType(ctx, param, paramLocation, recordField.getName().orElse(paramName),
+                    recordField.typeDescriptor(), typeSymbols, true);
+        }
     }
 
-    private static TypeSymbol getEffectiveTypeFromReadonlyIntersection(IntersectionTypeSymbol intersectionTypeSymbol) {
-        List<TypeSymbol> effectiveTypes = new ArrayList<>();
-        for (TypeSymbol typeSymbol : intersectionTypeSymbol.memberTypeDescriptors()) {
-            if (typeSymbol.typeKind() == TypeDescKind.READONLY) {
-                continue;
+    private static TypeSymbol getEffectiveTypeFromTypeReference(TypeSymbol typeSymbol) {
+
+        if (typeSymbol.typeKind() == TypeDescKind.TYPE_REFERENCE) {
+            return getEffectiveTypeFromTypeReference(((TypeReferenceTypeSymbol) typeSymbol).typeDescriptor());
+        }
+        return typeSymbol;
+    }
+
+    private static TypeSymbol getEffectiveTypeFromNilableSingletonType(TypeSymbol typeSymbol,
+                                                                       Map<String, TypeSymbol> typeSymbols) {
+
+        if (typeSymbol.typeKind() == TypeDescKind.INTERSECTION) {
+            typeSymbol = getEffectiveTypeFromReadonlyIntersection((IntersectionTypeSymbol) typeSymbol);
+        }
+        TypeDescKind typeDescKind = typeSymbol.typeKind();
+        if (typeDescKind == TypeDescKind.UNION) {
+            List<TypeSymbol> symbolList = ((UnionTypeSymbol) typeSymbol).userSpecifiedMemberTypes();
+            int size = symbolList.size();
+            if (size > 2) {
+                return null;
             }
-            effectiveTypes.add(typeSymbol);
+            if (isNilableType(typeSymbols, symbolList.get(0))) {
+                typeSymbol = symbolList.get(1);
+            } else if (isNilableType(typeSymbols, symbolList.get(1))) {
+                typeSymbol = symbolList.get(0);
+            } else {
+                return null;
+            }
         }
-        if (effectiveTypes.size() == 1) {
-            return effectiveTypes.get(0);
+        return typeSymbol;
+    }
+
+    private static boolean isValidBasicParamType(TypeSymbol typeSymbol, Map<String, TypeSymbol> typeSymbols) {
+
+        return subtypeOf(typeSymbols, typeSymbol, STRING) ||
+                subtypeOf(typeSymbols, typeSymbol, INT) ||
+                subtypeOf(typeSymbols, typeSymbol, FLOAT) ||
+                subtypeOf(typeSymbols, typeSymbol, DECIMAL) ||
+                subtypeOf(typeSymbols, typeSymbol, BOOLEAN) ||
+                subtypeOf(typeSymbols, typeSymbol, STRING_ARRAY) ||
+                subtypeOf(typeSymbols, typeSymbol, INT_ARRAY) ||
+                subtypeOf(typeSymbols, typeSymbol, FLOAT_ARRAY) ||
+                subtypeOf(typeSymbols, typeSymbol, DECIMAL_ARRAY) ||
+                subtypeOf(typeSymbols, typeSymbol, BOOLEAN_ARRAY);
+    }
+
+    public static boolean isNilableType(Map<String, TypeSymbol> typeSymbols, TypeSymbol typeSymbol) {
+
+        return subtypeOf(typeSymbols, typeSymbol, NIL);
+    }
+
+    public static boolean isStructuredType(Map<String, TypeSymbol> typeSymbols, TypeSymbol typeSymbol) {
+        // Special cased byte[]
+        if (subtypeOf(typeSymbols, typeSymbol, BYTE_ARRAY)) {
+            return true;
         }
-        return null;
+
+        // If the type is a basic type or basic array type, then it is not considered as a structured type
+        if (isValidBasicParamType(typeSymbol, typeSymbols)) {
+            return false;
+        }
+
+        return subtypeOf(typeSymbols, typeSymbol, MAP_OF_ANYDATA) ||
+                subtypeOf(typeSymbols, typeSymbol, TABLE_OF_ANYDATA_MAP) ||
+                subtypeOf(typeSymbols, typeSymbol, TUPLE_OF_ANYDATA) ||
+                subtypeOf(typeSymbols, typeSymbol, STRUCTURED_ARRAY) ||
+                subtypeOf(typeSymbols, typeSymbol, XML);
     }
 
     private static void reportInvalidParameterAnnotation(SyntaxNodeAnalysisContext ctx, Location location,
@@ -437,35 +555,42 @@ public class HttpServiceValidator extends BaseHttpCodeAnalyzerTask {
 
     private static void reportInvalidParameter(SyntaxNodeAnalysisContext ctx, Location location,
                                                String paramName) {
+
         updateDiagnostic(ctx, location, AzureDiagnosticCodes.AF_002, paramName);
     }
 
     private static void reportInvalidHeaderParameterType(SyntaxNodeAnalysisContext ctx, Location location,
                                                          String paramName, Symbol parameterSymbol) {
+
         updateDiagnostic(ctx, location, AzureDiagnosticCodes.AF_003, List.of(new BSymbolicProperty(parameterSymbol))
                 , paramName);
     }
 
     private static void reportInvalidUnionHeaderType(SyntaxNodeAnalysisContext ctx, Location location,
                                                      String paramName) {
+
         updateDiagnostic(ctx, location, AzureDiagnosticCodes.AF_004, paramName);
     }
 
     private static void reportInvalidIntersectionType(SyntaxNodeAnalysisContext ctx, Location location,
                                                       String typeName) {
+
         updateDiagnostic(ctx, location, AzureDiagnosticCodes.AF_005, typeName);
     }
 
     private static void reportInvalidHeaderRecordRestFieldType(SyntaxNodeAnalysisContext ctx, Location location) {
+
         updateDiagnostic(ctx, location, AzureDiagnosticCodes.AF_006);
     }
 
     private static void reportInvalidMultipleAnnotation(SyntaxNodeAnalysisContext ctx, Location location,
                                                         String paramName) {
+
         updateDiagnostic(ctx, location, AzureDiagnosticCodes.AF_007, paramName);
     }
 
     private static void warnInvalidServiceConfig(SyntaxNodeAnalysisContext ctx, Node node) {
+
         DiagnosticInfo diagInfo = new DiagnosticInfo(AF_008.getCode(), AF_008.getMessage(), AF_008.getSeverity());
         ctx.reportDiagnostic(DiagnosticFactory.createDiagnostic(diagInfo, node.location()));
     }

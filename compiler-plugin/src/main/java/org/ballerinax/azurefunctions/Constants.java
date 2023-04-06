@@ -74,9 +74,9 @@ public class Constants {
     public static final String HOST_JSON_NAME = "host.json";
     public static final String FUNCTION_JSON_NAME = "function.json";
 
-    public static final String BALLERINA_DOCKER_ORG = "ballerina";
+    public static final String BALLERINA_ORG = "ballerina";
     public static final String NATIVE_BUILDER_IMAGE_NAME = "azure_native_builder";
-    public static final String NATIVE_BUILDER_IMAGE = BALLERINA_DOCKER_ORG + "/" + NATIVE_BUILDER_IMAGE_NAME;
+    public static final String NATIVE_BUILDER_IMAGE = BALLERINA_ORG + "/" + NATIVE_BUILDER_IMAGE_NAME;
 
     public static final String CONTAINER_OUTPUT_PATH = ":/app/build/output";
     
@@ -87,5 +87,47 @@ public class Constants {
     
     public static final String AZURE_FUNCTIONS_BUILD_OPTION = AZURE_FUNCTIONS_MODULE_NAME;
     public static final String AZURE_FUNCTIONS_LOCAL_BUILD_OPTION = AZURE_FUNCTIONS_MODULE_NAME + "_local";
+    public static final String SERVICE_KEYWORD = "service";
+
+    public static final String AZF_SERVICE = AZURE_FUNCTIONS_MODULE_NAME + ":ResourceService";
+    public static final String DEFAULT = "default";
+    public static final String GET = "get";
+    public static final String HEAD = "head";
+    public static final String OPTIONS = "options";
+    public static final String PAYLOAD_ANNOTATION_TYPE = "HttpPayload";
+    public static final String PAYLOAD_ANNOTATION = "Payload";
+    public static final String SPACE = " ";
+
+    public static final String ANYDATA = "anydata";
+    public static final String JSON = "json";
+    public static final String ERROR = "error";
+    public static final String STRING = "string";
+    public static final String STRING_ARRAY = "string[]";
+    public static final String INT = "int";
+    public static final String INT_ARRAY = "int[]";
+    public static final String FLOAT = "float";
+    public static final String FLOAT_ARRAY = "float[]";
+    public static final String DECIMAL = "decimal";
+    public static final String DECIMAL_ARRAY = "decimal[]";
+    public static final String BOOLEAN = "boolean";
+    public static final String BOOLEAN_ARRAY = "boolean[]";
+    public static final String MAP_OF_JSON = "map<json>";
+    public static final String ARRAY_OF_MAP_OF_JSON = "map<json>[]";
+    public static final String NIL = "nil";
+
+    public static final String BYTE_ARRAY = "byte[]";
+    public static final String XML = "xml";
+    public static final String MAP_OF_ANYDATA = "map<anydata>";
+    public static final String TABLE_OF_ANYDATA_MAP = "table<anydata>";
+    public static final String TUPLE_OF_ANYDATA = "[anydata...]";
+    public static final String STRUCTURED_ARRAY = "(map<anydata>|table<map<anydata>>|[anydata...])[]";
+    public static final String OBJECT = "object";
+    public static final String EMPTY = "";
+
+    public static final String RESOURCE_RETURN_TYPE = "ResourceReturnType";
+    public static final String HEADER_OBJ_NAME = "Headers";
+
+    public static final String QUERY_ANNOTATION_TYPE = "HttpQuery";
+    public static final String MIME_ENTITY_OBJECT = "Entity";
 
 }

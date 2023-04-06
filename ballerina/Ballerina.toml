@@ -1,17 +1,17 @@
 [package]
 org = "ballerinax"
 name = "azure_functions"
-version = "3.2.0"
+version = "3.2.1"
 distribution = "2201.4.0"
 repository = "https://github.com/ballerina-platform/module-ballerinax-azure.functions"
 license = ["Apache-2.0"]
 keywords = ["azure", "functions", "serverless", "cloud"]
 
 [[platform.java11.dependency]]
-path = "../native/build/libs/azure_functions-native-3.2.0.jar"
+path = "../native/build/libs/azure_functions-native-3.2.1-SNAPSHOT.jar"
 
 [[platform.java11.dependency]]
 groupId = "io.ballerina.stdlib"
 artifactId = "mime-native"
-version = "2.6.0"
-path = "./lib/mime-native-2.6.0.jar"
+version = "2.6.0-20230206-172100-01b68dc"
+path = "./lib/mime-native-2.6.0-20230206-172100-01b68dc.jar"
