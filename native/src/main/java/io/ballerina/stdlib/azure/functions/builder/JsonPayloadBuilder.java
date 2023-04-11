@@ -19,17 +19,16 @@
 package io.ballerina.stdlib.azure.functions.builder;
 
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
+import io.ballerina.runtime.api.utils.ValueUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BRefValue;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.stdlib.azure.functions.converter.JsonToRecordConverter;
 import io.ballerina.stdlib.azure.functions.converter.StringToByteArrayConverter;
 import org.ballerinalang.langlib.value.FromJsonString;
-import org.ballerinalang.langlib.value.FromJsonWithType;
 
 import java.util.List;
 
@@ -77,10 +76,7 @@ public class JsonPayloadBuilder extends AbstractPayloadBuilder {
             }
         }
 
-        var result = FromJsonWithType.fromJsonWithType(dataSource, ValueCreator.createTypedescValue(payloadType));
-        if (result instanceof BError) {
-            throw (BError) result;
-        }
+        var result = ValueUtils.convert(dataSource, payloadType);
         if (readonly && result instanceof BRefValue) {
             ((BRefValue) result).freezeDirect();
         }

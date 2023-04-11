@@ -19,9 +19,8 @@
 package io.ballerina.stdlib.azure.functions.converter;
 
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.utils.ValueUtils;
 import io.ballerina.runtime.api.values.BRefValue;
-import org.ballerinalang.langlib.value.CloneWithType;
 
 /**
  * The converter binds the JSON payload to a record.
@@ -31,37 +30,28 @@ import org.ballerinalang.langlib.value.CloneWithType;
 public class JsonToRecordConverter {
 
     public static Object convert(Type type, Object entity, boolean readonly) {
-        Object recordEntity = getRecordEntity(entity, type);
+        Object recordEntity = getRecord(type, entity);
         if (readonly && recordEntity instanceof BRefValue) {
             ((BRefValue) recordEntity).freezeDirect();
         }
         return recordEntity;
     }
 
-    private static Object getRecordEntity(Object entity, Type entityBodyType) {
-        Object result = getRecord(entityBodyType, entity);
-        if (result instanceof BError) {
-            throw (BError) result;
-        }
-        return result;
-    }
-
     /**
      * Convert a json to the relevant record type.
      *
      * @param entityBodyType Represents entity body type
-     * @param bjson          Represents the json value that needs to be converted
+     * @param bJson          Represents the json value that needs to be converted
      * @return the relevant ballerina record or object
      */
-    private static Object getRecord(Type entityBodyType, Object bjson) {
+    private static Object getRecord(Type entityBodyType, Object bJson) {
         try {
-            return CloneWithType.convert(entityBodyType, bjson);
+            return ValueUtils.convert(bJson, entityBodyType);
         } catch (NullPointerException ex) {
             throw new RuntimeException("cannot convert payload to record type: " +
-                                                          entityBodyType.getName());
+                    entityBodyType.getName());
         }
     }
-    private JsonToRecordConverter() {
 
-    }
+    private JsonToRecordConverter() {}
 }
