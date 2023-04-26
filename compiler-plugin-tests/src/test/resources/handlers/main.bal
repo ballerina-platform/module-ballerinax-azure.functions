@@ -98,6 +98,10 @@ service /hello on ep {
     resource function get tuples(string name) returns [@af:HttpOutput string,@af:QueueOutput{queueName: "queue3"} string] {
         return ["Hello, " + name + "!","To Queue"];
     }
+
+    resource function get tuples/err(string name) returns [@af:HttpOutput string,@af:QueueOutput{queueName: "queue3"} string]|error {
+        return ["Hello, " + name + "!","To Queue"];
+    }
     
     resource function post queue(@http:Payload Person person) returns Return {
         http:Created httpRes = {

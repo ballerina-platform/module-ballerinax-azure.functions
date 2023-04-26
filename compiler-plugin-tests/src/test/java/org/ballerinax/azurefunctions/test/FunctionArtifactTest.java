@@ -53,6 +53,7 @@ public class FunctionArtifactTest {
 
     @BeforeClass
     public void compileSample() {
+
         BuildProject project = BuildProject.load(RESOURCE_DIRECTORY);
         CodeModifierResult codeModifierResult = project.currentPackage().runCodeModifierPlugins();
         Package updatedPackage = codeModifierResult.updatedPackage().orElseThrow();
@@ -75,11 +76,12 @@ public class FunctionArtifactTest {
 
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
         Assert.assertFalse(diagnosticResult.hasErrors());
-        Assert.assertEquals(generatedFunctions.size(), 33);
+        Assert.assertEquals(generatedFunctions.size(), 34);
     }
 
     @Test
     public void testOptionalHttp() {
+
         JsonObject httpHello = generatedFunctions.get("post-hello-optional");
         String str =
                 "{\"bindings\":[{\"type\":\"httpTrigger\",\"authLevel\":\"anonymous\",\"methods\":[\"post\"]," +
@@ -91,6 +93,7 @@ public class FunctionArtifactTest {
 
     @Test
     public void testRestParameterPathHttp() {
+
         JsonObject httpHello = generatedFunctions.get("post-hello-restParamTest-bar");
         String str =
                 "{\"bindings\":[{\"type\":\"httpTrigger\",\"authLevel\":\"anonymous\",\"methods\":[\"post\"]," +
@@ -102,6 +105,7 @@ public class FunctionArtifactTest {
 
     @Test
     public void testHttpTriggerInlineListener() {
+
         JsonObject httpHello = generatedFunctions.get("post-helo-hello-query");
         String str =
                 "{\"bindings\":[{\"type\":\"httpTrigger\",\"authLevel\":\"anonymous\",\"methods\":[\"post\"]," +
@@ -113,6 +117,7 @@ public class FunctionArtifactTest {
 
     @Test
     public void testHttpHello() {
+
         JsonObject httpHello = generatedFunctions.get("post-hello");
         String str =
                 "{\"bindings\":[{\"type\":\"httpTrigger\",\"authLevel\":\"anonymous\",\"methods\":[\"post\"]," +
@@ -124,6 +129,7 @@ public class FunctionArtifactTest {
 
     @Test
     public void testHttpDefault() {
+
         JsonObject httpHello = generatedFunctions.get("default-hello-all");
         String str = "{\"bindings\":[{\"type\":\"httpTrigger\",\"authLevel\":\"anonymous\",\"methods\":[\"DELETE\"," +
                 "\"GET\",\"HEAD\",\"OPTIONS\",\"POST\",\"PUT\"],\"direction\":\"in\",\"name\":\"httpPayload\"," +
@@ -134,6 +140,7 @@ public class FunctionArtifactTest {
 
     @Test
     public void testHttpHelloFoo() {
+
         JsonObject actual = generatedFunctions.get("post-hello-foo");
         String str =
                 "{\"bindings\":[{\"type\":\"httpTrigger\",\"authLevel\":\"anonymous\",\"methods\":[\"post\"]," +
@@ -145,6 +152,7 @@ public class FunctionArtifactTest {
 
     @Test
     public void testHttpHelloFooParam() {
+
         JsonObject actual = generatedFunctions.get("post-hello-foo-bar-1");
         String str =
                 "{\"bindings\":[{\"type\":\"httpTrigger\",\"authLevel\":\"anonymous\",\"methods\":[\"post\"]," +
@@ -156,6 +164,7 @@ public class FunctionArtifactTest {
 
     @Test
     public void testHttpHelloFooConflictPathParam() {
+
         JsonObject actual = generatedFunctions.get("post-hello-foo-bar-2");
         String str =
                 "{\"bindings\":[{\"type\":\"httpTrigger\",\"authLevel\":\"anonymous\",\"methods\":[\"post\"]," +
@@ -167,6 +176,7 @@ public class FunctionArtifactTest {
 
     @Test
     public void testQueueTrigger() {
+
         JsonObject actual = generatedFunctions.get("queue");
         String str =
                 "{\"bindings\":[{\"type\":\"queueTrigger\",\"connection\":\"AzureWebJobsStorage\"," +
@@ -179,6 +189,7 @@ public class FunctionArtifactTest {
 
     @Test
     public void testQueueTriggerInlineListener() {
+
         JsonObject actual = generatedFunctions.get("queue1");
         String str =
                 "{\"bindings\":[{\"type\":\"queueTrigger\",\"connection\":\"AzureWebJobsStorage\"," +
@@ -191,6 +202,7 @@ public class FunctionArtifactTest {
 
     @Test
     public void testCosmosTrigger() {
+
         JsonObject actual = generatedFunctions.get("cosmos");
         String str =
                 "{\"bindings\":[{\"type\":\"cosmosDBTrigger\",\"connectionStringSetting\":\"CosmosDBConnection\"," +
@@ -204,6 +216,7 @@ public class FunctionArtifactTest {
 
     @Test
     public void testCosmosTriggerInlineListener() {
+
         JsonObject actual = generatedFunctions.get("cosmos1");
         String str =
                 "{\"bindings\":[{\"type\":\"cosmosDBTrigger\",\"connectionStringSetting\":\"CosmosDBConnection\"," +
@@ -217,6 +230,7 @@ public class FunctionArtifactTest {
 
     @Test
     public void testTimerTrigger() {
+
         JsonObject actual = generatedFunctions.get("timer");
         String str = "{\"bindings\":[{\"type\":\"timerTrigger\",\"schedule\":\"*/10 * * * * *\"," +
                 "\"runOnStartup\":true,\"direction\":\"in\",\"name\":\"inMsg\"},{\"type\":\"queue\",\"connection\":" +
@@ -227,6 +241,7 @@ public class FunctionArtifactTest {
 
     @Test
     public void testTimerTriggerInlineListener() {
+
         JsonObject actual = generatedFunctions.get("timer1");
         String str = "{\"bindings\":[{\"type\":\"timerTrigger\",\"schedule\":\"*/10 * * * * *\"," +
                 "\"runOnStartup\":true,\"direction\":\"in\",\"name\":\"inMsg\"},{\"type\":\"queue\",\"connection\":" +
@@ -237,6 +252,7 @@ public class FunctionArtifactTest {
 
     @Test
     public void testBlobTrigger() {
+
         JsonObject actual = generatedFunctions.get("blob");
         String str = "{\"bindings\":[{\"type\":\"blobTrigger\",\"name\":\"blobIn\",\"direction\":\"in\"," +
                 "\"path\":\"bpath1/{name}\",\"connection\":\"AzureWebJobsStorage\"},{\"type\":\"blob\"," +
@@ -248,6 +264,7 @@ public class FunctionArtifactTest {
 
     @Test
     public void testBlobTriggerInlineListener() {
+
         JsonObject actual = generatedFunctions.get("blob1");
         String str = "{\"bindings\":[{\"type\":\"blobTrigger\",\"name\":\"blobIn\",\"direction\":\"in\"," +
                 "\"path\":\"bpath1/{name}\",\"connection\":\"AzureWebJobsStorage\"},{\"type\":\"blob\"," +
@@ -259,6 +276,7 @@ public class FunctionArtifactTest {
 
     @Test
     public void testEscapeSequence() {
+
         JsonObject httpHello = generatedFunctions.get("post-hello--hello-query");
         String str =
                 "{\"bindings\":[{\"type\":\"httpTrigger\",\"authLevel\":\"anonymous\",\"methods\":[\"post\"]," +
@@ -270,6 +288,7 @@ public class FunctionArtifactTest {
 
     @Test
     public void testHttpMultipleOutputBindings() {
+
         JsonObject actual = generatedFunctions.get("get-hello-tuples");
         String str = "{\"bindings\":[{\"type\":\"httpTrigger\",\"authLevel\":\"anonymous\",\"methods\":[\"get\"]," +
                 "\"direction\":\"in\",\"name\":\"httpPayload\",\"route\":\"hello/tuples\"},{\"type\":\"http" +
@@ -281,7 +300,20 @@ public class FunctionArtifactTest {
     }
 
     @Test
+    public void testHttpMultipleOutputBindingsErr() {
+
+        JsonObject actual = generatedFunctions.get("get-hello-tuples-err");
+        String str = "{\"bindings\":[{\"type\":\"httpTrigger\",\"authLevel\":\"anonymous\",\"methods\":[\"get\"]," +
+                "\"direction\":\"in\",\"name\":\"httpPayload\",\"route\":\"hello/tuples/err\"},{\"type\":\"http\"," +
+                "\"direction\":\"out\",\"name\":\"outResp\"},{\"type\":\"queue\",\"connection\":" +
+                "\"AzureWebJobsStorage\",\"queueName\":\"queue3\",\"direction\":\"out\",\"name\":\"outResp1\"}]}";
+        JsonElement parse = jsonParser.parse(str);
+        Assert.assertEquals(actual, parse);
+    }
+
+    @Test
     public void testHttpTriggerAnnotationsBindings() {
+
         JsonObject actual = generatedFunctions.get("default-hello123-all");
         String str =
                 "{\"bindings\":[{\"type\":\"httpTrigger\",\"authLevel\":\"function\",\"methods\":[\"DELETE\"," +
@@ -295,6 +327,7 @@ public class FunctionArtifactTest {
 
     @Test
     public void testHttpTriggerAnnotationsTwilioindings() {
+
         JsonObject actual = generatedFunctions.get("default-hello123-twillio");
         String str = "{\"bindings\":[{\"type\":\"httpTrigger\",\"authLevel\":\"function\",\"methods\":[\"DELETE\"," +
                 "\"GET\",\"HEAD\",\"OPTIONS\",\"POST\",\"PUT\"],\"direction\":\"in\",\"name\":\"httpPayload\"," +
@@ -307,6 +340,7 @@ public class FunctionArtifactTest {
 
     @Test
     public void testQueueAnnotationsBindings() {
+
         JsonObject actual = generatedFunctions.get("queue123");
         String str = "{\"bindings\":[{\"type\":\"queueTrigger\",\"connection\":\"TestConnection\"," + "" +
                 "\"queueName\":\"queue2\",\"direction\":\"in\",\"name\":\"inMsg\"},{\"type\":\"queue\"," +
@@ -318,6 +352,7 @@ public class FunctionArtifactTest {
 
     @Test
     public void testCosmosAnnotationsBindings() {
+
         JsonObject actual = generatedFunctions.get("cosmos123");
         String str = "{\"bindings\":[{\"type\":\"cosmosDB\",\"direction\":\"in\",\"name\":\"input\"," +
                 "\"connectionStringSetting\":\"TestDBConn\",\"databaseName\":\"testDB\",\"collectionName\":" +
@@ -333,6 +368,7 @@ public class FunctionArtifactTest {
 
     @Test
     public void testTimerAnnotationsBindings() {
+
         JsonObject actual = generatedFunctions.get("timer123");
         String str =
                 "{\"bindings\":[{\"type\":\"timerTrigger\",\"schedule\":\"*/10 * * * * *\",\"runOnStartup\":true," +
@@ -345,6 +381,7 @@ public class FunctionArtifactTest {
 
     @Test
     public void testBlobAnnotationsBindings() {
+
         JsonObject actual = generatedFunctions.get("blob123");
         String str = "{\"bindings\":[{\"type\":\"blobTrigger\",\"name\":\"blobIn\",\"direction\":\"in\"," +
                 "\"path\":\"bpath1/{name}\",\"connection\":\"TestConnection\"},{\"type\":\"blob\",\"direction\":" +
@@ -356,6 +393,7 @@ public class FunctionArtifactTest {
 
     @Test
     public void testReturnTypeDescRef() {
+
         JsonObject actual = generatedFunctions.get("post-hello-queue");
         String str = "{\"bindings\":[{\"type\":\"httpTrigger\",\"authLevel\":\"anonymous\",\"methods\":[\"post\"]," +
                 "\"direction\":" +
