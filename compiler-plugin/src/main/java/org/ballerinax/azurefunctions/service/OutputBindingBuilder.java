@@ -27,6 +27,8 @@ import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TupleTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.UnionTypeDescriptorNode;
 import org.ballerinax.azurefunctions.Constants;
 import org.ballerinax.azurefunctions.service.blob.BlobOutputBinding;
 import org.ballerinax.azurefunctions.service.cosmosdb.CosmosDBOutputBinding;
@@ -78,6 +80,9 @@ public class OutputBindingBuilder {
         if (type.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             type = types.get(((SimpleNameReferenceNode) type).name().text());
         }
+        if (type.kind() == SyntaxKind.UNION_TYPE_DESC) {
+            type = getNonErrorTypeDesc((UnionTypeDescriptorNode) type);
+        }
         
         if (type.kind() == SyntaxKind.TUPLE_TYPE_DESC) {
             TupleTypeDescriptorNode tupleTypeDesc = (TupleTypeDescriptorNode) type;
@@ -96,5 +101,27 @@ public class OutputBindingBuilder {
         }
 
         return outputBindings;
+    }
+
+    private Node getNonErrorTypeDesc(UnionTypeDescriptorNode typeDescriptorNode) {
+
+        TypeDescriptorNode leftTypeDesc = typeDescriptorNode.leftTypeDesc();
+        TypeDescriptorNode rightTypeDesc = typeDescriptorNode.rightTypeDesc();
+        if (leftTypeDesc.kind() == SyntaxKind.UNION_TYPE_DESC) {
+            return getNonErrorTypeDesc((UnionTypeDescriptorNode) leftTypeDesc);
+        }
+
+        if (rightTypeDesc.kind() == SyntaxKind.UNION_TYPE_DESC) {
+            return getNonErrorTypeDesc((UnionTypeDescriptorNode) rightTypeDesc);
+        }
+
+        if (leftTypeDesc.kind() != SyntaxKind.ERROR_TYPE_DESC) {
+            return leftTypeDesc;
+        }
+        if (rightTypeDesc.kind() != SyntaxKind.ERROR_TYPE_DESC) {
+            return rightTypeDesc;
+        }
+
+        return typeDescriptorNode;
     }
 }
