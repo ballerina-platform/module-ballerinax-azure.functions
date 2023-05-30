@@ -96,6 +96,7 @@ public class FunctionsArtifact {
         }
         JsonArray workerArgs = new JsonArray();
         workerArgs.add("-jar");
+        workerArgs.add(Constants.BALLERINA_DEBUG_FLAGS_KEY);
         httpWorkerDesc.add("arguments", workerArgs);
         httpWorker.add("enableForwardingHttpRequest", new JsonPrimitive(false));
         JsonObject extensionBundle = new JsonObject();
