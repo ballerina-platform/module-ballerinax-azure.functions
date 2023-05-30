@@ -130,4 +130,5 @@ public class Constants {
     public static final String QUERY_ANNOTATION_TYPE = "HttpQuery";
     public static final String MIME_ENTITY_OBJECT = "Entity";
 
+    public static final String BALLERINA_DEBUG_FLAGS_KEY = "%BALLERINA_DEBUG_FLAGS%";
 }
