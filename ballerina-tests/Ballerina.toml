@@ -1,6 +1,6 @@
 [package]
 org = "ballerinax"
-name = "azure.functions_tests"
+name = "azure.functions.tests"
 version = "4.0.0"
 
 [build-options]
