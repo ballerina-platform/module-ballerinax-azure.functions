@@ -34,7 +34,7 @@ public class NativeTest {
 
     private static final Path SOURCE_DIR = Paths.get("src").resolve("test").resolve("resources");
 
-    @Test
+    @Test()
     public void testNativeAzureFunctionsLocal() throws Exception {
         Path handlers = SOURCE_DIR.resolve("handlers");
         Path depedenciesToml = handlers.resolve("Dependencies.toml");
@@ -62,7 +62,7 @@ public class NativeTest {
         Files.deleteIfExists(depedenciesToml);
     }
 
-    @Test
+    @Test(dependsOnMethods = "testNativeAzureFunctionsLocal")
     public void testNativeAzureFunctionsRemote() throws Exception {
         if (isWindows()) {
             //As of now, compiling into linux from windows containers is not supported. Therefore, it'll fail in 
@@ -97,7 +97,7 @@ public class NativeTest {
         return System.getProperty("os.name").toLowerCase().contains("win");
     }
 
-    @Test
+    @Test(dependsOnMethods = "testNativeAzureFunctionsRemote")
     public void testNativeAzureFunctionsBuildFail() throws Exception {
         Path handlers = SOURCE_DIR.resolve("handlers");
         Path depedenciesToml = handlers.resolve("Dependencies.toml");
@@ -113,7 +113,7 @@ public class NativeTest {
         Files.deleteIfExists(depedenciesToml);
     }
 
-    @Test
+    @Test(dependsOnMethods = "testNativeAzureFunctionsBuildFail")
     public void testNativeAzureFunctionsLocalSingle() throws Exception {
         Path handlers = SOURCE_DIR.resolve("single-native");
         Path depedenciesToml = handlers.resolve("Dependencies.toml");
