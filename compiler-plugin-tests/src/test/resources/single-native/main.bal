@@ -1,4 +1,4 @@
-import ballerinax/azure_functions as af;
+import ballerinax/azure.functions as af;
 
 service / on new af:HttpListener() {
     resource function get hello() returns string {

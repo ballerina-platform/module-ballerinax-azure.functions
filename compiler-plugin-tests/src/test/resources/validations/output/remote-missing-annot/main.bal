@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerinax/azure_functions as af;
+import ballerinax/azure.functions as af;
 
 @af:BlobTrigger {
     path: "bpath1/{name}"

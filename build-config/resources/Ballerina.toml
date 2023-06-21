@@ -1,6 +1,6 @@
 [package]
 org = "ballerinax"
-name = "azure_functions"
+name = "azure.functions"
 version = "@toml.version@"
 distribution = "2201.5.0"
 repository = "https://github.com/ballerina-platform/module-ballerinax-azure.functions"
@@ -8,7 +8,7 @@ license = ["Apache-2.0"]
 keywords = ["azure", "functions", "serverless", "cloud"]
 
 [[platform.java11.dependency]]
-path = "../native/build/libs/azure_functions-native-@project.version@.jar"
+path = "../native/build/libs/azure.functions-native-@project.version@.jar"
 
 [[platform.java11.dependency]]
 groupId = "io.ballerina.stdlib"

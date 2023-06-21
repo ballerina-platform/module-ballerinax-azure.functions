@@ -86,7 +86,7 @@ A listener can be declared as follows honoring to the generic
 [listener declaration](https://ballerina.io/spec/lang/2021R1/#section_8.3.1). A listener can be declared inline with a service or using object constructor as follows. 
 
 ```ballerina
-import ballerinax/azure_functions as af;
+import ballerinax/azure.functions as af;
 
 // Listener declaration with object constructor
 listener af:HttpListener ep = new ();
@@ -97,7 +97,7 @@ service "hello" on ep {
 
 
 ```ballerina
-import ballerinax/azure_functions as af;
+import ballerinax/azure.functions as af;
 
 //Inline listener declaration
 service "hello" on new af:HttpListener() {

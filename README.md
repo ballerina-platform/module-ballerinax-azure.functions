@@ -42,7 +42,7 @@ is the default Output binding. Of course, you can override the default behavior 
 return type.
 
 ```ballerina
-import ballerinax/azure_functions as af;
+import ballerinax/azure.functions as af;
 
 service / on new af:HttpListener() {
     resource function get hello(string name) returns string {
@@ -53,7 +53,7 @@ service / on new af:HttpListener() {
 
 In the code sample shown above, it has an empty service path and resource path named `hello`. The accessor is `get`. It
 expects a request with a query parameter for the field `name`. The required artifact generation and data binding will be
-handled by `ballerinax/azure_functions` package automatically.
+handled by `ballerinax/azure.functions` package automatically.
 
 The Azure Functions functionality is implemented as a compiler extension. Thus, artifact generation happens automatically when you build a Ballerina module. Let's see how this works by building the above code.
 
@@ -63,7 +63,7 @@ Compiling source
         wso2/azure_functions_deployment:0.1.0
 
 Generating executable
-        @azure_functions:Function: get-hello
+        @azure.functions:Function: get-hello
 
         Execute the below command to deploy the function locally:
         func start --script-root target/azure_functions --java
@@ -148,7 +148,7 @@ All contributors are encouraged to read the [Ballerina Code of Conduct](https://
 
 ## Useful links
 
-* For more information go to the [`azure_functions` library](https://lib.ballerina.io/ballerinax/azure_functions/latest).
+* For more information go to the [`azure.functions` library](https://lib.ballerina.io/ballerinax/azure.functions/latest).
 * For example demonstrations of the usage, go to [Ballerina By Examples](https://ballerina.io/learn/by-example/).
 * Chat live with us via our [Discord server](https://discord.gg/ballerinalang).
 * Post all technical questions on Stack Overflow with the [#ballerina](https://stackoverflow.com/questions/tagged/ballerina) tag.

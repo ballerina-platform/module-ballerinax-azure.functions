@@ -18,7 +18,7 @@
 apply from: "$rootDir/gradle/javaProject.gradle"
 
 dependencies {
-    implementation project(':azure_functions-compiler-plugin')
+    implementation project(':azure.functions-compiler-plugin')
 
     testImplementation "org.ballerinalang:ballerina-lang:${ballerinaLangVersion}"
     testImplementation "org.ballerinalang:ballerina-parser:${ballerinaLangVersion}"
@@ -81,7 +81,7 @@ jacocoTestReport {
     }
 }
 
-test.dependsOn ":azure_functions-ballerina:build"
+test.dependsOn ":azure.functions-ballerina:build"
 
 
 // Disable publishing artifacts

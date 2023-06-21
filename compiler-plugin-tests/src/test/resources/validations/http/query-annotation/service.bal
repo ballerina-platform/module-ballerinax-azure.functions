@@ -16,7 +16,7 @@
 
 import ballerina/http;
 import ballerina/mime;
-import ballerinax/azure_functions as af;
+import ballerinax/azure.functions as af;
 
 type Caller record {|
     int id;

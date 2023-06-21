@@ -22,7 +22,7 @@ package org.ballerinax.azurefunctions;
  */
 public class Constants {
 
-    public static final String AZURE_FUNCTIONS_MODULE_NAME = "azure_functions";
+    public static final String AZURE_FUNCTIONS_MODULE_NAME = "azure.functions";
     public static final String COLON = ":";
 
     public static final String HTTP = "http";
@@ -85,12 +85,8 @@ public class Constants {
     
     public static final String REMOTE_KEYWORD = "remote";
     
-    public static final String AZURE_FUNCTIONS_BUILD_OPTION = AZURE_FUNCTIONS_MODULE_NAME;
-    public static final String AZURE_FUNCTIONS_LOCAL_BUILD_OPTION = AZURE_FUNCTIONS_MODULE_NAME + "_local";
-    public static final String SERVICE_KEYWORD = "service";
-
-    public static final String AZF_SERVICE = AZURE_FUNCTIONS_MODULE_NAME + ":ResourceService";
-    public static final String DEFAULT = "default";
+    public static final String AZURE_FUNCTIONS_BUILD_OPTION = FUNCTION_DIRECTORY;
+    public static final String AZURE_FUNCTIONS_LOCAL_BUILD_OPTION = AZURE_FUNCTIONS_BUILD_OPTION + "_local";
     public static final String GET = "get";
     public static final String HEAD = "head";
     public static final String OPTIONS = "options";

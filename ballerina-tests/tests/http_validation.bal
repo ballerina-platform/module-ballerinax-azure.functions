@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerinax/azure_functions as af;
+import ballerinax/azure.functions as af;
 import ballerina/http;
 import ballerina/io;
 import ballerina/lang.value;

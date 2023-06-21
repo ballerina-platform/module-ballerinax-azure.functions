@@ -13,7 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import ballerinax/azure_functions as af;
+import ballerinax/azure.functions as af;
 import ballerina/http;
 
 type Person record {|
