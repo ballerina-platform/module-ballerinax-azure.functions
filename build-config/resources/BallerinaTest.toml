@@ -3,6 +3,9 @@ org = "ballerinax"
 name = "azure.functions.tests"
 version = "@toml.version@"
 
+[platform.java11]
+graalvmCompatible = true
+
 [build-options]
 observabilityIncluded = true
 cloud = "azure_functions"

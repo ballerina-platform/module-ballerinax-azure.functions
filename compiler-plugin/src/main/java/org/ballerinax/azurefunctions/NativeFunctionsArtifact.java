@@ -108,7 +108,7 @@ public class NativeFunctionsArtifact extends FunctionsArtifact {
     }
     
     public void buildLocalArtifacts(Path azureFunctionsDir, String jarFileName) {
-        OUT.println("\n\t@azure.functions: Building native executable compatible for the local operating system." +
+        OUT.println("\t@azure.functions: Building native executable compatible for the local operating system." +
                 "This may take a while.\n");
         Path jarPath = azureFunctionsDir.resolve(jarFileName);
         String nativeImageName;
@@ -170,7 +170,7 @@ public class NativeFunctionsArtifact extends FunctionsArtifact {
     }
 
     public void buildRemoteArtifacts(Path azureFunctionsDir, String jarFileName) {
-        OUT.println("\n\t@azure.functions: Building native image compatible for the Cloud using Docker. " +
+        OUT.println("\t@azure.functions: Building native image compatible for the Cloud using Docker. " +
                 "This may take a while.\n");
         String executableName = getExecutableFileName();
         String volumeMount = azureFunctionsDir.toAbsolutePath() + Constants.CONTAINER_OUTPUT_PATH;
