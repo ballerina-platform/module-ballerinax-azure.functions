@@ -94,7 +94,7 @@ public class TestUtils {
 
         List<String> commands = new ArrayList<>(Arrays.asList(BALLERINA_COMMAND.toString(), BUILD, "--offline"));
         if (isNative) {
-            commands.add("--native");
+            commands.add("--graalvm");
         }
 
         if (isLocal) {

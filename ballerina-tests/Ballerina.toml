@@ -1,7 +1,10 @@
 [package]
 org = "ballerinax"
 name = "azure.functions.tests"
-version = "4.0.0"
+version = "4.1.0"
+
+[platform.java11]
+graalvmCompatible = true
 
 [build-options]
 observabilityIncluded = true

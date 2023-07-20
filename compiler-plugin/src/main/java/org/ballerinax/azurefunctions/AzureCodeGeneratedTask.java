@@ -83,13 +83,13 @@ public class AzureCodeGeneratedTask implements CompilerLifecycleTask<CompilerLif
             OUT.println("\n\t@azure.functions:Function: " + String.join(", ", generatedFunctions.keySet()));
             OUT.println("\n\tExecute the command below to deploy the function locally:");
             if (isNative) {
-                OUT.println("\t$ bal build --native --cloud=\"" + Constants.AZURE_FUNCTIONS_LOCAL_BUILD_OPTION + "\"");
+                OUT.println("\t$ bal build --graalvm --cloud=\"" + Constants.AZURE_FUNCTIONS_LOCAL_BUILD_OPTION + "\"");
             }
             OUT.println("\t$ func start --script-root " + Util.getAzureFunctionsRelative(project) +
                             getLocalRuntimeFlag(isNative));
             OUT.println("\n\tExecute the command below to deploy Ballerina Azure Functions:");
             if (isNative) {
-                OUT.println("\t$ bal build --native --cloud=\"" + Constants.AZURE_FUNCTIONS_BUILD_OPTION + "\"");
+                OUT.println("\t$ bal build --graalvm --cloud=\"" + Constants.AZURE_FUNCTIONS_BUILD_OPTION + "\"");
             }
             OUT.println("\t$ func azure functionapp publish <function_app_name> --script-root " +
                     Util.getAzureFunctionsRelative(project) + " \n");
