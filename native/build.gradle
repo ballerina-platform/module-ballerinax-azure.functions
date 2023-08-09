@@ -65,7 +65,6 @@ spotbugsMain {
     if(excludeFile.exists()) {
         excludeFilter = excludeFile
     }
-//    dependsOn(":azure.functions-native:compileJava")
 }
 
 def excludePattern = '**/module-info.java'
