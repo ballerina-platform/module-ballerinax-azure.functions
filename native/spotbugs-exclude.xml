@@ -32,4 +32,33 @@
         <Class name="io.ballerina.stdlib.azure.functions.FunctionCallback"/>
         <Bug pattern="BC_UNCONFIRMED_CAST_OF_RETURN_VALUE"/>
     </Match>
+    <Match>
+        <Class name="io.ballerina.stdlib.azure.functions.builder.ArrayBuilder"/>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.stdlib.azure.functions.builder.BinaryPayloadBuilder"/>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.stdlib.azure.functions.builder.FormPayloadBuilder"/>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.stdlib.azure.functions.builder.StringPayloadBuilder"/>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.stdlib.azure.functions.builder.XmlPayloadBuilder"/>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.stdlib.azure.functions.builder.JsonPayloadBuilder"/>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.stdlib.azure.functions.converter.JsonToRecordConverter"/>
+        <Method name="getRecord"/>
+        <Bug pattern="DCN_NULLPOINTER_EXCEPTION"/>
+    </Match>
 </FindBugsFilter>

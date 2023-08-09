@@ -34,6 +34,8 @@ import io.ballerina.stdlib.azure.functions.Constants;
 import io.ballerina.stdlib.mime.util.EntityHeaderHandler;
 import io.ballerina.stdlib.mime.util.MimeUtil;
 import io.ballerina.stdlib.mime.util.MultipartDecoder;
+import jakarta.activation.MimeType;
+import jakarta.activation.MimeTypeParseException;
 import org.jvnet.mimepull.MIMEConfig;
 import org.jvnet.mimepull.MIMEMessage;
 
@@ -45,9 +47,6 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
-
-import javax.activation.MimeType;
-import javax.activation.MimeTypeParseException;
 
 import static io.ballerina.runtime.api.utils.StringUtils.fromStringArray;
 import static io.ballerina.runtime.api.utils.StringUtils.fromStringSet;
