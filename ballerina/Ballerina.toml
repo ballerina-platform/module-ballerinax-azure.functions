@@ -7,7 +7,7 @@ repository = "https://github.com/ballerina-platform/module-ballerinax-azure.func
 license = ["Apache-2.0"]
 keywords = ["azure", "functions", "serverless", "cloud"]
 
-[[platform.java17.dependency]]
+[platform.java17]
 graalvmCompatible = true
 
 [[platform.java17.dependency]]

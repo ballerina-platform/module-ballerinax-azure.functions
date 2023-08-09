@@ -17,7 +17,7 @@ jobs:
       uses: actions/setup-java@v3
       with:
         distribution: 'adopt'
-        java-version: 17
+        java-version: 17.0.7
     
     - name: Set environment variable
       if: github.event.action == 'check_connector_for_breaking_changes'
@@ -30,8 +30,8 @@ jobs:
       
     - uses: graalvm/setup-graalvm@v1
       with:
-        version: '22.2.0'
-        java-version: '17'
+        java-version: '17.0.7'
+        distribution: 'graalvm'
         components: 'native-image'
         github-token: ${{ secrets.GITHUB_TOKEN }}
         set-java-home: 'false'

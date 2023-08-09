@@ -40,6 +40,10 @@ checkstyleMain {
     enabled false
 }
 
+checkstyleTest {
+    enabled false
+}
+
 compileJava {
     doFirst {
         options.compilerArgs = [
