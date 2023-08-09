@@ -30,8 +30,8 @@ jobs:
       
     - uses: graalvm/setup-graalvm@v1
       with:
-        version: '22.3.3'
         java-version: '17.0.7'
+        distribution: 'graalvm'
         components: 'native-image'
         github-token: ${{ secrets.GITHUB_TOKEN }}
         set-java-home: 'false'
