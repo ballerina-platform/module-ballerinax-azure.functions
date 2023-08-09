@@ -82,8 +82,8 @@ compileJava {
     }
 }
 
-jar.dependsOn(compileJava)
-jar.dependsOn(processResources)
-checkstyleMain.dependsOn(compileJava)
-checkstyleMain.dependsOn(processResources)
-spotbugsMain.dependsOn(compileJava)
+jar.dependsOn(":azure.functions-native:compileJava")
+jar.dependsOn(":azure.functions-native:processResources")
+checkstyleMain.dependsOn(":azure.functions-native:compileJava")
+checkstyleMain.dependsOn(":azure.functions-native:processResources")
+spotbugsMain.dependsOn(":azure.functions-native:compileJava")
