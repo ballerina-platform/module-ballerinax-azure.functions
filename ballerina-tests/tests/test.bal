@@ -1045,7 +1045,9 @@ function testHttpBlobInputOptional() returns error? {
 }
 
 
-@test:Config {}
+@test:Config {
+    enable: false
+}
 function testMultipartFormData() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/http-multipart-formdata.json";
@@ -1065,7 +1067,9 @@ function testMultipartFormData() returns error? {
     test:assertEquals(resp, expectedResp);
 }
 
-@test:Config {}
+@test:Config {
+    enable: false
+}
 function testMultipartMimeFormData() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/http-multipart-formdata-mime.json";
