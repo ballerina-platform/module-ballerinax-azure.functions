@@ -7,13 +7,13 @@ repository = "https://github.com/ballerina-platform/module-ballerinax-azure.func
 license = ["Apache-2.0"]
 keywords = ["azure", "functions", "serverless", "cloud"]
 
-[platform.java11]
+[platform.java17]
 graalvmCompatible = true
 
-[[platform.java11.dependency]]
+[[platform.java17.dependency]]
 path = "../native/build/libs/azure.functions-native-4.1.0-SNAPSHOT.jar"
 
-[[platform.java11.dependency]]
+[[platform.java17.dependency]]
 groupId = "io.ballerina.stdlib"
 artifactId = "mime-native"
 version = "2.8.0"

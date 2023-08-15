@@ -16,7 +16,7 @@
  */
 
 plugins {
-    id 'java'
+    id 'java-library'
     id 'checkstyle'
     id 'com.github.spotbugs'
 }
@@ -42,7 +42,7 @@ dependencies {
     implementation group: 'io.ballerina.stdlib', name: 'mime-native', version: "${stdlibMimeVersion}"
 
     implementation group: 'org.jvnet.mimepull', name: 'mimepull', version: "1.10.0"
-    implementation group: 'com.sun.activation', name: 'jakarta.activation', version: "1.2.2"
+    implementation group: 'com.sun.activation', name: 'jakarta.activation', version: "2.0.1"
 }
 
 checkstyle {
@@ -65,6 +65,7 @@ spotbugsMain {
     if(excludeFile.exists()) {
         excludeFilter = excludeFile
     }
+//    dependsOn(":azure.functions-native:compileJava")
 }
 
 def excludePattern = '**/module-info.java'
@@ -80,3 +81,9 @@ compileJava {
         classpath = files()
     }
 }
+
+jar.dependsOn(":azure.functions-native:compileJava")
+jar.dependsOn(":azure.functions-native:processResources")
+checkstyleMain.dependsOn(":azure.functions-native:compileJava")
+checkstyleMain.dependsOn(":azure.functions-native:processResources")
+spotbugsMain.dependsOn(":azure.functions-native:compileJava")

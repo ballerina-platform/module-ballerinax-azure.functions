@@ -37,5 +37,9 @@
     <Match>
         <Bug pattern="SF_SWITCH_NO_DEFAULT"/>
     </Match>
+
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP, EI_EXPOSE_REP2"/>
+    </Match>
     
 </FindBugsFilter>
