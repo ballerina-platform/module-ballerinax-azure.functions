@@ -14,6 +14,7 @@
 # limitations under the License.
 
 native-image -jar "output/$1" \
+-H:+StaticExecutableWithDynamicLibC \
 --no-fallback \
 -H:Name="$2" \
 -H:Path="output"
