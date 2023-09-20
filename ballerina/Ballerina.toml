@@ -2,7 +2,7 @@
 org = "ballerinax"
 name = "azure.functions"
 version = "4.1.0"
-distribution = "2201.7.0"
+distribution = "2201.8.0"
 repository = "https://github.com/ballerina-platform/module-ballerinax-azure.functions"
 license = ["Apache-2.0"]
 keywords = ["azure", "functions", "serverless", "cloud"]
