@@ -17,7 +17,6 @@
 import ballerina/http;
 import ballerina/io;
 import ballerina/lang.value;
-import ballerina/regex;
 import ballerina/test;
 
 @test:Config {}
@@ -25,7 +24,8 @@ function retrFromAnnotField() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/httpHeaderTest.json";
     string readString = check io:fileReadString(jsonFilePath);
-    string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "retrFromAnnotField");
+    string:RegExp regex = re `(FUNC_NAME)`;
+    string replacedString = regex.replaceAll(readString,"retrFromAnnotField");
     json readJson = check value:fromJsonString(replacedString);
     json resp = check clientEndpoint->post("/post-httpHeader-retrFromAnnotField", readJson);
     json expectedResp = {"Outputs":{"outResp":{"statusCode":201, "headers":{"Content-Type":"text/plain"}, "body":"text/plain"}}, "Logs":[], "ReturnValue":null};
@@ -37,7 +37,8 @@ function retrFromParam() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/httpHeaderTest.json";
     string readString = check io:fileReadString(jsonFilePath);
-    string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "retrFromParam");
+    string:RegExp regex = re `(FUNC_NAME)`;
+    string replacedString = regex.replaceAll(readString,"retrFromParam");
     json readJson = check value:fromJsonString(replacedString);
     json resp = check clientEndpoint->post("/post-httpHeader-retrFromParam", readJson);
     json expectedResp = {"Outputs":{"outResp":{"statusCode":201, "headers":{"Content-Type":"text/plain"}, "body":"az-func-http-test.azurewebsites.net"}}, "Logs":[], "ReturnValue":null};
@@ -49,7 +50,8 @@ function retrSingleVal() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/httpHeaderTest.json";
     string readString = check io:fileReadString(jsonFilePath);
-    string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "retrSingleVal");
+    string:RegExp regex = re `(FUNC_NAME)`;
+    string replacedString = regex.replaceAll(readString,"retrSingleVal");
     json readJson = check value:fromJsonString(replacedString);
     json resp = check clientEndpoint->post("/post-httpHeader-retrSingleVal", readJson);
     json expectedResp = {"Outputs":{"outResp":{"statusCode":201, "headers":{"Content-Type":"application/json"}, "body":15}}, "Logs":[], "ReturnValue":null};
@@ -61,7 +63,8 @@ function retrArrVal() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/httpHeaderTest.json";
     string readString = check io:fileReadString(jsonFilePath);
-    string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "retrArrVal");
+    string:RegExp regex = re `(FUNC_NAME)`;
+    string replacedString = regex.replaceAll(readString,"retrArrVal");
     json readJson = check value:fromJsonString(replacedString);
     json resp = check clientEndpoint->post("/post-httpHeader-retrArrVal", readJson);
     json expectedResp = {"Outputs":{"outResp":{"statusCode":201, "headers":{"Content-Type":"application/json"}, "body":20}}, "Logs":[], "ReturnValue":null};
@@ -73,7 +76,8 @@ function retrArrValStr() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/httpHeaderTest.json";
     string readString = check io:fileReadString(jsonFilePath);
-    string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "retrArrValStr");
+    string:RegExp regex = re `(FUNC_NAME)`;
+    string replacedString = regex.replaceAll(readString, "retrArrValStr");
     json readJson = check value:fromJsonString(replacedString);
     json resp = check clientEndpoint->post("/post-httpHeader-retrArrValStr", readJson);
     json expectedResp = {"Outputs":{"outResp":{"statusCode":201, "headers":{"Content-Type":"text/plain"}, "body":"12"}}, "Logs":[], "ReturnValue":null};
@@ -85,7 +89,8 @@ function retrAsRecord() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/httpHeaderTest.json";
     string readString = check io:fileReadString(jsonFilePath);
-    string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "retrAsRecord");
+    string:RegExp regex = re `(FUNC_NAME)`;
+    string replacedString = regex.replaceAll(readString, "retrAsRecord");
     json readJson = check value:fromJsonString(replacedString);
     json resp = check clientEndpoint->post("/post-httpHeader-retrAsRecord", readJson);
     json expectedResp = {"Outputs":{"outResp":{"statusCode":201, "headers":{"Content-Type":"application/json"}, "body":105}}, "Logs":[], "ReturnValue":null};
@@ -97,7 +102,8 @@ function retrNilable() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/httpHeaderTest.json";
     string readString = check io:fileReadString(jsonFilePath);
-    string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "retrNilable");
+    string:RegExp regex = re `(FUNC_NAME)`;
+    string replacedString = regex.replaceAll(readString, "retrNilable");
     json readJson = check value:fromJsonString(replacedString);
     json resp = check clientEndpoint->post("/post-httpHeader-retrNilable", readJson);
     json expectedResp = {"Outputs":{"outResp":{"statusCode":201, "headers":{"Content-Type":"text/plain"}, "body":"az-func-http-test.azurewebsites.net"}}, "Logs":[], "ReturnValue":null};
@@ -109,7 +115,8 @@ function nnonTreatNilAsOptNilnoHeaderTest() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/httpHeaderTest.json";
     string readString = check io:fileReadString(jsonFilePath);
-    string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "nonTreatNilAsOpt-Nil-noHeaderTest");
+    string:RegExp regex = re `(FUNC_NAME)`;
+    string replacedString = regex.replaceAll(readString, "nonTreatNilAsOpt-Nil-noHeaderTest");
     json readJson = check value:fromJsonString(replacedString);
     json resp = check clientEndpoint->post("/post-httpHeader-nonTreatNilAsOpt-Nil-noHeaderTest", readJson);
     json expectedResp = {"Outputs":{"outResp":{"statusCode":400, "body":"no header value found for 'hoste'", "headers":{"Content-Type":"text/plain"}}}, "Logs":[], "ReturnValue":null};
@@ -121,7 +128,8 @@ function treatNilAsOptnonNilnoHeaderTest() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/httpHeaderTest.json";
     string readString = check io:fileReadString(jsonFilePath);
-    string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "treatNilAsOpt-nonNil-noHeaderTest");
+    string:RegExp regex = re `(FUNC_NAME)`;
+    string replacedString = regex.replaceAll(readString, "treatNilAsOpt-nonNil-noHeaderTest");
     json readJson = check value:fromJsonString(replacedString);
     json resp = check clientEndpoint->post("/post-httpHeader-treatNilAsOpt-nonNil-noHeaderTest", readJson);
     json expectedResp = {"Outputs":{"outResp":{"statusCode":400, "body":"no header value found for 'hoste'", "headers":{"Content-Type":"text/plain"}}}, "Logs":[], "ReturnValue":null};
@@ -133,7 +141,8 @@ function treatNilAsOptnonNilHeaderTest() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/httpHeaderTest.json";
     string readString = check io:fileReadString(jsonFilePath);
-    string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "treatNilAsOpt-nonNil-HeaderTest");
+    string:RegExp regex = re `(FUNC_NAME)`;
+    string replacedString = regex.replaceAll(readString, "treatNilAsOpt-nonNil-HeaderTest");
     json readJson = check value:fromJsonString(replacedString);
     json resp = check clientEndpoint->post("/post-httpHeader-treatNilAsOpt-nonNil-HeaderTest", readJson);
     json expectedResp = {"Outputs":{"outResp":{"statusCode":400, "body":"no header value found for 'hos'", "headers":{"Content-Type":"text/plain"}}}, "Logs":[], "ReturnValue":null};
@@ -145,7 +154,8 @@ function retrAsRecordNoField() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/httpHeaderTest.json";
     string readString = check io:fileReadString(jsonFilePath);
-    string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "retrAsRecordNoField");
+    string:RegExp regex = re `(FUNC_NAME)`;
+    string replacedString = regex.replaceAll(readString, "retrAsRecordNoField");
     json readJson = check value:fromJsonString(replacedString);
     json resp = check clientEndpoint->post("/post-httpHeader-retrAsRecordNoField", readJson);
     json expectedResp = {"Outputs":{"outResp":{"statusCode":400, "body":"no header value found for 'Content-Type1'", "headers":{"Content-Type":"text/plain"}}}, "Logs":[], "ReturnValue":null};
@@ -157,7 +167,8 @@ function treatNilAsOptNilnoHeaderTest() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/httpHeaderTest.json";
     string readString = check io:fileReadString(jsonFilePath);
-    string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "treatNilAsOpt-Nil-noHeaderTest");
+    string:RegExp regex = re `(FUNC_NAME)`;
+    string replacedString = regex.replaceAll(readString, "treatNilAsOpt-Nil-noHeaderTest");
     json readJson = check value:fromJsonString(replacedString);
     json resp = check clientEndpoint->post("/post-httpHeader-treatNilAsOpt-Nil-noHeaderTest", readJson);
     json expectedResp = {"Outputs":{"outResp":{"statusCode":202}},"Logs":[],"ReturnValue":null};
@@ -169,7 +180,8 @@ function treatNilAsOptNilHeaderTest() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/httpHeaderTest.json";
     string readString = check io:fileReadString(jsonFilePath);
-    string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "treatNilAsOpt-Nil-HeaderTest");
+    string:RegExp regex = re `(FUNC_NAME)`;
+    string replacedString = regex.replaceAll(readString, "treatNilAsOpt-Nil-HeaderTest");
     json readJson = check value:fromJsonString(replacedString);
     json resp = check clientEndpoint->post("/post-httpHeader-treatNilAsOpt-Nil-HeaderTest", readJson);
     json expectedResp = {"Outputs":{"outResp":{"statusCode":202}},"Logs":[],"ReturnValue":null};
@@ -181,7 +193,8 @@ function nonTreatNilAsOptnonNilnoHeaderTest() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/httpHeaderTest.json";
     string readString = check io:fileReadString(jsonFilePath);
-    string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "nonTreatNilAsOpt-nonNil-noHeaderTest");
+    string:RegExp regex = re `(FUNC_NAME)`;
+    string replacedString = regex.replaceAll(readString, "nonTreatNilAsOpt-nonNil-noHeaderTest");
     json readJson = check value:fromJsonString(replacedString);
     json resp = check clientEndpoint->post("/post-httpHeader-nonTreatNilAsOpt-nonNil-noHeaderTest", readJson);
     json expectedResp = {"Outputs":{"outResp":{"statusCode":400, "body":"no header value found for 'hoste'", "headers":{"Content-Type":"text/plain"}}}, "Logs":[], "ReturnValue":null};
@@ -193,7 +206,8 @@ function nonTreatNilAsOptnonNilHeaderTest() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/httpHeaderTest.json";
     string readString = check io:fileReadString(jsonFilePath);
-    string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "nonTreatNilAsOpt-nonNil-HeaderTest");
+    string:RegExp regex = re `(FUNC_NAME)`;
+    string replacedString = regex.replaceAll(readString, "nonTreatNilAsOpt-nonNil-HeaderTest");
     json readJson = check value:fromJsonString(replacedString);
     json resp = check clientEndpoint->post("/post-httpHeader-nonTreatNilAsOpt-nonNil-HeaderTest", readJson);
     json expectedResp = {"Outputs":{"outResp":{"statusCode":400, "body":"no header value found for 'hos'", "headers":{"Content-Type":"text/plain"}}}, "Logs":[], "ReturnValue":null};
@@ -205,7 +219,8 @@ function nonTreatNilAsOptNilHeaderTest() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/httpHeaderTest.json";
     string readString = check io:fileReadString(jsonFilePath);
-    string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "nonTreatNilAsOpt-Nil-HeaderTest");
+    string:RegExp regex = re `(FUNC_NAME)`;
+    string replacedString = regex.replaceAll(readString, "nonTreatNilAsOpt-Nil-HeaderTest");
     json readJson = check value:fromJsonString(replacedString);
     json resp = check clientEndpoint->post("/post-httpHeader-nonTreatNilAsOpt-Nil-HeaderTest", readJson);
     json expectedResp = {"Outputs":{"outResp":{"statusCode":202}},"Logs":[],"ReturnValue":null};
@@ -237,7 +252,8 @@ function getHttpAccessorTest() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/httpAccessorTest.json";
     string readString = check io:fileReadString(jsonFilePath);
-    string replacedString = regex:replaceAll(readString, "(ACCESSOR_NAME)", "get");
+    string:RegExp regex = re `(ACCESSOR_NAME)`;
+    string replacedString = regex.replaceAll(readString, "get");
     json readJson = check value:fromJsonString(replacedString);
     json resp = check clientEndpoint->post("/get-hello-httpAccessorTest", readJson);
     json expectedResp = {"Outputs": {"outResp": {"statusCode": 200, "headers": {"Content-Type": "text/plain"}, "body": "Hello from all"}}, "Logs": [], "ReturnValue": null};
@@ -249,7 +265,8 @@ function putHttpAccessorTest() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/httpAccessorTest.json";
     string readString = check io:fileReadString(jsonFilePath);
-    string replacedString = regex:replaceAll(readString, "(ACCESSOR_NAME)", "put");
+    string:RegExp regex = re `(ACCESSOR_NAME)`;
+    string replacedString = regex.replaceAll(readString, "put");
     json readJson = check value:fromJsonString(replacedString);
     json resp = check clientEndpoint->post("/put-hello-httpAccessorTest", readJson);
     json expectedResp = {"Outputs": {"outResp": {"statusCode": 200, "headers": {"Content-Type": "text/plain"}, "body": "Hello from all"}}, "Logs": [], "ReturnValue": null};
@@ -261,7 +278,8 @@ function patchHttpAccessorTest() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/httpAccessorTest.json";
     string readString = check io:fileReadString(jsonFilePath);
-    string replacedString = regex:replaceAll(readString, "(ACCESSOR_NAME)", "patch");
+    string:RegExp regex = re `(ACCESSOR_NAME)`;
+    string replacedString = regex.replaceAll(readString, "patch");
     json readJson = check value:fromJsonString(replacedString);
     json resp = check clientEndpoint->post("/patch-hello-httpAccessorTest", readJson);
     json expectedResp = {"Outputs": {"outResp": {"statusCode": 200, "headers": {"Content-Type": "text/plain"}, "body": "Hello from all"}}, "Logs": [], "ReturnValue": null};
@@ -273,7 +291,8 @@ function deleteHttpAccessorTest() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/httpAccessorTest.json";
     string readString = check io:fileReadString(jsonFilePath);
-    string replacedString = regex:replaceAll(readString, "(ACCESSOR_NAME)", "delete");
+    string:RegExp regex = re `(ACCESSOR_NAME)`;
+    string replacedString = regex.replaceAll(readString, "delete");
     json readJson = check value:fromJsonString(replacedString);
     json resp = check clientEndpoint->post("/delete-hello-httpAccessorTest", readJson);
     json expectedResp = {"Outputs": {"outResp": {"statusCode": 200, "headers": {"Content-Type": "text/plain"}, "body": "Hello from all"}}, "Logs": [], "ReturnValue": null};
@@ -285,7 +304,8 @@ function headHttpAccessorTest() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/httpAccessorTest.json";
     string readString = check io:fileReadString(jsonFilePath);
-    string replacedString = regex:replaceAll(readString, "(ACCESSOR_NAME)", "head");
+    string:RegExp regex = re `(ACCESSOR_NAME)`;
+    string replacedString = regex.replaceAll(readString, "head");
     json readJson = check value:fromJsonString(replacedString);
     json resp = check clientEndpoint->post("/head-hello-httpAccessorTest", readJson);
     json expectedResp = {"Outputs": {"outResp": {"statusCode": 200, "headers": {"Content-Type": "text/plain"}, "body": "Hello from all"}}, "Logs": [], "ReturnValue": null};
@@ -297,7 +317,8 @@ function optionsHttpAccessorTest() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/httpAccessorTest.json";
     string readString = check io:fileReadString(jsonFilePath);
-    string replacedString = regex:replaceAll(readString, "(ACCESSOR_NAME)", "options");
+    string:RegExp regex = re `(ACCESSOR_NAME)`;
+    string replacedString = regex.replaceAll(readString, "options");
     json readJson = check value:fromJsonString(replacedString);
     json resp = check clientEndpoint->post("/options-hello-httpAccessorTest", readJson);
     json expectedResp = {"Outputs": {"outResp": {"statusCode": 200, "headers": {"Content-Type": "text/plain"}, "body": "Hello from all"}}, "Logs": [], "ReturnValue": null};
@@ -398,7 +419,8 @@ function nonHttpResTest1() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/nonHttpResTest.json";
     string readString = check io:fileReadString(jsonFilePath);
-    string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "nonHttpResTest1");
+    string:RegExp regex = re `(FUNC_NAME)`;
+    string replacedString = regex.replaceAll(readString, "nonHttpResTest1");
     json readJson = check value:fromJsonString(replacedString);
     json resp = check clientEndpoint->post("/post-hello-nonHttpResTest1", readJson);
     json expectedResp = {
@@ -420,7 +442,8 @@ function nonHttpResTest2() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/nonHttpResTest.json";
     string readString = check io:fileReadString(jsonFilePath);
-    string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "nonHttpResTest2");
+    string:RegExp regex = re `(FUNC_NAME)`;
+    string replacedString = regex.replaceAll(readString, "nonHttpResTest2");
     json readJson = check value:fromJsonString(replacedString);
     json resp = check clientEndpoint->post("/post-hello-nonHttpResTest2", readJson);
     json expectedResp = {"Outputs": {"outResp": {"statusCode": 201, "headers": {"Content-Type": "application/xml"}, "body": "<book>The Lost World</book>"}}, "Logs": [], "ReturnValue": null};
@@ -432,7 +455,8 @@ function nonHttpResTest3() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/nonHttpResTest.json";
     string readString = check io:fileReadString(jsonFilePath);
-    string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "nonHttpResTest3");
+    string:RegExp regex = re `(FUNC_NAME)`;
+    string replacedString = regex.replaceAll(readString, "nonHttpResTest3");
     json readJson = check value:fromJsonString(replacedString);
     json resp = check clientEndpoint->post("/post-hello-nonHttpResTest3", readJson);
     json expectedResp = {
@@ -454,7 +478,8 @@ function nonHttpResTest4() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/nonHttpResTest.json";
     string readString = check io:fileReadString(jsonFilePath);
-    string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "nonHttpResTest4");
+    string:RegExp regex = re `(FUNC_NAME)`;
+    string replacedString = regex.replaceAll(readString, "nonHttpResTest4");
     json readJson = check value:fromJsonString(replacedString);
     json resp = check clientEndpoint->post("/post-hello-nonHttpResTest4", readJson);
     json expectedResp = {"Outputs": {"outResp": {"statusCode": 201, "headers": {"Content-Type": "application/json"}, "body": 100}}, "Logs": [], "ReturnValue": null};
@@ -466,7 +491,8 @@ function nonHttpResTest6() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/nonHttpResTest.json";
     string readString = check io:fileReadString(jsonFilePath);
-    string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "nonHttpResTest6");
+    string:RegExp regex = re `(FUNC_NAME)`;
+    string replacedString = regex.replaceAll(readString, "nonHttpResTest6");
     json readJson = check value:fromJsonString(replacedString);
     json resp = check clientEndpoint->post("/post-hello-nonHttpResTest6", readJson);
     json expectedResp = {"Outputs": {"outResp": {"statusCode": 201, "headers": {"Content-Type": "application/json"}, "body": 100}}, "Logs": [], "ReturnValue": null};
@@ -478,7 +504,8 @@ function nonHttpResTest7() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/nonHttpResTest.json";
     string readString = check io:fileReadString(jsonFilePath);
-    string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "nonHttpResTest7");
+    string:RegExp regex = re `(FUNC_NAME)`;
+    string replacedString = regex.replaceAll(readString, "nonHttpResTest7");
     json readJson = check value:fromJsonString(replacedString);
     json resp = check clientEndpoint->post("/post-hello-nonHttpResTest7", readJson);
     json expectedResp = {"Outputs": {"outResp": {"statusCode": 201, "headers": {"Content-Type": "application/json"}, "body": true}}, "Logs": [], "ReturnValue": null};
@@ -490,7 +517,8 @@ function nonHttpResTest8() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/nonHttpResTest.json";
     string readString = check io:fileReadString(jsonFilePath);
-    string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "nonHttpResTest8");
+    string:RegExp regex = re `(FUNC_NAME)`;
+    string replacedString = regex.replaceAll(readString, "nonHttpResTest8");
     json readJson = check value:fromJsonString(replacedString);
     json resp = check clientEndpoint->post("/post-hello-nonHttpResTest8", readJson);
     json expectedResp = {
@@ -512,7 +540,8 @@ function nonHttpResTest9() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/nonHttpResTest.json";
     string readString = check io:fileReadString(jsonFilePath);
-    string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "nonHttpResTest9");
+    string:RegExp regex = re `(FUNC_NAME)`;
+    string replacedString = regex.replaceAll(readString, "nonHttpResTest9");
     json readJson = check value:fromJsonString(replacedString);
     json resp = check clientEndpoint->post("/post-hello-nonHttpResTest9", readJson);
     json expectedResp = {
@@ -534,7 +563,8 @@ function nonHttpResTest10() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/nonHttpResTest.json";
     string readString = check io:fileReadString(jsonFilePath);
-    string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "nonHttpResTest10");
+    string:RegExp regex = re `(FUNC_NAME)`;
+    string replacedString = regex.replaceAll(readString, "nonHttpResTest10");
     json readJson = check value:fromJsonString(replacedString);
     json resp = check clientEndpoint->post("/post-hello-nonHttpResTest10", readJson);
     json expectedResp = {
@@ -556,7 +586,8 @@ function nonHttpResTest11() returns error? {
     final http:Client clientEndpoint = check new ("http://localhost:3000");
     string jsonFilePath = "./tests/resources/nonHttpResTest.json";
     string readString = check io:fileReadString(jsonFilePath);
-    string replacedString = regex:replaceAll(readString, "(FUNC_NAME)", "nonHttpResTest11");
+    string:RegExp regex = re `(FUNC_NAME)`;
+    string replacedString = regex.replaceAll(readString, "nonHttpResTest11");
     json readJson = check value:fromJsonString(replacedString);
     json resp = check clientEndpoint->post("/post-hello-nonHttpResTest11", readJson);
     json expectedResp = {
