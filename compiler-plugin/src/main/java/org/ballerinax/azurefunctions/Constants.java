@@ -75,8 +75,8 @@ public class Constants {
     public static final String FUNCTION_JSON_NAME = "function.json";
 
     public static final String BALLERINA_ORG = "ballerina";
-    public static final String NATIVE_BUILDER_IMAGE_NAME = "azure_native_builder";
-    public static final String NATIVE_BUILDER_IMAGE = BALLERINA_ORG + "/" + NATIVE_BUILDER_IMAGE_NAME;
+    public static final String NATIVE_BUILDER_IMAGE_NAME = "azf_native_builder";
+    public static final String NATIVE_BUILDER_IMAGE = BALLERINA_ORG + "/" + NATIVE_BUILDER_IMAGE_NAME + ":" + "java17";
 
     public static final String CONTAINER_OUTPUT_PATH = ":/app/build/output";
     
