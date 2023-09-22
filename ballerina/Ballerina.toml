@@ -11,7 +11,7 @@ keywords = ["azure", "functions", "serverless", "cloud"]
 graalvmCompatible = true
 
 [[platform.java17.dependency]]
-path = "../native/build/libs/azure.functions-native-4.1.0-SNAPSHOT.jar"
+path = "../native/build/libs/azure.functions-native-4.1.0.jar"
 
 [[platform.java17.dependency]]
 groupId = "io.ballerina.stdlib"
