@@ -25,7 +25,7 @@ jobs:
           java-version: 11
       - uses: graalvm/setup-graalvm@v1
         with:
-          version: '22.2.0'
+          version: '22.3.3'
           java-version: '11'
           components: 'native-image'
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -54,7 +54,7 @@ jobs:
           java-version: 11
       - uses: graalvm/setup-graalvm@v1
         with:
-          version: '22.2.0'
+          version: '22.3.3'
           java-version: '11'
           components: 'native-image'
           github-token: ${{ secrets.GITHUB_TOKEN }}
