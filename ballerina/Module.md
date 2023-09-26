@@ -12,7 +12,7 @@ external resource. For more information, go
 to <a href="https://docs.microsoft.com/en-us/azure/azure-functions/functions-triggers-bindings" target="_blank">Azure
 Functions triggers and bindings concepts</a>.
 
-- Http - Trigger and Output Binding
+- HTTP - Trigger and Output Binding
 - Queue - Trigger and Output Binding
 - Blob - Trigger, Input and Output Binding
 - Twilio - Output Binding
@@ -21,7 +21,7 @@ Functions triggers and bindings concepts</a>.
 
 #### Sample Code:
 
-In ballerina, Triggers are represented with listeners. When the `af:HttpListener` gets attached to the service, it
+In Ballerina, Triggers are represented with listeners. When the `af:HttpListener` gets attached to the service, it
 implies that the function is a HTTP Trigger. The resource function behaves exactly the same as a service written
 from `ballerina/http`. It supports `http:Payload, http:Header` annotations for parameters. Input binding annotations can
 be used to annotate parameters to make use of external services in azure. if no annotations are specified for a
