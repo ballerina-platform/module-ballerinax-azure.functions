@@ -1,9 +1,9 @@
 [package]
 org = "ballerinax"
 name = "azure.functions.tests"
-version = "4.1.0"
+version = "4.1.1"
 
-[platform.java17]
+[platform.java21]
 graalvmCompatible = true
 
 [build-options]

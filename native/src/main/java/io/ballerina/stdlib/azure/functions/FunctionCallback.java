@@ -18,20 +18,18 @@
 
 package io.ballerina.stdlib.azure.functions;
 
-import io.ballerina.runtime.api.Future;
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.AnnotatableType;
 import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.MethodType;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.ResourceMethodType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BDecimal;
@@ -50,19 +48,20 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 import static io.ballerina.runtime.api.utils.StringUtils.fromString;
 
 /**
  * {@code FunctionCallback} used to handle the Azure function service method invocation results.
  */
-public class FunctionCallback implements Callback {
+public class FunctionCallback implements CallbackHandler {
 
-    private final Future future;
+    private final CompletableFuture<Object> future;
     private final Module module;
     private final MethodType methodType;
 
-    public FunctionCallback(Future future, Module module, MethodType methodType) {
+    public FunctionCallback(CompletableFuture<Object> future, Module module, MethodType methodType) {
         this.future = future;
         this.module = module;
         this.methodType = methodType;

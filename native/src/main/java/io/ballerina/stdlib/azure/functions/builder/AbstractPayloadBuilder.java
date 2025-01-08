@@ -18,8 +18,8 @@
 
 package io.ballerina.stdlib.azure.functions.builder;
 
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.TypedescType;
 import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.values.BString;
@@ -28,9 +28,10 @@ import io.ballerina.runtime.api.values.BTypedesc;
 import java.util.List;
 import java.util.Locale;
 
-import static io.ballerina.runtime.api.TypeTags.ARRAY_TAG;
-import static io.ballerina.runtime.api.TypeTags.STRING_TAG;
-import static io.ballerina.runtime.api.TypeTags.XML_TAG;
+import static io.ballerina.runtime.api.types.TypeTags.ARRAY_TAG;
+import static io.ballerina.runtime.api.types.TypeTags.STRING_TAG;
+import static io.ballerina.runtime.api.types.TypeTags.XML_TAG;
+
 
 /**
  * The abstract class to build and convert the payload based on the content-type header. If the content type is not

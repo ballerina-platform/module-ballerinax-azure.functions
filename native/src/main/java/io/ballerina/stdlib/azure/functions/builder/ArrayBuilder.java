@@ -18,9 +18,9 @@
 
 package io.ballerina.stdlib.azure.functions.builder;
 
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.values.BString;
 
 /**

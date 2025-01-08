@@ -19,15 +19,13 @@
 package io.ballerina.stdlib.azure.functions;
 
 import io.ballerina.runtime.api.Environment;
-import io.ballerina.runtime.api.Future;
-import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.concurrent.StrandMetadata;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ResourceMethodType;
 import io.ballerina.runtime.api.types.ServiceType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
@@ -36,6 +34,7 @@ import io.ballerina.stdlib.azure.functions.exceptions.BadRequestException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 import static io.ballerina.stdlib.azure.functions.Constants.SERVICE_OBJECT;
 
@@ -70,39 +69,36 @@ public class NativeHttpToAzureAdaptor {
     //Todo See if we can call parent bal method directly and check deprecated usages
     private static Object invokeResourceFunction(Environment env, BObject bHubService, String parentFunctionName,
                                                  BMap<?, ?> body, BString functionName) {
-        Future balFuture = env.markAsync();
-        Module module = ModuleUtils.getModule();
-        StrandMetadata metadata = new StrandMetadata(module.getOrg(), module.getName(), module.getVersion(),
-                parentFunctionName);
-        ServiceType serviceType = (ServiceType) bHubService.getType();
-
-        ResourceMethodType[] resourceMethods = serviceType.getResourceMethods();
-        Optional<ResourceMethodType> resourceMethodType = getResourceMethodType(resourceMethods, functionName);
-        if (resourceMethodType.isEmpty()) {
-            balFuture.complete(Utils.createError(module, "function " + functionName.getValue() + " not found in the " +
-                    "code", Constants.FUNCTION_NOT_FOUND_ERROR));
-            return null;
-        }
-        ResourceMethodType resourceMethod = resourceMethodType.get();
-        try {
-            BMap<?, ?> serviceAnnotations = serviceType.getAnnotations();
-            HttpResource httpResource = new HttpResource(resourceMethod, body, serviceAnnotations);
-            Object[] args = httpResource.getArgList();
-            if (serviceType.isIsolated() && resourceMethod.isIsolated()) {
-                env.getRuntime().invokeMethodAsyncConcurrently(
-                        bHubService, resourceMethod.getName(), null, metadata,
-                        new FunctionCallback(balFuture, module, resourceMethod), null, PredefinedTypes.TYPE_NULL,
-                        args);
-            } else {
-                env.getRuntime().invokeMethodAsyncSequentially(
-                        bHubService, resourceMethod.getName(), null, metadata,
-                        new FunctionCallback(balFuture, module, resourceMethod), null, PredefinedTypes.TYPE_NULL,
-                        args);
+        return env.yieldAndRun(() -> {
+            ServiceType serviceType = (ServiceType) bHubService.getType();
+            ResourceMethodType[] resourceMethods = serviceType.getResourceMethods();
+            Optional<ResourceMethodType> resourceMethodType = getResourceMethodType(resourceMethods, functionName);
+            if (resourceMethodType.isEmpty()) {
+                return Utils.createError(ModuleUtils.getModule(), "function " + functionName.getValue() +
+                        " not found in the " + "code", Constants.FUNCTION_NOT_FOUND_ERROR);
             }
-        } catch (BadRequestException e) {
-            balFuture.complete(Utils.createError(module, e.getMessage(), e.getType()));
-        }
-        return null;
+            ResourceMethodType resourceMethod = resourceMethodType.get();
+            try {
+                BMap<?, ?> serviceAnnotations = serviceType.getAnnotations();
+                HttpResource httpResource = new HttpResource(resourceMethod, body, serviceAnnotations);
+                Object[] args = httpResource.getArgList();
+                CompletableFuture<Object> balFuture = new CompletableFuture<>();
+                FunctionCallback functionCallback = new FunctionCallback(balFuture,
+                        ModuleUtils.getModule(), resourceMethod);
+                boolean isIsolated = serviceType.isIsolated() && resourceMethod.isIsolated();
+                try {
+                    Object result = env.getRuntime().callMethod(bHubService, resourceMethod.getName(),
+                            new StrandMetadata(isIsolated, null), args);
+                    functionCallback.notifySuccess(result);
+                    return ModuleUtils.getResult(balFuture);
+                } catch (BError bError) {
+                    functionCallback.notifyFailure(bError);
+                    return ModuleUtils.getResult(balFuture);
+                }
+            } catch (BadRequestException e) {
+                return Utils.createError(ModuleUtils.getModule(), e.getMessage(), e.getType());
+            }
+        });
     }
 
     private static Optional<ResourceMethodType> getResourceMethodType(ResourceMethodType[] types,

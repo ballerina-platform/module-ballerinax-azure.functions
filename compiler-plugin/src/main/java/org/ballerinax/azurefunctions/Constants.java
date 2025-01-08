@@ -76,7 +76,7 @@ public class Constants {
 
     public static final String BALLERINA_ORG = "ballerina";
     public static final String NATIVE_BUILDER_IMAGE_NAME = "azf_native_builder";
-    public static final String NATIVE_BUILDER_IMAGE = BALLERINA_ORG + "/" + NATIVE_BUILDER_IMAGE_NAME + ":" + "java17";
+    public static final String NATIVE_BUILDER_IMAGE = BALLERINA_ORG + "/" + NATIVE_BUILDER_IMAGE_NAME + ":" + "java21";
 
     public static final String CONTAINER_OUTPUT_PATH = ":/app/build/output";
     

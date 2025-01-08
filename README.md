@@ -10,7 +10,7 @@ Annotation based Azure Functions extension implementation for Ballerina.
 ## Azure Function App Setup
 
 * An Azure "Function App" needs to be created in a given resource group with the following requirements
-   - Runtime stack - "Java 17"
+   - Runtime stack - "Java 21"
    - Hosting operating system - "Windows" (default; Linux is not supported in Azure for custom handlers at the moment)
 
 ## Supported Triggers and bindings:
@@ -77,7 +77,7 @@ Generating executable
 
 ### Set Up the prerequisites
 
-1. Download and install Java SE Development Kit (JDK) version 17 (from one of the following locations).
+1. Download and install Java SE Development Kit (JDK) version 21 (from one of the following locations).
 
   * [Oracle](https://www.oracle.com/java/technologies/downloads/)
 

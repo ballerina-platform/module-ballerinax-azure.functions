@@ -9,7 +9,7 @@ This module provides an annotation-based [Azure Functions](https://azure.microso
 ### Azure Setup
 
 * An Azure "Function App" needs to be created in a given resource group with the following requirements
-   - Runtime stack - "Java 17"
+   - Runtime stack - "Java 21"
    - Hosting operating system - "Windows" (This is the default and Linux is not supported in Azure for custom handlers at the moment)
 
 ## Supported Triggers and bindings:

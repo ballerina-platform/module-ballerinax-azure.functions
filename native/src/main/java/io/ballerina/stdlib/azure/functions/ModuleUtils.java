@@ -20,6 +20,10 @@ package io.ballerina.stdlib.azure.functions;
 
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.values.BError;
+
+import java.util.concurrent.CompletableFuture;
 
 /**
  * {@code ModuleUtils} contains the utility methods for the module.
@@ -36,5 +40,18 @@ public class ModuleUtils {
 
     public static Module getModule() {
         return module;
+    }
+
+    public static Object getResult(CompletableFuture<Object> balFuture) {
+        try {
+            return balFuture.get();
+        } catch (BError error) {
+            throw error;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw ErrorCreator.createError(e);
+        } catch (Throwable throwable) {
+            throw ErrorCreator.createError(throwable);
+        }
     }
 }
