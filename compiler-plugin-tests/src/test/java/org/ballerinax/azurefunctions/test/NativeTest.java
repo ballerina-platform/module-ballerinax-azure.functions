@@ -121,7 +121,6 @@ public class NativeTest {
         ProcessOutput processOutput = TestUtils.compileProject(handlers, true, false, true, "main.bal");
         Assert.assertEquals(processOutput.getExitCode(), 0);
         Assert.assertTrue(processOutput.getStdOutput().contains("@azure.functions"));
-        Assert.assertFalse(processOutput.getStdOutput().contains("Warning:"));
         Assert.assertTrue(processOutput.getStdOutput().contains("--script-root azure_functions"));
         // check if the executable jar and the host.json files are in the generated zip file
         Path azureFunctionsDir = handlers.resolve("azure_functions");

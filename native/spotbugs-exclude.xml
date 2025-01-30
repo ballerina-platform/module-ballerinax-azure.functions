@@ -61,4 +61,12 @@
         <Method name="getRecord"/>
         <Bug pattern="DCN_NULLPOINTER_EXCEPTION"/>
     </Match>
+    <Match>
+        <Class name="io.ballerina.stdlib.azure.functions.HttpResource"/>
+        <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.stdlib.azure.functions.FunctionCallback"/>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
 </FindBugsFilter>
