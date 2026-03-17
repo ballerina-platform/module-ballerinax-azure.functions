@@ -5,7 +5,7 @@ version = "@toml.version@"
 distribution = "2201.11.0-20241117-133400-a3054b77"
 repository = "https://github.com/ballerina-platform/module-ballerinax-azure.functions"
 license = ["Apache-2.0"]
-keywords = ["azure", "functions", "serverless", "cloud", "Vendor/Microsoft", "Area/Cloud & Infrastructure", "Type/Other"]
+keywords = ["Vendor/Microsoft", "Area/Cloud & Infrastructure", "Type/Connector", "Type/Trigger", "serverless"]
 
 [platform.java21]
 graalvmCompatible = true
