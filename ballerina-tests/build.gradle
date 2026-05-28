@@ -18,6 +18,12 @@
 apply plugin: 'java'
 
 import org.apache.tools.ant.taskdefs.condition.Os
+import org.gradle.process.ExecOperations
+import javax.inject.Inject
+
+abstract class BallerinaTestsExecHelper {
+    @Inject abstract ExecOperations getExecOperations()
+}
 
 description = 'Ballerinax - Azure Functions Tests'
 
@@ -75,8 +81,9 @@ task updateTomlVerions {
 }
 
 task commitTomlFiles {
+    def execHelper = project.objects.newInstance(BallerinaTestsExecHelper)
     doLast {
-        project.exec {
+        execHelper.execOperations.exec {
             ignoreExitValue true
             if (Os.isFamily(Os.FAMILY_WINDOWS)) {
                 commandLine 'cmd', '/c', "git commit -m \"[Automated] Update the native jar versions\" Ballerina.toml Dependencies.toml"
@@ -130,7 +137,8 @@ task ballerinaTest {
     finalizedBy(commitTomlFiles)
 
     doLast {
-        exec {
+        def execHelper = project.objects.newInstance(BallerinaTestsExecHelper)
+        execHelper.execOperations.exec {
             workingDir project.projectDir
             environment "JAVA_OPTS", "-DBALLERINA_DEV_COMPILE_BALLERINA_ORG=true"
             environment "FUNCTIONS_CUSTOMHANDLER_PORT", "3000"
