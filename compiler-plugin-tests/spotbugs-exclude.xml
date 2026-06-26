@@ -39,5 +39,9 @@
     <Match>
         <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
     </Match>
+    <!-- Pre-existing issues surfaced by SpotBugs 4.9.x (bundled in plugin >= 6.2.0) -->
+    <Match>
+        <BugCode name="THROWS"/>
+    </Match>
 
 </FindBugsFilter>

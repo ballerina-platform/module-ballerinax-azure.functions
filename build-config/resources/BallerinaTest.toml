@@ -3,7 +3,7 @@ org = "ballerinax"
 name = "azure.functions.tests"
 version = "@toml.version@"
 
-[platform.java21]
+[platform.java25]
 graalvmCompatible = true
 
 [build-options]
