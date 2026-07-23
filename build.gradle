@@ -40,6 +40,15 @@ allprojects {
     repositories {
         mavenLocal()
         maven {
+            url = 'https://maven3-upgrade.wso2.org/nexus/repository/releases/'
+        }
+        maven {
+            url = 'https://maven3-upgrade.wso2.org/nexus/repository/snapshots/'
+        }
+        maven {
+            url = 'https://maven3-upgrade.wso2.org/nexus/repository/wso2-public/'
+        }
+        maven {
             url = 'https://maven.wso2.org/nexus/content/repositories/releases/'
         }
 
@@ -50,15 +59,10 @@ allprojects {
         maven {
             url = 'https://maven.wso2.org/nexus/content/groups/wso2-public/'
         }
-
         maven {
             url = 'https://repo.maven.apache.org/maven2'
         }
-        
-        /* ballerina-lang staging repo */
-        maven {
-            url = 'https://maven.wso2.org/nexus/content/repositories/orgballerinalang-1636'
-        }
+
     }
 }
 
@@ -69,9 +73,9 @@ subprojects {
         repositories {
             maven {
                 if (project.version.endsWith('-SNAPSHOT')) {
-                    url "https://maven.wso2.org/nexus/content/repositories/snapshots/"
+                    url "https://maven3-upgrade.wso2.org/nexus/repository/snapshots/"
                 } else {
-                    url "https://maven.wso2.org/nexus/service/local/staging/deploy/maven2/"
+                    url "https://maven3-upgrade.wso2.org/nexus/repository/releases/"
                 }
                 credentials {
                     username System.getenv("NEXUS_USERNAME")
