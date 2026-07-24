@@ -40,6 +40,9 @@ allprojects {
     repositories {
         mavenLocal()
         maven {
+            url = 'https://maven3-upgrade.wso2.org/nexus/repository/ballerina-test-releases/'
+        }
+        maven {
             url = 'https://maven3-upgrade.wso2.org/nexus/repository/releases/'
         }
         maven {
@@ -72,11 +75,7 @@ subprojects {
     publishing {
         repositories {
             maven {
-                if (project.version.endsWith('-SNAPSHOT')) {
-                    url "https://maven3-upgrade.wso2.org/nexus/repository/snapshots/"
-                } else {
-                    url "https://maven3-upgrade.wso2.org/nexus/repository/releases/"
-                }
+                url "https://maven3-upgrade.wso2.org/nexus/repository/ballerina-test-releases/"
                 credentials {
                     username System.getenv("NEXUS_USERNAME")
                     password System.getenv("NEXUS_PASSWORD")
