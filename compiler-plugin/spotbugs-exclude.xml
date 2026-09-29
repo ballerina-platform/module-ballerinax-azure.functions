@@ -41,5 +41,23 @@
     <Match>
         <Bug pattern="EI_EXPOSE_REP, EI_EXPOSE_REP2"/>
     </Match>
-    
+
+    <!-- getOutputBinding()'s default branch is an unreachable-in-practice guard over a closed
+         set of known output-binding annotation constants; throwing RuntimeException there is an
+         intentional internal invariant check, not a design smell. -->
+    <Match>
+        <Class name="org.ballerinax.azurefunctions.service.OutputBindingBuilder"/>
+        <Method name="getOutputBinding"/>
+        <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION"/>
+    </Match>
+
+    <!-- getBuilder()'s default branch is an unreachable-in-practice guard over a closed set of
+         known trigger-listener annotation constants; throwing RuntimeException there is an
+         intentional internal invariant check, not a design smell. -->
+    <Match>
+        <Class name="org.ballerinax.azurefunctions.service.ServiceHandler"/>
+        <Method name="getBuilder"/>
+        <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION"/>
+    </Match>
+
 </FindBugsFilter>
