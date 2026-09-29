@@ -69,4 +69,29 @@
         <Class name="io.ballerina.stdlib.azure.functions.FunctionCallback"/>
         <Bug pattern="EI_EXPOSE_REP2"/>
     </Match>
+
+    <!-- processHeaderParam()'s else branch is an input-validation guard against a malformed
+         @Header annotation (more than one "name" field); throwing RuntimeException there is
+         intentional, not a design smell. -->
+    <Match>
+        <Class name="io.ballerina.stdlib.azure.functions.HttpResource"/>
+        <Method name="processHeaderParam"/>
+        <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION"/>
+    </Match>
+
+    <!-- getRecord() intentionally re-throws a caught NullPointerException as a RuntimeException
+         with a clearer message; not a framework override. -->
+    <Match>
+        <Class name="io.ballerina.stdlib.azure.functions.converter.JsonToRecordConverter"/>
+        <Method name="getRecord"/>
+        <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION"/>
+    </Match>
+
+    <!-- getFormParamMap()'s guard rejects malformed (non key=value) form-encoded data;
+         throwing RuntimeException there is an intentional input-validation check. -->
+    <Match>
+        <Class name="io.ballerina.stdlib.azure.functions.converter.UrlEncodedStringToMapConverter"/>
+        <Method name="getFormParamMap"/>
+        <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION"/>
+    </Match>
 </FindBugsFilter>
